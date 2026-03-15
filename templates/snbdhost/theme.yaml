@@ -1,0 +1,4 @@
+name: "SNBD Host"
+author: "SNBD Host"
+config:
+  parent: twenty-one
