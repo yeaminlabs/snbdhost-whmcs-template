@@ -9,6 +9,9 @@
   🖥️ SNBD Host — WHMCS Portal Theme
 </h1>
 
+ <br>
+ <h3>Caution : This is a beta release and lot of functions are still not working </h3>
+
 <p align="center">
   <strong>A fully custom, modern SaaS-style WHMCS client area theme for <a href="https://snbdhost.com">SNBD Host</a>.</strong><br/>
   Built with Bootstrap 5, Inter typography, and a bold Red &amp; White brand system.
@@ -187,7 +190,7 @@ SNBDHOST Portal template/
 
 ```bash
 # 1. Clone or download this repository
-git clone https://github.com/your-org/snbdhost-portal-theme.git
+git clone https://github.com/yeaminlabs/snbdhost-whmcs-template.git
 
 # 2. Copy the client area theme to your WHMCS templates directory
 cp -r templates/snbdhost /path/to/whmcs/templates/

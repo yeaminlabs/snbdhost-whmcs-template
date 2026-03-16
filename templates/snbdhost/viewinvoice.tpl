@@ -10,7 +10,7 @@
     <style>
         * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
         body {
-            background: #f5f5f5;
+            background: #F7F7F4;
             color: #1a1a1a;
             padding: 2.5rem 1rem;
             min-height: 100vh;
@@ -20,7 +20,7 @@
             margin: 0 auto;
             background: #fff;
             border: 1px solid #e0e0e0;
-            border-top: 4px solid #e53935;
+            border-top: 4px solid #BA1114;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 24px rgba(0,0,0,0.08);
@@ -38,10 +38,10 @@
             display: flex; align-items: center; gap: 0.625rem;
             font-size: 1.35rem; font-weight: 700; color: #1a1a1a;
         }
-        .inv-logo i { color: #e53935; font-size: 1.5rem; }
+        .inv-logo i { color: #BA1114; font-size: 1.5rem; }
         .inv-number { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
         .inv-meta-row { font-size: 0.875rem; color: #555; margin-top: 4px; }
-        .inv-date-due { color: #c62828; font-weight: 600; }
+        .inv-date-due { color: #B21C1C; font-weight: 600; }
 
         .inv-status-badge {
             display: inline-block;
@@ -51,7 +51,7 @@
             font-weight: 600;
             margin-top: 0.5rem;
         }
-        .inv-status-unpaid { background: rgba(198,40,40,0.1); color: #c62828; border: 1px solid rgba(198,40,40,0.25); }
+        .inv-status-unpaid { background: rgba(198,40,40,0.1); color: #B21C1C; border: 1px solid rgba(198,40,40,0.25); }
         .inv-status-paid   { background: rgba(46,125,50,0.1);  color: #2e7d32; border: 1px solid rgba(46,125,50,0.25); }
         .inv-status-other  { background: rgba(100,100,100,0.08); color: #555; border: 1px solid #ddd; }
 
@@ -80,7 +80,7 @@
             text-transform: uppercase; letter-spacing: 0.5px;
             color: #888;
             padding: 0.5rem 0;
-            border-bottom: 2px solid #e53935;
+            border-bottom: 2px solid #BA1114;
         }
         .inv-table tbody td {
             padding: 0.75rem 0;
@@ -107,8 +107,8 @@
             border: none;
         }
         .inv-totals-table td:last-child { text-align: right; }
-        .inv-total-row td { color: #1a1a1a; font-weight: 700; font-size: 1.1rem; border-top: 2px solid #e53935; padding-top: 0.75rem; }
-        .inv-total-amount { color: #e53935 !important; }
+        .inv-total-row td { color: #1a1a1a; font-weight: 700; font-size: 1.1rem; border-top: 2px solid #BA1114; padding-top: 0.75rem; }
+        .inv-total-amount { color: #BA1114 !important; }
 
         /* ── Payment Section ── */
         .inv-actions {
@@ -120,79 +120,63 @@
             align-items: center;
             gap: 1rem;
         }
-
-        /* Gateway Picker */
-        .gw-picker-label {
+    
+        /* Payment Method Row */
+        .inv-payment-method-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 0.5rem;
+        }
+        .inv-pm-label {
             font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.2px;
             color: #999;
-            margin-bottom: 0.25rem;
         }
-        .gw-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            justify-content: center;
-        }
-        .gw-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.45rem 1.1rem;
-            border-radius: 50rem;
+        .inv-pm-select {
+            min-width: 220px;
+            padding: 0.5rem 2rem 0.5rem 0.85rem;
+            border-radius: 8px;
             border: 1.5px solid #ddd;
             background: #fff;
-            color: #555;
-            font-size: 0.8125rem;
+            color: #333;
+            font-size: 0.875rem;
             font-weight: 500;
+            font-family: 'Inter', sans-serif;
             cursor: pointer;
-            transition: all 0.18s;
-            user-select: none;
-            white-space: nowrap;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            appearance: auto;
+            -webkit-appearance: auto;
         }
-        .gw-pill:hover {
-            border-color: #e53935;
-            color: #e53935;
-            background: #fff8f8;
+        .inv-pm-select:focus {
+            outline: none;
+            border-color: #BA1114;
+            box-shadow: 0 0 0 3px rgba(229,57,53,0.12);
         }
-        .gw-pill.active {
-            border-color: #e53935;
-            background: #e53935;
-            color: #fff;
-            box-shadow: 0 3px 10px rgba(229,57,53,0.28);
-        }
-        .gw-pill .gw-dot {
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.55;
-        }
-        .gw-pill.active .gw-dot { opacity: 1; }
-
-        /* Gateway panels */
-        .gw-panels { width: 100%; }
-        .gw-panel {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.6rem;
-            animation: gwFadeIn 0.22s ease;
-        }
-        .gw-panel.active { display: flex; }
-        @keyframes gwFadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .inv-pm-select:hover {
+            border-color: #BA1114;
         }
 
-        /* Override default WHMCS pay button inside panel */
-        .gw-panel input[type=submit],
-        .gw-panel button[type=submit],
-        .gw-panel .btn-primary,
-        .gw-panel a[href*="viewinvoice"] {
-            background: #e53935 !important;
-            border-color: #e53935 !important;
+        .gw-divider {
+            width: 100%; height: 1px;
+            background: #eee; margin: 0.25rem 0;
+        }
+
+        /* Pay button */
+        .inv-actions input[type=submit],
+        .inv-actions button[type=submit],
+        .inv-actions .btn-primary,
+        .inv-actions .btn-success,
+        .inv-actions a.btn {
+            background: #BA1114 !important;
+            border-color: #BA1114 !important;
             color: #fff !important;
             border-radius: 50rem !important;
             padding: 0.7rem 2.5rem !important;
@@ -205,13 +189,14 @@
             display: inline-block !important;
             border: none !important;
         }
-        .gw-panel input[type=submit]:hover,
-        .gw-panel button[type=submit]:hover,
-        .gw-panel .btn-primary:hover { background: #c62828 !important; box-shadow: 0 6px 20px rgba(229,57,53,0.4) !important; transform: translateY(-1px); }
-
-        .gw-divider {
-            width: 100%; height: 1px;
-            background: #eee; margin: 0.25rem 0;
+        .inv-actions input[type=submit]:hover,
+        .inv-actions button[type=submit]:hover,
+        .inv-actions .btn-primary:hover,
+        .inv-actions .btn-success:hover,
+        .inv-actions a.btn:hover {
+            background: #B21C1C !important;
+            box-shadow: 0 6px 20px rgba(229,57,53,0.4) !important;
+            transform: translateY(-1px);
         }
 
         /* Standard pay/print/back */
@@ -226,14 +211,32 @@
             text-decoration: none;
             transition: all 0.15s;
         }
-        .btn-print:hover { background: #fff3f3; border-color: #e53935; color: #e53935; }
+        .btn-print:hover { background: #fff3f3; border-color: #BA1114; color: #BA1114; }
         .inv-back {
             font-size: 0.8125rem;
             color: #888;
             text-decoration: none;
             transition: color 0.15s;
         }
-        .inv-back:hover { color: #e53935; }
+        .inv-back:hover { color: #BA1114; }
+
+        /* Spinner overlay for payment method change */
+        .inv-pm-loading {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: #999;
+        }
+        .inv-pm-loading.active { display: flex; }
+        .inv-pm-spinner {
+            width: 14px; height: 14px;
+            border: 2px solid #ddd;
+            border-top-color: #BA1114;
+            border-radius: 50%;
+            animation: pmSpin 0.6s linear infinite;
+        }
+        @keyframes pmSpin { to { transform: rotate(360deg); } }
 
         @media print {
             body { background: #fff; padding: 0; }
@@ -256,6 +259,20 @@
             <div class="inv-number">{$pagetitle}</div>
             <div class="inv-meta-row">{$LANG.invoicesdatecreated}: {$date}</div>
             <div class="inv-meta-row inv-date-due">{$LANG.invoicesdatedue}: {$datedue}</div>
+            
+            {if $allowchangegateway}
+             <div class="inv-meta-row" style="margin-top: 8px;">
+                 <strong>Payment Method:</strong>
+                 <form method="post" action="{$smarty.server.PHP_SELF}?id={$invoiceid}" id="frmPaymentMethod" style="display:inline-block; margin-left: 5px;">
+                     {$gatewaydropdown|replace:'<select ':'<select class="form-select form-select-sm" style="display:inline-block; width:auto;" '}
+                 </form>
+             </div>
+            {elseif $paymentmethod}
+             <div class="inv-meta-row" style="margin-top: 8px;">
+                 <strong>Payment Method:</strong> {$paymentmethod}
+             </div>
+            {/if}
+
             <div>
                 {if $status eq "Unpaid"}
                     <span class="inv-status-badge inv-status-unpaid"><i class="fas fa-exclamation-circle me-1"></i>Unpaid</span>
@@ -340,41 +357,8 @@
 
         {if $status eq "Unpaid" || $status eq "unpaid"}
 
-            {* ── Gateway Selector ── *}
-            {if $gateways}
-
-                {* Count gateways to decide whether to show picker *}
-                {assign var="gwCount" value=$gateways|@count}
-
-                {if $gwCount gt 1}
-                <div class="gw-picker-label">Choose Payment Method</div>
-                <div class="gw-pills" id="gwPills">
-                    {foreach from=$gateways item=gw name=gwloop}
-                    <button class="gw-pill{if $smarty.foreach.gwloop.first} active{/if}"
-                            type="button"
-                            onclick="selectGateway('{$gw.sysname}', this)">
-                        <span class="gw-dot"></span>
-                        {$gw.displayname}
-                    </button>
-                    {/foreach}
-                </div>
-                <div class="gw-divider"></div>
-                {/if}
-
-                {* ── Payment Panels (one per gateway) ── *}
-                <div class="gw-panels" id="gwPanels">
-                    {foreach from=$gateways item=gw name=gwloop}
-                    <div class="gw-panel{if $smarty.foreach.gwloop.first} active{/if}"
-                         id="gwPanel-{$gw.sysname}">
-                        {$gw.form}
-                    </div>
-                    {/foreach}
-                </div>
-
-            {else}
-                {* Fallback: no gateways array – use legacy paymentbutton *}
-                <div class="w-100 text-center">{$paymentbutton}</div>
-            {/if}
+            {* ── Pay Button ── *}
+            <div class="w-100 text-center">{$paymentbutton}</div>
 
         {/if}
 
@@ -383,60 +367,12 @@
             <i class="fas fa-print me-2"></i>
             {if $status eq "Paid"}Print Receipt{else}Print Invoice{/if}
         </a>
-        <a href="clientarea.php?action=invoices" class="inv-back">
+        <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="inv-back">
             <i class="fas fa-arrow-left me-1"></i>Back to Invoices
         </a>
     </div>
 
-    {if $status eq "Unpaid" || $status eq "unpaid"}
-    <script>
-{literal}
-    (function () {
-        'use strict';
-
-        // Activate a gateway panel and highlight its pill.
-        // sysname: gateway sysname used as panel id suffix
-        // pill: the clicked pill element (may be null on init)
-        function selectGateway(sysname, pill) {
-            // Deactivate all panels
-            document.querySelectorAll('.gw-panel').forEach(function (p) {
-                p.classList.remove('active');
-            });
-            // Deactivate all pills
-            document.querySelectorAll('.gw-pill').forEach(function (p) {
-                p.classList.remove('active');
-            });
-
-            // Activate the selected panel
-            var panel = document.getElementById('gwPanel-' + sysname);
-            if (panel) { panel.classList.add('active'); }
-
-            // Activate the pill
-            if (pill) { pill.classList.add('active'); }
-
-            // Persist choice in sessionStorage so a refresh remembers it
-            try { sessionStorage.setItem('snbd_gw_choice', sysname); } catch (e) {}
-        }
-
-        // Expose so inline onclick can reach it
-        window.selectGateway = selectGateway;
-
-        // On page load, restore last choice if available
-        document.addEventListener('DOMContentLoaded', function () {
-            var saved;
-            try { saved = sessionStorage.getItem('snbd_gw_choice'); } catch (e) {}
-            if (saved) {
-                var panel = document.getElementById('gwPanel-' + saved);
-                if (panel) {
-                    var pill = document.querySelector('.gw-pill[onclick*="' + saved + '"]');
-                    selectGateway(saved, pill);
-                }
-            }
-        });
-    })();
-{/literal}
-    </script>
-    {/if}
+    <!-- WHMCS natively handles the gateway dropdown submission -->
 
 </div>
 

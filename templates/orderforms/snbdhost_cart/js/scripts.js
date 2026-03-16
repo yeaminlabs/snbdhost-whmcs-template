@@ -2714,7 +2714,7 @@ jQuery(document).ready(function(){
         jQuery(firstInput).parents('.option').addClass('option-selected');
     }
     jQuery("#domain" + jQuery(".domain-selection-options input:checked").val()).show();
-    jQuery(".domain-selection-options input").on('ifChecked', function(event){
+    jQuery(".domain-selection-options input").on('ifChecked change', function(event){
         jQuery(".domain-selection-options .option").removeClass('option-selected');
         jQuery(this).parents('.option').addClass('option-selected');
         jQuery(".domain-input-group").hide();

@@ -11,14 +11,14 @@
    ---------------------------------------------------------------- */
 :root {
   /* Brand */
-  --brand-primary: #e53935;
-  --brand-primary-rgb: 229, 57, 53;
-  --brand-hover: #c62828;
-  --brand-light: rgba(229, 57, 53, 0.06);
-  --brand-light-border: rgba(229, 57, 53, 0.2);
+  --brand-primary: #BA1114;
+  --brand-primary-rgb: 186, 17, 20;
+  --brand-hover: #B21C1C;
+  --brand-light: #E9DDDC;
+  --brand-light-border: rgba(186, 17, 20, 0.2);
 
   /* White Mode (Default) — Red + White, No Blue */
-  --bg-body: #f5f5f5;
+  --bg-body: #F7F7F4;
   --bg-surface: #ffffff;
   --bg-elevated: #fafafa;
   --bg-input: #ffffff;
@@ -35,8 +35,8 @@
   --warning-bg: rgba(230, 81, 0, 0.08);
   --danger: #c62828;
   --danger-bg: rgba(198, 40, 40, 0.08);
-  --info: #e53935;
-  --info-bg: rgba(229, 57, 53, 0.06);
+  --info: #BA1114;
+  --info-bg: rgba(186, 17, 20, 0.06);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

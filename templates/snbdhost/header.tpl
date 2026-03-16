@@ -28,8 +28,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Custom SNBD Host Theme -->
+    <!-- Parent Twenty-One Theme CSS (required for cart/store/fallback pages) -->
+    <link href="{$WEB_ROOT}/templates/{$template}/css/all.min.css?v={$versionHash}" rel="stylesheet">
+    <link href="{$WEB_ROOT}/templates/{$template}/css/theme.css?v={$versionHash}" rel="stylesheet">
+    <link href="{$WEB_ROOT}/templates/{$template}/css/custom.css?v={$versionHash}" rel="stylesheet">
+
+    <!-- Custom SNBD Host Theme (loaded AFTER parent to override) -->
     <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbdhost-theme.css?v={$smarty.now}" rel="stylesheet">
+
+    <!-- Parent Theme JS (Moved from footer to provide jQuery to orderforms in body) -->
+    <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
 </head>
 <body data-phone-cc-input="{$phoneNumberInputStyle}">
 
@@ -50,48 +58,48 @@
             </div>
             <nav class="snbd-nav-menu">
                 <div class="nav-section-label">Main</div>
-                <a href="clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}">
                     <i class="fas fa-gauge-high"></i>
                     <span class="snbd-nav-text">Dashboard</span>
                 </a>
-                <a href="clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}">
                     <i class="fas fa-cube"></i>
                     <span class="snbd-nav-text">Services</span>
                 </a>
-                <a href="clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}">
                     <i class="fas fa-globe"></i>
                     <span class="snbd-nav-text">Domains</span>
                 </a>
-                <a href="clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span class="snbd-nav-text">Billing</span>
                 </a>
 
                 <div class="nav-section-label">Support</div>
-                <a href="supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}">
+                <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}">
                     <i class="fas fa-life-ring"></i>
                     <span class="snbd-nav-text">Tickets</span>
                 </a>
-                <a href="knowledgebase.php" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}">
+                <a href="{$WEB_ROOT}/knowledgebase.php" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}">
                     <i class="fas fa-book"></i>
                     <span class="snbd-nav-text">Knowledge Base</span>
                 </a>
-                <a href="serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}">
+                <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}">
                     <i class="fas fa-signal"></i>
                     <span class="snbd-nav-text">Network Status</span>
                 </a>
 
                 <div class="nav-section-label">Account</div>
-                <a href="clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}">
                     <i class="fas fa-user-cog"></i>
                     <span class="snbd-nav-text">My Details</span>
                 </a>
-                <a href="clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}">
                     <i class="fas fa-envelope"></i>
                     <span class="snbd-nav-text">Emails</span>
                 </a>
                 {if $loggedin}
-                <a href="logout.php" class="snbd-nav-item">
+                <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item">
                     <i class="fas fa-right-from-bracket"></i>
                     <span class="snbd-nav-text">Logout</span>
                 </a>
