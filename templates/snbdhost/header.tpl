@@ -7,8 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{$companyname} - {$pagetitle}</title>
 
-    {$headoutput}
-
     <script>
         var csrfToken = '{$token}',
             markdownGuide = '{lang|addslashes key="markdown.title"}',
@@ -38,6 +36,8 @@
 
     <!-- Parent Theme JS (Moved from footer to provide jQuery to orderforms in body) -->
     <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
+    
+    {$headoutput}
 </head>
 <body data-phone-cc-input="{$phoneNumberInputStyle}">
 
@@ -69,6 +69,10 @@
                 <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}">
                     <i class="fas fa-globe"></i>
                     <span class="snbd-nav-text">Domains</span>
+                </a>
+                <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}">
+                    <i class="fas fa-handshake"></i>
+                    <span class="snbd-nav-text">Affiliates</span>
                 </a>
                 <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}">
                     <i class="fas fa-file-invoice-dollar"></i>

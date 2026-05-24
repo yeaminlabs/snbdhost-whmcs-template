@@ -23,7 +23,7 @@
                 </thead>
                 <tbody>
                     {foreach key=num item=invoice from=$invoices}
-                    <tr>
+                    <tr onclick="window.location='viewinvoice.php?id={$invoice.id}'" style="cursor: pointer;">
                         <td>
                             <a href="viewinvoice.php?id={$invoice.id}" class="fw-semibold text-decoration-none">
                                 {$invoice.invoicenum}
@@ -36,18 +36,20 @@
                             {if $invoice.status eq "Paid"}
                                 <span class="badge bg-success">Paid</span>
                             {elseif $invoice.status eq "Unpaid"}
-                                <span class="badge bg-warning">Unpaid</span>
+                                <span class="badge bg-danger">Unpaid</span>
                             {elseif $invoice.status eq "Overdue"}
                                 <span class="badge bg-danger">Overdue</span>
                             {elseif $invoice.status eq "Cancelled"}
                                 <span class="badge bg-secondary">Cancelled</span>
                             {elseif $invoice.status eq "Refunded"}
                                 <span class="badge bg-info">Refunded</span>
+                            {elseif strtolower($invoice.status) eq "collections"}
+                                <span class="badge text-bg-secondary text-white" style="background-color: #6c757d !important;">Collections</span>
                             {else}
                                 <span class="badge bg-secondary">{$invoice.status}</span>
                             {/if}
                         </td>
-                        <td class="text-end">
+                        <td class="text-end" onclick="event.stopPropagation();">
                             <a href="viewinvoice.php?id={$invoice.id}" class="btn btn-sm btn-outline-custom py-0 px-2" title="View Invoice">
                                 <i class="fas fa-eye"></i>
                             </a>

@@ -38,7 +38,8 @@
     {/if}
 
     <!-- Login Form -->
-    <form method="post" action="{$systemurl}dologin.php" class="needs-validation" novalidate>
+    <form method="post" action="{$WEB_ROOT}/dologin.php" class="needs-validation login-form" role="form" id="frmLogin">
+        <input type="hidden" name="token" value="{$token}" />
         <div class="auth-input-group">
             <div class="auth-input-icon"><i class="fas fa-envelope"></i></div>
             <div class="form-floating flex-grow-1">

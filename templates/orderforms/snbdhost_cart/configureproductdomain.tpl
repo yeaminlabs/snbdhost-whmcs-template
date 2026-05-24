@@ -406,3 +406,29 @@
         });
     </script>
 {/if}
+
+<script>
+    // Fallback script to ensure domain options are toggled correctly 
+    // even if iCheck or other JS encounters an error and stops execution early.
+    jQuery(document).ready(function() {
+        function toggleDomainOption() {
+            var val = jQuery(this).val();
+            jQuery(".domain-input-group").hide();
+            jQuery("#domain" + val).fadeIn('fast');
+        }
+
+        var $radios = jQuery(".domain-selection-options input[type='radio']");
+        $radios.on('change click ifChecked', toggleDomainOption);
+
+        // Initialize state
+        var $checked = $radios.filter(":checked");
+        if ($checked.length > 0) {
+            jQuery(".domain-input-group").hide();
+            jQuery("#domain" + $checked.val()).show();
+        } else if ($radios.length > 0) {
+            $radios.first().prop('checked', true);
+            jQuery(".domain-input-group").hide();
+            jQuery("#domain" + $radios.first().val()).show();
+        }
+    });
+</script>
