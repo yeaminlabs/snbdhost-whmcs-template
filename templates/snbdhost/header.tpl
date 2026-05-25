@@ -22,6 +22,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tabler Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -60,52 +62,52 @@
             <nav class="snbd-nav-menu">
                 <div class="nav-section-label">Main</div>
                 <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}">
-                    <i class="fas fa-gauge-high"></i>
+                    <i class="ti ti-layout-dashboard"></i>
                     <span class="snbd-nav-text">Dashboard</span>
                 </a>
                 <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}">
-                    <i class="fas fa-cube"></i>
+                    <i class="ti ti-server"></i>
                     <span class="snbd-nav-text">Services</span>
                 </a>
                 <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}">
-                    <i class="fas fa-globe"></i>
+                    <i class="ti ti-world"></i>
                     <span class="snbd-nav-text">Domains</span>
                 </a>
                 <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}">
-                    <i class="fas fa-handshake"></i>
+                    <i class="ti ti-users"></i>
                     <span class="snbd-nav-text">Affiliates</span>
                 </a>
                 <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}">
-                    <i class="fas fa-file-invoice-dollar"></i>
+                    <i class="ti ti-credit-card"></i>
                     <span class="snbd-nav-text">Billing</span>
                 </a>
 
                 <div class="nav-section-label">Support</div>
                 <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}">
-                    <i class="fas fa-life-ring"></i>
+                    <i class="ti ti-lifebuoy"></i>
                     <span class="snbd-nav-text">Tickets</span>
                 </a>
                 <a href="{$WEB_ROOT}/knowledgebase.php" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}">
-                    <i class="fas fa-book"></i>
+                    <i class="ti ti-book"></i>
                     <span class="snbd-nav-text">Knowledge Base</span>
                 </a>
                 <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}">
-                    <i class="fas fa-signal"></i>
+                    <i class="ti ti-activity"></i>
                     <span class="snbd-nav-text">Network Status</span>
                 </a>
 
                 <div class="nav-section-label">Account</div>
                 <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}">
-                    <i class="fas fa-user-cog"></i>
+                    <i class="ti ti-settings"></i>
                     <span class="snbd-nav-text">My Details</span>
                 </a>
                 <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}">
-                    <i class="fas fa-envelope"></i>
+                    <i class="ti ti-mail"></i>
                     <span class="snbd-nav-text">Emails</span>
                 </a>
                 {if $loggedin}
                 <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item">
-                    <i class="fas fa-right-from-bracket"></i>
+                    <i class="ti ti-logout"></i>
                     <span class="snbd-nav-text">Logout</span>
                 </a>
                 {/if}
@@ -124,19 +126,19 @@
         <main id="snbd-main">
             <header id="snbd-topbar">
                 <div class="topbar-left">
-                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="fas fa-bars"></i></button>
+                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="ti ti-menu-2"></i></button>
                 </div>
                 <form class="topbar-search" action="{$WEB_ROOT}/knowledgebase.php" method="get" role="search">
                     <input type="hidden" name="action" value="knowledgebase">
-                    <i class="fas fa-search"></i>
+                    <i class="ti ti-search"></i>
                     <input type="text" name="search" placeholder="Search services, tickets..." aria-label="Search" autocomplete="off">
                 </form>
                 <div class="topbar-right">
                     <a href="clientarea.php?action=details" class="topbar-icon-btn" aria-label="Settings" title="Account Settings">
-                        <i class="fas fa-cog"></i>
+                        <i class="ti ti-settings"></i>
                     </a>
                     <button class="topbar-icon-btn" aria-label="Notifications">
-                        <i class="fas fa-bell"></i>
+                        <i class="ti ti-bell"></i>
                     </button>
                 </div>
             </header>

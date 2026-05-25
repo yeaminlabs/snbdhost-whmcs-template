@@ -5,6 +5,7 @@
 
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 /* ----------------------------------------------------------------
    1. CSS Custom Properties (Brand Tokens)
@@ -215,6 +216,7 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   flex-direction: column;
   transition: width 0.25s ease;
   overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', var(--font-sans) !important;
 }
 #snbd-sidebar { background: var(--bg-surface) !important; }
 #snbd-sidebar.collapsed { width: var(--sidebar-w-collapsed); }
@@ -280,6 +282,7 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   font-weight: 600;
   gap: 0.75rem;
   text-decoration: none;
+  font-family: 'Plus Jakarta Sans', var(--font-sans) !important;
 }
 .snbd-nav-item:hover {
   background: #f6f6f6 !important;
@@ -291,8 +294,8 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   border-left-color: #CC0000;
 }
 .snbd-nav-item i {
-  width: 1.25rem;
-  font-size: 1rem;
+  width: 1.5rem;
+  font-size: 1.15rem;
   text-align: center;
   color: #777777;
   flex-shrink: 0;
