@@ -3,17 +3,25 @@
 <style>
 /* ---- Top Navigation Bar for Categories & Actions ---- */
 .cart-top-nav {
+    margin: -1.5rem -2rem 2.5rem -2rem;
     background: #ffffff;
-    border: 1px solid #eeeeee;
-    border-radius: 12px;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+    border-bottom: 1px solid #eeeeee;
+    padding: 1.25rem 2rem;
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.5rem;
     font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.cart-nav-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.cart-nav-divider {
+    height: 1px;
+    background: #f0f0f0;
+    width: 100%;
+    margin: 0.25rem 0;
 }
 .cart-top-nav .nav-section-label {
     font-size: 0.72rem;
@@ -21,20 +29,14 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: #999999;
-    margin-right: 0.25rem;
+    margin-right: 0.75rem;
     white-space: nowrap;
-}
-.cart-top-nav .nav-divider {
-    width: 1px;
-    height: 1.5rem;
-    background: #eeeeee;
-    margin: 0 0.5rem;
 }
 .cart-top-nav .nav-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.5rem 1rem;
+    padding: 0.45rem 1rem;
     border-radius: 50rem;
     font-size: 0.82rem;
     font-weight: 700;
@@ -74,18 +76,17 @@
 
 @media (max-width: 767.98px) {
     .cart-top-nav {
+        margin: -1rem -1rem 2rem -1rem;
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    .cart-nav-row {
         flex-direction: column;
-        align-items: stretch;
-    }
-    .cart-top-nav .nav-divider {
-        width: 100%;
-        height: 1px;
-        margin: 0.4rem 0;
-    }
-    .cart-top-nav .nav-pills-row {
-        display: flex;
-        flex-wrap: wrap;
+        align-items: flex-start !important;
         gap: 0.35rem;
+    }
+    .cart-top-nav .nav-section-label {
+        margin-bottom: 0.25rem;
     }
 }
 </style>
@@ -95,37 +96,48 @@
     {* ===== Horizontal Top Navigation: Categories + Actions ===== *}
     <div class="cart-top-nav">
         {foreach $secondarySidebar as $panel}
-            <span class="nav-section-label">
-                {if $panel->hasIcon()}<i class="{$panel->getIcon()}"></i>{/if}
-                {$panel->getLabel()}
-            </span>
-            {if $panel->hasChildren()}
-                <div class="nav-pills-row d-flex flex-wrap gap-1">
-                    {foreach $panel->getChildren() as $child}
-                        {if $child->getUri()}
-                            <a href="{$child->getUri()}" class="nav-pill{if $child->isCurrent()} active{/if}" id="topnav-{$child->getId()}">
-                                {if $child->hasIcon()}<i class="{$child->getIcon()}"></i>{/if}
-                                {$child->getLabel()}
-                                {if $child->hasBadge()}<span class="badge bg-danger rounded-pill ms-1" style="font-size:.65rem">{$child->getBadge()}</span>{/if}
-                            </a>
-                        {/if}
-                    {/foreach}
-                </div>
-            {/if}
-            {if !$panel@last}<div class="nav-divider"></div>{/if}
+            <div class="cart-nav-row d-flex align-items-center w-100 py-1 flex-wrap">
+                <span class="nav-section-label d-flex align-items-center gap-1 me-3">
+                    {if $panel->hasIcon()}
+                        <i class="{$panel->getIcon()}"></i>
+                    {elseif $panel->getName() eq 'Categories'}
+                        <i class="ti ti-category"></i>
+                    {else}
+                        <i class="ti ti-settings"></i>
+                    {/if}
+                    {$panel->getLabel()}
+                </span>
+                {if $panel->hasChildren()}
+                    <div class="nav-pills-row d-flex flex-wrap gap-1">
+                        {foreach $panel->getChildren() as $child}
+                            {if $child->getUri()}
+                                <a href="{$child->getUri()}" class="nav-pill{if $child->isCurrent()} active{/if}" id="topnav-{$child->getId()}">
+                                    {if $child->hasIcon()}<i class="{$child->getIcon()}"></i>{/if}
+                                    {$child->getLabel()}
+                                    {if $child->hasBadge()}<span class="badge bg-danger rounded-pill ms-1" style="font-size:.65rem">{$child->getBadge()}</span>{/if}
+                                </a>
+                            {/if}
+                        {/foreach}
+                    </div>
+                {/if}
+            </div>
+            {if !$panel@last}<div class="cart-nav-divider"></div>{/if}
         {/foreach}
 
         {* Currency selector for guests *}
         {if !$loggedin && $currencies}
-            <div class="nav-divider"></div>
-            <form method="post" action="{$WEB_ROOT}/cart.php{if $action}?a={$action}{if $domain}&domain={$domain}{/if}{elseif $gid}?gid={$gid}{/if}" class="d-inline-flex align-items-center">
-                <select name="currency" onchange="submit()" class="form-select form-select-sm rounded-pill border-0" style="background:#f5f5f5;font-size:.82rem;font-weight:600;padding:.4rem .9rem;">
-                    <option value="">{$LANG.choosecurrency}</option>
-                    {foreach from=$currencies item=listcurr}
-                        <option value="{$listcurr.id}"{if $listcurr.id == $activeCurrency.id} selected{/if}>{$listcurr.code}</option>
-                    {/foreach}
-                </select>
-            </form>
+            <div class="cart-nav-divider"></div>
+            <div class="cart-nav-row d-flex align-items-center w-100 py-1">
+                <span class="nav-section-label me-3"><i class="ti ti-coin"></i> Currency</span>
+                <form method="post" action="{$WEB_ROOT}/cart.php{if $action}?a={$action}{if $domain}&domain={$domain}{/if}{elseif $gid}?gid={$gid}{/if}" class="d-inline-flex align-items-center">
+                    <select name="currency" onchange="submit()" class="form-select form-select-sm rounded-pill border-0" style="background:#f5f5f5;font-size:.82rem;font-weight:600;padding:.4rem .9rem;">
+                        <option value="">{$LANG.choosecurrency}</option>
+                        {foreach from=$currencies item=listcurr}
+                            <option value="{$listcurr.id}"{if $listcurr.id == $activeCurrency.id} selected{/if}>{$listcurr.code}</option>
+                        {/foreach}
+                    </select>
+                </form>
+            </div>
         {/if}
     </div>
 
