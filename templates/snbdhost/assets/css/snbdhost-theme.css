@@ -1483,3 +1483,22 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   transform: translateY(-2px) !important;
   color: #ffffff !important;
 }
+
+/* ================================================================
+   23. Global Clean Status Badges
+   ================================================================ */
+.badge-clean {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  border-radius: 6px !important;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.badge-clean-success { background: rgba(46, 125, 50, 0.08) !important; color: #2e7d32 !important; border: 1px solid rgba(46, 125, 50, 0.15) !important; }
+.badge-clean-warning { background: rgba(230, 81, 0, 0.08) !important; color: #e65100 !important; border: 1px solid rgba(230, 81, 0, 0.15) !important; }
+.badge-clean-danger  { background: rgba(198, 40, 40, 0.08) !important; color: #c62828 !important; border: 1px solid rgba(198, 40, 40, 0.15) !important; }
+.badge-clean-info    { background: rgba(204, 0, 0, 0.08) !important; color: #CC0000 !important; border: 1px solid rgba(204, 0, 0, 0.15) !important; }
+.badge-clean-secondary { background: rgba(108, 117, 125, 0.08) !important; color: #6c757d !important; border: 1px solid rgba(108, 117, 125, 0.15) !important; }
