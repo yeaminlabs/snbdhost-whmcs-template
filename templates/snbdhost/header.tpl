@@ -151,27 +151,20 @@
                 </div>
 
                 <nav class="topbar-nav d-none d-xl-flex">
+                    <a href="{$WEB_ROOT}/clientarea.php" class="topbar-nav-link {if $filename eq 'clientarea' && $action eq ''}active{/if}">Dashboard</a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=products" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails' || $action eq 'services')}active{/if}">Services</a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}">Domains</a>
+                    <a href="{$WEB_ROOT}/affiliates.php" class="topbar-nav-link {if $filename eq 'affiliates'}active{/if}">Affiliates</a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions')}active{/if}">Billing</a>
+                    
                     <div class="topbar-nav-item dropdown">
-                        <a href="#" class="topbar-nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Hosting <i class="ti ti-chevron-down"></i></a>
+                        <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'supporttickets' || $filename eq 'knowledgebase' || $filename eq 'serverstatus'}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">Support <i class="ti ti-chevron-down"></i></a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/shared-hosting">Shared Hosting</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/wordpress-hosting">WordPress Hosting</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/vps-hosting">VPS Hosting</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/supporttickets.php"><i class="ti ti-lifebuoy me-2"></i>Tickets</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/knowledgebase.php"><i class="ti ti-book me-2"></i>Knowledge Base</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/serverstatus.php"><i class="ti ti-activity me-2"></i>Network Status</a></li>
                         </ul>
                     </div>
-                    <a href="https://snbdhost.com/n8n-automation" class="topbar-nav-link">N8N Automation</a>
-                    <a href="https://snbdhost.com/openclaw" class="topbar-nav-link">OpenClaw</a>
-                    <a href="{$WEB_ROOT}/index.php?rp=/store/domain/registration" class="topbar-nav-link">Domain</a>
-                    <div class="topbar-nav-item dropdown">
-                        <a href="#" class="topbar-nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Servers <i class="ti ti-chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/dedicated-servers">Dedicated Servers</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/cloud-servers">Cloud Servers</a></li>
-                        </ul>
-                    </div>
-                    <a href="https://snbdhost.com/blog" class="topbar-nav-link">Blog</a>
-                    <a href="{$WEB_ROOT}/submitticket.php" class="topbar-nav-link">Support</a>
-                    <a href="https://snbdhost.com/offers" class="topbar-nav-link text-danger fw-bold d-flex align-items-center gap-1">Offers <i class="ti ti-flame text-danger"></i></a>
                 </nav>
 
                 <div class="topbar-right">
@@ -195,15 +188,29 @@
                         </ul>
                     </div>
 
-                    <a href="clientarea.php?action=details" class="topbar-icon-btn" aria-label="Settings" title="Account Settings">
+                    <a href="clientarea.php?action=details" class="topbar-icon-btn d-none d-md-inline-flex" aria-label="Settings" title="Account Settings">
                         <i class="ti ti-settings"></i>
                     </a>
                     
-                    <button class="topbar-icon-btn position-relative" aria-label="Notifications">
+                    <button class="topbar-icon-btn position-relative d-none d-md-inline-flex" aria-label="Notifications">
                         <i class="ti ti-bell"></i>
                     </button>
 
-                    <a href="{$WEB_ROOT}/clientarea.php" class="btn btn-brand btn-topbar-dashboard ms-2 d-none d-md-inline-block">My Dashboard</a>
+                    {if $loggedin}
+                    <div class="topbar-user dropdown ms-2">
+                        <button class="btn btn-brand dropdown-toggle px-3 py-1 text-white" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ti ti-user-circle"></i> {$clientsdetails.firstname}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=details"><i class="ti ti-settings me-2"></i>My Details</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=emails"><i class="ti ti-mail me-2"></i>Email History</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{$WEB_ROOT}/logout.php"><i class="ti ti-logout me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                    {else}
+                    <a href="{$WEB_ROOT}/login.php" class="btn btn-brand btn-topbar-dashboard ms-2">Login</a>
+                    {/if}
                 </div>
             </header>
 

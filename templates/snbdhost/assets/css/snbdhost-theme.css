@@ -223,9 +223,12 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 #snbd-sidebar { background: var(--bg-surface) !important; }
 #snbd-sidebar.collapsed { width: var(--sidebar-w-collapsed); }
 
-/* Hide brand logo in sidebar on desktop (as it is now in the topbar) */
+/* Hide sidebar and toggle button on desktop (min-width: 769px) */
 @media (min-width: 769px) {
-  .snbd-brand-logo-container {
+  #snbd-sidebar {
+    display: none !important;
+  }
+  .toggle-sidebar-btn {
     display: none !important;
   }
 }
@@ -350,15 +353,15 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 #snbd-main {
   flex: 1;
   min-width: 0; /* CRITICAL: Prevents flex child from overflowing viewport to the right */
-  margin-left: var(--sidebar-w);
+  margin-left: 0; /* No sidebar margin on desktop */
   margin-top: calc(var(--announcement-h) + var(--topbar-h));
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.25s ease, margin-top 0.25s ease;
+  transition: margin-top 0.25s ease;
   min-height: calc(100vh - var(--announcement-h) - var(--topbar-h));
   background-color: var(--bg-body) !important;
 }
-#snbd-sidebar.collapsed ~ #snbd-main { margin-left: var(--sidebar-w-collapsed); }
+#snbd-sidebar.collapsed ~ #snbd-main { margin-left: 0; }
 
 /* Announcement Bar Styles */
 .snbd-announcement-bar {
@@ -465,14 +468,17 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  padding: 0.35rem 0;
+  padding: 0.5rem 0;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  border-bottom: 2px solid transparent;
 }
-.topbar-nav-link:hover {
-  color: var(--brand-primary);
+.topbar-nav-link:hover,
+.topbar-nav-link.active {
+  color: var(--brand-primary) !important;
+  border-bottom-color: var(--brand-primary);
 }
 .topbar-nav-item.dropdown .dropdown-toggle::after {
   display: none;
