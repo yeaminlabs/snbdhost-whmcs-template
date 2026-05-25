@@ -18,14 +18,10 @@
 <div id="order-standard_cart">
 
     <div class="row">
-        <div class="cart-sidebar">
-            {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
-        </div>
         <div class="cart-body">
             <div class="header-lined mb-4 border-0 pb-0">
                     <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.orderForm.checkout}</h1>
                 </div>
-            {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <div class="already-registered clearfix">
                 <div class="pull-right float-right">

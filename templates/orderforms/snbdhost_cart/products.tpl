@@ -143,9 +143,6 @@
 
     {* ===== Keep old sidebar markup hidden (CSS hides it) so WHMCS JS doesn't break ===== *}
     <div class="row">
-        <div class="cart-sidebar sidebar">
-            {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
-        </div>
         <div class="cart-body">
 
             <div class="header-lined mb-5 border-0 pb-0">
@@ -169,8 +166,6 @@
                     {lang key='orderForm.selectCategory'}
                 </div>
             {/if}
-
-            {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <div class="products" id="products">
                 <div class="row g-4">

@@ -1,9 +1,6 @@
 {include file="orderforms/snbdhost_cart/common.tpl"}
 <div id="order-standard_cart">
     <div class="row">
-        <div class="cart-sidebar">
-            {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
-        </div>
         <div class="cart-body">
             <div class="header-lined row">
                 <div class="col-md-6">
@@ -29,7 +26,6 @@
                     {/if}
                 </div>
             </div>
-            {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
             {if $totalServiceCount == 0}
                 <div id="no-services" class="alert alert-warning text-center" role="alert">
                     {lang key='renewService.noServices'}

@@ -61,7 +61,6 @@
                 {/if}
             </div>
 
-
             {assign var='continueok' value=true}
 
         {elseif $status eq "unavailable"}

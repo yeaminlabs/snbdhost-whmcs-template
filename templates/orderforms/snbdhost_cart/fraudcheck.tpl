@@ -12,8 +12,6 @@
 
         <div class="col-md-10 col-md-offset-1 offset-md-1">
 
-            {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
-
             <div class="alert alert-danger error-heading">
                 <i class="fas fa-exclamation-triangle"></i>
                 {$errortitle}
