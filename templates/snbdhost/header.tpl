@@ -54,6 +54,11 @@
 
     <div id="snbd-wrapper">
         <aside id="snbd-sidebar">
+            <script>
+                if (localStorage.getItem('snbd-sidebar-collapsed') === 'true' && window.innerWidth > 768) {
+                    document.getElementById('snbd-sidebar').classList.add('collapsed');
+                }
+            </script>
             <div class="snbd-brand-logo-container">
                 <a href="{$WEB_ROOT}/clientarea.php" class="d-flex align-items-center text-decoration-none">
                     <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="snbd-brand-logo">

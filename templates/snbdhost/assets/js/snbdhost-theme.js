@@ -36,18 +36,25 @@ function initSidebarToggle() {
       backdrop?.classList.toggle('show');
     } else {
       sidebar.classList.toggle('collapsed');
+      // Persist desktop collapsed state
+      localStorage.setItem('snbd-sidebar-collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
     }
     if (icon) {
       icon.className = (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('collapsed'))
-        ? 'fas fa-times' : 'fas fa-bars';
+        ? 'ti ti-x' : 'ti ti-menu-2';
     }
   });
+
+  // Enforce correct icon on page load based on collapsed state
+  if (sidebar.classList.contains('collapsed') && icon) {
+    icon.className = 'ti ti-x';
+  }
 
   // Close mobile sidebar on backdrop click
   backdrop?.addEventListener('click', () => {
     sidebar.classList.remove('mobile-open');
     backdrop.classList.remove('show');
-    if (icon) icon.className = 'fas fa-bars';
+    if (icon) icon.className = 'ti ti-menu-2';
   });
 
   // Close sidebar clicking outside on mobile
@@ -56,7 +63,7 @@ function initSidebarToggle() {
       if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
         sidebar.classList.remove('mobile-open');
         backdrop?.classList.remove('show');
-        if (icon) icon.className = 'fas fa-bars';
+        if (icon) icon.className = 'ti ti-menu-2';
       }
     }
   });

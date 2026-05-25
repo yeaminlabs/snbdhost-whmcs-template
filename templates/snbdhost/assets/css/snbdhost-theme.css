@@ -374,7 +374,14 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 }
 .toggle-sidebar-btn:hover { background: #f5f5f5; color: #CC0000; }
 
-.topbar-search { position: relative; width: 280px; display: flex; align-items: center; }
+.topbar-search {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  display: flex;
+  align-items: center;
+}
 .topbar-search input {
   width: 100%;
   background-color: #f9f9f9 !important;
@@ -823,7 +830,12 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   #snbd-sidebar.mobile-open { transform: translateX(0); }
   #snbd-main, #snbd-sidebar.collapsed ~ #snbd-main { margin-left: 0; }
   .snbd-content { padding: 1rem; }
-  .topbar-search { width: 160px; }
+  .topbar-search {
+    position: relative;
+    left: auto;
+    transform: none;
+    width: 160px;
+  }
 }
 
 /* Mobile sidebar backdrop */
