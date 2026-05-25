@@ -7,9 +7,9 @@
             {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
         </div>
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">{$LANG.orderconfirmation}</h1>
-            </div>
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.orderconfirmation}</h1>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <p>{$LANG.orderreceived}</p>
@@ -56,7 +56,7 @@
             <div class="text-center">
                 <a href="{$WEB_ROOT}/clientarea.php" class="btn btn-default">
                     {$LANG.orderForm.continueToClientArea}
-                    &nbsp;<i class="fas fa-arrow-circle-right"></i>
+                    &nbsp;<i class="ti ti-arrow-right-circle"></i>
                 </a>
             </div>
 

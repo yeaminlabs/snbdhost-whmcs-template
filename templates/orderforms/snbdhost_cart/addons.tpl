@@ -10,9 +10,9 @@
         </div>
         <div class="cart-body">
 
-            <div class="header-lined">
-                <h1 class="font-size-36">{$LANG.cartproductaddons}</h1>
-            </div>
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.cartproductaddons}</h1>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             {if count($addons) == 0}
@@ -21,7 +21,7 @@
                 </div>
                 <p class="text-center">
                     <a href="{$WEB_ROOT}/clientarea.php" class="btn btn-default">
-                        <i class="fas fa-arrow-circle-left"></i>
+                        <i class="ti ti-arrow-left-circle"></i>
                         {$LANG.orderForm.returnToClientArea}
                     </a>
                 </p>
@@ -60,7 +60,7 @@
                                         {/if}
                                     </div>
                                     <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fas fa-shopping-cart"></i>
+                                        <i class="ti ti-shopping-cart"></i>
                                         {$LANG.ordernowbutton}
                                     </button>
                                 </footer>

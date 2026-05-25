@@ -15,8 +15,8 @@ var _localLang = {
         </div>
         <div class="cart-body">
 
-            <div class="header-lined">
-                <h1 class="font-size-36">{$LANG.orderconfigure}</h1>
+            <div class="header-lined mb-4 border-0 pb-0">
+                <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.orderconfigure}</h1>
             </div>
 
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
@@ -310,7 +310,7 @@ var _localLang = {
                                                     {$addon.pricing}
                                                 </div>
                                                 <div class="panel-add">
-                                                    <i class="fas fa-plus"></i>
+                                                    <i class="ti ti-plus"></i>
                                                     {$LANG.addtocart}
                                                 </div>
                                             </div>
@@ -321,7 +321,7 @@ var _localLang = {
                         {/if}
 
                         <div class="alert alert-warning info-text-sm">
-                            <i class="fas fa-question-circle"></i>
+                            <i class="ti ti-help-circle" style="font-size:1.15rem; vertical-align: middle;"></i>
                             {$LANG.orderForm.haveQuestionsContact} <a href="{$WEB_ROOT}/contact.php" target="_blank" class="alert-link">{$LANG.orderForm.haveQuestionsClickHere}</a>
                         </div>
 
@@ -331,15 +331,15 @@ var _localLang = {
                         <div id="orderSummary">
                             <div class="order-summary">
                                 <div class="loader" id="orderSummaryLoader">
-                                    <i class="fas fa-fw fa-sync fa-spin"></i>
+                                    <i class="ti ti-refresh fa-spin"></i>
                                 </div>
-                                <h2 class="font-size-30">{$LANG.ordersummary}</h2>
+                                <h2 class="font-size-30" style="font-family: 'Plus Jakarta Sans', sans-serif;">{$LANG.ordersummary}</h2>
                                 <div class="summary-container" id="producttotal"></div>
                             </div>
-                            <div class="text-center">
-                                <button type="submit" id="btnCompleteProductConfig" class="btn btn-primary btn-lg">
-                                    {$LANG.continue}
-                                    <i class="fas fa-arrow-circle-right"></i>
+                            <div class="text-center mt-3">
+                                <button type="submit" id="btnCompleteProductConfig" class="btn btn-primary w-100 py-2-5">
+                                    <span>{$LANG.continue}</span>
+                                    <i class="ti ti-arrow-right-circle ms-1" style="font-size: 1.15rem;"></i>
                                 </button>
                             </div>
                         </div>

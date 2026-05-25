@@ -3,41 +3,42 @@
 <style>
 /* ---- Top Navigation Bar for Categories & Actions ---- */
 .cart-top-nav {
-    background: #fff;
-    border: 1px solid rgba(0,0,0,.08);
-    border-radius: 1rem;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
     padding: 0.75rem 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01);
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .cart-top-nav .nav-section-label {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #aaa;
+    letter-spacing: 0.06em;
+    color: #999999;
     margin-right: 0.25rem;
     white-space: nowrap;
 }
 .cart-top-nav .nav-divider {
     width: 1px;
     height: 1.5rem;
-    background: #e0e0e0;
+    background: #eeeeee;
     margin: 0 0.5rem;
 }
 .cart-top-nav .nav-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50rem;
     font-size: 0.82rem;
-    font-weight: 600;
-    color: #555;
+    font-weight: 700;
+    color: #555555;
     text-decoration: none;
     background: transparent;
     border: none;
@@ -46,33 +47,24 @@
     cursor: pointer;
 }
 .cart-top-nav .nav-pill:hover {
-    background: #f5f5f5;
-    color: #d32f2f;
+    background: rgba(204, 0, 0, 0.04);
+    color: #CC0000;
 }
 .cart-top-nav .nav-pill.active {
-    background: #d32f2f;
-    color: #fff;
+    background: #CC0000;
+    color: #ffffff;
 }
 .cart-top-nav .nav-pill i {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
 }
 
-/* ---- Product Cards ---- */
-.hover-elevate {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* ---- Product Cards Overrides ---- */
+.service-card {
+    display: flex;
+    flex-direction: column;
 }
-.hover-elevate:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 1rem 3rem rgba(0,0,0,.12) !important;
-}
-.product-card .list-unstyled li {
-    font-size: 0.95rem;
-}
-.product-card .price {
-    letter-spacing: -0.05rem;
-}
-.btn-order-now:hover {
-    transform: scale(1.05);
+.service-card .feature-value {
+    color: #111111;
 }
 
 /* Hide the old sidebar so it doesn't render alongside new layout */
@@ -144,8 +136,8 @@
         </div>
         <div class="cart-body">
 
-            <div class="header-lined mb-4">
-                <h1 class="fw-bold" style="font-size:1.75rem">
+            <div class="header-lined mb-5 border-0 pb-0">
+                <h1 class="dash-headline" style="font-size: 2rem;">
                     {if $productGroup.headline}
                         {$productGroup.headline}
                     {else}
@@ -153,7 +145,7 @@
                     {/if}
                 </h1>
                 {if $productGroup.tagline}
-                    <p class="text-muted mb-0">{$productGroup.tagline}</p>
+                    <p class="dash-subhead mb-0">{$productGroup.tagline}</p>
                 {/if}
             </div>
             {if $errormessage}
@@ -169,51 +161,51 @@
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <div class="products" id="products">
-                <div class="row row-eq-height">
+                <div class="row g-4">
                     {foreach $products as $key => $product}
                         {$idPrefix = ($product.bid) ? ("bundle"|cat:$product.bid) : ("product"|cat:$product.pid)}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100 border-0 shadow-sm rounded-4 product-card hover-elevate" id="{$idPrefix}">
+                    <div class="col-lg-4 col-md-6 d-flex">
+                        <div class="card service-card h-100 w-100" id="{$idPrefix}">
                             <div class="card-body p-4 d-flex flex-column">
-                                <header class="mb-3 border-bottom pb-3">
-                                    <h3 class="fw-bold text-dark fs-5 mb-0" id="{$idPrefix}-name">{$product.name}</h3>
+                                <header class="mb-3 border-bottom pb-3" style="background: transparent;">
+                                    <h3 class="fw-bold text-dark fs-5 mb-0" id="{$idPrefix}-name" style="font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em;">{$product.name}</h3>
                                     {if $product.stockControlEnabled}
-                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 mt-2">
+                                        <span class="badge-clean badge-clean-danger mt-2">
                                             {$product.qty} {$LANG.orderavailable}
                                         </span>
                                     {/if}
                                 </header>
                                 
-                                <div class="product-desc flex-grow-1 mb-3">
+                                <div class="product-desc flex-grow-1 mb-4">
                                     {if $product.featuresdesc}
-                                        <p class="text-muted small mb-3" id="{$idPrefix}-description">
+                                        <p class="text-secondary small mb-3" id="{$idPrefix}-description" style="line-height: 1.5;">
                                             {$product.featuresdesc}
                                         </p>
                                     {/if}
-                                    <ul class="list-unstyled mb-0">
+                                    <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
                                         {foreach $product.features as $feature => $value}
-                                            <li class="py-1 text-secondary d-flex align-items-start" id="{$idPrefix}-feature{$value@iteration}" style="font-size:0.88rem">
-                                                <i class="fas fa-check-circle text-success me-2 mt-1 opacity-75" style="font-size:0.7rem"></i>
-                                                <span><strong class="text-dark feature-value fw-semibold">{$value}</strong> {$feature}</span>
+                                            <li class="d-flex align-items-start text-secondary" id="{$idPrefix}-feature{$value@iteration}" style="font-size:0.85rem; line-height: 1.4;">
+                                                <i class="ti ti-circle-check text-success me-2" style="font-size:1.15rem; flex-shrink: 0; margin-top: 1px;"></i>
+                                                <span><strong class="text-dark fw-bold">{$value}</strong> {$feature}</span>
                                             </li>
                                         {/foreach}
                                     </ul>
                                 </div>
                                 
-                                <footer class="mt-auto pt-3 border-top">
+                                <footer class="mt-auto pt-3 border-top" style="background: transparent;">
                                     <div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-3">
                                         <div class="product-pricing" id="{$idPrefix}-price">
                                             {if $product.bid}
-                                                <div class="text-muted small text-uppercase fw-semibold">{$LANG.bundledeal}</div>
+                                                <div class="text-secondary small text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.05em;">{$LANG.bundledeal}</div>
                                                 {if $product.displayprice}
-                                                    <div class="price fs-3 fw-bolder text-danger lh-1 mt-1">{$product.displayprice}</div>
+                                                    <div class="price fs-3 fw-bold text-danger lh-1 mt-1" style="color: #CC0000 !important; font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.03em;">{$product.displayprice}</div>
                                                 {/if}
                                             {else}
                                                 {if $product.pricing.hasconfigoptions}
-                                                    <div class="text-muted" style="font-size:0.7rem">{$LANG.startingfrom}</div>
+                                                    <div class="text-secondary" style="font-size:0.75rem; font-weight: 500;">{$LANG.startingfrom}</div>
                                                 {/if}
-                                                <div class="price fs-3 fw-bolder text-danger lh-1">{$product.pricing.minprice.price}</div>
-                                                <div class="text-muted text-uppercase fw-semibold" style="font-size:0.7rem;letter-spacing:0.04em">
+                                                <div class="price fs-3 fw-bold text-danger lh-1 my-1" style="color: #CC0000 !important; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.65rem !important; letter-spacing: -0.03em;">{$product.pricing.minprice.price}</div>
+                                                <div class="text-secondary text-uppercase fw-bold" style="font-size:0.65rem; letter-spacing:0.05em">
                                                     {if $product.pricing.minprice.cycle eq "monthly"}
                                                         {$LANG.orderpaymenttermmonthly}
                                                     {elseif $product.pricing.minprice.cycle eq "quarterly"}
@@ -234,18 +226,14 @@
                                             {/if}
                                         </div>
                                     </div>
-                                    <a href="{$product.productUrl}" class="btn btn-danger btn-order-now rounded-pill w-100 py-2 shadow-sm d-inline-flex align-items-center justify-content-center" id="{$idPrefix}-order-button"{if $product.hasRecommendations} data-has-recommendations="1"{/if}>
-                                        <i class="fas fa-shopping-cart me-2"></i>
-                                        <span class="fw-bold">{$LANG.ordernowbutton}</span>
+                                    <a href="{$product.productUrl}" class="btn btn-brand-clean w-100 justify-content-center py-2" id="{$idPrefix}-order-button"{if $product.hasRecommendations} data-has-recommendations="1"{/if}>
+                                        <i class="ti ti-shopping-cart me-2" style="font-size: 1.15rem;"></i>
+                                        <span>{$LANG.ordernowbutton}</span>
                                     </a>
                                 </footer>
                             </div>
                         </div>
                     </div>
-                    {if $product@iteration % 3 == 0}
-                </div>
-                <div class="row row-eq-height">
-                    {/if}
                     {/foreach}
                 </div>
             </div>

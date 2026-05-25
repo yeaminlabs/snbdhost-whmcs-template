@@ -7,11 +7,11 @@
             {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
         </div>
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">
                     {$LANG.registerdomain}
                 </h1>
-            </div>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <p>{if $showAdvancedSearchOptions}{$LANG.orderForm.findNewDomainAi}{else}{$LANG.orderForm.findNewDomain}{/if}</p>
@@ -345,7 +345,7 @@
                         <div class="domain-promo-box">
 
                             <div class="clearfix">
-                                <i class="fas fa-globe fa-4x"></i>
+                                <i class="ti ti-world fa-4x"></i>
                                 <h3 class="font-size-22">{lang key='orderForm.transferToUs'}</h3>
                                 <p class="font-bold text-primary">{lang key='orderForm.transferExtend'}*</p>
                             </div>

@@ -7,11 +7,11 @@
             {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
         </div>
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">
                     {$LANG.thereisaproblem}
                 </h1>
-            </div>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <div class="alert alert-danger error-heading">

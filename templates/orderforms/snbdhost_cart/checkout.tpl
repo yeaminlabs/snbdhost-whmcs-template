@@ -22,9 +22,9 @@
             {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
         </div>
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">{$LANG.orderForm.checkout}</h1>
-            </div>
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.orderForm.checkout}</h1>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <div class="already-registered clearfix">
@@ -134,7 +134,7 @@
                         <div class="col-sm-6">
                             <div class="form-group prepend-icon">
                                 <label for="inputLoginEmail" class="field-icon">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="ti ti-mail"></i>
                                 </label>
                                 <input type="text" name="loginemail" id="inputLoginEmail" class="field form-control" placeholder="{$LANG.orderForm.emailAddress}" value="{$loginemail}">
                             </div>
@@ -142,7 +142,7 @@
                         <div class="col-sm-6">
                             <div class="form-group prepend-icon">
                                 <label for="inputLoginPassword" class="field-icon">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="ti ti-lock"></i>
                                 </label>
                                 <input type="password" name="loginpassword" id="inputLoginPassword" class="field form-control" placeholder="{$LANG.clientareapassword}">
                             </div>
@@ -184,7 +184,7 @@
                         <div class="col-sm-6">
                             <div class="form-group prepend-icon">
                                 <label for="inputFirstName" class="field-icon">
-                                    <i class="fas fa-user"></i>
+                                    <i class="ti ti-user"></i>
                                 </label>
                                 <input type="text" name="firstname" id="inputFirstName" class="field form-control" placeholder="{$LANG.orderForm.firstName}" value="{$clientsdetails.firstname}" autofocus>
                             </div>
@@ -192,7 +192,7 @@
                         <div class="col-sm-6">
                             <div class="form-group prepend-icon">
                                 <label for="inputLastName" class="field-icon">
-                                    <i class="fas fa-user"></i>
+                                    <i class="ti ti-user"></i>
                                 </label>
                                 <input type="text" name="lastname" id="inputLastName" class="field form-control" placeholder="{$LANG.orderForm.lastName}" value="{$clientsdetails.lastname}">
                             </div>
@@ -200,7 +200,7 @@
                         <div class="col-sm-6">
                             <div class="form-group prepend-icon">
                                 <label for="inputEmail" class="field-icon">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="ti ti-mail"></i>
                                 </label>
                                 <input type="email" name="email" id="inputEmail" class="field form-control" placeholder="{$LANG.orderForm.emailAddress}" value="{$clientsdetails.email}">
                             </div>
@@ -208,7 +208,7 @@
                         <div class="col-sm-6">
                             <div class="form-group prepend-icon">
                                 <label for="inputPhone" class="field-icon">
-                                    <i class="fas fa-phone"></i>
+                                    <i class="ti ti-phone"></i>
                                 </label>
                                 <input type="tel" name="phonenumber" id="inputPhone" class="field form-control" placeholder="{$LANG.orderForm.phoneNumber}" value="{$clientsdetails.phonenumber}">
                             </div>
@@ -223,7 +223,7 @@
                         <div class="col-sm-12">
                             <div class="form-group prepend-icon">
                                 <label for="inputCompanyName" class="field-icon">
-                                    <i class="fas fa-building"></i>
+                                    <i class="ti ti-building"></i>
                                 </label>
                                 <input type="text" name="companyname" id="inputCompanyName" class="field form-control" placeholder="{$LANG.orderForm.companyName} ({$LANG.orderForm.optional})" value="{$clientsdetails.companyname}">
                             </div>
@@ -231,7 +231,7 @@
                         <div class="col-sm-12">
                             <div class="form-group prepend-icon">
                                 <label for="inputAddress1" class="field-icon">
-                                    <i class="far fa-building"></i>
+                                    <i class="ti ti-building"></i>
                                 </label>
                                 <input type="text" name="address1" id="inputAddress1" class="field form-control" placeholder="{$LANG.orderForm.streetAddress}" value="{$clientsdetails.address1}">
                             </div>
@@ -239,7 +239,7 @@
                         <div class="col-sm-12">
                             <div class="form-group prepend-icon">
                                 <label for="inputAddress2" class="field-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
+                                    <i class="ti ti-map-pin"></i>
                                 </label>
                                 <input type="text" name="address2" id="inputAddress2" class="field form-control" placeholder="{$LANG.orderForm.streetAddress2}" value="{$clientsdetails.address2}">
                             </div>
@@ -247,7 +247,7 @@
                         <div class="col-sm-4">
                             <div class="form-group prepend-icon">
                                 <label for="inputCity" class="field-icon">
-                                    <i class="far fa-building"></i>
+                                    <i class="ti ti-building"></i>
                                 </label>
                                 <input type="text" name="city" id="inputCity" class="field form-control" placeholder="{$LANG.orderForm.city}" value="{$clientsdetails.city}">
                             </div>
@@ -255,10 +255,10 @@
                         <div class="col-sm-5">
                             <div class="form-group prepend-icon">
                                 <label for="state" class="field-icon" id="inputStateIcon">
-                                    <i class="fas fa-map-signs"></i>
+                                    <i class="ti ti-map"></i>
                                 </label>
                                 <label for="stateinput" class="field-icon" id="inputStateIcon">
-                                    <i class="fas fa-map-signs"></i>
+                                    <i class="ti ti-map"></i>
                                 </label>
                                 <input type="text" name="state" id="inputState" class="field form-control" placeholder="{$LANG.orderForm.state}" value="{$clientsdetails.state}">
                             </div>
@@ -266,7 +266,7 @@
                         <div class="col-sm-3">
                             <div class="form-group prepend-icon">
                                 <label for="inputPostcode" class="field-icon">
-                                    <i class="fas fa-certificate"></i>
+                                    <i class="ti ti-certificate"></i>
                                 </label>
                                 <input type="text" name="postcode" id="inputPostcode" class="field form-control" placeholder="{$LANG.orderForm.postcode}" value="{$clientsdetails.postcode}">
                             </div>
@@ -274,7 +274,7 @@
                         <div class="col-sm-12">
                             <div class="form-group prepend-icon">
                                 <label for="inputCountry" class="field-icon" id="inputCountryIcon">
-                                    <i class="fas fa-globe"></i>
+                                    <i class="ti ti-world"></i>
                                 </label>
                                 <select name="country" id="inputCountry" class="field form-control">
                                     {foreach $countries as $countrycode => $countrylabel}
@@ -289,7 +289,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group prepend-icon">
                                     <label for="inputTaxId" class="field-icon">
-                                        <i class="fas fa-building"></i>
+                                        <i class="ti ti-building"></i>
                                     </label>
                                     <input type="text" name="tax_id" id="inputTaxId" class="field form-control" placeholder="{$taxLabel}" value="{$clientsdetails.tax_id}" autocomplete="off">
                                 </div>
@@ -373,7 +373,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCFirstName" class="field-icon">
-                                        <i class="fas fa-user"></i>
+                                        <i class="ti ti-user"></i>
                                     </label>
                                     <input type="text" name="domaincontactfirstname" id="inputDCFirstName" class="field form-control" placeholder="{$LANG.orderForm.firstName}" value="{$domaincontact.firstname}">
                                 </div>
@@ -381,7 +381,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCLastName" class="field-icon">
-                                        <i class="fas fa-user"></i>
+                                        <i class="ti ti-user"></i>
                                     </label>
                                     <input type="text" name="domaincontactlastname" id="inputDCLastName" class="field form-control" placeholder="{$LANG.orderForm.lastName}" value="{$domaincontact.lastname}">
                                 </div>
@@ -389,7 +389,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCEmail" class="field-icon">
-                                        <i class="fas fa-envelope"></i>
+                                        <i class="ti ti-mail"></i>
                                     </label>
                                     <input type="email" name="domaincontactemail" id="inputDCEmail" class="field form-control" placeholder="{$LANG.orderForm.emailAddress}" value="{$domaincontact.email}">
                                 </div>
@@ -397,7 +397,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCPhone" class="field-icon">
-                                        <i class="fas fa-phone"></i>
+                                        <i class="ti ti-phone"></i>
                                     </label>
                                     <input type="tel" name="domaincontactphonenumber" id="inputDCPhone" class="field form-control" placeholder="{$LANG.orderForm.phoneNumber}" value="{$domaincontact.phonenumber}">
                                 </div>
@@ -405,7 +405,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCCompanyName" class="field-icon">
-                                        <i class="fas fa-building"></i>
+                                        <i class="ti ti-building"></i>
                                     </label>
                                     <input type="text" name="domaincontactcompanyname" id="inputDCCompanyName" class="field form-control" placeholder="{$LANG.orderForm.companyName} ({$LANG.orderForm.optional})" value="{$domaincontact.companyname}">
                                 </div>
@@ -413,7 +413,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCAddress1" class="field-icon">
-                                        <i class="far fa-building"></i>
+                                        <i class="ti ti-building"></i>
                                     </label>
                                     <input type="text" name="domaincontactaddress1" id="inputDCAddress1" class="field form-control" placeholder="{$LANG.orderForm.streetAddress}" value="{$domaincontact.address1}">
                                 </div>
@@ -421,7 +421,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCAddress2" class="field-icon">
-                                        <i class="fas fa-map-marker-alt"></i>
+                                        <i class="ti ti-map-pin"></i>
                                     </label>
                                     <input type="text" name="domaincontactaddress2" id="inputDCAddress2" class="field form-control" placeholder="{$LANG.orderForm.streetAddress2}" value="{$domaincontact.address2}">
                                 </div>
@@ -429,7 +429,7 @@
                             <div class="col-sm-4">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCCity" class="field-icon">
-                                        <i class="far fa-building"></i>
+                                        <i class="ti ti-building"></i>
                                     </label>
                                     <input type="text" name="domaincontactcity" id="inputDCCity" class="field form-control" placeholder="{$LANG.orderForm.city}" value="{$domaincontact.city}">
                                 </div>
@@ -437,7 +437,7 @@
                             <div class="col-sm-5">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCState" class="field-icon">
-                                        <i class="fas fa-map-signs"></i>
+                                        <i class="ti ti-map"></i>
                                     </label>
                                     <input type="text" name="domaincontactstate" id="inputDCState" class="field form-control" placeholder="{$LANG.orderForm.state}" value="{$domaincontact.state}">
                                 </div>
@@ -445,7 +445,7 @@
                             <div class="col-sm-3">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCPostcode" class="field-icon">
-                                        <i class="fas fa-certificate"></i>
+                                        <i class="ti ti-certificate"></i>
                                     </label>
                                     <input type="text" name="domaincontactpostcode" id="inputDCPostcode" class="field form-control" placeholder="{$LANG.orderForm.postcode}" value="{$domaincontact.postcode}">
                                 </div>
@@ -453,7 +453,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCCountry" class="field-icon" id="inputCountryIcon">
-                                        <i class="fas fa-globe"></i>
+                                        <i class="ti ti-world"></i>
                                     </label>
                                     <select name="domaincontactcountry" id="inputDCCountry" class="field form-control">
                                         {foreach $countries as $countrycode => $countrylabel}
@@ -467,7 +467,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group prepend-icon">
                                     <label for="inputDCTaxId" class="field-icon">
-                                        <i class="fas fa-building"></i>
+                                        <i class="ti ti-building"></i>
                                     </label>
                                     <input type="text" name="domaincontacttax_id" id="inputDCTaxId" class="field form-control" placeholder="{$taxLabel}" value="{$domaincontact.tax_id}" autocomplete="off">
                                 </div>
@@ -490,7 +490,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group prepend-icon">
                                     <label for="inputNewPassword1" class="field-icon">
-                                        <i class="fas fa-lock"></i>
+                                        <i class="ti ti-lock"></i>
                                     </label>
                                     <input type="password" name="password" id="inputNewPassword1" data-error-threshold="{$pwStrengthErrorThreshold}" data-warning-threshold="{$pwStrengthWarningThreshold}" class="field form-control" placeholder="{$LANG.clientareapassword}"{if $remote_auth_prelinked} value="{$password}"{/if}>
                                 </div>
@@ -498,7 +498,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group prepend-icon">
                                     <label for="inputNewPassword2" class="field-icon">
-                                        <i class="fas fa-lock"></i>
+                                        <i class="ti ti-lock"></i>
                                     </label>
                                     <input type="password" name="password2" id="inputNewPassword2" class="field form-control" placeholder="{$LANG.clientareaconfirmpassword}"{if $remote_auth_prelinked} value="{$password}"{/if}>
                                 </div>
@@ -533,7 +533,7 @@
                                 <div class="col-sm-6">
                                     <div class="form-group prepend-icon">
                                         <label for="inputSecurityQAns" class="field-icon">
-                                            <i class="fas fa-lock"></i>
+                                            <i class="ti ti-lock"></i>
                                         </label>
                                         <input type="password" name="securityqans" id="inputSecurityQAns" class="field form-control" placeholder="{$LANG.clientareasecurityanswer}">
                                     </div>
@@ -628,7 +628,7 @@
                             <div class="col-lg-3 col-sm-4">
                                 <div class="form-group prepend-icon">
                                     <label for="inputCardCVV2" class="field-icon">
-                                        <i class="fas fa-barcode"></i>
+                                        <i class="ti ti-barcode"></i>
                                     </label>
                                     <div class="input-group">
                                         <input type="tel" name="cccvv" id="inputCardCVV2" class="field form-control" placeholder="{$LANG.creditcardcvvnumbershort}" autocomplete="cc-cvc">
@@ -657,7 +657,7 @@
                             <div id="cardNumberContainer" class="col-sm-6 new-card-container">
                                 <div class="form-group prepend-icon">
                                     <label for="inputCardNumber" class="field-icon">
-                                        <i class="fas fa-credit-card"></i>
+                                        <i class="ti ti-credit-card"></i>
                                     </label>
                                     <input type="tel" name="ccnumber" id="inputCardNumber" class="field form-control cc-number-field" placeholder="{$LANG.orderForm.cardNumber}" autocomplete="cc-number" data-message-unsupported="{lang key='paymentMethodsManage.unsupportedCardType'}" data-message-invalid="{lang key='paymentMethodsManage.cardNumberNotValid'}" data-supported-cards="{$supportedCardTypes}" />
                                     <span class="field-error-msg"></span>
@@ -666,7 +666,7 @@
                             <div class="col-sm-3 new-card-container">
                                 <div class="form-group prepend-icon">
                                     <label for="inputCardExpiry" class="field-icon">
-                                        <i class="fas fa-calendar-alt"></i>
+                                        <i class="ti ti-calendar"></i>
                                     </label>
                                     <input type="tel" name="ccexpirydate" id="inputCardExpiry" class="field form-control" placeholder="MM / YY{if $showccissuestart} ({$LANG.creditcardcardexpires}){/if}" autocomplete="cc-exp">
                                     <span class="field-error-msg">{lang key="paymentMethodsManage.expiryDateNotValid"}</span>
@@ -675,7 +675,7 @@
                             <div class="col-sm-3" id="cvv-field-container">
                                 <div class="form-group prepend-icon">
                                     <label for="inputCardCVV" class="field-icon">
-                                        <i class="fas fa-barcode"></i>
+                                        <i class="ti ti-barcode"></i>
                                     </label>
                                     <div class="input-group">
                                         <input type="tel" name="cccvv" id="inputCardCVV" class="field form-control" placeholder="{$LANG.creditcardcvvnumbershort}" autocomplete="cc-cvc">
@@ -692,7 +692,7 @@
                                 <div class="col-sm-3 col-sm-offset-6 new-card-container offset-sm-6">
                                     <div class="form-group prepend-icon">
                                         <label for="inputCardStart" class="field-icon">
-                                            <i class="far fa-calendar-check"></i>
+                                            <i class="ti ti-calendar-check"></i>
                                         </label>
                                         <input type="tel" name="ccstartdate" id="inputCardStart" class="field form-control" placeholder="MM / YY ({$LANG.creditcardcardstart})" autocomplete="cc-exp">
                                     </div>
@@ -700,7 +700,7 @@
                                 <div class="col-sm-3 new-card-container">
                                     <div class="form-group prepend-icon">
                                         <label for="inputCardIssue" class="field-icon">
-                                            <i class="fas fa-asterisk"></i>
+                                            <i class="ti ti-asterisk"></i>
                                         </label>
                                         <input type="tel" name="ccissuenum" id="inputCardIssue" class="field form-control" placeholder="{$LANG.creditcardcardissuenum}">
                                     </div>
@@ -712,7 +712,7 @@
                                 <div id="inputDescriptionContainer" class="col-md-6">
                                     <div class="prepend-icon">
                                         <label for="inputDescription" class="field-icon">
-                                            <i class="fas fa-pencil"></i>
+                                            <i class="ti ti-edit"></i>
                                         </label>
                                         <input type="text" class="field form-control" id="inputDescription" name="ccdescription" autocomplete="off" value="" placeholder="{$LANG.paymentMethods.descriptionInput} {$LANG.paymentMethodsManage.optional}" />
                                     </div>
@@ -782,14 +782,14 @@
                             {if $cartitems==0}disabled="disabled"{/if}
                     >
                         {if $inExpressCheckout}{$LANG.confirmAndPay}{else}{$LANG.completeorder}{/if}
-                        &nbsp;<i class="fas fa-arrow-circle-right"></i>
+                        &nbsp;<i class="ti ti-arrow-right-circle"></i>
                     </button>
                 </div>
             </form>
 
             {if $servedOverSsl}
                 <div class="alert alert-warning checkout-security-msg">
-                    <i class="fas fa-lock"></i>
+                    <i class="ti ti-lock"></i>
                     {$LANG.ordersecure} (<strong>{$ipaddress}</strong>) {$LANG.ordersecure2}
                     <div class="clearfix"></div>
                 </div>

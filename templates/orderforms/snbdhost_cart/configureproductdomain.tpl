@@ -8,9 +8,9 @@
         </div>
 
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">{$LANG.domaincheckerchoosedomain}</h1>
-            </div>
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.domaincheckerchoosedomain}</h1>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
             <form id="frmProductDomain">
                 <input type="hidden" id="frmProductDomainPid" value="{$pid}" />
@@ -365,7 +365,7 @@
                 <div class="text-center">
                     <button id="btnDomainContinue" type="submit" class="btn btn-primary btn-lg w-hidden" disabled="disabled">
                         {$LANG.continue}
-                        &nbsp;<i class="fas fa-arrow-circle-right"></i>
+                        &nbsp;<i class="ti ti-arrow-right-circle"></i>
                     </button>
                 </div>
             </form>

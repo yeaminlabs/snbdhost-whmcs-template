@@ -24,7 +24,7 @@
                 </div>
                 <p class="text-center">
                     <a href="{$WEB_ROOT}/clientarea.php" class="btn btn-default">
-                        <i class="fas fa-arrow-circle-left"></i>
+                        <i class="ti ti-arrow-left-circle"></i>
                         {$LANG.orderForm.returnToClientArea}
                     </a>
                 </p>
@@ -140,9 +140,9 @@
                         <div id="orderSummary">
                             <div class="order-summary">
                                 <div class="loader" id="orderSummaryLoader">
-                                    <i class="fas fa-fw fa-sync fa-spin"></i>
+                                    <i class="ti ti-refresh fa-spin"></i>
                                 </div>
-                                <h2 class="font-size-30">{lang key='ordersummary'}</h2>
+                                <h2 class="font-size-30" style="font-family: \'Plus Jakarta Sans\', sans-serif;">{lang key='ordersummary'}</h2>
                                 <div class="summary-container" id="producttotal"></div>
                             </div>
                             <div class="text-center">
@@ -170,7 +170,7 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="{lang key='orderForm.close'}">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                            <i class="fas fa-times fa-3x"></i>
+                            <i class="ti ti-x fa-3x"></i>
                             <span>{lang key='orderForm.removeItem'}</span>
                         </h4>
                     </div>

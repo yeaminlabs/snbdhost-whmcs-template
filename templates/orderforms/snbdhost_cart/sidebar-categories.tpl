@@ -12,7 +12,7 @@
                     &nbsp;<span class="badge">{$panel->getBadge()}</span>
                 {/if}
 
-                <i class="fas fa-chevron-up card-minimise panel-minimise pull-right float-right"></i>
+                <i class="ti ti-chevron-up card-minimise panel-minimise pull-right float-right"></i>
             </h3>
         </div>
 

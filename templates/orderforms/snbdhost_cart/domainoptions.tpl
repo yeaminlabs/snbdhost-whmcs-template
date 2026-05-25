@@ -168,7 +168,7 @@
         <div class="text-center">
             <button type="submit" class="btn btn-primary btn-lg">
                 {$LANG.continue}
-                &nbsp;<i class="fas fa-arrow-circle-right"></i>
+                &nbsp;<i class="ti ti-arrow-right-circle"></i>
             </button>
         </div>
     {/if}

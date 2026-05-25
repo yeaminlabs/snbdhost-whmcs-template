@@ -14,9 +14,9 @@ var _localLang = {
             {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
         </div>
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">{$LANG.cartdomainsconfig}</h1>
-            </div>
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.cartdomainsconfig}</h1>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <form method="post" action="{$smarty.server.PHP_SELF}?a=confdomains" id="frmConfigureDomains">
@@ -59,7 +59,7 @@ var _localLang = {
                                 <div class="form-group prepend-icon">
                                     <input type="text" name="epp[{$num}]" id="inputEppcode{$num}" value="{$domain.eppvalue}" class="field" placeholder="{$LANG.domaineppcode}" />
                                     <label for="inputEppcode{$num}" class="field-icon">
-                                        <i class="fas fa-lock"></i>
+                                        <i class="ti ti-lock"></i>
                                     </label>
                                     <span class="field-help-text">
                                         {$LANG.domaineppcodedesc}
@@ -86,7 +86,7 @@ var _localLang = {
                                             {$domain.dnsmanagementprice} / {$domain.regperiod} {$LANG.orderyears}
                                         </div>
                                         <div class="panel-add">
-                                            <i class="fas fa-plus"></i>
+                                            <i class="ti ti-plus"></i>
                                             {$LANG.orderForm.addToCart}
                                         </div>
                                     </div>
@@ -107,7 +107,7 @@ var _localLang = {
                                             {$domain.idprotectionprice} / {$domain.regperiod} {$LANG.orderyears}
                                         </div>
                                         <div class="panel-add">
-                                            <i class="fas fa-plus"></i>
+                                            <i class="ti ti-plus"></i>
                                             {$LANG.orderForm.addToCart}
                                         </div>
                                     </div>
@@ -128,7 +128,7 @@ var _localLang = {
                                             {$domain.emailforwardingprice} / {$domain.regperiod} {$LANG.orderyears}
                                         </div>
                                         <div class="panel-add">
-                                            <i class="fas fa-plus"></i>
+                                            <i class="ti ti-plus"></i>
                                             {$LANG.orderForm.addToCart}
                                         </div>
                                     </div>
@@ -192,7 +192,7 @@ var _localLang = {
                 <div class="text-center pt-4">
                     <button type="submit" class="btn btn-primary btn-lg">
                         {$LANG.continue}
-                        &nbsp;<i class="fas fa-arrow-circle-right"></i>
+                        &nbsp;<i class="ti ti-arrow-right-circle"></i>
                     </button>
                 </div>
 

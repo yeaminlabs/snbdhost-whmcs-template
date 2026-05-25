@@ -21,8 +21,8 @@
 
             </div>
             <div class="cart-body">
-                <div class="header-lined">
-                    <h1 class="font-size-36">{$LANG.cartreviewcheckout}</h1>
+                <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.cartreviewcheckout}</h1>
                 </div>
 
                 {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
@@ -88,12 +88,12 @@
                                                 <span class="item-title">
                                                     {$product.productinfo.name}
                                                     <a href="{$WEB_ROOT}/cart.php?a=confproduct&i={$num}" class="btn btn-link btn-xs">
-                                                        <i class="fas fa-pencil-alt"></i>
+                                                        <i class="ti ti-edit"></i>
                                                         {$LANG.orderForm.edit}
                                                     </a>
                                                     <span class="visible-xs-inline d-inline d-sm-none">
                                                         <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('p','{$num}')">
-                                                            <i class="fas fa-times"></i>
+                                                            <i class="ti ti-x"></i>
                                                             {$LANG.orderForm.remove}
                                                         </button>
                                                     </span>
@@ -134,7 +134,7 @@
                                             </div>
                                             <div class="col-sm-1 hidden-xs d-none d-sm-block">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('p','{$num}')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -179,7 +179,7 @@
                                                     {$addon.name}
                                                     <span class="visible-xs-inline d-inline d-sm-none">
                                                         <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('a','{$num}')">
-                                                            <i class="fas fa-times"></i>
+                                                            <i class="ti ti-x"></i>
                                                             {$LANG.orderForm.remove}
                                                         </button>
                                                     </span>
@@ -211,7 +211,7 @@
                                             </div>
                                             <div class="col-sm-1 hidden-xs d-none d-sm-block">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('a','{$num}')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -225,12 +225,12 @@
                                                 <span class="item-title">
                                                     {if $domain.type eq "register"}{$LANG.orderdomainregistration}{else}{$LANG.orderdomaintransfer}{/if}
                                                     <a href="{$WEB_ROOT}/cart.php?a=confdomains" class="btn btn-link btn-xs">
-                                                        <i class="fas fa-pencil-alt"></i>
+                                                        <i class="ti ti-edit"></i>
                                                         {$LANG.orderForm.edit}
                                                     </a>
                                                     <span class="visible-xs-inline d-inline d-sm-none">
                                                         <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('d','{$num}')">
-                                                            <i class="fas fa-times"></i>
+                                                            <i class="ti ti-x"></i>
                                                             {$LANG.orderForm.remove}
                                                         </button>
                                                     </span>
@@ -275,7 +275,7 @@
                                             </div>
                                             <div class="col-sm-1 hidden-xs d-none d-sm-block">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('d','{$num}')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -302,7 +302,7 @@
                                             </div>
                                             <div class="col-sm-1">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('r','{$num}','service')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                     <span class="visible-xs d-block d-sm-none">{lang key='orderForm.remove'}</span>
                                                 </button>
                                             </div>
@@ -330,7 +330,7 @@
                                             </div>
                                             <div class="col-sm-1">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('r','{$num}','addon')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                     <span class="visible-xs d-block d-sm-none">{lang key='orderForm.remove'}</span>
                                                 </button>
                                             </div>
@@ -358,7 +358,7 @@
                                             </div>
                                             <div class="col-sm-1">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('r','{$num}','domain')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                     <span class="visible-xs d-block d-sm-none">{$LANG.orderForm.remove}</span>
                                                 </button>
                                             </div>
@@ -402,7 +402,7 @@
                                             </div>
                                             <div class="col-sm-1">
                                                 <button type="button" class="btn btn-link btn-xs btn-remove-from-cart" onclick="removeItem('u','{$num}')">
-                                                    <i class="fas fa-times"></i>
+                                                    <i class="ti ti-x"></i>
                                                     <span class="visible-xs d-block d-sm-none">{$LANG.orderForm.remove}</span>
                                                 </button>
                                             </div>
@@ -436,7 +436,7 @@
                             {if $cartitems > 0}
                                 <div class="empty-cart">
                                     <button type="button" class="btn btn-link btn-xs" id="btnEmptyCart">
-                                        <i class="fas fa-trash-alt"></i>
+                                        <i class="ti ti-trash"></i>
                                         <span>{$LANG.emptycart}</span>
                                     </button>
                                 </div>
@@ -486,7 +486,7 @@
                                         <form method="post" action="{$WEB_ROOT}/cart.php?a=view">
                                             <div class="form-group prepend-icon ">
                                                 <label for="cardno" class="field-icon">
-                                                    <i class="fas fa-ticket-alt"></i>
+                                                    <i class="ti ti-ticket"></i>
                                                 </label>
                                                 <input type="text" name="promocode" id="inputPromotionCode" class="field form-control" placeholder="{lang key="orderPromoCodePlaceholder"}" required="required">
                                             </div>
@@ -533,9 +533,9 @@
 
                         <div class="order-summary" id="orderSummary">
                             <div class="loader w-hidden" id="orderSummaryLoader">
-                                <i class="fas fa-fw fa-sync fa-spin"></i>
+                                <i class="ti ti-refresh fa-spin"></i>
                             </div>
-                            <h2 class="font-size-30">{$LANG.ordersummary}</h2>
+                            <h2 class="font-size-30" style="font-family: \'Plus Jakarta Sans\', sans-serif;">{$LANG.ordersummary}</h2>
                             <div class="summary-container">
 
                                 <div class="subtotal clearfix">
@@ -605,7 +605,7 @@
                                 <div class="text-right">
                                     <a href="{$WEB_ROOT}/cart.php?a=checkout&e=false" class="btn btn-success btn-lg btn-checkout{if $cartitems == 0} disabled{/if}" id="checkout">
                                         {$LANG.orderForm.checkout}
-                                        <i class="fas fa-arrow-right"></i>
+                                        <i class="ti ti-arrow-right"></i>
                                     </a><br />
                                     <a href="{$WEB_ROOT}/cart.php" class="btn btn-link btn-continue-shopping" id="continueShopping">
                                         {$LANG.orderForm.continueShopping}
@@ -634,7 +634,7 @@
                                 </button>
                             </div>
                             <h4 class="modal-title margin-bottom mb-3">
-                                <i class="fas fa-times fa-3x"></i>
+                                <i class="ti ti-x fa-3x"></i>
                                 <span>{lang key='orderForm.removeItem'}</span>
                             </h4>
                             {lang key='cartremoveitemconfirm'}
@@ -660,7 +660,7 @@
                                 </button>
                             </div>
                             <h4 class="modal-title margin-bottom mb-3">
-                                <i class="fas fa-trash-alt fa-3x"></i>
+                                <i class="ti ti-trash fa-3x"></i>
                                 <span>{$LANG.emptycart}</span>
                             </h4>
                             {$LANG.cartemptyconfirm}

@@ -2,11 +2,11 @@
 
 <div id="order-standard_cart">
 
-    <div class="header-lined">
-        <h1 class="font-size-36">
+    <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">
             {$LANG.cartfraudcheck}
         </h1>
-    </div>
+                </div>
 
     <div class="row">
 
@@ -26,7 +26,7 @@
                         <p>
                             <a href="#" class="btn btn-default" data-url="{$userValidationUrl}" onclick="openValidationSubmitModal(this);return false;">
                                 {lang key='fraud.submitDocs'}
-                                &nbsp;<i class="fas fa-arrow-right"></i>
+                                &nbsp;<i class="ti ti-arrow-right"></i>
                             </a>
                         </p>
                         <div id="validationSubmitModal" class="modal fade" role="dialog">
@@ -47,7 +47,7 @@
                         <p>
                             <a href="{$WEB_ROOT}/submitticket.php" class="btn btn-default">
                                 {$LANG.orderForm.submitTicket}
-                                &nbsp;<i class="fas fa-arrow-right"></i>
+                                &nbsp;<i class="ti ti-arrow-right"></i>
                             </a>
                         </p>
                     {/if}

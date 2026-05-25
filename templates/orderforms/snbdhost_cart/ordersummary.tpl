@@ -77,7 +77,7 @@
                         <div>
                             {$serviceRenewal.recurringBeforeTax}
                             <a onclick="removeItem('r','{$serviceId}','service'); return false;" href="#" id="linkCartRemoveServiceRenewal{$serviceId}">
-                                <i class="fas fa-fw fa-trash-alt"></i>
+                                <i class="fas fa-fw ti ti-trash"></i>
                             </a>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                         <div>
                             {$serviceAddonRenewal.recurringBeforeTax}
                             <a onclick="removeItem('r','{$serviceAddonId}','addon'); return false;" href="#" id="linkCartRemoveServiceAddonRenewal{$serviceAddonId}">
-                                <i class="fas fa-fw fa-trash-alt"></i>
+                                <i class="fas fa-fw ti ti-trash"></i>
                             </a>
                         </div>
                     </div>
@@ -120,7 +120,7 @@
                 <span class="pull-right float-right">
                     {$renewal.priceBeforeTax}
                     <a onclick="removeItem('r','{$domainId}','domain'); return false;" href="#" id="linkCartRemoveDomainRenewal{$domainId}">
-                        <i class="fas fa-fw fa-trash-alt"></i>
+                        <i class="fas fa-fw ti ti-trash"></i>
                     </a>
                 </span>
             </div>

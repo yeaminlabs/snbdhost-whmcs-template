@@ -7,15 +7,15 @@
             {include file="orderforms/snbdhost_cart/sidebar-categories.tpl"}
         </div>
         <div class="cart-body">
-            <div class="header-lined">
-                <h1 class="font-size-36">
+            <div class="header-lined mb-4 border-0 pb-0">
+                    <h1 class="dash-headline" style="font-size: 2rem;">
                     {$LANG.transferdomain}
                 </h1>
-            </div>
+                </div>
             {include file="orderforms/snbdhost_cart/sidebar-categories-collapsed.tpl"}
 
             <div class="text-center">
-                <h2 class="font-size-30">{lang key='orderForm.transferToUs'}</h2>
+                <h2 class="font-size-30" style="font-family: \'Plus Jakarta Sans\', sans-serif;">{lang key='orderForm.transferToUs'}</h2>
                 <p>{lang key='orderForm.transferExtend'}*</p>
             </div>
             <br />
@@ -37,7 +37,7 @@
                                 <div class="form-group">
                                     <label for="inputAuthCode" style="width:100%;">
                                         {lang key='orderForm.authCode'}
-                                        <a data-toggle="tooltip" data-placement="left" title="{lang key='orderForm.authCodeTooltip'}" class="pull-right float-right"><i class="fas fa-question-circle"></i> {lang key='orderForm.help'}</a>
+                                        <a data-toggle="tooltip" data-placement="left" title="{lang key='orderForm.authCodeTooltip'}" class="pull-right float-right"><i class="ti ti-help-circle"></i> {lang key='orderForm.help'}</a>
                                     </label>
                                     <input type="text" class="form-control" name="epp" id="inputAuthCode" placeholder="{lang key='orderForm.authCodePlaceholder'}" data-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.required'}" />
                                 </div>
