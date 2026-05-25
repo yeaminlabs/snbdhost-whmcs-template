@@ -56,17 +56,17 @@ a:hover { color: var(--brand-hover); }
 /* ----------------------------------------------------------------
    3. Layout — Sidebar + Cart Body
    ---------------------------------------------------------------- */
-.cart-sidebar {
-  background: var(--surface) !important;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 0;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
+.cart-sidebar,
+.sidebar-collapsed {
+  display: none !important;
 }
 
 .cart-body {
   background: transparent;
+  width: 100% !important;
+  float: none !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
 }
 
 .header-lined h1 {
