@@ -129,22 +129,81 @@
         </aside>
 
         <main id="snbd-main">
-            <header id="snbd-topbar">
-                <div class="topbar-left">
-                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="ti ti-menu-2"></i></button>
+            <!-- Announcement Bar -->
+            <div class="snbd-announcement-bar">
+                <div class="announcement-container">
+                    <div class="announcement-left">
+                        <span class="announcement-badge">NEW</span>
+                        <span class="announcement-text">AI-Powered Hosting is here! Deploy, manage & scale smarter than ever.</span>
+                    </div>
+                    <div class="announcement-right">
+                        <a href="{$WEB_ROOT}/index.php?rp=/store" class="announcement-link">View Offers <i class="ti ti-arrow-right"></i></a>
+                    </div>
                 </div>
-                <form class="topbar-search" action="{$WEB_ROOT}/knowledgebase.php" method="get" role="search">
-                    <input type="hidden" name="action" value="knowledgebase">
-                    <i class="ti ti-search"></i>
-                    <input type="text" name="search" placeholder="Search services, tickets..." aria-label="Search" autocomplete="off">
-                </form>
+            </div>
+
+            <header id="snbd-topbar">
+                <div class="topbar-left-wrap">
+                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="ti ti-menu-2"></i></button>
+                    <a href="{$WEB_ROOT}/clientarea.php" class="topbar-logo-link">
+                        <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="topbar-logo">
+                    </a>
+                </div>
+
+                <nav class="topbar-nav d-none d-xl-flex">
+                    <div class="topbar-nav-item dropdown">
+                        <a href="#" class="topbar-nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Hosting <i class="ti ti-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/shared-hosting">Shared Hosting</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/wordpress-hosting">WordPress Hosting</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/vps-hosting">VPS Hosting</a></li>
+                        </ul>
+                    </div>
+                    <a href="https://snbdhost.com/n8n-automation" class="topbar-nav-link">N8N Automation</a>
+                    <a href="https://snbdhost.com/openclaw" class="topbar-nav-link">OpenClaw</a>
+                    <a href="{$WEB_ROOT}/index.php?rp=/store/domain/registration" class="topbar-nav-link">Domain</a>
+                    <div class="topbar-nav-item dropdown">
+                        <a href="#" class="topbar-nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Servers <i class="ti ti-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/dedicated-servers">Dedicated Servers</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/index.php?rp=/store/cloud-servers">Cloud Servers</a></li>
+                        </ul>
+                    </div>
+                    <a href="https://snbdhost.com/blog" class="topbar-nav-link">Blog</a>
+                    <a href="{$WEB_ROOT}/submitticket.php" class="topbar-nav-link">Support</a>
+                    <a href="https://snbdhost.com/offers" class="topbar-nav-link text-danger fw-bold d-flex align-items-center gap-1">Offers <i class="ti ti-flame text-danger"></i></a>
+                </nav>
+
                 <div class="topbar-right">
+                    <!-- Search Bar (Compact) -->
+                    <form class="topbar-search-compact d-none d-md-flex" action="{$WEB_ROOT}/knowledgebase.php" method="get" role="search">
+                        <input type="hidden" name="action" value="knowledgebase">
+                        <div class="search-input-group">
+                            <i class="ti ti-search"></i>
+                            <input type="text" name="search" placeholder="Search..." aria-label="Search" autocomplete="off">
+                        </div>
+                    </form>
+
+                    <!-- Currency selector (BDT / USD) -->
+                    <div class="topbar-currency dropdown">
+                        <button class="btn btn-currency dropdown-toggle px-3 py-1" type="button" id="currencyMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            ৳ BDT
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="currencyMenu">
+                            <li><a class="dropdown-item" href="#">৳ BDT</a></li>
+                            <li><a class="dropdown-item" href="#">$ USD</a></li>
+                        </ul>
+                    </div>
+
                     <a href="clientarea.php?action=details" class="topbar-icon-btn" aria-label="Settings" title="Account Settings">
                         <i class="ti ti-settings"></i>
                     </a>
-                    <button class="topbar-icon-btn" aria-label="Notifications">
+                    
+                    <button class="topbar-icon-btn position-relative" aria-label="Notifications">
                         <i class="ti ti-bell"></i>
                     </button>
+
+                    <a href="{$WEB_ROOT}/clientarea.php" class="btn btn-brand btn-topbar-dashboard ms-2 d-none d-md-inline-block">My Dashboard</a>
                 </div>
             </header>
 

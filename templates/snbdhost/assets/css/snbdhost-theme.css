@@ -43,9 +43,10 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Layout */
+  --announcement-h: 38px;
+  --topbar-h: 70px;
   --sidebar-w: 260px;
   --sidebar-w-collapsed: 68px;
-  --topbar-h: 56px;
 }
 
 /* ----------------------------------------------------------------
@@ -209,17 +210,25 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   background: var(--bg-surface);
   border-right: 1px solid #f0f0f0;
   position: fixed;
-  top: 0; left: 0;
-  height: 100vh;
+  top: calc(var(--announcement-h) + var(--topbar-h));
+  left: 0;
+  height: calc(100vh - var(--announcement-h) - var(--topbar-h));
   z-index: 1040;
   display: flex;
   flex-direction: column;
-  transition: width 0.25s ease;
+  transition: width 0.25s, top 0.25s, height 0.25s;
   overflow-x: hidden;
   font-family: 'Plus Jakarta Sans', var(--font-sans) !important;
 }
 #snbd-sidebar { background: var(--bg-surface) !important; }
 #snbd-sidebar.collapsed { width: var(--sidebar-w-collapsed); }
+
+/* Hide brand logo in sidebar on desktop (as it is now in the topbar) */
+@media (min-width: 769px) {
+  .snbd-brand-logo-container {
+    display: none !important;
+  }
+}
 
 /* Brand Logo Container */
 .snbd-brand-logo-container {
@@ -342,13 +351,76 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   flex: 1;
   min-width: 0; /* CRITICAL: Prevents flex child from overflowing viewport to the right */
   margin-left: var(--sidebar-w);
+  margin-top: calc(var(--announcement-h) + var(--topbar-h));
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.25s ease;
-  min-height: 100vh;
+  transition: margin-left 0.25s ease, margin-top 0.25s ease;
+  min-height: calc(100vh - var(--announcement-h) - var(--topbar-h));
   background-color: var(--bg-body) !important;
 }
 #snbd-sidebar.collapsed ~ #snbd-main { margin-left: var(--sidebar-w-collapsed); }
+
+/* Announcement Bar Styles */
+.snbd-announcement-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--announcement-h);
+  background-color: #0f0f11;
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.announcement-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.announcement-left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.announcement-badge {
+  background-color: var(--brand-primary);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.announcement-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.announcement-right {
+  display: flex;
+  align-items: center;
+}
+.announcement-link {
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: opacity 0.2s;
+}
+.announcement-link:hover {
+  opacity: 0.8;
+  color: #ffffff;
+}
 
 /* ----------------------------------------------------------------
    7. Top Navbar
@@ -361,11 +433,15 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 1030;
+  position: fixed;
+  top: var(--announcement-h);
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  transition: all 0.25s ease;
 }
-.topbar-left { display: flex; align-items: center; gap: 1rem; }
+.topbar-left-wrap { display: flex; align-items: center; gap: 1rem; }
 .toggle-sidebar-btn {
   background: none; border: none;
   color: var(--text-secondary); font-size: 1.125rem;
@@ -374,34 +450,138 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 }
 .toggle-sidebar-btn:hover { background: #f5f5f5; color: #CC0000; }
 
-.topbar-search {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 320px;
+.topbar-logo-link { display: flex; align-items: center; }
+.topbar-logo { height: 28px; width: auto; display: block; }
+
+/* Topbar Menu Navigation */
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
+}
+.topbar-nav-link {
+  color: #333333;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.35rem 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.topbar-nav-link:hover {
+  color: var(--brand-primary);
+}
+.topbar-nav-item.dropdown .dropdown-toggle::after {
+  display: none;
+}
+.topbar-nav-item .dropdown-menu {
+  border: 1px solid #eeeeee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  border-radius: 10px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+.topbar-nav-item .dropdown-item {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #444444;
+  transition: all 0.15s ease;
+}
+.topbar-nav-item .dropdown-item:hover {
+  background-color: var(--brand-light);
+  color: var(--brand-primary);
+}
+
+/* Compact Search Bar */
+.topbar-search-compact {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 150px;
+  transition: width 0.25s ease;
+}
+.topbar-search-compact:focus-within {
+  width: 200px;
+}
+.topbar-search-compact .search-input-group {
+  width: 100%;
+  position: relative;
   display: flex;
   align-items: center;
 }
-.topbar-search input {
+.topbar-search-compact i {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  z-index: 1;
+}
+.topbar-search-compact input {
   width: 100%;
-  background-color: #f9f9f9 !important;
+  background-color: #f6f6f6 !important;
   border: 1px solid #eeeeee !important;
   color: #111111 !important;
-  padding: 0.5rem 1rem 0.5rem 2.25rem !important;
-  border-radius: 10px !important;
-  font-size: 0.85rem !important;
+  padding: 0.45rem 1rem 0.45rem 2.25rem !important;
+  border-radius: 50rem !important;
+  font-size: 0.8rem !important;
   font-weight: 500 !important;
   outline: none !important;
   transition: all 0.2s ease !important;
 }
-.topbar-search input[type="hidden"] { display: none; }
-.topbar-search input:focus {
+.topbar-search-compact input:focus {
   background-color: #ffffff !important;
-  border-color: #CC0000 !important;
-  color: #111111 !important;
-  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1) !important;
+  border-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 3px rgba(186, 17, 20, 0.1) !important;
 }
-.topbar-search i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8125rem; z-index: 1; }
+
+/* Currency Dropdown */
+.topbar-currency .btn-currency {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 50rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s;
+  padding: 0.45rem 1rem !important;
+  line-height: 1;
+}
+.topbar-currency .btn-currency:hover,
+.topbar-currency.show .btn-currency {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  background-color: var(--brand-light);
+}
+.topbar-currency .dropdown-toggle::after {
+  display: none;
+}
+.topbar-currency .dropdown-menu {
+  border: 1px solid #eeeeee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  border-radius: 10px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+.topbar-currency .dropdown-item {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #444444;
+  transition: all 0.15s ease;
+}
+.topbar-currency .dropdown-item:hover {
+  background-color: var(--brand-light);
+  color: var(--brand-primary);
+}
 
 .topbar-right { display: flex; align-items: center; gap: 0.5rem; }
 .topbar-icon-btn {
@@ -421,6 +601,27 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
   font-size: 0.6rem; font-weight: 700;
   padding: 1px 5px; border-radius: 50rem;
   line-height: 1.2;
+}
+
+/* Red Dashboard Pill Button */
+.btn-topbar-dashboard {
+  background: var(--brand-primary) !important;
+  color: #ffffff !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  border-radius: 50rem !important;
+  padding: 0.45rem 1.25rem !important;
+  box-shadow: 0 2px 4px rgba(186, 17, 20, 0.2) !important;
+  transition: all 0.2s ease !important;
+  border: none !important;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-topbar-dashboard:hover {
+  background: var(--brand-hover) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(186, 17, 20, 0.3) !important;
+  transform: translateY(-1px);
 }
 
 /* ----------------------------------------------------------------
@@ -826,15 +1027,26 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
    15. Responsive
    ---------------------------------------------------------------- */
 @media (max-width: 768px) {
-  #snbd-sidebar { transform: translateX(-100%); width: var(--sidebar-w); z-index: 1050; }
+  :root {
+    --announcement-h: 0px;
+    --topbar-h: 56px;
+  }
+  #snbd-sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-w);
+    z-index: 1070;
+    top: 0 !important;
+    height: 100vh !important;
+  }
   #snbd-sidebar.mobile-open { transform: translateX(0); }
-  #snbd-main, #snbd-sidebar.collapsed ~ #snbd-main { margin-left: 0; }
+  #snbd-main, #snbd-sidebar.collapsed ~ #snbd-main { margin-left: 0; margin-top: var(--topbar-h); }
   .snbd-content { padding: 1rem; }
-  .topbar-search {
-    position: relative;
-    left: auto;
-    transform: none;
-    width: 160px;
+  #snbd-topbar {
+    top: 0 !important;
+    padding: 0 1rem !important;
+  }
+  .snbd-announcement-bar {
+    display: none !important;
   }
 }
 
@@ -1132,8 +1344,8 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 .snbd-user-profile:hover { background: rgba(0, 0, 0, 0.02) !important; }
 
 /* Topbar search focus polish */
-.topbar-search input::placeholder { color: var(--text-muted); }
-.topbar-search:focus-within i     { color: #CC0000 !important; transition: color 0.15s; }
+.topbar-search-compact input::placeholder { color: var(--text-muted); }
+.topbar-search-compact:focus-within i     { color: #CC0000 !important; transition: color 0.15s; }
 
 /* ================================================================
    19. Dashboard Widget Cards (Loyalty Matrix, etc.)
