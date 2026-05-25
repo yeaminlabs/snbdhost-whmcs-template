@@ -13,16 +13,16 @@ if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
 
-add_hook('ClientAreaPage', 1, function($vars) {
+// Hook specifically into ClientAreaPageHome so it only executes on the home page (index.php)
+add_hook('ClientAreaPageHome', 1, function($vars) {
     // Check if the user is logged in using both WHMCS template variables and session data
     $isLoggedIn = !empty($vars['clientsdetails']['userid']) || (isset($_SESSION['uid']) && $_SESSION['uid'] > 0);
 
     if (!$isLoggedIn) {
-        $filename = isset($vars['filename']) ? $vars['filename'] : '';
         $templatefile = isset($vars['templatefile']) ? $vars['templatefile'] : '';
 
-        // If the guest user is trying to access the index page (portal home)
-        if ($filename === 'index' || $templatefile === 'homepage') {
+        // Double check that we are rendering the portal homepage template to avoid any redirect loops
+        if ($templatefile === 'homepage') {
             header("Location: login.php");
             exit;
         }
