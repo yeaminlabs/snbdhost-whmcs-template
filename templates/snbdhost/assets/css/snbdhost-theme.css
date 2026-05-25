@@ -340,6 +340,7 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
    ---------------------------------------------------------------- */
 #snbd-main {
   flex: 1;
+  min-width: 0; /* CRITICAL: Prevents flex child from overflowing viewport to the right */
   margin-left: var(--sidebar-w);
   display: flex;
   flex-direction: column;
@@ -457,19 +458,35 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 }
 
 /* ----------------------------------------------------------------
-   10. Service Cards
+   10. Service Cards (Premium Redesign)
    ---------------------------------------------------------------- */
 .service-card {
-  transition: transform 0.15s, box-shadow 0.15s;
-  border-top: 3px solid transparent;
+  background: #ffffff !important;
+  border: 1px solid #eeeeee !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.01) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden;
+  padding: 0.5rem;
 }
 .service-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06) !important;
+  border-color: #dddddd !important;
 }
-.service-card.service-active { border-top-color: var(--success); }
-.service-card.service-pending { border-top-color: var(--warning); }
-.service-card.service-suspended { border-top-color: var(--danger); }
+.service-card .card-body {
+  padding: 1.25rem !important;
+}
+.service-card-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+}
+.service-card-icon.active { background: rgba(46, 125, 50, 0.08); color: #2e7d32; }
+.service-card-icon.pending { background: rgba(230, 81, 0, 0.08); color: #e65100; }
+.service-card-icon.suspended { background: rgba(198, 40, 40, 0.08); color: #c62828; }
+.service-card-icon.terminated { background: rgba(100, 100, 100, 0.08); color: #666666; }
 
 /* ----------------------------------------------------------------
    11. Floating Action Button (FAB)
