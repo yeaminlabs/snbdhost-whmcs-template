@@ -1,31 +1,33 @@
 <!-- Ticket Header -->
-<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
     <div>
-        <h2 class="mb-1 fw-bold">Ticket #{$tid} - {$subject}</h2>
-        <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
-            <span class="ticket-dept-badge"><i class="fas fa-tag me-1"></i>{$department}</span>
+        <h1 class="dash-headline" style="font-size: 2rem; margin-bottom: 0.25rem;">Ticket <span class="dash-headline-accent">#{$tid}</span></h1>
+        <p class="text-secondary fw-semibold mb-0" style="font-size: 1.1rem; letter-spacing: -0.01em;">{$subject}</p>
+        
+        <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
+            <span class="ticket-dept-badge"><i class="ti ti-tag me-1"></i>{$department}</span>
             {if $status eq "Open"}
-                <span class="ticket-status-badge status-open"><i class="fas fa-circle me-1" style="font-size:7px; vertical-align:middle;"></i>Open</span>
+                <span class="ticket-status-badge status-open"><i class="ti ti-circle-filled me-1" style="font-size:7px; vertical-align:middle;"></i>Open</span>
             {elseif $status eq "Answered"}
-                <span class="ticket-status-badge status-answered"><i class="fas fa-circle me-1" style="font-size:7px; vertical-align:middle;"></i>Answered</span>
-            {elseif $status eq "Customer-Reply"}
-                <span class="ticket-status-badge status-waiting"><i class="fas fa-circle me-1" style="font-size:7px; vertical-align:middle;"></i>Awaiting Reply</span>
+                <span class="ticket-status-badge status-answered"><i class="ti ti-circle-filled me-1" style="font-size:7px; vertical-align:middle;"></i>Answered</span>
+            {elseif $status eq "Customer-Reply" || $status eq "Awaiting Reply"}
+                <span class="ticket-status-badge status-waiting"><i class="ti ti-circle-filled me-1" style="font-size:7px; vertical-align:middle;"></i>Awaiting Reply</span>
             {elseif $status eq "Closed"}
-                <span class="ticket-status-badge status-closed"><i class="fas fa-circle me-1" style="font-size:7px; vertical-align:middle;"></i>Closed</span>
+                <span class="ticket-status-badge status-closed"><i class="ti ti-circle-filled me-1" style="font-size:7px; vertical-align:middle;"></i>Closed</span>
             {else}
                 <span class="ticket-status-badge status-closed">{$status}</span>
             {/if}
         </div>
     </div>
-    <a href="supporttickets.php" class="btn btn-brand"><i class="fas fa-arrow-left me-2"></i>Back to Tickets</a>
+    <a href="supporttickets.php" class="btn btn-outline-custom py-2 px-3"><i class="ti ti-arrow-left me-2"></i>Back to Tickets</a>
 </div>
 
-<!-- Ticket Thread -->
-<div class="ticket-thread-card mb-4">
-    <div class="ticket-thread-header">
-        <i class="fas fa-comments me-2"></i>Conversation Thread
+<!-- Ticket Conversation Thread -->
+<div class="ticket-thread-card border-0 mb-4" style="border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.02); border: 1px solid #eeeeee !important;">
+    <div class="ticket-thread-header bg-white py-3 px-4 d-flex align-items-center" style="border-bottom: 1px solid #eeeeee;">
+        <i class="ti ti-messages me-2 text-danger" style="font-size: 1.2rem;"></i> <span class="fw-bold" style="font-family: 'Plus Jakarta Sans', sans-serif;">Conversation Thread</span>
     </div>
-    <div class="ticket-replies-wrap">
+    <div class="ticket-replies-wrap p-4 d-flex flex-column gap-4">
 
         <!-- Original Message -->
         <div class="ticket-msg-row ticket-msg-client">
@@ -34,17 +36,17 @@
                     {if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:""}{else}Y{/if}
                 </div>
                 <div>
-                    <span class="ticket-sender-name">You</span>
-                    <span class="ticket-msg-time"><i class="far fa-clock me-1"></i>{$date}</span>
+                    <span class="ticket-sender-name text-end">You</span>
+                    <span class="ticket-msg-time"><i class="ti ti-clock me-1"></i>{$date}</span>
                 </div>
             </div>
-            <div class="ticket-bubble ticket-bubble-client">
+            <div class="ticket-bubble ticket-bubble-client mt-2">
                 {$message}
             </div>
             {if $attachments}
-            <div class="ticket-attachments">
+            <div class="ticket-attachments mt-2">
                 {foreach $attachments as $attachment}
-                <a href="{$attachment.url}" class="ticket-attachment-pill"><i class="fas fa-paperclip me-1"></i>{$attachment.filename}</a>
+                <a href="{$attachment.url}" target="_blank" class="ticket-attachment-pill"><i class="ti ti-paperclip me-1"></i>{$attachment.filename}</a>
                 {/foreach}
             </div>
             {/if}
@@ -59,21 +61,20 @@
                 </div>
                 <div>
                     {if $reply.admin}
-                        <span class="ticket-sender-name">{$reply.admin}</span>
-                        <span class="ticket-staff-label"><i class="fas fa-shield-alt me-1"></i>Support Staff</span>
+                        <span class="ticket-sender-name text-start">{$reply.admin} <span class="ticket-staff-label"><i class="ti ti-shield-check"></i> Staff</span></span>
                     {else}
-                        <span class="ticket-sender-name">You</span>
+                        <span class="ticket-sender-name text-end">You</span>
                     {/if}
-                    <span class="ticket-msg-time"><i class="far fa-clock me-1"></i>{$reply.date}</span>
+                    <span class="ticket-msg-time"><i class="ti ti-clock me-1"></i>{$reply.date}</span>
                 </div>
             </div>
-            <div class="ticket-bubble {if $reply.admin}ticket-bubble-staff{else}ticket-bubble-client{/if}">
+            <div class="ticket-bubble {if $reply.admin}ticket-bubble-staff{else}ticket-bubble-client{/if} mt-2">
                 {$reply.message}
             </div>
             {if $reply.attachments}
-            <div class="ticket-attachments {if $reply.admin}attachments-staff{/if}">
+            <div class="ticket-attachments mt-2 {if $reply.admin}attachments-staff{/if}">
                 {foreach $reply.attachments as $attachment}
-                <a href="{$attachment.url}" class="ticket-attachment-pill"><i class="fas fa-paperclip me-1"></i>{$attachment.filename}</a>
+                <a href="{$attachment.url}" target="_blank" class="ticket-attachment-pill"><i class="ti ti-paperclip me-1"></i>{$attachment.filename}</a>
                 {/foreach}
             </div>
             {/if}
@@ -85,31 +86,32 @@
 
 <!-- Reply Form -->
 {if $status neq "Closed"}
-<div class="ticket-reply-card">
-    <div class="ticket-thread-header">
-        <i class="fas fa-reply me-2"></i>Reply to Ticket
+<div class="ticket-reply-card border-0 mb-5" style="border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.02); border: 1px solid #eeeeee !important; overflow: hidden;">
+    <div class="ticket-thread-header bg-white py-3 px-4 d-flex align-items-center" style="border-bottom: 1px solid #eeeeee;">
+        <i class="ti ti-edit me-2 text-danger" style="font-size: 1.2rem;"></i> <span class="fw-bold" style="font-family: 'Plus Jakarta Sans', sans-serif;">Reply to Ticket</span>
     </div>
-    <div class="ticket-reply-body">
-        <form method="post" action="viewticket.php?tid={$tid}&c={$c}" enctype="multipart/form-data">
+    <div class="ticket-reply-body p-4">
+        <form method="post" action="viewticket.php?tid={$tid}&amp;c={$c}" enctype="multipart/form-data">
             <input type="hidden" name="postreply" value="true" />
-            <div class="mb-3">
-                <textarea name="replymessage" rows="5" class="ticket-textarea" placeholder="Type your message here..."></textarea>
+            <div class="mb-4">
+                <textarea name="replymessage" rows="6" class="ticket-textarea" placeholder="Type your response message here..."></textarea>
             </div>
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <label class="ticket-upload-label">
-                        <i class="fas fa-paperclip me-1"></i>Attach Files
+                    <label class="ticket-upload-label px-3 py-2" style="background: #fafafa; border-radius: 50rem; border: 1px dashed #d0d0d0; cursor: pointer; transition: all 0.2s;">
+                        <i class="ti ti-paperclip me-1 text-danger"></i> <span class="small fw-semibold text-secondary">Attach Files</span>
                         <input type="file" name="attachments[]" multiple class="d-none">
                     </label>
-                    <div class="small text-secondary mt-1" style="font-size:0.75rem;">Allowed: {$allowedexts|default:'jpg,gif,jpeg,png,pdf'} (Max: {$uploadmaxsize|default:'8'}MB)</div>
+                    <div class="small text-secondary mt-2" style="font-size:0.72rem;">Allowed extensions: <strong>{$allowedexts|default:'jpg,gif,jpeg,png,pdf'}</strong> (Max size: {$uploadmaxsize|default:'8'}MB)</div>
                 </div>
-                <button type="submit" class="btn btn-brand px-5 fw-semibold"><i class="fas fa-paper-plane me-2"></i>Send Reply</button>
+                <button type="submit" class="btn btn-brand-clean px-4 py-2" style="font-size: 0.85rem !important;"><i class="ti ti-send me-2"></i>Send Reply</button>
             </div>
         </form>
     </div>
 </div>
 {else}
-<div class="ticket-closed-notice">
-    <i class="fas fa-lock me-2"></i>This ticket is closed. <a href="submitticket.php" class="ticket-link">Open a new ticket</a> if you need further assistance.
+<div class="ticket-closed-notice d-flex align-items-center gap-3 p-4 mb-5 border-0" style="border-radius: 12px; background: rgba(100, 100, 100, 0.04); border: 1px solid #eeeeee !important;">
+    <i class="ti ti-lock" style="font-size: 1.5rem; color: #666;"></i>
+    <span class="text-secondary fw-semibold">This support ticket is closed. If you require further help, please <a href="submitticket.php" class="text-danger text-decoration-none fw-bold">open a new ticket</a>.</span>
 </div>
 {/if}
