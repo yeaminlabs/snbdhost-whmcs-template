@@ -1,21 +1,33 @@
 <p align="center">
   <img src="https://img.shields.io/badge/WHMCS-8.x-e53935?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjZTUzOTM1Ii8+PHBhdGggZD0iTTcgN2gxMHYxMEg3eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==&logoColor=white" alt="WHMCS 8.x"/>
   <img src="https://img.shields.io/badge/Bootstrap-5.3-7952b3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap 5.3"/>
+  <img src="https://img.shields.io/badge/Version-2.0.0-BA1114?style=for-the-badge" alt="v2.0.0"/>
   <img src="https://img.shields.io/badge/License-Proprietary-333333?style=for-the-badge" alt="License"/>
-  <img src="https://img.shields.io/badge/Status-Production-2e7d32?style=for-the-badge" alt="Status"/>
+  <img src="https://img.shields.io/badge/Status-Stable-2e7d32?style=for-the-badge" alt="Status: Stable"/>
 </p>
 
 <h1 align="center">
   🖥️ SNBD Host — WHMCS Portal Theme
 </h1>
 
- <br>
- <h3>Caution : This is a beta release and lot of functions are still not working </h3>
-
 <p align="center">
   <strong>A fully custom, modern SaaS-style WHMCS client area theme for <a href="https://snbdhost.com">SNBD Host</a>.</strong><br/>
   Built with Bootstrap 5, Inter typography, and a bold Red &amp; White brand system.
 </p>
+
+---
+
+## 🚀 What's New in v2.0.0 (Stable)
+
+| Area | Change |
+|------|--------|
+| 🛒 **Cart — CSS Specificity** | All cart styles now use `#order-standard_cart` / `#order-snbdhost_cart` prefixes to fully override WHMCS default styles |
+| 🛒 **Cart — Review & Checkout** | Redesigned cart item rows, order summary sidebar, promo tabs, and payment gateway selector |
+| 🛒 **Cart — Complete Page** | Premium animated order confirmation with hero checkmark icon, status grid, and CTA buttons |
+| 🧾 **Invoice Detail Page** | Fixed broken layout (removed standalone HTML shell) — now renders inside the portal with sidebar/topbar |
+| 🧾 **Invoice Detail UI** | Premium invoice card with brand-red top border, address grid, styled line items table, pay button, print/back actions |
+| 🎫 **Support Tickets** | Fully redesigned ticket list and ticket view pages with chat-bubble UI |
+| 📦 **Both ZIPs updated** | `snbdhost_theme.zip` and `snbdhost_cart.zip` repackaged with all v2.0.0 changes |
 
 <p align="center">
   <a href="#-screenshots">Screenshots</a> •
