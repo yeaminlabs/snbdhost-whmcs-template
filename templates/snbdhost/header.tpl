@@ -52,9 +52,10 @@
 
     <div id="snbd-wrapper">
         <aside id="snbd-sidebar">
-            <div class="snbd-brand">
-                <i class="fas fa-server"></i>
-                <span class="snbd-nav-text">{$companyname}</span>
+            <div class="snbd-brand-logo-container">
+                <a href="{$WEB_ROOT}/clientarea.php" class="d-flex align-items-center text-decoration-none">
+                    <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="snbd-brand-logo">
+                </a>
             </div>
             <nav class="snbd-nav-menu">
                 <div class="nav-section-label">Main</div>
