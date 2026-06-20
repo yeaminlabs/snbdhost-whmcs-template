@@ -102,6 +102,22 @@ class DashboardTopNotice
             }
         }
 
+        // 4. Override with Custom Bugs from the Manager Module if set
+        $customBugsFile = __DIR__ . '/../../custom_bugs.json';
+        if (file_exists($customBugsFile)) {
+            $customBugs = json_decode(file_get_contents($customBugsFile), true);
+            if (!empty($customBugs['fixed_bug'])) {
+                $latestFix = $customBugs['fixed_bug'];
+            }
+            if (!empty($customBugs['reported_bug'])) {
+                $lastReportedBug = [
+                    'reason' => $customBugs['reported_bug'],
+                    'admin_username' => !empty($customBugs['reporter']) ? $customBugs['reporter'] : 'Admin',
+                    'timestamp' => date('Y-m-d H:i:s')
+                ];
+            }
+        }
+
         // Render the HTML
         $html = '
         <div style="margin: 15px 0 25px 0;">

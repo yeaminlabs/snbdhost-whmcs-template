@@ -70,6 +70,16 @@ function snbdhost_manager_output($vars)
     $updateType = isset($_GET['type']) ? $_GET['type'] : 'all';
     $message = '';
     
+    if ($action === 'save_bugs') {
+        $customData = [
+            'reported_bug' => isset($_POST['reported_bug']) ? strip_tags($_POST['reported_bug']) : '',
+            'fixed_bug' => isset($_POST['fixed_bug']) ? strip_tags($_POST['fixed_bug']) : '',
+            'reporter' => isset($_POST['reporter']) ? strip_tags($_POST['reporter']) : ''
+        ];
+        file_put_contents(__DIR__ . '/custom_bugs.json', json_encode($customData));
+        $message = '<div class="alert alert-success" style="border-left: 4px solid #CC0000; border-radius: 4px;"><strong>Success!</strong> Dashboard notifications updated manually.</div>';
+    }
+
     if ($action === 'update_theme') {
         require_once __DIR__ . '/lib/Updater.php';
         $updater = new \SNBDHostManager\Updater($githubRepo, $githubToken);
@@ -81,6 +91,12 @@ function snbdhost_manager_output($vars)
         } catch (\Exception $e) {
             $message = '<div class="alert alert-danger" style="border-left: 4px solid #CC0000; border-radius: 4px;"><strong>Error!</strong> Failed to update: ' . $e->getMessage() . '</div>';
         }
+    }
+    
+    // Load custom bug data
+    $customBugs = ['reported_bug' => '', 'fixed_bug' => '', 'reporter' => ''];
+    if (file_exists(__DIR__ . '/custom_bugs.json')) {
+        $customBugs = json_decode(file_get_contents(__DIR__ . '/custom_bugs.json'), true);
     }
     
     // Output HTML
@@ -137,6 +153,10 @@ function snbdhost_manager_output($vars)
             background-color: #111111;
             box-shadow: 0 4px 6px rgba(17, 17, 17, 0.2);
         }
+        .snbd-btn-save {
+            background-color: #2ecc71;
+            color: #fff;
+        }
         .snbd-info-box {
             background: #f9f9f9;
             border-left: 4px solid #111;
@@ -144,32 +164,87 @@ function snbdhost_manager_output($vars)
             margin-bottom: 20px;
             border-radius: 4px;
         }
+        .snbd-form-group {
+            margin-bottom: 15px;
+        }
+        .snbd-form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        .snbd-form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .snbd-form-control:focus {
+            border-color: #CC0000;
+            outline: none;
+        }
     </style>
     
-    <div class="snbd-panel">
-        <div class="snbd-panel-heading">
-            <i class="fas fa-paint-brush"></i> SNBDHost Theme Management
-        </div>
-        <div class="snbd-panel-body">
-            <div class="snbd-info-box">
-                <p style="margin: 0 0 5px 0;"><strong>Welcome to the SNBDHost Theme Manager.</strong></p>
-                <p style="margin: 0; color: #555;">From here, you can pull the latest updates directly from your configured GitHub repository. You can choose to update just the theme files or just the manager module itself.</p>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="snbd-panel">
+                <div class="snbd-panel-heading">
+                    <i class="fas fa-paint-brush"></i> SNBDHost Theme Management
+                </div>
+                <div class="snbd-panel-body">
+                    <div class="snbd-info-box">
+                        <p style="margin: 0 0 5px 0;"><strong>Welcome to the SNBDHost Theme Manager.</strong></p>
+                        <p style="margin: 0; color: #555;">Pull the latest updates directly from your configured GitHub repository. Choose to update just the theme files or the manager module itself.</p>
+                    </div>
+                    
+                    <p><strong>Configured Repository:</strong> <code><?php echo htmlspecialchars($githubRepo); ?></code></p>
+                    <hr style="border-top: 1px solid #eee;">
+                    
+                    <h4 style="color: #CC0000; font-weight: 600;">Available Updates</h4>
+                    
+                    <div class="snbd-btn-group" style="flex-direction: column;">
+                        <a href="<?php echo $modulelink; ?>&action=update_theme&type=theme" class="snbd-btn snbd-btn-theme" onclick="return confirm('Are you sure you want to update the Theme?');">
+                            <i class="fas fa-download"></i> Update Theme Only
+                        </a>
+                        
+                        <a href="<?php echo $modulelink; ?>&action=update_theme&type=module" class="snbd-btn snbd-btn-module" onclick="return confirm('Are you sure you want to update the Manager Module?');">
+                            <i class="fas fa-sync"></i> Update Manager Module Only
+                        </a>
+                    </div>
+                </div>
             </div>
-            
-            <p><strong>Configured Repository:</strong> <code><?php echo htmlspecialchars($githubRepo); ?></code></p>
-            <hr style="border-top: 1px solid #eee;">
-            
-            <h4 style="color: #CC0000; font-weight: 600;">Available Updates</h4>
-            <p>Select which component you would like to update from GitHub:</p>
-            
-            <div class="snbd-btn-group">
-                <a href="<?php echo $modulelink; ?>&action=update_theme&type=theme" class="snbd-btn snbd-btn-theme" onclick="return confirm('Are you sure you want to update the Theme? This will overwrite your current theme files in templates/snbdhost.');">
-                    <i class="fas fa-download"></i> Update Theme Only
-                </a>
-                
-                <a href="<?php echo $modulelink; ?>&action=update_theme&type=module" class="snbd-btn snbd-btn-module" onclick="return confirm('Are you sure you want to update the Manager Module? This will overwrite the module files.');">
-                    <i class="fas fa-sync"></i> Update Manager Module Only
-                </a>
+        </div>
+
+        <div class="col-md-6">
+            <div class="snbd-panel">
+                <div class="snbd-panel-heading" style="background-color: #111;">
+                    <i class="fas fa-bullhorn"></i> Dashboard Notification Override
+                </div>
+                <div class="snbd-panel-body">
+                    <p style="color: #666; margin-bottom: 15px;">Use this form to manually override the "Last Reported Bug" and "Most Recent Fix" shown on the WHMCS dashboard. Leave fields blank to pull data automatically from GitHub and Theme Logs.</p>
+                    
+                    <form method="post" action="<?php echo $modulelink; ?>&action=save_bugs">
+                        <div class="snbd-form-group">
+                            <label>Most Recent Fix</label>
+                            <input type="text" name="fixed_bug" class="snbd-form-control" placeholder="e.g., Fixed alignment on order form..." value="<?php echo htmlspecialchars($customBugs['fixed_bug']); ?>">
+                        </div>
+                        
+                        <div class="snbd-form-group">
+                            <label>Last Reported Bug</label>
+                            <input type="text" name="reported_bug" class="snbd-form-control" placeholder="e.g., Client area login button broken..." value="<?php echo htmlspecialchars($customBugs['reported_bug']); ?>">
+                        </div>
+
+                        <div class="snbd-form-group">
+                            <label>Reported By (Username/Name)</label>
+                            <input type="text" name="reporter" class="snbd-form-control" placeholder="e.g., admin or John Doe..." value="<?php echo htmlspecialchars($customBugs['reporter']); ?>">
+                        </div>
+                        
+                        <button type="submit" class="snbd-btn snbd-btn-save" style="width: 100%; border: none; margin-top: 10px;">
+                            <i class="fas fa-save"></i> Save Dashboard Notification Data
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
