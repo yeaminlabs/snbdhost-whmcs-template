@@ -347,7 +347,7 @@
                     <div class="card h-100 dash-card-clean" style="border-top: 4px solid #ff6c2c !important;">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span class="d-flex align-items-center gap-2">
-                                {if $product|lower|strstr:'n8n'}
+                                {if $product|lower|replace:'n8n':'' neq $product|lower}
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; vertical-align: middle;" alt="n8n"> n8n Access
                                 {else}
                                     <i class="fab fa-cpanel" style="color: #ff6c2c; font-size: 1.5rem; vertical-align: middle;"></i> Control Panel Access
@@ -360,7 +360,7 @@
                         <div class="card-body p-4 d-flex flex-column justify-content-between">
                             <div class="text-center my-2">
                                 <div class="mb-4 mt-2">
-                                    {if $product|lower|strstr:'n8n'}
+                                    {if $product|lower|replace:'n8n':'' neq $product|lower}
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" alt="n8n Logo" style="max-height: 40px; width: auto; object-fit: contain;">
                                     {else}
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Cpanel-logo.png" alt="cPanel Logo" style="max-height: 40px; width: auto; object-fit: contain;">
@@ -378,7 +378,7 @@
                             </div>
                             
                             <div class="d-flex flex-column gap-3 mt-3">
-                                {if $product|lower|strstr:'n8n'}
+                                {if $product|lower|replace:'n8n':'' neq $product|lower}
                                     <div id="n8nButtonContainer">
                                         <!-- Fallback button -->
                                         <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1" target="_blank" class="btn btn-sso-cpanel w-100 py-3 d-none" id="fallbackN8nBtn" style="background-color: #ff6c2c !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem;">
@@ -392,7 +392,7 @@
                                     </a>
                                 {/if}
                                 
-                                {if !($product|lower|strstr:'n8n')}
+                                {if $product|lower|replace:'n8n':'' eq $product|lower}
                                     <!-- Quick Links Grid -->
                                     <div class="row g-2 mt-1">
                                         <div class="col-4">
@@ -454,7 +454,7 @@
                 </div>
             {/if}
 
-            {if $product|lower|strstr:'n8n'}
+            {if $product|lower|replace:'n8n':'' neq $product|lower}
             <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const wrap = document.getElementById('moduleClientAreaWrap');
