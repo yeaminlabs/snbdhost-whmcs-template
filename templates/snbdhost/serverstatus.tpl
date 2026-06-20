@@ -6,14 +6,17 @@
      ═══════════════════════════════════════════════════════════════ -->
 
 <style>
-/* ── Network Status Page Scoped Styles ── */
+/* Style override to collapse parent padding on this page */
+#snbd-main .snbd-content {
+  padding-top: 0.5rem !important;
+}
 
 .ns-page {
-  margin-top: -1.75rem;
+  margin-top: 0;
 }
 @media (max-width: 768px) {
-  .ns-page {
-    margin-top: -0.75rem;
+  #snbd-main .snbd-content {
+    padding-top: 0.25rem !important;
   }
 }
 
