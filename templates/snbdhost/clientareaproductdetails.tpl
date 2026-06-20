@@ -225,6 +225,7 @@
     font-size: 2rem !important;
     color: #ff6c2c !important;
 }
+</style>
 
 <!-- Services Page Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -473,10 +474,11 @@
                 var n8nContainer = document.getElementById('n8nButtonContainer');
                 if (n8nContainer) n8nContainer.style.display = 'block';
 
-                // 5. Try to find the real n8n URL from the module section
+                // 5. Restyle the n8n module output
                 var wrap = document.getElementById('moduleClientAreaWrap');
                 if (wrap) {
-                    var buttons = wrap.querySelectorAll('a[href], button, input[type="submit"]');
+                    // Find and move the main "Go to n8n" button / URL
+                    var buttons = wrap.querySelectorAll('a[href], button, input[type="submit"], input[type="button"]');
                     var n8nBtn = null;
                     buttons.forEach(function(btn) {
                         var text = (btn.innerText || btn.value || '').toLowerCase();
@@ -493,42 +495,114 @@
                             mainBtn.href = href;
                             mainBtn.target = '_blank';
                         }
-                        // Hide original button in module
-                        if (n8nBtn.closest && n8nBtn.closest('.row')) {
-                            n8nBtn.closest('.row').style.display = 'none';
-                        } else {
-                            n8nBtn.style.display = 'none';
-                        }
+                        
+                        // Hide original button/link in module
+                        if (n8nBtn.closest('tr')) n8nBtn.closest('tr').style.display = 'none';
+                        else if (n8nBtn.closest('.row')) n8nBtn.closest('.row').style.display = 'none';
+                        else n8nBtn.style.display = 'none';
                     }
 
-                    // 6. Style progress bars beautifully
-                    wrap.querySelectorAll('.progress').forEach(function(pb) {
-                        pb.style.height = '24px';
-                        pb.style.borderRadius = '12px';
-                        pb.style.backgroundColor = '#f4f5f7';
-                        pb.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.05)';
-                        pb.style.marginBottom = '1.5rem';
-                        pb.style.overflow = 'hidden';
-                        var bar = pb.querySelector('.progress-bar');
-                        if (bar) {
-                            bar.style.backgroundColor = '#ff6c2c';
-                            bar.style.backgroundImage = 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)';
-                            bar.style.backgroundSize = '1rem 1rem';
-                            bar.style.display = 'flex';
-                            bar.style.alignItems = 'center';
-                            bar.style.justifyContent = 'center';
-                            bar.style.fontWeight = 'bold';
-                            bar.style.fontSize = '0.85rem';
-                            bar.style.color = '#fff';
+                    // Hide giant raw n8n logo/links if they appear directly in the module body
+                    wrap.querySelectorAll('img').forEach(function(img) {
+                        if(img.src.includes('n8n')) {
+                            if (img.closest('tr')) img.closest('tr').style.display = 'none';
+                            else img.style.display = 'none';
                         }
                     });
 
-                    // 7. Style the module wrapper
-                    wrap.style.padding = '1.5rem';
-                    wrap.style.background = '#fff';
-                    wrap.style.borderRadius = '16px';
-                    wrap.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
-                    wrap.style.border = '1px solid rgba(0,0,0,0.05)';
+                    // Hide raw URLs that point to n8n
+                    wrap.querySelectorAll('a').forEach(function(a) {
+                        if (a.innerText.includes('.n8n') || a.href.includes('.n8n')) {
+                            a.style.display = 'none';
+                        }
+                    });
+
+                    // 6. Style the module tables (this catches the raw rows of CPU, Memory, etc.)
+                    var tables = wrap.querySelectorAll('table');
+                    tables.forEach(function(tbl) {
+                        tbl.classList.add('table', 'table-borderless');
+                        tbl.style.background = '#ffffff';
+                        tbl.style.borderRadius = '16px';
+                        tbl.style.overflow = 'hidden';
+                        tbl.style.boxShadow = '0 4px 15px rgba(0,0,0,0.02)';
+                        tbl.style.border = '1px solid #f0f0f0';
+                        tbl.style.marginBottom = '2rem';
+                        
+                        var cells = tbl.querySelectorAll('td, th');
+                        cells.forEach(function(cell) {
+                            cell.style.padding = '1.25rem 1.5rem';
+                            cell.style.verticalAlign = 'middle';
+                            cell.style.borderBottom = '1px solid #f6f6f6';
+                            cell.style.color = '#444';
+                            cell.style.fontWeight = '500';
+                            
+                            // Make labels bolder
+                            if (cell.innerText.includes(':')) {
+                                cell.style.color = '#888';
+                                cell.style.fontWeight = '600';
+                                cell.style.width = '30%';
+                            }
+                        });
+                    });
+
+                    // 7. Auto-detect and beautifully style inline-styled progress bars (green/red blocks)
+                    var allDivs = wrap.querySelectorAll('div, td, span');
+                    allDivs.forEach(function(el) {
+                        var bg = (el.style.backgroundColor || '').toLowerCase();
+                        var width = el.style.width || '';
+                        
+                        // If it looks like a progress bar segment
+                        if (width && (bg === 'green' || bg === 'red' || bg.includes('rgb(') || bg.includes('#'))) {
+                            el.style.display = 'inline-flex';
+                            el.style.alignItems = 'center';
+                            el.style.justifyContent = 'center';
+                            el.style.color = '#fff';
+                            el.style.fontWeight = '700';
+                            el.style.fontSize = '0.75rem';
+                            el.style.textShadow = '0 1px 2px rgba(0,0,0,0.2)';
+                            el.style.height = '28px';
+                            el.style.lineHeight = '28px';
+                            el.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1)';
+                            
+                            // Match branding
+                            if (bg === 'green' || bg === '#008000') {
+                                el.style.backgroundColor = '#10B981'; // Modern emerald green
+                                el.style.backgroundImage = 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)';
+                                el.style.backgroundSize = '1rem 1rem';
+                            }
+                            if (bg === 'red' || bg === '#ff0000') {
+                                el.style.backgroundColor = '#EF4444'; // Modern red
+                            }
+                            
+                            // Give parents nice rounded corners
+                            var parent = el.parentElement;
+                            if (parent) {
+                                parent.style.backgroundColor = '#f4f5f7';
+                                parent.style.borderRadius = '14px';
+                                parent.style.overflow = 'hidden';
+                                parent.style.display = 'flex';
+                                parent.style.width = '100%';
+                                parent.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.06)';
+                            }
+                        }
+                    });
+
+                    // 8. Style other buttons (like "Change Owner Password")
+                    wrap.querySelectorAll('.btn-danger, a[href*="password"]').forEach(function(btn) {
+                        btn.style.backgroundColor = '#fff';
+                        btn.style.color = '#EF4444';
+                        btn.style.border = '1px solid #EF4444';
+                        btn.style.borderRadius = '12px';
+                        btn.style.padding = '0.75rem 1.5rem';
+                        btn.style.fontWeight = '700';
+                        btn.style.boxShadow = '0 4px 10px rgba(239, 68, 68, 0.1)';
+                        btn.style.transition = 'all 0.3s ease';
+                        btn.onmouseover = function() { btn.style.backgroundColor = '#EF4444'; btn.style.color = '#fff'; };
+                        btn.onmouseout = function() { btn.style.backgroundColor = '#fff'; btn.style.color = '#EF4444'; };
+                    });
+
+                    // Format raw status text
+                    wrap.innerHTML = wrap.innerHTML.replace('running', '<span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill" style="font-weight:700; font-size:0.85rem;"><i class="ti ti-activity me-1"></i> Running</span>');
                 }
             });
             </script>
