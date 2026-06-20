@@ -53,7 +53,7 @@ $postData = http_build_query([
     'logs' => '0',
     'response_times' => '1',
     'response_times_limit' => '10', // Let's get up to 10 response times for a nice sparkline
-    'uptime_ratio' => '30',
+    'custom_uptime_ratios' => '30',
     'all_time_uptime_ratio' => '1',
 ]);
 
