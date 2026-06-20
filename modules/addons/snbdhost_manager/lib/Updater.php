@@ -23,13 +23,14 @@ class Updater
 
         // 1. Fetch latest release from GitHub
         $releaseUrl = $this->apiBase . $this->githubRepo . '/releases/latest';
-        $releaseData = $this->makeRequest($releaseUrl);
         
-        if (isset($releaseData['message']) && $releaseData['message'] === 'Not Found') {
-            // Fallback: Download from main branch if no releases exist
-            $downloadUrl = "https://github.com/{$this->githubRepo}/archive/refs/heads/main.zip";
-        } else {
+        $downloadUrl = '';
+        try {
+            $releaseData = $this->makeRequest($releaseUrl);
             $downloadUrl = $releaseData['zipball_url'] ?? '';
+        } catch (\Exception $e) {
+            // Fallback: Download from main branch if releases endpoint fails (e.g. 404 Not Found)
+            $downloadUrl = "https://github.com/{$this->githubRepo}/archive/refs/heads/main.zip";
         }
 
         if (empty($downloadUrl)) {
