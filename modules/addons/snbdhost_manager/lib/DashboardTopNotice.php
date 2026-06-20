@@ -21,9 +21,9 @@ class DashboardTopNotice
                 ->get();
                 
             foreach ($moduleConfig as $setting) {
-                if ($setting->setting === 'githubRepo') {
+                if ($setting->setting === 'github_repo') {
                     $this->githubRepo = $setting->value;
-                } elseif ($setting->setting === 'githubToken') {
+                } elseif ($setting->setting === 'github_token') {
                     $this->githubToken = $setting->value;
                 }
             }
