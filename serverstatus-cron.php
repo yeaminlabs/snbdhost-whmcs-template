@@ -1,27 +1,17 @@
 <?php
 /**
- * SNBD Host Network Status Proxy & Cache Fallback
+ * SNBD Host Network Status Cron Generator
  *
- * Serves cached network-status.json if it exists and is fresh (less than 1 hour old).
- * Otherwise, fetches fresh data, updates the cache, and serves the response.
+ * This script is intended to be run hourly via a cron job:
+ * php -q /path/to/your/whmcs/serverstatus-cron.php
+ *
+ * It fetches the monitor data from UptimeRobot and writes it to a static
+ * JSON file (network-status.json) in the WHMCS root directory.
  */
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+// Define absolute path to output JSON
+$outputPath = __DIR__ . '/network-status.json';
 
-$cacheFile = __DIR__ . '/network-status.json';
-$cacheLifetime = 3600; // 1 hour in seconds
-
-// If cache exists and is fresh, serve it directly
-if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
-    header('X-Cache: HIT');
-    echo file_get_contents($cacheFile);
-    exit;
-}
-
-header('X-Cache: MISS');
-
-// ─── Read API key from WHMCS addon module config ─────────────────────────
 $apiKey = null;
 
 // Attempt 1: Bootstrap WHMCS and read from database
@@ -39,7 +29,7 @@ if (file_exists(__DIR__ . '/init.php')) {
     }
 }
 
-// Attempt 2: Read from local config
+// Attempt 2: Read from local config file
 if (empty($apiKey)) {
     $configFile = __DIR__ . '/modules/addons/snbdhost_manager/uptimerobot_config.json';
     if (file_exists($configFile)) {
@@ -50,7 +40,7 @@ if (empty($apiKey)) {
     }
 }
 
-// Attempt 3: Legacy hardcoded fallback
+// Attempt 3: Fallback hardcoded key
 if (empty($apiKey)) {
     $apiKey = 'u2339866-3ab3be785151b426419bea0b';
 }
@@ -62,7 +52,7 @@ $postData = http_build_query([
     'format' => 'json',
     'logs' => '0',
     'response_times' => '1',
-    'response_times_limit' => '10',
+    'response_times_limit' => '10', // Let's get up to 10 response times for a nice sparkline
     'uptime_ratio' => '30',
     'all_time_uptime_ratio' => '1',
 ]);
@@ -86,43 +76,26 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($response === false) {
-    http_response_code(500);
-    echo json_encode([
-        'stat' => 'fail',
-        'error' => [
-            'message' => 'cURL error: ' . $curlErr,
-        ],
-    ]);
-    exit;
+    $errorMsg = 'cURL error: ' . $curlErr;
+    echo "Error: " . $errorMsg . "\n";
+    exit(1);
 }
 
 $decoded = json_decode($response, true);
 if (!is_array($decoded) || !isset($decoded['stat'])) {
-    // If the API returned invalid data, serve stale cache if we have it
-    if (file_exists($cacheFile)) {
-        header('X-Cache: STALE-FALLBACK');
-        echo file_get_contents($cacheFile);
-        exit;
-    }
-    http_response_code(500);
-    echo json_encode([
-        'stat' => 'fail',
-        'error' => [
-            'message' => 'Invalid JSON returned from UptimeRobot',
-            'http_code' => $httpCode,
-        ],
-        'raw' => $response,
-    ]);
-    exit;
+    echo "Error: Invalid response from UptimeRobot API\n";
+    exit(1);
 }
 
-// Add metadata timestamp
+// Add a timestamp of the last generation/fetch so the client can display the actual cache age
 $decoded['last_updated_timestamp'] = time();
-$jsonContent = json_encode($decoded);
 
-// Save to cache file
-@file_put_contents($cacheFile, $jsonContent);
+$jsonContent = json_encode($decoded, JSON_PRETTY_PRINT);
 
-http_response_code(200);
-echo $jsonContent;
+if (file_put_contents($outputPath, $jsonContent) === false) {
+    echo "Error: Failed to write to " . $outputPath . "\n";
+    exit(1);
+}
 
+echo "Success: UptimeRobot cache file generated successfully at " . date('Y-m-d H:i:s') . "\n";
+exit(0);

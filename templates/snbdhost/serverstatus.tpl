@@ -155,7 +155,8 @@
 {literal}
 (function () {
 {/literal}
-    const API_ENDPOINT = '{$WEB_ROOT}/serverstatus-data.php';
+    const API_JSON = '{$WEB_ROOT}/network-status.json';
+    const API_PROXY = '{$WEB_ROOT}/serverstatus-data.php';
 {literal}
     let monitors = [];
     let activeFilter = 'all';
@@ -164,6 +165,7 @@
     let countdownInterval = null;
     let refreshIn = 60;
     const REFRESH_PERIOD = 60;
+    let lastUpdatedTimestamp = null;
 
     const els = {
         lastChecked: document.getElementById('last-checked'),
@@ -294,6 +296,24 @@
         }
     }
 
+    function updateLastCheckedText() {
+        if (lastUpdatedTimestamp) {
+            const diffSecs = Math.floor((Date.now() / 1000) - lastUpdatedTimestamp);
+            if (diffSecs < 60) {
+                els.lastChecked.textContent = 'Updated just now';
+            } else if (diffSecs < 3600) {
+                const diffMins = Math.floor(diffSecs / 60);
+                els.lastChecked.textContent = 'Updated ' + diffMins + 'm ago';
+            } else {
+                const diffHrs = Math.floor(diffSecs / 3600);
+                els.lastChecked.textContent = 'Updated ' + diffHrs + 'h ago';
+            }
+        } else {
+            const now = new Date();
+            els.lastChecked.textContent = 'Updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    }
+
     function filteredMonitors() {
         let list = monitors;
         if (activeFilter !== 'all') {
@@ -412,16 +432,25 @@
     async function fetchMonitors() {
         clearError();
         try {
-            const response = await fetch(API_ENDPOINT, { method: 'GET', headers: { 'Accept': 'application/json' } });
-            const data = await response.json();
+            let data;
+            try {
+                const response = await fetch(API_JSON, { method: 'GET', headers: { 'Accept': 'application/json' } });
+                if (!response.ok) throw new Error('Static cache not available');
+                data = await response.json();
+            } catch (staticErr) {
+                // Fallback to proxy which is dynamically updated and server-cached
+                const response = await fetch(API_PROXY, { method: 'GET', headers: { 'Accept': 'application/json' } });
+                data = await response.json();
+            }
+
             if (data.stat !== 'ok') {
                 throw new Error((data.error && data.error.message) ? data.error.message : 'Unable to load monitor data.');
             }
             monitors = Array.isArray(data.monitors) ? data.monitors : [];
+            lastUpdatedTimestamp = data.last_updated_timestamp || Math.floor(Date.now() / 1000);
             renderSummary();
             renderList();
-            const now = new Date();
-            els.lastChecked.textContent = 'Updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            updateLastCheckedText();
         } catch (error) {
             els.loading.classList.add('d-none');
             setError('Unable to load status data from UptimeRobot. ' + error.message);
@@ -443,6 +472,7 @@
             if (refreshIn <= 0) refreshIn = REFRESH_PERIOD;
             const progress = (refreshIn / REFRESH_PERIOD) * 44;
             els.refreshProgress.setAttribute('stroke-dashoffset', 44 - progress);
+            updateLastCheckedText();
         }, 1000);
 
         refreshTimer = setInterval(() => {
