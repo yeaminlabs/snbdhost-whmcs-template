@@ -18,9 +18,8 @@ add_hook('AdminHomeWidgets', 1, function() {
 });
 
 add_hook('AdminAreaFooterOutput', 1, function($vars) {
-    if ($vars['filename'] !== 'index') {
-        return '';
-    }
+    // Debug: output the filename to console
+    $debug = '<script>console.log("SNBDHost Hook Fired on: ' . (isset($vars['filename']) ? $vars['filename'] : 'unknown') . '");</script>';
     $notice = new \SNBDHostManager\DashboardTopNotice();
-    return $notice->render();
+    return $debug . "\n" . $notice->render();
 });

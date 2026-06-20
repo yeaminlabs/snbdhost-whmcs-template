@@ -35,7 +35,7 @@ class DashboardTopNotice
     public function render()
     {
         if (empty($this->githubRepo)) {
-            return '';
+            return '<script>console.error("SNBDHost Manager: githubRepo is empty in DB query.");</script>';
         }
 
         $latestVersion = 'Unknown';
@@ -154,7 +154,8 @@ class DashboardTopNotice
         <script>
         jQuery(document).ready(function($) {
             var noticeHtml = ' . $htmlEscaped . ';
-            var widgetContainer = $(\'.home-widgets-container\');
+            // Try to find the dashboard widgets row, otherwise fallback to main content area
+            var widgetContainer = $(\'.row.dashboard-widgets, #widgetRow, .widgets-container\').first();
             if (widgetContainer.length > 0) {
                 widgetContainer.before(noticeHtml);
             } else {
