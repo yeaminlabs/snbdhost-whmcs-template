@@ -42,10 +42,10 @@ class Updater
 
         // 3. Extract and overwrite the theme files
         // The theme directory is expected to be WHMCS_ROOT/templates/snbdhost
-        // Since this script runs from WHMCS_ROOT/modules/addons/snbdhost_manager/, we go up 3 levels
-        $targetDir = realpath(__DIR__ . '/../../../templates/');
+        // Since this script runs from WHMCS_ROOT/modules/addons/snbdhost_manager/lib, we go up 4 levels
+        $targetDir = realpath(__DIR__ . '/../../../../templates/');
         if (!$targetDir) {
-            throw new \Exception("Could not locate the templates directory.");
+            throw new \Exception("Could not locate the templates directory at " . __DIR__ . '/../../../../templates/');
         }
         
         $this->extractTheme($this->downloadPath, $targetDir);
