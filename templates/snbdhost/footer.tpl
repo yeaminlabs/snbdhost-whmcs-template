@@ -1,4 +1,4 @@
-{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset'}
+{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile, 'password-reset') !== false}
     </div><!-- .auth-page -->
 {else}
             </div><!-- .snbd-content -->
@@ -6,7 +6,7 @@
     </div><!-- #snbd-wrapper -->
 {/if}
 
-{if $templatefile != 'login' && $templatefile != 'clientregister' && $templatefile != 'pwreset'}
+{if $templatefile != 'login' && $templatefile != 'clientregister' && $templatefile != 'pwreset' && strpos($templatefile, 'password-reset') === false}
     <!-- Floating Action Button -->
     <div id="fab-container" class="fab-container">
         <button id="fab-main" class="fab-main"><i class="fas fa-plus"></i></button>
@@ -18,17 +18,7 @@
     </div>
 {/if}
 
-<!-- Full-screen Loading Spinner -->
-<div id="snbd-loader" style="pointer-events:all; display: none;">
-    <div class="loader-logo"><i class="fas fa-server"></i> SNBD Host</div>
-    <div class="loader-progress-wrap"><div class="loader-progress-bar"></div></div>
-</div>
-<script>
-    if (!sessionStorage.getItem('snbd_loader_shown')) {
-        document.getElementById('snbd-loader').style.display = 'flex'; // or whatever the default is, usually flex for centered loaders
-        sessionStorage.setItem('snbd_loader_shown', 'true');
-    }
-</script>
+
 
 {$footeroutput}
 

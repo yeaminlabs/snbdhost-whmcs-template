@@ -45,7 +45,7 @@
 
 {$headeroutput}
 
-{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset'}
+{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile, 'password-reset') !== false}
     <div id="particles-js"></div>
     <div class="auth-page">
 {else}

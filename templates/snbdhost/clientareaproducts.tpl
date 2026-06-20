@@ -60,7 +60,7 @@
                         <i class="ti ti-refresh" style="font-size: 0.95rem;"></i> {$service.billingcycle}
                     </div>
                     
-                    <a href="clientarea.php?action=productdetails&id={$service.id}" class="btn-outline-table w-100 justify-content-center py-2" style="font-size: 0.8rem;">
+                    <a href="clientarea.php?action=productdetails&id={$service.id}" class="btn btn-brand-clean w-100 justify-content-center py-2" style="font-size: 0.85rem !important; border-radius: 12px !important; padding: 0.55rem 1rem !important; font-weight: 700 !important; display: inline-flex;">
                         <i class="ti ti-settings me-1"></i> Manage Service
                     </a>
                 </div>

@@ -123,7 +123,11 @@ function initFormValidation() {
 
 /* ---- Particles.js (Auth Pages) ---- */
 function initParticles() {
-  if (window.particlesJS && document.getElementById('particles-js')) {
+  const particlesEl = document.getElementById('particles-js');
+  if (!window.particlesJS || !particlesEl) return;
+  // Skip init when the template hides particles (e.g. password-reset pages)
+  if (window.getComputedStyle(particlesEl).display === 'none') return;
+  if (window.particlesJS && particlesEl) {
     particlesJS('particles-js', {
       particles: {
         number: { value: 50, density: { enable: true, value_area: 800 } },
@@ -143,3 +147,4 @@ function initParticles() {
     });
   }
 }
+

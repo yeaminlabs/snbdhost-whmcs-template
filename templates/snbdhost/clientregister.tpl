@@ -182,7 +182,7 @@
         </div>
     {/if}
 
-    <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegister" class="needs-validation login-form text-start" role="form">
+    <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation login-form text-start" role="form">
         <input type="hidden" name="register" value="true" />
         <input type="hidden" name="token" value="{$token}" />
         
@@ -315,7 +315,7 @@
             </div>
         {/if}
 
-        <button type="submit" class="auth-clean-btn mt-2">
+        <button type="submit" id="btnRegistrationSubmit" class="auth-clean-btn mt-2">
             Create Account Now <i class="fas fa-arrow-right ms-2" style="font-size:0.9em;"></i>
         </button>
     </form>

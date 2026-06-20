@@ -307,22 +307,21 @@
         display:flex; align-items:center; justify-content:center;
         font-size:1.2rem; color:#fff;
     ">
-        <i class="fas fa-magic"></i>
+        <i class="fas fa-rocket"></i>
     </div>
 
     <!-- Text -->
     <div style="flex:1; min-width:0;">
         <div style="font-weight:700; font-size:0.9375rem; color:#fff; line-height:1.3; margin-bottom:0.2rem;">
-            ✨ We're enhancing your experience!
+            🚀 SNBD HOST Client Panel Version 3.5 released — 2026
         </div>
         <div style="font-size:0.8125rem; color:rgba(255,255,255,0.88); line-height:1.5;">
-            We're working hard to bring you a brand-new modern dashboard. If you notice anything
-            not working as expected, please don't hesitate to reach out — we'd love to hear from you.
+            New auth page layouts, particle rendering fixes, Developer Updates changelog, and more. See what's changed.
         </div>
     </div>
 
     <!-- CTA -->
-    <a href="submitticket.php" style="
+    <a href="clientarea.php?action=devupdates" style="
         flex-shrink:0;
         background:#fff;
         color:#CC0000;
@@ -334,17 +333,17 @@
         white-space:nowrap;
         transition: box-shadow 0.15s, transform 0.15s;
         box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-        display:inline-block;
+        display:inline-flex; align-items:center; gap:0.35rem;
     "
     onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.18)';this.style.transform='translateY(-1px)'"
     onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)';this.style.transform='translateY(0)'">
-        <i class="fas fa-headset me-1"></i> Contact Us
+        See More <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
     </a>
 
     <!-- Dismiss -->
     <button onclick="
         document.getElementById('snbd-ux-banner').style.display='none';
-        try { sessionStorage.setItem('snbd_ux_banner_dismissed','1'); } catch(e) {}
+        try { sessionStorage.setItem('snbd_v35_banner_dismissed','1'); } catch(e) {}
     " style="
         flex-shrink:0;
         background:rgba(255,255,255,0.18);
@@ -365,7 +364,7 @@
 <script>
 (function(){
     try {
-        if (sessionStorage.getItem('snbd_ux_banner_dismissed') === '1') {
+        if (sessionStorage.getItem('snbd_v35_banner_dismissed') === '1') {
             var b = document.getElementById('snbd-ux-banner');
             if (b) b.style.display = 'none';
         }
@@ -604,8 +603,8 @@
                         <td class="fw-bold" style="color: #111111;">{$product.name}</td>
                         <td class="text-secondary small">{$product.domain}</td>
                         <td class="text-end">
-                            <a href="clientarea.php?action=productdetails&id={$product.id}" class="btn-outline-table">
-                                <i class="fas fa-cog me-1"></i>Manage
+                            <a href="clientarea.php?action=productdetails&id={$product.id}" class="btn btn-brand-clean btn-sm text-decoration-none" style="font-weight: 600; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.85rem; display: inline-flex; align-items: center;">
+                                <i class="ti ti-settings me-1"></i>Manage Service
                             </a>
                         </td>
                     </tr>
