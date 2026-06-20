@@ -225,16 +225,6 @@
     font-size: 2rem !important;
     color: #ff6c2c !important;
 }
-</style>
-
-{* Detect n8n product safely - use string replace comparison only *}
-{assign var='productLower' value=$product|lower}
-{assign var='productStripped' value=$productLower|replace:'n8n':''}
-{if $productStripped neq $productLower}
-    {assign var='isN8n' value=true}
-{else}
-    {assign var='isN8n' value=false}
-{/if}
 
 <!-- Services Page Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -355,12 +345,8 @@
                 <div class="col-lg-6">
                     <div class="card h-100 dash-card-clean" style="border-top: 4px solid #ff6c2c !important;">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <span class="d-flex align-items-center gap-2">
-                                {if $isN8n}
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; vertical-align: middle;" alt="n8n"> n8n Access
-                                {else}
+                                <span class="d-flex align-items-center gap-2" id="cpanelCardTitle">
                                     <i class="fab fa-cpanel" style="color: #ff6c2c; font-size: 1.5rem; vertical-align: middle;"></i> Control Panel Access
-                                {/if}
                             </span>
                             <span class="badge bg-light text-success border border-success-subtle px-2 py-1" style="font-size: 0.75rem; font-weight: 600;">
                                 <i class="ti ti-shield-check me-1"></i> Secure SSO
@@ -368,12 +354,8 @@
                         </div>
                         <div class="card-body p-4 d-flex flex-column justify-content-between">
                             <div class="text-center my-2">
-                                <div class="mb-4 mt-2">
-                                    {if $isN8n}
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" alt="n8n Logo" style="max-height: 40px; width: auto; object-fit: contain;">
-                                    {else}
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Cpanel-logo.png" alt="cPanel Logo" style="max-height: 40px; width: auto; object-fit: contain;">
-                                    {/if}
+                                <div class="mb-4 mt-2" id="cpanelLogoWrap">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Cpanel-logo.png" alt="cPanel Logo" id="cpanelLogo" style="max-height: 40px; width: auto; object-fit: contain;">
                                 </div>
                                 <p class="text-secondary small px-3">
                                 </p>
@@ -387,43 +369,39 @@
                             </div>
                             
                             <div class="d-flex flex-column gap-3 mt-3">
-                                {if $isN8n}
-                                    <div id="n8nButtonContainer">
-                                        <!-- Fallback button -->
-                                        <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1" target="_blank" class="btn btn-sso-cpanel w-100 py-3 d-none" id="fallbackN8nBtn" style="background-color: #ff6c2c !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem;">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; filter: brightness(0) invert(1);" alt="n8n"> GO TO N8N
+                                <!-- n8n button placeholder (shown via JS for n8n products) -->
+                                <div id="n8nButtonContainer" style="display:none;">
+                                    <a href="#" class="btn btn-sso-cpanel w-100 py-3" id="n8nMainBtn" style="background-color: #ff6c2c !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,108,44,0.3); transition: all 0.3s ease;">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; filter: brightness(0) invert(1);" alt="n8n"> GO TO N8N
+                                    </a>
+                                </div>
+
+                                <!-- Big cPanel SSO Login Button (hidden for n8n via JS) -->
+                                <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1" target="_blank" class="btn btn-sso-cpanel w-100 py-3" id="cpanelLoginBtn">
+                                    <i class="fab fa-cpanel" style="font-size: 2.2rem; line-height: 1;"></i> LOGIN TO CPANEL
+                                </a>
+
+                                <!-- Quick Links Grid (hidden for n8n via JS) -->
+                                <div class="row g-2 mt-1" id="cpanelQuickLinks">
+                                    <div class="col-4">
+                                        <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1&app=Filemanager" target="_blank" class="shortcut-btn py-2.5 d-flex flex-column align-items-center gap-1.5 text-center">
+                                            <i class="ti ti-folder" style="font-size: 1.4rem; color: #ff6c2c;"></i>
+                                            <span>File Manager</span>
                                         </a>
                                     </div>
-                                {else}
-                                    <!-- Big cPanel SSO Login Button -->
-                                    <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1" target="_blank" class="btn btn-sso-cpanel w-100 py-3">
-                                        <i class="fab fa-cpanel" style="font-size: 2.2rem; line-height: 1;"></i> LOGIN TO CPANEL
-                                    </a>
-                                {/if}
-                                
-                                {if !$isN8n}
-                                    <!-- Quick Links Grid -->
-                                    <div class="row g-2 mt-1">
-                                        <div class="col-4">
-                                            <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1&app=Filemanager" target="_blank" class="shortcut-btn py-2.5 d-flex flex-column align-items-center gap-1.5 text-center">
-                                                <i class="ti ti-folder" style="font-size: 1.4rem; color: #ff6c2c;"></i>
-                                                <span>File Manager</span>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1&app=Email" target="_blank" class="shortcut-btn py-2.5 d-flex flex-column align-items-center gap-1.5 text-center">
-                                                <i class="ti ti-mail" style="font-size: 1.4rem; color: #ff6c2c;"></i>
-                                                <span>Email Accounts</span>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1&app=Phpmyadmin" target="_blank" class="shortcut-btn py-2.5 d-flex flex-column align-items-center gap-1.5 text-center">
-                                                <i class="ti ti-database" style="font-size: 1.4rem; color: #ff6c2c;"></i>
-                                                <span>phpMyAdmin</span>
-                                            </a>
-                                        </div>
+                                    <div class="col-4">
+                                        <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1&app=Email" target="_blank" class="shortcut-btn py-2.5 d-flex flex-column align-items-center gap-1.5 text-center">
+                                            <i class="ti ti-mail" style="font-size: 1.4rem; color: #ff6c2c;"></i>
+                                            <span>Email Accounts</span>
+                                        </a>
                                     </div>
-                                {/if}
+                                    <div class="col-4">
+                                        <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1&app=Phpmyadmin" target="_blank" class="shortcut-btn py-2.5 d-flex flex-column align-items-center gap-1.5 text-center">
+                                            <i class="ti ti-database" style="font-size: 1.4rem; color: #ff6c2c;"></i>
+                                            <span>phpMyAdmin</span>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -463,118 +441,104 @@
                 </div>
             {/if}
 
-            {if $isN8n}
             <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const wrap = document.getElementById('moduleClientAreaWrap');
-                if (!wrap) return;
+                // Detect n8n purely from the rendered product name in the DOM
+                var productHeading = document.querySelector('.dash-headline .dash-headline-accent');
+                var productName = productHeading ? productHeading.textContent.toLowerCase() : '';
+                var isN8n = productName.indexOf('n8n') !== -1;
 
-                // 1. Move and style the Go to n8n button
-                const buttons = wrap.querySelectorAll('a.btn, button.btn, input[type="button"], a.btn-primary');
-                let n8nBtn = null;
-                buttons.forEach(btn => {
-                    const text = (btn.innerText || btn.value || '').toLowerCase();
-                    if (text.includes('n8n') || text.includes('go to') || text.includes('login') || text.includes('access')) {
-                        if(!n8nBtn) n8nBtn = btn;
-                    }
-                });
+                if (!isN8n) return; // Nothing to do for non-n8n products
 
-                if (!n8nBtn && buttons.length > 0) {
-                    n8nBtn = buttons[0]; // fallback to first button found
+                // 1. Swap the card title
+                var cardTitle = document.getElementById('cpanelCardTitle');
+                if (cardTitle) {
+                    cardTitle.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height:1.5rem;vertical-align:middle;" alt="n8n"> n8n Access';
                 }
 
-                if (n8nBtn) {
-                    const container = document.getElementById('n8nButtonContainer');
-                    let originalHref = n8nBtn.getAttribute('href');
-                    
-                    if (!originalHref) {
-                        const form = n8nBtn.closest('form');
-                        if (form) {
-                            originalHref = form.getAttribute('action') || '#';
-                            form.style.display = 'none'; // hide the form
-                            n8nBtn.onclick = function(e) { e.preventDefault(); form.submit(); };
+                // 2. Swap the logo
+                var logo = document.getElementById('cpanelLogo');
+                if (logo) {
+                    logo.src = 'https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg';
+                    logo.alt = 'n8n Logo';
+                }
+
+                // 3. Hide cPanel login button and quick links
+                var cpBtn = document.getElementById('cpanelLoginBtn');
+                if (cpBtn) cpBtn.style.display = 'none';
+                var cpLinks = document.getElementById('cpanelQuickLinks');
+                if (cpLinks) cpLinks.style.display = 'none';
+
+                // 4. Show n8n button container
+                var n8nContainer = document.getElementById('n8nButtonContainer');
+                if (n8nContainer) n8nContainer.style.display = 'block';
+
+                // 5. Try to find the real n8n URL from the module section
+                var wrap = document.getElementById('moduleClientAreaWrap');
+                if (wrap) {
+                    var buttons = wrap.querySelectorAll('a[href], button, input[type="submit"]');
+                    var n8nBtn = null;
+                    buttons.forEach(function(btn) {
+                        var text = (btn.innerText || btn.value || '').toLowerCase();
+                        if (!n8nBtn && (text.indexOf('n8n') !== -1 || text.indexOf('go to') !== -1 || text.indexOf('login') !== -1 || text.indexOf('access') !== -1)) {
+                            n8nBtn = btn;
+                        }
+                    });
+                    if (!n8nBtn && buttons.length > 0) n8nBtn = buttons[0];
+
+                    var mainBtn = document.getElementById('n8nMainBtn');
+                    if (n8nBtn && mainBtn) {
+                        var href = n8nBtn.getAttribute('href');
+                        if (href && href !== '#') {
+                            mainBtn.href = href;
+                            mainBtn.target = '_blank';
+                        }
+                        // Hide original button in module
+                        if (n8nBtn.closest && n8nBtn.closest('.row')) {
+                            n8nBtn.closest('.row').style.display = 'none';
+                        } else {
+                            n8nBtn.style.display = 'none';
                         }
                     }
 
-                    if (originalHref && originalHref !== '#') {
-                        container.innerHTML = `
-                            <a href="${originalHref}" target="_blank" class="btn btn-sso-cpanel w-100 py-3 n8n-main-btn" style="background-color: #ff6c2c !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,108,44,0.3); transition: all 0.3s ease;">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; filter: brightness(0) invert(1);" alt="n8n"> GO TO N8N
-                            </a>
-                        `;
-                    } else if (n8nBtn.onclick || n8nBtn.closest('form')) {
-                         const form = n8nBtn.closest('form');
-                         if(form && !form.id) form.id = 'dynamicN8nForm_' + Date.now();
-                         const formId = form ? form.id : '';
-                         
-                         container.innerHTML = `
-                            <a href="#" onclick="event.preventDefault(); ${formId ? `document.getElementById('${formId}').submit();` : 'n8nBtn.click();'}" class="btn btn-sso-cpanel w-100 py-3 n8n-main-btn" style="background-color: #ff6c2c !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,108,44,0.3); transition: all 0.3s ease;">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; filter: brightness(0) invert(1);" alt="n8n"> GO TO N8N
-                            </a>
-                        `;
-                    }
-                    
-                    if(n8nBtn.closest('.row')) {
-                        n8nBtn.closest('.row').style.display = 'none';
-                    } else {
-                        n8nBtn.style.display = 'none';
-                    }
-                } else {
-                    const fallback = document.getElementById('fallbackN8nBtn');
-                    if(fallback) fallback.classList.remove('d-none');
+                    // 6. Style progress bars beautifully
+                    wrap.querySelectorAll('.progress').forEach(function(pb) {
+                        pb.style.height = '24px';
+                        pb.style.borderRadius = '12px';
+                        pb.style.backgroundColor = '#f4f5f7';
+                        pb.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.05)';
+                        pb.style.marginBottom = '1.5rem';
+                        pb.style.overflow = 'hidden';
+                        var bar = pb.querySelector('.progress-bar');
+                        if (bar) {
+                            bar.style.backgroundColor = '#ff6c2c';
+                            bar.style.backgroundImage = 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)';
+                            bar.style.backgroundSize = '1rem 1rem';
+                            bar.style.display = 'flex';
+                            bar.style.alignItems = 'center';
+                            bar.style.justifyContent = 'center';
+                            bar.style.fontWeight = 'bold';
+                            bar.style.fontSize = '0.85rem';
+                            bar.style.color = '#fff';
+                        }
+                    });
+
+                    // 7. Style the module wrapper
+                    wrap.style.padding = '1.5rem';
+                    wrap.style.background = '#fff';
+                    wrap.style.borderRadius = '16px';
+                    wrap.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
+                    wrap.style.border = '1px solid rgba(0,0,0,0.05)';
                 }
-
-                // 2. Beautifully style the progress bars
-                const progressBars = wrap.querySelectorAll('.progress');
-                progressBars.forEach(pb => {
-                    pb.style.height = '24px';
-                    pb.style.borderRadius = '12px';
-                    pb.style.backgroundColor = '#f4f5f7';
-                    pb.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.05)';
-                    pb.style.marginBottom = '1.5rem';
-                    pb.style.overflow = 'hidden';
-                    
-                    const innerBar = pb.querySelector('.progress-bar');
-                    if (innerBar) {
-                        // Using a dynamic gradient that fits the SNBD Host theme (#ff6c2c)
-                        innerBar.style.backgroundColor = '#ff6c2c';
-                        innerBar.style.backgroundImage = 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)';
-                        innerBar.style.backgroundSize = '1rem 1rem';
-                        innerBar.style.display = 'flex';
-                        innerBar.style.alignItems = 'center';
-                        innerBar.style.justifyContent = 'center';
-                        innerBar.style.fontWeight = 'bold';
-                        innerBar.style.fontSize = '0.85rem';
-                        innerBar.style.color = '#fff';
-                        innerBar.style.textShadow = '0 1px 2px rgba(0,0,0,0.2)';
-                    }
-                });
-
-                // Style surrounding text for bars
-                const labels = wrap.querySelectorAll('strong, b');
-                labels.forEach(l => {
-                    l.style.color = '#333';
-                    l.style.fontSize = '0.95rem';
-                    l.style.display = 'inline-block';
-                    l.style.marginBottom = '0.5rem';
-                });
-                
-                // Add overall nice styling to the module wrapper
-                wrap.style.padding = '1.5rem';
-                wrap.style.background = '#fff';
-                wrap.style.borderRadius = '16px';
-                wrap.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
-                wrap.style.border = '1px solid rgba(0,0,0,0.05)';
             });
             </script>
             <style>
-            .n8n-main-btn:hover {
+            .n8n-main-btn:hover, #n8nMainBtn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 6px 20px rgba(255,108,44,0.4) !important;
                 background-color: #f55b1c !important;
             }
             </style>
-            {/if}
     </div>
     
     <!-- CHANGE PASSWORD TAB -->
