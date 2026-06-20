@@ -125,21 +125,26 @@ class Updater
             // Find the extracted root folder (GitHub puts everything in a root folder inside the zip)
             $scanned = array_diff(scandir($tempExtractDir), ['..', '.']);
             $rootFolder = reset($scanned);
-            $sourceThemeDir = $tempExtractDir . '/' . $rootFolder . '/templates/snbdhost';
             
-            // If the repo itself is the theme (no templates/snbdhost wrapper), then:
-            // $sourceThemeDir = $tempExtractDir . '/' . $rootFolder;
-            // Let's check which structure it is.
-            if (!is_dir($sourceThemeDir)) {
-                 $sourceThemeDir = $tempExtractDir . '/' . $rootFolder; // Assume the whole repo is the theme
-            }
-
+            // 1. Update templates/snbdhost
+            $sourceThemeDir = $tempExtractDir . '/' . $rootFolder . '/templates/snbdhost';
             if (is_dir($sourceThemeDir)) {
                 $finalDest = $targetDir . '/snbdhost';
-                // Recursively copy files to templates/snbdhost
                 $this->recurseCopy($sourceThemeDir, $finalDest);
+            } elseif (is_dir($tempExtractDir . '/' . $rootFolder)) {
+                // If the repo doesn't have a templates folder, assume the whole repo is the theme
+                $this->recurseCopy($tempExtractDir . '/' . $rootFolder, $targetDir . '/snbdhost');
             } else {
                  throw new \Exception("Could not find the theme files inside the extracted archive.");
+            }
+            
+            // 2. Update modules/addons/snbdhost_manager
+            $sourceModuleDir = $tempExtractDir . '/' . $rootFolder . '/modules/addons/snbdhost_manager';
+            if (is_dir($sourceModuleDir)) {
+                $moduleTargetDir = realpath(__DIR__ . '/../../'); // points to modules/addons/
+                if ($moduleTargetDir) {
+                    $this->recurseCopy($sourceModuleDir, $moduleTargetDir . '/snbdhost_manager');
+                }
             }
 
             // Cleanup temp dir
