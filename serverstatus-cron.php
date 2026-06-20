@@ -42,7 +42,7 @@ if (empty($apiKey)) {
 
 // Attempt 3: Fallback hardcoded key
 if (empty($apiKey)) {
-    $apiKey = 'u2339866-3ab3be785151b426419bea0b';
+    $apiKey = 'ur2339866-94b2971de5cdd1408685a563';
 }
 
 $apiEndpoint = 'https://api.uptimerobot.com/v2/getMonitors';

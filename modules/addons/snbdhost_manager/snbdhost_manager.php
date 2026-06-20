@@ -80,8 +80,38 @@ function snbdhost_manager_output($vars)
     if (file_exists($configFile)) {
         $currentConfig = json_decode(file_get_contents($configFile), true) ?: [];
     }
-    if (($currentConfig['api_key'] ?? '') !== $uptimerobotApiKey) {
+    if (($currentConfig['api_key'] ?? '') !== $uptimerobotApiKey || !file_exists(__DIR__ . '/../../../network-status.json')) {
         file_put_contents($configFile, json_encode(['api_key' => $uptimerobotApiKey], JSON_PRETTY_PRINT));
+        
+        // Force refresh / write the cache file right then and there
+        if (!empty($uptimerobotApiKey)) {
+            $ch = curl_init('https://api.uptimerobot.com/v2/getMonitors');
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => http_build_query([
+                    'api_key' => $uptimerobotApiKey,
+                    'format' => 'json',
+                    'logs' => '0',
+                    'response_times' => '1',
+                    'response_times_limit' => '10',
+                    'uptime_ratio' => '30',
+                    'all_time_uptime_ratio' => '1',
+                ]),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 15,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json'],
+            ]);
+            $resp = curl_exec($ch);
+            curl_close($ch);
+            if ($resp !== false) {
+                $decoded = json_decode($resp, true);
+                if (isset($decoded['stat']) && $decoded['stat'] === 'ok') {
+                    $decoded['last_updated_timestamp'] = time();
+                    @file_put_contents(__DIR__ . '/../../../network-status.json', json_encode($decoded));
+                }
+            }
+        }
     }
 
     // Process update action
@@ -121,7 +151,15 @@ function snbdhost_manager_output($vars)
             $ch = curl_init('https://api.uptimerobot.com/v2/getMonitors');
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => http_build_query(['api_key' => $testKey, 'format' => 'json']),
+                CURLOPT_POSTFIELDS => http_build_query([
+                    'api_key' => $testKey,
+                    'format' => 'json',
+                    'logs' => '0',
+                    'response_times' => '1',
+                    'response_times_limit' => '10',
+                    'uptime_ratio' => '30',
+                    'all_time_uptime_ratio' => '1',
+                ]),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 15,
                 CURLOPT_CONNECTTIMEOUT => 10,
@@ -156,7 +194,12 @@ function snbdhost_manager_output($vars)
                     ];
                 } elseif (isset($data['stat']) && $data['stat'] === 'ok') {
                     $count = isset($data['monitors']) ? count($data['monitors']) : 0;
-                    $testResult = ['success' => true, 'message' => 'Connection successful! Found ' . $count . ' monitor(s).'];
+                    
+                    // Force generate / update the network-status.json cache file right then and there
+                    $data['last_updated_timestamp'] = time();
+                    @file_put_contents(__DIR__ . '/../../../network-status.json', json_encode($data));
+                    
+                    $testResult = ['success' => true, 'message' => 'Connection successful and cache updated! Found ' . $count . ' monitor(s).'];
                 } else {
                     $msg = isset($data['error']['message']) ? $data['error']['message'] : 'Unknown error from UptimeRobot.';
                     $testResult = [
