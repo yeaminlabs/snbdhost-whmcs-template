@@ -67,6 +67,7 @@ function snbdhost_manager_output($vars)
     
     // Process update action
     $action = isset($_GET['action']) ? $_GET['action'] : '';
+    $updateType = isset($_GET['type']) ? $_GET['type'] : 'all';
     $message = '';
     
     if ($action === 'update_theme') {
@@ -74,29 +75,102 @@ function snbdhost_manager_output($vars)
         $updater = new \SNBDHostManager\Updater($githubRepo, $githubToken);
         
         try {
-            $result = $updater->updateTheme();
-            $message = '<div class="alert alert-success"><strong>Success!</strong> Theme successfully updated to the latest version.</div>';
+            $updater->updateTheme($updateType);
+            $targetName = $updateType === 'theme' ? 'Theme' : ($updateType === 'module' ? 'Manager Module' : 'Theme and Module');
+            $message = '<div class="alert alert-success" style="border-left: 4px solid #CC0000; border-radius: 4px;"><strong>Success!</strong> ' . $targetName . ' successfully updated to the latest version.</div>';
         } catch (\Exception $e) {
-            $message = '<div class="alert alert-danger"><strong>Error!</strong> Failed to update theme: ' . $e->getMessage() . '</div>';
+            $message = '<div class="alert alert-danger" style="border-left: 4px solid #CC0000; border-radius: 4px;"><strong>Error!</strong> Failed to update: ' . $e->getMessage() . '</div>';
         }
     }
     
     // Output HTML
     echo $message;
     ?>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">SNBDHost Theme Management</h3>
+    <style>
+        .snbd-panel {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: #fff;
+            margin-bottom: 20px;
+        }
+        .snbd-panel-heading {
+            background-color: #CC0000;
+            color: #ffffff;
+            padding: 15px 20px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .snbd-panel-body {
+            padding: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        .snbd-btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .snbd-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            color: #fff;
+        }
+        .snbd-btn:hover {
+            opacity: 0.9;
+            color: #fff;
+            text-decoration: none;
+        }
+        .snbd-btn-theme {
+            background-color: #CC0000;
+            box-shadow: 0 4px 6px rgba(204, 0, 0, 0.2);
+        }
+        .snbd-btn-module {
+            background-color: #111111;
+            box-shadow: 0 4px 6px rgba(17, 17, 17, 0.2);
+        }
+        .snbd-info-box {
+            background: #f9f9f9;
+            border-left: 4px solid #111;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+    </style>
+    
+    <div class="snbd-panel">
+        <div class="snbd-panel-heading">
+            <i class="fas fa-paint-brush"></i> SNBDHost Theme Management
         </div>
-        <div class="panel-body">
-            <p>Welcome to the SNBDHost Theme Manager. From here, you can pull the latest theme updates directly from your configured GitHub repository.</p>
-            <p><strong>Configured Repository:</strong> <?php echo htmlspecialchars($githubRepo); ?></p>
-            <hr>
-            <h4>Update Theme</h4>
-            <p>Click the button below to download the latest theme release/commits from GitHub and apply them to your WHMCS templates directory.</p>
-            <a href="<?php echo $modulelink; ?>&action=update_theme" class="btn btn-primary" onclick="return confirm('Are you sure you want to update the theme? This will overwrite the current theme files in templates/snbdhost.');">
-                <i class="fa fa-download"></i> Update Theme from GitHub
-            </a>
+        <div class="snbd-panel-body">
+            <div class="snbd-info-box">
+                <p style="margin: 0 0 5px 0;"><strong>Welcome to the SNBDHost Theme Manager.</strong></p>
+                <p style="margin: 0; color: #555;">From here, you can pull the latest updates directly from your configured GitHub repository. You can choose to update just the theme files or just the manager module itself.</p>
+            </div>
+            
+            <p><strong>Configured Repository:</strong> <code><?php echo htmlspecialchars($githubRepo); ?></code></p>
+            <hr style="border-top: 1px solid #eee;">
+            
+            <h4 style="color: #CC0000; font-weight: 600;">Available Updates</h4>
+            <p>Select which component you would like to update from GitHub:</p>
+            
+            <div class="snbd-btn-group">
+                <a href="<?php echo $modulelink; ?>&action=update_theme&type=theme" class="snbd-btn snbd-btn-theme" onclick="return confirm('Are you sure you want to update the Theme? This will overwrite your current theme files in templates/snbdhost.');">
+                    <i class="fas fa-download"></i> Update Theme Only
+                </a>
+                
+                <a href="<?php echo $modulelink; ?>&action=update_theme&type=module" class="snbd-btn snbd-btn-module" onclick="return confirm('Are you sure you want to update the Manager Module? This will overwrite the module files.');">
+                    <i class="fas fa-sync"></i> Update Manager Module Only
+                </a>
+            </div>
         </div>
     </div>
     <?php

@@ -15,7 +15,7 @@ class Updater
         $this->downloadPath = sys_get_temp_dir() . '/snbdhost_theme_update.zip';
     }
 
-    public function updateTheme()
+    public function updateTheme($type = 'all')
     {
         if (empty($this->githubRepo) || $this->githubRepo === 'username/repo') {
             throw new \Exception("GitHub repository is not configured correctly.");
@@ -48,7 +48,7 @@ class Updater
             throw new \Exception("Could not locate the templates directory at " . __DIR__ . '/../../../../templates/');
         }
         
-        $this->extractTheme($this->downloadPath, $targetDir);
+        $this->extractTheme($this->downloadPath, $targetDir, $type);
 
         // Cleanup
         if (file_exists($this->downloadPath)) {
@@ -108,7 +108,7 @@ class Updater
         file_put_contents($destination, $data);
     }
 
-    private function extractTheme($zipPath, $targetDir)
+    private function extractTheme($zipPath, $targetDir, $type = 'all')
     {
         $zip = new \ZipArchive;
         if ($zip->open($zipPath) === true) {
@@ -127,23 +127,27 @@ class Updater
             $rootFolder = reset($scanned);
             
             // 1. Update templates/snbdhost
-            $sourceThemeDir = $tempExtractDir . '/' . $rootFolder . '/templates/snbdhost';
-            if (is_dir($sourceThemeDir)) {
-                $finalDest = $targetDir . '/snbdhost';
-                $this->recurseCopy($sourceThemeDir, $finalDest);
-            } elseif (is_dir($tempExtractDir . '/' . $rootFolder)) {
-                // If the repo doesn't have a templates folder, assume the whole repo is the theme
-                $this->recurseCopy($tempExtractDir . '/' . $rootFolder, $targetDir . '/snbdhost');
-            } else {
-                 throw new \Exception("Could not find the theme files inside the extracted archive.");
+            if ($type === 'all' || $type === 'theme') {
+                $sourceThemeDir = $tempExtractDir . '/' . $rootFolder . '/templates/snbdhost';
+                if (is_dir($sourceThemeDir)) {
+                    $finalDest = $targetDir . '/snbdhost';
+                    $this->recurseCopy($sourceThemeDir, $finalDest);
+                } elseif (is_dir($tempExtractDir . '/' . $rootFolder)) {
+                    // If the repo doesn't have a templates folder, assume the whole repo is the theme
+                    $this->recurseCopy($tempExtractDir . '/' . $rootFolder, $targetDir . '/snbdhost');
+                } else {
+                     throw new \Exception("Could not find the theme files inside the extracted archive.");
+                }
             }
             
             // 2. Update modules/addons/snbdhost_manager
-            $sourceModuleDir = $tempExtractDir . '/' . $rootFolder . '/modules/addons/snbdhost_manager';
-            if (is_dir($sourceModuleDir)) {
-                $moduleTargetDir = realpath(__DIR__ . '/../../'); // points to modules/addons/
-                if ($moduleTargetDir) {
-                    $this->recurseCopy($sourceModuleDir, $moduleTargetDir . '/snbdhost_manager');
+            if ($type === 'all' || $type === 'module') {
+                $sourceModuleDir = $tempExtractDir . '/' . $rootFolder . '/modules/addons/snbdhost_manager';
+                if (is_dir($sourceModuleDir)) {
+                    $moduleTargetDir = realpath(__DIR__ . '/../../'); // points to modules/addons/
+                    if ($moduleTargetDir) {
+                        $this->recurseCopy($sourceModuleDir, $moduleTargetDir . '/snbdhost_manager');
+                    }
                 }
             }
 
