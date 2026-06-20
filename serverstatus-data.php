@@ -43,10 +43,10 @@ if (empty($apiKey)) {
 
 // Attempt 3: Legacy hardcoded fallback (for backwards compatibility)
 if (empty($apiKey)) {
-    $apiKey = 'ur2339866-94b2971de5cdd1408685a563';
+    $apiKey = 'u2339866-3ab3be785151b426419bea0b';
 }
 
-$apiEndpoint = 'https://api.uptimerobot.com/v3/getMonitors';
+$apiEndpoint = 'https://api.uptimerobot.com/v2/getMonitors';
 
 $postData = http_build_query([
     'api_key' => $apiKey,

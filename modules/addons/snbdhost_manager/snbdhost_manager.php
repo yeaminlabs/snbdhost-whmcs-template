@@ -118,7 +118,7 @@ function snbdhost_manager_output($vars)
         if (empty($testKey)) {
             $testResult = ['success' => false, 'message' => 'No API key provided. Please configure the UptimeRobot API Key in the module settings first.'];
         } else {
-            $ch = curl_init('https://api.uptimerobot.com/v3/getMonitors');
+            $ch = curl_init('https://api.uptimerobot.com/v2/getMonitors');
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => http_build_query(['api_key' => $testKey, 'format' => 'json']),
