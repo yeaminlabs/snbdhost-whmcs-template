@@ -116,7 +116,7 @@ function snbdhost_manager_output($vars)
         $testKey = trim($_POST['api_key'] ?? $uptimerobotApiKey);
         $testResult = [];
         if (empty($testKey)) {
-            $testResult = ['success' => false, 'message' => 'No API key provided.'];
+            $testResult = ['success' => false, 'message' => 'No API key provided. Please configure the UptimeRobot API Key in the module settings first.'];
         } else {
             $ch = curl_init('https://api.uptimerobot.com/v3/getMonitors');
             curl_setopt_array($ch, [
@@ -124,21 +124,46 @@ function snbdhost_manager_output($vars)
                 CURLOPT_POSTFIELDS => http_build_query(['api_key' => $testKey, 'format' => 'json']),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 15,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
                 CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json'],
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 3,
             ]);
             $resp = curl_exec($ch);
             $err = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
+
             if ($resp === false) {
                 $testResult = ['success' => false, 'message' => 'cURL error: ' . $err];
+            } elseif ($httpCode !== 200) {
+                $preview = strip_tags(substr($resp, 0, 300));
+                $testResult = [
+                    'success' => false,
+                    'message' => 'UptimeRobot returned HTTP ' . $httpCode . '. Usually caused by rate limiting (10 req/min on free plan) or an invalid API key.',
+                    'debug' => $preview
+                ];
             } else {
                 $data = json_decode($resp, true);
-                if (isset($data['stat']) && $data['stat'] === 'ok') {
+                if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+                    $preview = strip_tags(substr($resp, 0, 300));
+                    $testResult = [
+                        'success' => false,
+                        'message' => 'Invalid response from UptimeRobot (not valid JSON).',
+                        'debug' => 'First 300 chars: ' . $preview
+                    ];
+                } elseif (isset($data['stat']) && $data['stat'] === 'ok') {
                     $count = isset($data['monitors']) ? count($data['monitors']) : 0;
                     $testResult = ['success' => true, 'message' => 'Connection successful! Found ' . $count . ' monitor(s).'];
                 } else {
-                    $msg = isset($data['error']['message']) ? $data['error']['message'] : 'Invalid response from UptimeRobot.';
-                    $testResult = ['success' => false, 'message' => $msg];
+                    $msg = isset($data['error']['message']) ? $data['error']['message'] : 'Unknown error from UptimeRobot.';
+                    $testResult = [
+                        'success' => false,
+                        'message' => $msg,
+                        'debug' => isset($data['error']['type']) ? 'Error type: ' . $data['error']['type'] : null
+                    ];
                 }
             }
         }
@@ -347,6 +372,9 @@ function snbdhost_manager_output($vars)
     </div>
 
     <script>
+    function escapeHtml(str) {
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
     function testUptimeRobotKey() {
         const key = document.getElementById('ur-api-key').value.trim();
         const resultDiv = document.getElementById('ur-test-result');
@@ -375,7 +403,11 @@ function snbdhost_manager_output($vars)
                 resultDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
                 resultDiv.className = 'snbd-api-status success';
             } else {
-                resultDiv.innerHTML = '<i class="fas fa-times-circle"></i> ' + data.message;
+                let html = '<i class="fas fa-times-circle"></i> ' + data.message;
+                if (data.debug) {
+                    html += '<br><code style="display:block;margin-top:6px;padding:8px;background:#f5f5f5;border-radius:4px;font-size:11px;word-break:break-all;">' + escapeHtml(data.debug) + '</code>';
+                }
+                resultDiv.innerHTML = html;
                 resultDiv.className = 'snbd-api-status error';
             }
         })
