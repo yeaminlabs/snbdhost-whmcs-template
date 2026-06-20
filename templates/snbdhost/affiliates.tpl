@@ -278,11 +278,6 @@
                 </div>
                 <div class="aff-rate-card reveal" style="transition-delay:.19s">
                     <div class="aff-rate-card__pct">10%</div>
-                    <div class="aff-rate-card__name">Domain Orders</div>
-                    <div class="aff-rate-card__desc">.com, .net, .org & all TLD registrations</div>
-                </div>
-                <div class="aff-rate-card reveal" style="transition-delay:.26s">
-                    <div class="aff-rate-card__pct">10%</div>
                     <div class="aff-rate-card__name">SSL Certificates</div>
                     <div class="aff-rate-card__desc">DV, OV & wildcard SSL products</div>
                 </div>
