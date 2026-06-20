@@ -17,7 +17,10 @@ add_hook('AdminHomeWidgets', 1, function() {
     return new \SNBDHostManager\SnbdhostThemeWidget();
 });
 
-add_hook('AdminHomepage', 1, function($vars) {
+add_hook('AdminAreaFooterOutput', 1, function($vars) {
+    if ($vars['filename'] !== 'index') {
+        return '';
+    }
     $notice = new \SNBDHostManager\DashboardTopNotice();
     return $notice->render();
 });

@@ -147,6 +147,28 @@ class DashboardTopNotice
             </div>
         </div>';
 
-        return $html;
+        // Escape the HTML for JS injection
+        $htmlEscaped = json_encode($html);
+
+        $js = '
+        <script>
+        jQuery(document).ready(function($) {
+            var noticeHtml = ' . $htmlEscaped . ';
+            var widgetContainer = $(\'.home-widgets-container\');
+            if (widgetContainer.length > 0) {
+                widgetContainer.before(noticeHtml);
+            } else {
+                var mainContent = $(\'#contentarea, .contentarea, .main-content\').first();
+                if (mainContent.length > 0) {
+                    mainContent.prepend(noticeHtml);
+                } else {
+                    $(\'body\').prepend(noticeHtml);
+                }
+            }
+        });
+        </script>
+        ';
+
+        return $js;
     }
 }
