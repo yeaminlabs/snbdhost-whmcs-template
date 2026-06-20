@@ -372,7 +372,7 @@
                             <div class="d-flex flex-column gap-3 mt-3">
                                 <!-- n8n button placeholder (shown via JS for n8n products) -->
                                 <div id="n8nButtonContainer" style="display:none;">
-                                    <a href="#" class="btn btn-sso-cpanel w-100 py-3" id="n8nMainBtn" style="background-color: #ff6c2c !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,108,44,0.3); transition: all 0.3s ease;">
+                                    <a href="#" class="btn btn-sso-cpanel w-100 py-3" id="n8nMainBtn" style="background-color: #EA4B71 !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(234,75,113,0.3); transition: all 0.3s ease;">
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; filter: brightness(0) invert(1);" alt="n8n"> GO TO N8N
                                     </a>
                                 </div>
@@ -609,8 +609,8 @@
             <style>
             .n8n-main-btn:hover, #n8nMainBtn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(255,108,44,0.4) !important;
-                background-color: #f55b1c !important;
+                box-shadow: 0 6px 20px rgba(234,75,113,0.4) !important;
+                background-color: #D63C60 !important;
             }
             </style>
     </div>
