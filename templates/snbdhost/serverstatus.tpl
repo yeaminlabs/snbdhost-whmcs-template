@@ -152,8 +152,11 @@
 </div>
 
 <script>
+{literal}
 (function () {
+{/literal}
     const API_ENDPOINT = '{$WEB_ROOT}/serverstatus-data.php';
+{literal}
     let monitors = [];
     let activeFilter = 'all';
     let searchQuery = '';
@@ -468,6 +471,7 @@
     fetchMonitors();
     startRefreshTimer();
 })();
+{/literal}
 </script>
 
 {include file="{$template}/footer.tpl"}
