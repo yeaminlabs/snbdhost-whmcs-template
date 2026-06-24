@@ -119,6 +119,18 @@ function snbdhost_manager_output($vars)
     $updateType = isset($_GET['type']) ? $_GET['type'] : 'all';
     $message = '';
 
+    if ($action === 'save_client_banner') {
+        $bannerData = [
+            'enabled' => isset($_POST['banner_enabled']) ? '1' : '0',
+            'title' => isset($_POST['banner_title']) ? strip_tags($_POST['banner_title']) : '',
+            'desc' => isset($_POST['banner_desc']) ? strip_tags($_POST['banner_desc']) : '',
+            'link' => isset($_POST['banner_link']) ? strip_tags($_POST['banner_link']) : '',
+            'link_text' => isset($_POST['banner_link_text']) ? strip_tags($_POST['banner_link_text']) : '',
+        ];
+        file_put_contents(__DIR__ . '/client_banner.json', json_encode($bannerData));
+        $message = '<div class="alert alert-success" style="border-left: 4px solid #CC0000; border-radius: 4px;"><strong>Success!</strong> Client Area Dashboard Banner settings updated.</div>';
+    }
+
     if ($action === 'save_bugs') {
         $customData = [
             'reported_bug' => isset($_POST['reported_bug']) ? strip_tags($_POST['reported_bug']) : '',
@@ -218,6 +230,13 @@ function snbdhost_manager_output($vars)
     $customBugs = ['reported_bug' => '', 'fixed_bug' => '', 'reporter' => ''];
     if (file_exists(__DIR__ . '/custom_bugs.json')) {
         $customBugs = json_decode(file_get_contents(__DIR__ . '/custom_bugs.json'), true);
+    }
+
+    // Load client banner data
+    $bannerData = ['enabled' => '1', 'title' => '', 'desc' => '', 'link' => '', 'link_text' => ''];
+    if (file_exists(__DIR__ . '/client_banner.json')) {
+        $bannerData = json_decode(file_get_contents(__DIR__ . '/client_banner.json'), true);
+        if (!is_array($bannerData)) $bannerData = ['enabled' => '1', 'title' => '', 'desc' => '', 'link' => '', 'link_text' => ''];
     }
 
     // Output HTML
@@ -379,7 +398,42 @@ function snbdhost_manager_output($vars)
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6">
+            <div class="snbd-panel">
+                <div class="snbd-panel-heading" style="background-color: #2980b9;">
+                    <i class="fas fa-pager"></i> Client Area Dashboard Banner
+                </div>
+                <div class="snbd-panel-body">
+                    <p style="color: #666; margin-bottom: 15px;">Configure the UX banner that appears at the top of the client dashboard. Toggle it off to hide it completely.</p>
+                    <form method="post" action="<?php echo $modulelink; ?>&action=save_client_banner">
+                        <div class="snbd-form-group">
+                            <label><input type="checkbox" name="banner_enabled" value="1" <?php echo ($bannerData['enabled'] == '1') ? 'checked' : ''; ?>> Enable Banner</label>
+                        </div>
+                        <div class="snbd-form-group">
+                            <label>Banner Title</label>
+                            <input type="text" name="banner_title" class="snbd-form-control" placeholder="🚀 SNBD HOST Version 3.5 released..." value="<?php echo htmlspecialchars($bannerData['title']); ?>">
+                        </div>
+                        <div class="snbd-form-group">
+                            <label>Banner Description</label>
+                            <input type="text" name="banner_desc" class="snbd-form-control" placeholder="New layouts, fixes, and more..." value="<?php echo htmlspecialchars($bannerData['desc']); ?>">
+                        </div>
+                        <div class="snbd-form-group">
+                            <label>Call to Action Link (URL)</label>
+                            <input type="text" name="banner_link" class="snbd-form-control" placeholder="clientarea.php?action=devupdates" value="<?php echo htmlspecialchars($bannerData['link']); ?>">
+                        </div>
+                        <div class="snbd-form-group">
+                            <label>Call to Action Text</label>
+                            <input type="text" name="banner_link_text" class="snbd-form-control" placeholder="See More" value="<?php echo htmlspecialchars($bannerData['link_text']); ?>">
+                        </div>
+                        <button type="submit" class="snbd-btn" style="background-color:#2980b9; color:#fff; width: 100%; border: none; margin-top: 10px;">
+                            <i class="fas fa-save"></i> Save Client Banner
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
             <div class="snbd-panel">
                 <div class="snbd-panel-heading" style="background: linear-gradient(135deg, #CC0000, #ff4444);">
                     <i class="fas fa-satellite-dish"></i> UptimeRobot Network Status Integration

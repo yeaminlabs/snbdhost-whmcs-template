@@ -279,6 +279,7 @@
 </style>
 
 <!-- ✦ UX Improvement Banner ✦ -->
+{if $snbdBannerEnabled neq '0'}
 <div id="snbd-ux-banner" style="
     background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
     border-radius: 14px;
@@ -313,15 +314,15 @@
     <!-- Text -->
     <div style="flex:1; min-width:0;">
         <div style="font-weight:700; font-size:0.9375rem; color:#fff; line-height:1.3; margin-bottom:0.2rem;">
-            🚀 SNBD HOST Client Panel Version 3.5 released — 2026
+            {if $snbdBannerTitle}{$snbdBannerTitle}{else}🚀 SNBD HOST Client Panel Version 3.5 released — 2026{/if}
         </div>
         <div style="font-size:0.8125rem; color:rgba(255,255,255,0.88); line-height:1.5;">
-            New auth page layouts, particle rendering fixes, Developer Updates changelog, and more. See what's changed.
+            {if $snbdBannerDesc}{$snbdBannerDesc}{else}New auth page layouts, particle rendering fixes, Developer Updates changelog, and more. See what's changed.{/if}
         </div>
     </div>
 
     <!-- CTA -->
-    <a href="clientarea.php?action=devupdates" style="
+    <a href="{if $snbdBannerLink}{$snbdBannerLink}{else}clientarea.php?action=devupdates{/if}" style="
         flex-shrink:0;
         background:#fff;
         color:#CC0000;
@@ -337,7 +338,7 @@
     "
     onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.18)';this.style.transform='translateY(-1px)'"
     onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)';this.style.transform='translateY(0)'">
-        See More <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
+        {if $snbdBannerLinkText}{$snbdBannerLinkText}{else}See More{/if} <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
     </a>
 
     <!-- Dismiss -->
@@ -371,6 +372,7 @@
     } catch(e) {}
 })();
 </script>
+{/if}
 
 <!-- Dashboard Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
