@@ -33,7 +33,7 @@
         <div class="ticket-msg-row ticket-msg-client">
             <div class="ticket-msg-meta">
                 <div class="ticket-avatar ticket-avatar-client">
-                    {if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:""}{else}Y{/if}
+                    {if $clientname}{$clientname|truncate:1:""}{else}Y{/if}
                 </div>
                 <div>
                     <span class="ticket-sender-name text-end">You</span>
@@ -57,7 +57,7 @@
         <div class="ticket-msg-row {if $reply.admin}ticket-msg-staff{else}ticket-msg-client{/if}">
             <div class="ticket-msg-meta">
                 <div class="ticket-avatar {if $reply.admin}ticket-avatar-staff{else}ticket-avatar-client{/if}">
-                    {if $reply.admin}{$reply.admin|truncate:1:""}{else}{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:""}{else}Y{/if}{/if}
+                    {if $reply.admin}{$reply.admin|truncate:1:""}{else}{if $clientname}{$clientname|truncate:1:""}{else}Y{/if}{/if}
                 </div>
                 <div>
                     {if $reply.admin}
