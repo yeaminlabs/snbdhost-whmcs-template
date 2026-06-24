@@ -406,6 +406,51 @@
 
 /* ITI phone width fix */
 .iti { width: 100%; }
+.iti__flag-container { z-index: 10; }
+.iti__selected-flag { border-radius: 6px 0 0 6px; }
+.phone-iti-wrap { position: relative; width: 100%; }
+.phone-iti-wrap .iti { width: 100%; }
+.phone-iti-wrap .iti__tel-input {
+    padding-left: 52px !important;
+    border-radius: 7px !important;
+    border: 1px solid var(--snbd-border) !important;
+    font-size: 0.9rem !important;
+    height: auto !important;
+    font-family: var(--snbd-font) !important;
+    color: var(--snbd-text-1) !important;
+    background: var(--snbd-surface) !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.phone-iti-wrap .iti__tel-input:focus {
+    border-color: var(--snbd-red) !important;
+    box-shadow: 0 0 0 3px rgba(186,17,20,0.1) !important;
+    outline: none !important;
+}
+.phone-iti-wrap .iti--separate-dial-code .iti__selected-flag {
+    background: #f5f5f5;
+    border-right: 1px solid var(--snbd-border);
+    border-radius: 6px 0 0 6px;
+}
+/* reCAPTCHA fix */
+.reg-captcha-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.reg-captcha-warn {
+    background: rgba(186,17,20,0.07);
+    border: 1px solid rgba(186,17,20,0.18);
+    color: var(--snbd-red);
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 7px;
+    padding: 0.5rem 1rem;
+    display: none;
+    width: 100%;
+    text-align: center;
+}
 
 /* Animations */
 @keyframes fadeSlideUp {
@@ -503,10 +548,25 @@
             <p class="reg-form-subhead">Join SNBD HOST and get started in seconds.</p>
 
             {if $errormessage}
-                <div class="reg-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$errormessage}
+                <div class="reg-alert" id="regErrAlert">
+                    <i class="fas fa-exclamation-circle" id="regErrIcon"></i>
+                    <span id="regErrMsg">{$errormessage}</span>
                 </div>
+                <script>
+                (function(){
+                    var msgEl = document.getElementById('regErrMsg');
+                    var iconEl = document.getElementById('regErrIcon');
+                    if (msgEl) {
+                        var t = (msgEl.textContent || msgEl.innerText || '').toLowerCase();
+                        if (t.indexOf('captcha') !== -1) {
+                            iconEl.className = 'fas fa-shield-alt';
+                            msgEl.innerHTML = 'CAPTCHA verification failed. Please <a href="javascript:location.reload()" style="color:var(--snbd-red);font-weight:700;text-decoration:underline;">refresh the page</a> and complete the CAPTCHA before submitting.';
+                        }
+                    }
+                })();
+                </script>
             {/if}
+
 
             <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation text-start" role="form">
                 <input type="hidden" name="register" value="true" />
@@ -529,7 +589,9 @@
                     </div>
                     <div class="col-md-6">
                         <label class="reg-label" for="inputPhone">Phone Number *</label>
-                        <input type="tel" name="phonenumber" class="reg-input" id="inputPhone" placeholder="+880 1XXX-XXXXXX" value="{$clientphonenumber}" required>
+                        <div class="phone-iti-wrap">
+                            <input type="tel" name="phonenumber" class="reg-input" id="inputPhone" placeholder="1XXX-XXXXXX" value="{$clientphonenumber}" required>
+                        </div>
                     </div>
                 </div>
 
@@ -659,8 +721,12 @@
 
                 <!-- CAPTCHA -->
                 {if $captcha}
-                    <div class="mt-3 d-flex justify-content-center">
+                    <div class="reg-captcha-wrap" id="regCaptchaWrap">
                         {include file="$template/includes/captcha.tpl"}
+                        <div class="reg-captcha-warn" id="regCaptchaWarn">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Please complete the CAPTCHA verification above before submitting.
+                        </div>
                     </div>
                 {/if}
 
@@ -690,3 +756,56 @@
         </div>
     </div>
 </div>
+
+<!-- intl-tel-input for phone field -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script>
+(function () {
+    /* ── Phone field: intl-tel-input ── */
+    var phoneInput = document.getElementById('inputPhone');
+    if (phoneInput && typeof intlTelInput !== 'undefined') {
+        var iti = intlTelInput(phoneInput, {
+            initialCountry: 'bd',
+            separateDialCode: true,
+            preferredCountries: ['bd', 'us', 'gb', 'in', 'sg'],
+            utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js'
+        });
+        /* On form submit, write the full international number back */
+        var regForm = document.getElementById('frmRegistration');
+        if (regForm) {
+            regForm.addEventListener('submit', function () {
+                var fullNum = iti.getNumber();
+                if (fullNum) phoneInput.value = fullNum;
+            });
+        }
+    }
+
+    /* ── CAPTCHA client-side guard ── */
+    var regForm2 = document.getElementById('frmRegistration');
+    if (regForm2) {
+        regForm2.addEventListener('submit', function (e) {
+            /* Check if reCAPTCHA widget exists but hasn't been completed */
+            var rcResp = null;
+            try {
+                if (typeof grecaptcha !== 'undefined') {
+                    rcResp = grecaptcha.getResponse();
+                }
+            } catch (ex) { rcResp = null; }
+
+            /* If widget exists and response is empty, block submit */
+            var captchaContainer = document.querySelector('.g-recaptcha, #captchaContainer');
+            var hasWidget = captchaContainer && captchaContainer.querySelector('iframe, [data-sitekey]');
+            if (hasWidget && (rcResp === null || rcResp === '')) {
+                e.preventDefault();
+                var warn = document.getElementById('regCaptchaWarn');
+                if (warn) {
+                    warn.style.display = 'block';
+                    warn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
+            }
+        });
+    }
+})();
+</script>
