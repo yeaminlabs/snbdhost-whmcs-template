@@ -414,6 +414,7 @@
 .phone-iti-wrap { position: relative; width: 100%; }
 .phone-iti-wrap .iti { width: 100%; }
 .phone-iti-wrap .iti__tel-input {
+    padding-left: 95px !important;
     border-radius: 7px !important;
     border: 1px solid var(--snbd-border) !important;
     font-size: 0.9rem !important;
