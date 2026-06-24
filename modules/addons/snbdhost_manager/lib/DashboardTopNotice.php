@@ -103,7 +103,7 @@ class DashboardTopNotice
         }
 
         // 4. Override with Custom Bugs from the Manager Module if set
-        $customBugsFile = __DIR__ . '/../../custom_bugs.json';
+        $customBugsFile = __DIR__ . '/../custom_bugs.json';
         if (file_exists($customBugsFile)) {
             $customBugs = json_decode(file_get_contents($customBugsFile), true);
             if (!empty($customBugs['fixed_bug'])) {
