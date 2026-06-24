@@ -286,6 +286,13 @@
         </div>
 
         <div class="change-group">
+            <div class="change-group-label">Support Tickets</div>
+            <ul class="change-list">
+                <li class="change-item"><span class="ci-dot fix"></span><span class="ci-tag fix">Fix</span>Resolved a PHP 8+ TypeError crashing the ticket view page by safely referencing the client name property.</li>
+            </ul>
+        </div>
+
+        <div class="change-group">
             <div class="change-group-label">Dashboard</div>
             <ul class="change-list">
                 <li class="change-item"><span class="ci-dot new"></span><span class="ci-tag new">New</span>Developer Updates page launched — public changelog accessible from the dashboard banner.</li>
