@@ -261,7 +261,10 @@
     background-color: var(--snbd-surface) !important;
     border: 1px solid var(--snbd-border) !important;
     border-radius: 7px !important;
-    padding: 0.75rem 0.9rem !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    padding-right: 0.9rem !important;
+    padding-left: 0.9rem; /* Allow inline styles to override */
     font-size: 0.9rem !important;
     font-weight: 400 !important;
     color: var(--snbd-text-1) !important;
@@ -411,7 +414,6 @@
 .phone-iti-wrap { position: relative; width: 100%; }
 .phone-iti-wrap .iti { width: 100%; }
 .phone-iti-wrap .iti__tel-input {
-    padding-left: 52px !important;
     border-radius: 7px !important;
     border: 1px solid var(--snbd-border) !important;
     font-size: 0.9rem !important;
