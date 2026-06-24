@@ -413,7 +413,7 @@
 .iti__selected-flag { border-radius: 6px 0 0 6px; }
 .phone-iti-wrap { position: relative; width: 100%; }
 .phone-iti-wrap .iti { width: 100%; }
-.phone-iti-wrap .iti__tel-input {
+.phone-iti-wrap input[type="tel"] {
     padding-left: 95px !important;
     border-radius: 7px !important;
     border: 1px solid var(--snbd-border) !important;
@@ -424,7 +424,7 @@
     background: var(--snbd-surface) !important;
     transition: border-color 0.15s, box-shadow 0.15s !important;
 }
-.phone-iti-wrap .iti__tel-input:focus {
+.phone-iti-wrap input[type="tel"]:focus {
     border-color: var(--snbd-red) !important;
     box-shadow: 0 0 0 3px rgba(186,17,20,0.1) !important;
     outline: none !important;
