@@ -1,6 +1,9 @@
 {include file="orderforms/snbdhost_cart/common.tpl"}
 
 <style>
+/* ── Hide suggested domains per user request ── */
+.suggested-domains { display: none !important; }
+
 /* ══════════════════════════════════════════════════════
    SNBD HOST — Choose a Domain  (Premium Redesign v2)
 ══════════════════════════════════════════════════════ */
@@ -286,8 +289,9 @@
 }
 .spotlight-tlds-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
+    width: 100%;
 }
 #order-standard_cart .spotlight-tld-container,
 #order-snbdhost_cart .spotlight-tld-container {
@@ -295,22 +299,27 @@
     background: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
 }
 .spotlight-tld {
     background: #ffffff !important;
     border: 1.5px solid #e2e8f0 !important;
     border-radius: 14px !important;
-    padding: 1.25rem 0.75rem !important;
-    text-align: center;
-    position: relative;
+    padding: 1.25rem 1rem !important;
+    text-align: center !important;
+    position: relative !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.03) !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: space-between !important;
-    min-height: 150px;
+    min-height: 140px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
     transition: all 0.25s cubic-bezier(0.4,0,0.2,1) !important;
-    font-size: 1.25rem !important;
+    font-size: 1.2rem !important;
     font-weight: 800 !important;
     color: #0f172a !important;
 }
@@ -329,30 +338,34 @@
 }
 .spotlight-tld .price {
     display: block !important;
-    font-size: 1rem !important;
+    font-size: 0.9rem !important;
     color: #16a34a !important;
     font-weight: 700 !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.4rem !important;
+    word-break: break-all !important;
 }
 .spotlight-tld .btn {
     width: 100% !important;
     border-radius: 8px !important;
-    font-size: 0.78rem !important;
+    font-size: 0.75rem !important;
     font-weight: 700 !important;
-    padding: 0.45rem 0.5rem !important;
+    padding: 0.4rem 0.4rem !important;
     background: #f1f5f9 !important;
     color: #1e293b !important;
     border: 1px solid #e2e8f0 !important;
     transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 .spotlight-tld .btn:hover {
     background: #d32f2f !important;
     color: #fff !important;
     border-color: #d32f2f !important;
 }
-.spotlight-tld-hot  { background: #ef4444 !important; color: #fff !important; font-size: 0.65rem !important; padding: 0.15rem 0.7rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; }
-.spotlight-tld-sale { background: #f59e0b !important; color: #fff !important; font-size: 0.65rem !important; padding: 0.15rem 0.7rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; }
-.spotlight-tld-new  { background: #10b981 !important; color: #fff !important; font-size: 0.65rem !important; padding: 0.15rem 0.7rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; }
+.spotlight-tld-hot  { background: #ef4444 !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
+.spotlight-tld-sale { background: #f59e0b !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
+.spotlight-tld-new  { background: #10b981 !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
 
 /* ── Suggested Domains ── */
 .suggested-domains {
@@ -430,29 +443,59 @@
 /* ── Continue Button ── */
 .cpd-continue-wrap {
     max-width: 800px;
-    margin: 2rem auto 0;
+    margin: 2.5rem auto 0;
     padding: 0 1.5rem 3rem;
     text-align: center;
 }
+
+/* Sticky Continue Bar */
+.cpd-sticky-continue {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #ffffff;
+    border-top: 2px solid #fca5a5;
+    padding: 1rem 1.5rem;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    z-index: 9999;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+}
+.cpd-sticky-continue.visible { display: flex; }
+.cpd-sticky-domain-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+.cpd-sticky-domain-label span {
+    color: #16a34a;
+    font-size: 1.2rem;
+}
+.cpd-sticky-continue-btn {
+    background: linear-gradient(135deg, #d32f2f, #c62828);
+    color: #fff;
+    border: none;
+    border-radius: 99px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 0.85rem 2.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(211,47,47,0.4);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.cpd-sticky-continue-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(211,47,47,0.5);
+}
+
 #btnDomainContinue {
-    background: linear-gradient(135deg, #d32f2f, #c62828) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 99px !important;
-    font-size: 1.05rem !important;
-    font-weight: 800 !important;
-    padding: 1rem 3rem !important;
-    box-shadow: 0 4px 20px rgba(211,47,47,0.35) !important;
-    transition: all 0.25s ease !important;
-    letter-spacing: 0.01em;
-}
-#btnDomainContinue:hover:not(:disabled) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(211,47,47,0.45) !important;
-}
-#btnDomainContinue:disabled {
-    opacity: 0.55 !important;
-    cursor: not-allowed !important;
+    display: none !important;
 }
 </style>
 
@@ -770,6 +813,17 @@
 </div>
 </div>
 
+{* Sticky Continue Bar - appears after domain is selected *}
+<div class="cpd-sticky-continue" id="cpd-sticky-bar">
+    <div class="cpd-sticky-domain-label">
+        <span id="cpd-sticky-domain-name"></span>
+        <span id="cpd-sticky-price" style="display:block; font-size:0.85rem; color:#64748b; font-weight:500;"></span>
+    </div>
+    <button type="button" class="cpd-sticky-continue-btn" id="cpd-sticky-btn">
+        Continue &nbsp;<i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
 
 {if $showAdvancedSearchOptions}
@@ -818,5 +872,37 @@
             jQuery(".domain-input-group").hide();
             jQuery("#domain" + $radios.first().val()).show();
         }
+
+        /* ── Sticky Continue Bar Logic ── */
+        var $stickyBar = jQuery('#cpd-sticky-bar');
+        var $stickyBtn = jQuery('#cpd-sticky-btn');
+
+        // Watch the original hidden continue button: when it un-disables, show sticky bar
+        var observer = new MutationObserver(function() {
+            var $origBtn = jQuery('#btnDomainContinue');
+            var isReady = !$origBtn.prop('disabled') && !$origBtn.hasClass('w-hidden');
+            if (isReady) {
+                // Grab the domain name from result
+                var domainText = jQuery('.domain-available.headline').text().trim();
+                var priceText = jQuery('#primaryLookupResult .price').text().trim();
+                jQuery('#cpd-sticky-domain-name').text(domainText || 'Domain ready!');
+                jQuery('#cpd-sticky-price').text(priceText ? 'Register for ' + priceText : '');
+                $stickyBar.addClass('visible');
+                jQuery('body').css('padding-bottom', '80px');
+            } else {
+                $stickyBar.removeClass('visible');
+                jQuery('body').css('padding-bottom', '');
+            }
+        });
+
+        var origBtnEl = document.getElementById('btnDomainContinue');
+        if (origBtnEl) {
+            observer.observe(origBtnEl, { attributes: true, attributeFilter: ['disabled', 'class'] });
+        }
+
+        // Sticky button clicks the hidden form submit
+        $stickyBtn.on('click', function() {
+            jQuery('#frmProductDomainSelections').submit();
+        });
     });
 </script>
