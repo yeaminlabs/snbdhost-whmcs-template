@@ -11,8 +11,23 @@ if (!defined("WHMCS")) {
 
 use WHMCS\Database\Capsule;
 
+// ── Redirect to dashboard on any successful login (including Google OAuth) ──
+add_hook('ClientLogin', 1, function($vars) {
+    // If there's a specific return URL from a previous page (e.g. an invoice), honour it
+    $returnUrl = isset($_SESSION['loginReturn']) ? $_SESSION['loginReturn'] : '';
+    unset($_SESSION['loginReturn']);
+
+    if (!empty($returnUrl) && strpos($returnUrl, 'login') === false) {
+        header("Location: " . $returnUrl);
+    } else {
+        header("Location: clientarea.php");
+    }
+    exit;
+});
+
 // Handle the POST request from the modal
 add_hook('ClientAreaPage', 1, function($vars) {
+
     if (isset($_POST['action']) && $_POST['action'] === 'oauth_profile_complete' && isset($_SESSION['uid'])) {
         $userId = (int)$_SESSION['uid'];
         
