@@ -1,306 +1,82 @@
 <?php
-/**
- * SNBD Host OAuth Profile Completion Hook
- * Prompts Google Sign-In users to provide their full billing address and phone number
- * before allowing access to the dashboard.
- */
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-if (!defined("WHMCS")) {
-    die("This file cannot be accessed directly");
-}
-
-use WHMCS\Database\Capsule;
-
-// ── If a NEW user authenticates with Google on the LOGIN page, WHMCS sets a
-//    pending OAuth session but keeps them on login.php with no account yet.
-//    This hook detects that state and pushes them straight to register.php. ──
-add_hook('ClientAreaPageLogin', 1, function($vars) {
-    // WHMCS stores the pending social/OAuth registration info in these session keys
-    $sessionKeys = ['sociallogin', 'SocialSignOnData', 'oAuthLinkedAccountData', 'linkedAccountsData'];
-    foreach ($sessionKeys as $key) {
-        if (!empty($_SESSION[$key])) {
-            header("Location: register.php");
-            exit;
-        }
-    }
-    
-    // Fallback: check for the WHMCS linked accounts OAuth pending flag
-    if (isset($_SESSION['linkedAccountPendingRegistration']) && $_SESSION['linkedAccountPendingRegistration']) {
-        header("Location: register.php");
-        exit;
-    }
-});
-
-// ── Redirect to dashboard on any successful login (including Google OAuth) ──
-add_hook('ClientLogin', 1, function($vars) {
-    // If there's a specific return URL from a previous page (e.g. an invoice), honour it
-    $returnUrl = isset($_SESSION['loginReturn']) ? $_SESSION['loginReturn'] : '';
-    unset($_SESSION['loginReturn']);
-
-    if (!empty($returnUrl) && strpos($returnUrl, 'login') === false) {
-        header("Location: " . $returnUrl);
-    } else {
-        header("Location: clientarea.php");
-    }
-    exit;
-});
-
-// Handle the POST request from the modal
-add_hook('ClientAreaPage', 1, function($vars) {
-
-    if (isset($_POST['action']) && $_POST['action'] === 'oauth_profile_complete' && isset($_SESSION['uid'])) {
-        $userId = (int)$_SESSION['uid'];
-        
-        $address1 = trim($_POST['address1']);
-        $phonenumber = trim($_POST['phonenumber']);
-        $companyname = trim($_POST['companyname']);
-        $address2 = trim($_POST['address2']);
-        $city = trim($_POST['city']);
-        $state = trim($_POST['state']);
-        $postcode = trim($_POST['postcode']);
-        $country = trim($_POST['country']);
-
-        // Handle Custom Fields array if submitted
-        $customfields = isset($_POST['customfield']) ? $_POST['customfield'] : array();
-
-        if (!empty($address1) && !empty($phonenumber) && !empty($city) && !empty($state) && !empty($postcode) && !empty($country)) {
-            // Update using local API
-            $command = 'UpdateClient';
-            $postData = array(
-                'clientid' => $userId,
-                'companyname' => $companyname,
-                'address1' => $address1,
-                'address2' => $address2,
-                'city' => $city,
-                'state' => $state,
-                'postcode' => $postcode,
-                'country' => $country,
-                'phonenumber' => $phonenumber,
-            );
-
-            // Add custom fields if any exist
-            if (!empty($customfields)) {
-                $postData['customfields'] = base64_encode(serialize($customfields));
+// ── PURE SERVER-SIDE INTERCEPTOR FOR GOOGLE IDENTITY SERVICES ──
+add_hook('AfterSetup', 1, function($vars) {
+    if (strpos($_SERVER['REQUEST_URI'], 'google_signin/finalize') !== false && $_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['id_token'])) {
+        $tokenParts = explode('.', $_POST['id_token']);
+        if (count($tokenParts) === 3) {
+            $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $tokenParts[1])), true);
+            if ($payload && isset($payload['email'])) {
+                $email = $payload['email'];
+                
+                try {
+                    $client = Capsule::table('tblclients')->where('email', $email)->first();
+                    
+                    if (!$client) {
+                        // NEW USER! Bypass WHMCS logic completely and create them.
+                        $command = 'AddClient';
+                        $postData = array(
+                            'firstname' => $payload['given_name'] ?: 'Unknown',
+                            'lastname' => $payload['family_name'] ?: 'Unknown',
+                            'email' => $email,
+                            'phonenumber' => '+00000000000',
+                            'address1' => 'Pending Completion',
+                            'city' => 'N/A',
+                            'state' => 'N/A',
+                            'postcode' => '0000',
+                            'country' => 'BD',
+                            'password' => 'G00gleAuth!2026_' . substr(md5(uniqid()), 0, 8),
+                            'customfields' => base64_encode(serialize(array(
+                                '9' => 'Google' // Pre-fill "How did you find us" with Google for these users
+                            ))),
+                        );
+                        $result = localAPI($command, $postData);
+                        
+                        if ($result['result'] == 'success') {
+                            $newClientId = $result['clientid'];
+                            
+                            // Link the Google account in the database
+                            Capsule::table('tblauthn_account_links')->insert([
+                                'client_id' => $newClientId,
+                                'provider_id' => 'google_signin', 
+                                'remote_user_id' => $payload['sub'],
+                                'date_linked' => date('Y-m-d H:i:s'),
+                            ]);
+                            
+                            // Log them in immediately
+                            $newClient = Capsule::table('tblclients')->where('id', $newClientId)->first();
+                            $_SESSION['uid'] = $newClient->id;
+                            $_SESSION['upw'] = $newClient->password;
+                            
+                            // Send success response back to Google JS so it redirects them to dashboard!
+                            header('Content-Type: application/json');
+                            echo json_encode(['redirectUrl' => '/clientarea.php']);
+                            exit;
+                        } else {
+                            // If AddClient fails, return the error to the console
+                            header('Content-Type: application/json');
+                            echo json_encode(['error' => 'Auto-registration failed: ' . $result['message']]);
+                            exit;
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Ignore DB errors, let normal WHMCS logic proceed
+                }
             }
-
-            localAPI($command, $postData);
-            
-            // Redirect to dashboard to remove the POST payload and prevent resubmission
-            header("Location: clientarea.php");
-            exit;
         }
     }
 });
 
-// Display the Modal if required fields are missing
-add_hook('ClientAreaFooterOutput', 1, function($vars) {
-    // Only check if a client is logged in
-    if (empty($_SESSION['uid'])) {
-        return '';
+// ── Existing Hooks ──
+add_hook('ClientAreaPrimarySidebar', 1, function($primarySidebar) {
+    if (isset($_SESSION['uid'])) {
+        $client = Capsule::table('tblclients')->where('id', $_SESSION['uid'])->first();
+        if ($client && ($client->phonenumber === '+00000000000' || $client->address1 === 'Pending Completion')) {
+            $myAccount = $primarySidebar->getChild('My Account');
+            if ($myAccount) {
+                $myAccount->removeChild('Security Settings');
+            }
+        }
     }
-
-    $userId = (int)$_SESSION['uid'];
-    
-    try {
-        // Fetch the client's current details
-        $client = Capsule::table('tblclients')->where('id', $userId)->first();
-        
-        if (!$client) {
-            return '';
-        }
-        
-        // Check if phone or address1 is missing (Google OAuth doesn't provide these)
-        $missingFields = false;
-        $addr = trim($client->address1);
-        $phone = trim($client->phonenumber);
-        
-        if (empty($addr) || $addr === 'Pending Completion' || empty($phone) || $phone === '+00000000000') {
-            $missingFields = true;
-        }
-        
-        if ($missingFields) {
-            
-            // Try to load WHMCS Country list, fallback to a basic list if it fails
-            $countryOptions = '<option value="BD">Bangladesh</option><option value="US">United States</option><option value="GB">United Kingdom</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="IN">India</option>';
-            try {
-                if (class_exists('\WHMCS\Utility\Country')) {
-                    $countryClass = new \WHMCS\Utility\Country();
-                    $countries = $countryClass->getCountryNameArray();
-                    if (!empty($countries)) {
-                        $countryOptions = '';
-                        foreach ($countries as $code => $name) {
-                            $selected = ($code == 'BD') ? ' selected' : '';
-                            $countryOptions .= '<option value="' . htmlspecialchars($code) . '"' . $selected . '>' . htmlspecialchars($name) . '</option>';
-                        }
-                    }
-                }
-            } catch (\Throwable $e) {}
-
-            // Fetch custom fields for registration
-            $customFieldsHtml = '';
-            try {
-                $cfs = Capsule::table('tblcustomfields')
-                    ->where('type', 'client')
-                    ->where('showreg', 'on')
-                    ->get();
-                
-                foreach ($cfs as $cf) {
-                    $requiredAttr = $cf->required == 'on' ? ' required' : '';
-                    $requiredStar = $cf->required == 'on' ? ' *' : ' <span class="opt">(Optional)</span>';
-                    
-                    $fieldHtml = '<div class="col-span-2"><label class="oauth-input-label">' . htmlspecialchars($cf->fieldname) . $requiredStar . '</label>';
-                    
-                    if ($cf->fieldtype === 'text') {
-                        $fieldHtml .= '<input type="text" name="customfield[' . $cf->id . ']" class="oauth-input"' . $requiredAttr . '>';
-                    } elseif ($cf->fieldtype === 'dropdown') {
-                        $options = explode(',', $cf->fieldoptions);
-                        $fieldHtml .= '<select name="customfield[' . $cf->id . ']" class="oauth-select"' . $requiredAttr . '>';
-                        $fieldHtml .= '<option value="">Select an option...</option>';
-                        foreach ($options as $opt) {
-                            $fieldHtml .= '<option value="' . htmlspecialchars($opt) . '">' . htmlspecialchars($opt) . '</option>';
-                        }
-                        $fieldHtml .= '</select>';
-                    } elseif ($cf->fieldtype === 'tickbox') {
-                        $fieldHtml .= '<label><input type="checkbox" name="customfield[' . $cf->id . ']" value="on"' . $requiredAttr . '> Yes</label>';
-                    } elseif ($cf->fieldtype === 'textarea') {
-                        $fieldHtml .= '<textarea name="customfield[' . $cf->id . ']" class="oauth-input" rows="3"' . $requiredAttr . '></textarea>';
-                    }
-                    
-                    if ($cf->description) {
-                        $fieldHtml .= '<div style="font-size:0.75rem; color:#888; margin-top:0.3rem;">' . htmlspecialchars($cf->description) . '</div>';
-                    }
-                    
-                    $fieldHtml .= '</div>';
-                    $customFieldsHtml .= $fieldHtml;
-                }
-            } catch (\Throwable $e) {}
-
-            // Return HTML/CSS/JS for the blocking modal
-            $html = '
-            <style>
-                #oauth-completion-modal {
-                    position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(15, 15, 15, 0.95);
-                    z-index: 9999999;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    backdrop-filter: blur(10px);
-                    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                    overflow-y: auto;
-                    padding: 2rem 1rem;
-                }
-                .oauth-modal-content {
-                    background: #ffffff;
-                    padding: 2.5rem;
-                    border-radius: 12px;
-                    max-width: 650px;
-                    width: 100%;
-                    box-shadow: 0 10px 50px rgba(0,0,0,0.25);
-                    border: 1px solid #e0e0e0;
-                    text-align: left;
-                    animation: oauthSlideUp 0.5s cubic-bezier(0.22,1,0.36,1);
-                    margin: auto;
-                }
-                @keyframes oauthSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-                .oauth-modal-title { font-size: 1.8rem; font-weight: 800; color: #1a1a1a; margin-bottom: 0.5rem; letter-spacing: -0.03em; }
-                .oauth-modal-title span { color: #BA1114; }
-                .oauth-modal-desc { font-size: 0.95rem; color: #555555; margin-bottom: 2rem; line-height: 1.6; }
-                
-                .oauth-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 1.25rem 1rem;
-                    margin-bottom: 2rem;
-                }
-                .col-span-2 { grid-column: span 2; }
-                @media(max-width: 500px) {
-                    .oauth-grid { grid-template-columns: 1fr; }
-                    .col-span-2 { grid-column: span 1; }
-                }
-
-                .oauth-input-label { display: block; font-size: 0.78rem; font-weight: 600; color: #666666; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
-                .oauth-input-label span.opt { font-weight: 400; text-transform: none; color: #999; }
-                .oauth-input, .oauth-select { width: 100%; padding: 0.85rem 1rem; border: 1px solid #cccccc; border-radius: 6px; font-size: 0.95rem; transition: all 0.2s; background: #fff; }
-                .oauth-input:focus, .oauth-select:focus { outline: none; border-color: #BA1114; box-shadow: 0 0 0 3px rgba(186,17,20,0.1); }
-                
-                .oauth-btn { background: #BA1114; color: #fff; border: none; width: 100%; padding: 1.1rem; font-size: 1rem; font-weight: 600; border-radius: 50rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(186,17,20,0.25); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-                .oauth-btn:hover { background: #9E0D10; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(186,17,20,0.3); }
-                .oauth-logout-btn { display: block; text-align: center; margin-top: 1.5rem; color: #777; font-size: 0.9rem; text-decoration: none; font-weight: 600; transition: color 0.2s; }
-                .oauth-logout-btn:hover { color: #1a1a1a; }
-            </style>
-            <div id="oauth-completion-modal">
-                <div class="oauth-modal-content">
-                    <h2 class="oauth-modal-title">Welcome to <span>SNBD HOST</span></h2>
-                    <p class="oauth-modal-desc">You have successfully signed in with Google. To secure your account and unlock purchasing, please provide your full billing profile.</p>
-                    <form method="post" action="">
-                        <input type="hidden" name="action" value="oauth_profile_complete" />
-                        
-                        <div class="oauth-grid">
-                            ' . $customFieldsHtml . '
-                            
-                            <div class="col-span-2">
-                                <label class="oauth-input-label" for="oauth_company">Company Name <span class="opt">(Optional)</span></label>
-                                <input type="text" name="companyname" id="oauth_company" class="oauth-input" placeholder="e.g. Your Company Ltd.">
-                            </div>
-
-                            <div class="col-span-2">
-                                <label class="oauth-input-label" for="oauth_address1">Street Address *</label>
-                                <input type="text" name="address1" id="oauth_address1" class="oauth-input" placeholder="e.g. House, Road, Area" required>
-                            </div>
-
-                            <div class="col-span-2">
-                                <label class="oauth-input-label" for="oauth_address2">Address Line 2 <span class="opt">(Optional)</span></label>
-                                <input type="text" name="address2" id="oauth_address2" class="oauth-input" placeholder="e.g. Apartment, Suite, etc.">
-                            </div>
-
-                            <div>
-                                <label class="oauth-input-label" for="oauth_city">City *</label>
-                                <input type="text" name="city" id="oauth_city" class="oauth-input" placeholder="e.g. Dhaka" required>
-                            </div>
-
-                            <div>
-                                <label class="oauth-input-label" for="oauth_state">State / Division *</label>
-                                <input type="text" name="state" id="oauth_state" class="oauth-input" placeholder="e.g. Dhaka" required>
-                            </div>
-
-                            <div>
-                                <label class="oauth-input-label" for="oauth_postcode">Postcode *</label>
-                                <input type="text" name="postcode" id="oauth_postcode" class="oauth-input" placeholder="e.g. 1207" required>
-                            </div>
-
-                            <div>
-                                <label class="oauth-input-label" for="oauth_country">Country *</label>
-                                <select name="country" id="oauth_country" class="oauth-select" required>
-                                    ' . $countryOptions . '
-                                </select>
-                            </div>
-                            
-                            <div class="col-span-2">
-                                <label class="oauth-input-label" for="oauth_phonenumber">Phone Number *</label>
-                                <input type="tel" name="phonenumber" id="oauth_phonenumber" class="oauth-input" placeholder="e.g. +1 555-0123" required>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="oauth-btn" onclick="this.innerHTML=\'<i class=&quot;fas fa-spinner fa-spin&quot;></i> Saving Profile...\'; this.style.opacity=\'0.8\'; this.style.pointerEvents=\'none\'; this.form.submit();">
-                            Complete Profile &amp; Unlock Dashboard <i class="fas fa-arrow-right"></i>
-                        </button>
-                        
-                        <a href="logout.php" class="oauth-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout / Use Different Account</a>
-                    </form>
-                </div>
-            </div>
-            <script>
-                // Prevent scrolling on the body while modal is active
-                document.body.style.overflow = "hidden";
-            </script>
-            ';
-            return $html;
-        }
-    } catch (\Throwable $e) {
-        // Fallback silently on DB error
-    }
-    
-    return '';
 });
