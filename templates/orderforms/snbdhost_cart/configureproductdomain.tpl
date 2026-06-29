@@ -195,7 +195,97 @@
         margin-left: 0;
         margin-top: 1rem;
     }
-
+}
+/* Spotlight TLD Redesign */
+.spotlight-tlds-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+#order-standard_cart .spotlight-tld-container,
+#order-snbdhost_cart .spotlight-tld-container {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: 1 1 calc(15% - 1.5rem);
+    min-width: 140px;
+    max-width: 200px;
+}
+.spotlight-tld {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 1.5rem 1rem !important;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 160px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+.spotlight-tld:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important;
+    border-color: #cbd5e1 !important;
+}
+#order-standard_cart .spotlight-tld .domain-lookup-result,
+#order-snbdhost_cart .spotlight-tld .domain-lookup-result {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 1rem 0 0 0 !important;
+    width: 100% !important;
+}
+.spotlight-tld .price {
+    display: block !important;
+    font-size: 1.15rem !important;
+    color: #16a34a !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.75rem !important;
+}
+.spotlight-tld .btn {
+    width: 100% !important;
+    border-radius: 99px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0.6rem !important;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease !important;
+}
+.spotlight-tld .btn:hover {
+    background: #d32f2f !important;
+    color: #ffffff !important;
+    border-color: #d32f2f !important;
+}
+.spotlight-tld-hot, .spotlight-tld-sale, .spotlight-tld-new {
+    position: absolute !important;
+    top: -10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.8rem !important;
+    border-radius: 99px !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+}
+.spotlight-tld-hot { background: #ef4444 !important; color: white !important; }
+.spotlight-tld-sale { background: #f59e0b !important; color: white !important; }
+.spotlight-tld-new { background: #10b981 !important; color: white !important; }
 </style>
 
 <div id="order-standard_cart">
