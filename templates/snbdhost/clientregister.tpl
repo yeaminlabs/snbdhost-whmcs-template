@@ -577,21 +577,14 @@
             {/if}
 
             {if $clientfirstname && $clientemail}
-                {* ── GOOGLE OAUTH FLOW: Skip full form, show confirmation card ── *}
-                <div class="oauth-confirm-card" style="background:#f9f9f9; border:1px solid #e0e0e0; border-radius:10px; padding:1.75rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem;">
-                    <div style="width:48px;height:48px;border-radius:50%;background:#BA1114;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fas fa-user" style="color:#fff;font-size:1.2rem;"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight:700;color:#1a1a1a;font-size:1rem;">{$clientfirstname} {$clientlastname}</div>
-                        <div style="font-size:0.85rem;color:#777;">{$clientemail}</div>
-                    </div>
-                    <div style="margin-left:auto;">
-                        <span style="background:rgba(186,17,20,0.08);color:#BA1114;font-size:0.72rem;font-weight:700;padding:0.25rem 0.65rem;border-radius:50rem;border:1px solid rgba(186,17,20,0.2);"><i class="fab fa-google"></i> Via Google</span>
-                    </div>
+                {* ── GOOGLE OAUTH FLOW: Auto-Submit ── *}
+                <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#ffffff; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:#BA1114; margin-bottom:1rem;"></i>
+                    <h2 style="font-family:Inter, sans-serif; font-weight:700; color:#1a1a1a;">Authenticating with Google...</h2>
+                    <p style="color:#666;">Please wait while we set up your account.</p>
                 </div>
 
-                <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" role="form" style="margin:0;">
+                <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" role="form" style="display:none;">
                     <input type="hidden" name="register" value="true" />
                     <input type="hidden" name="token" value="{$token}" />
                     <input type="hidden" name="firstname" value="{$clientfirstname}" />
@@ -608,46 +601,43 @@
                     {if $accepttos}<input type="hidden" name="accepttos" value="1" />{/if}
 
                     {if $securityquestions}
-                        <div class="row g-3 mb-3 text-start">
-                            <div class="col-12">
-                                <label class="reg-label" for="inputSecurityQid">Security Question *</label>
-                                <select name="securityqid" class="reg-input reg-select" id="inputSecurityQid">
-                                    {foreach $securityquestions as $question}
-                                        <option value="{$question.id}">{$question.question}</option>
-                                    {/foreach}
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="reg-label" for="inputSecurityAns">Answer *</label>
-                                <input type="text" name="securityqans" class="reg-input" id="inputSecurityAns" placeholder="Your answer" required>
-                            </div>
-                        </div>
+                        {foreach $securityquestions as $question}
+                            <input type="hidden" name="securityqid" value="{$question.id}" />
+                            <input type="hidden" name="securityqans" value="Pending" />
+                            {break}
+                        {/foreach}
                     {/if}
 
                     {if $customfields}
-                        <div class="row g-3 mb-3">
-                            {foreach $customfields as $customfield}
-                                <div class="col-12">
-                                    <label class="reg-label" for="customfield{$customfield.id}">
-                                        {$customfield.name}{if $customfield.required} *{/if}
-                                    </label>
-                                    <div class="control-group">
-                                        {$customfield.input}
-                                        {if $customfield.description}<div class="text-muted" style="font-size:0.75rem; margin-top:0.3rem;">{$customfield.description}</div>{/if}
-                                    </div>
-                                </div>
-                            {/foreach}
-                        </div>
+                        {foreach $customfields as $customfield}
+                            <div class="oauth-cf-wrap">{$customfield.input}</div>
+                        {/foreach}
                     {/if}
-
-                    <button type="submit" id="btnOAuthConfirm" class="reg-btn" style="display:flex;align-items:center;justify-content:center;gap:0.6rem;" onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Creating Account...'; this.style.opacity='0.8'; this.style.pointerEvents='none'; this.form.submit();">
-                        <i class="fab fa-google"></i> Confirm &amp; Create My Account
-                    </button>
                 </form>
 
-                <div class="text-center mt-3" style="font-size:0.78rem;color:#999;">
-                    Not you? <a href="{$WEB_ROOT}/register.php" style="color:#BA1114;font-weight:600;text-decoration:none;">Sign up manually</a> instead.
-                </div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var form = document.getElementById('frmRegistration');
+                        
+                        // For any rendered custom field inputs/selects, fill them so validation passes
+                        var customWraps = document.querySelectorAll('.oauth-cf-wrap');
+                        customWraps.forEach(function(wrap) {
+                            var inputs = wrap.querySelectorAll('input[type="text"]');
+                            inputs.forEach(function(i) { i.value = 'Pending'; });
+                            
+                            var selects = wrap.querySelectorAll('select');
+                            selects.forEach(function(s) { 
+                                if (s.options.length > 0) s.selectedIndex = s.options.length - 1; 
+                            });
+                            
+                            var textareas = wrap.querySelectorAll('textarea');
+                            textareas.forEach(function(t) { t.value = 'Pending'; });
+                        });
+                        
+                        // Auto-submit the form
+                        form.submit();
+                    });
+                </script>
 
             {else}
 

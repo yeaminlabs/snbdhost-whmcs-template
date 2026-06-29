@@ -25,6 +25,9 @@ add_hook('ClientAreaPage', 1, function($vars) {
         $postcode = trim($_POST['postcode']);
         $country = trim($_POST['country']);
 
+        // Handle Custom Fields array if submitted
+        $customfields = isset($_POST['customfield']) ? $_POST['customfield'] : array();
+
         if (!empty($address1) && !empty($phonenumber) && !empty($city) && !empty($state) && !empty($postcode) && !empty($country)) {
             // Update using local API
             $command = 'UpdateClient';
@@ -39,6 +42,12 @@ add_hook('ClientAreaPage', 1, function($vars) {
                 'country' => $country,
                 'phonenumber' => $phonenumber,
             );
+
+            // Add custom fields if any exist
+            if (!empty($customfields)) {
+                $postData['customfields'] = base64_encode(serialize($customfields));
+            }
+
             localAPI($command, $postData);
             
             // Redirect to dashboard to remove the POST payload and prevent resubmission
@@ -89,6 +98,45 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
                             $countryOptions .= '<option value="' . htmlspecialchars($code) . '"' . $selected . '>' . htmlspecialchars($name) . '</option>';
                         }
                     }
+                }
+            } catch (\Throwable $e) {}
+
+            // Fetch custom fields for registration
+            $customFieldsHtml = '';
+            try {
+                $cfs = Capsule::table('tblcustomfields')
+                    ->where('type', 'client')
+                    ->where('showreg', 'on')
+                    ->get();
+                
+                foreach ($cfs as $cf) {
+                    $requiredAttr = $cf->required == 'on' ? ' required' : '';
+                    $requiredStar = $cf->required == 'on' ? ' *' : ' <span class="opt">(Optional)</span>';
+                    
+                    $fieldHtml = '<div class="col-span-2"><label class="oauth-input-label">' . htmlspecialchars($cf->fieldname) . $requiredStar . '</label>';
+                    
+                    if ($cf->fieldtype === 'text') {
+                        $fieldHtml .= '<input type="text" name="customfield[' . $cf->id . ']" class="oauth-input"' . $requiredAttr . '>';
+                    } elseif ($cf->fieldtype === 'dropdown') {
+                        $options = explode(',', $cf->fieldoptions);
+                        $fieldHtml .= '<select name="customfield[' . $cf->id . ']" class="oauth-select"' . $requiredAttr . '>';
+                        $fieldHtml .= '<option value="">Select an option...</option>';
+                        foreach ($options as $opt) {
+                            $fieldHtml .= '<option value="' . htmlspecialchars($opt) . '">' . htmlspecialchars($opt) . '</option>';
+                        }
+                        $fieldHtml .= '</select>';
+                    } elseif ($cf->fieldtype === 'tickbox') {
+                        $fieldHtml .= '<label><input type="checkbox" name="customfield[' . $cf->id . ']" value="on"' . $requiredAttr . '> Yes</label>';
+                    } elseif ($cf->fieldtype === 'textarea') {
+                        $fieldHtml .= '<textarea name="customfield[' . $cf->id . ']" class="oauth-input" rows="3"' . $requiredAttr . '></textarea>';
+                    }
+                    
+                    if ($cf->description) {
+                        $fieldHtml .= '<div style="font-size:0.75rem; color:#888; margin-top:0.3rem;">' . htmlspecialchars($cf->description) . '</div>';
+                    }
+                    
+                    $fieldHtml .= '</div>';
+                    $customFieldsHtml .= $fieldHtml;
                 }
             } catch (\Throwable $e) {}
 
@@ -144,6 +192,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
                 
                 .oauth-btn { background: #BA1114; color: #fff; border: none; width: 100%; padding: 1.1rem; font-size: 1rem; font-weight: 600; border-radius: 50rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(186,17,20,0.25); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
                 .oauth-btn:hover { background: #9E0D10; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(186,17,20,0.3); }
+                .oauth-logout-btn { display: block; text-align: center; margin-top: 1.5rem; color: #777; font-size: 0.9rem; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+                .oauth-logout-btn:hover { color: #1a1a1a; }
             </style>
             <div id="oauth-completion-modal">
                 <div class="oauth-modal-content">
@@ -153,6 +203,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
                         <input type="hidden" name="action" value="oauth_profile_complete" />
                         
                         <div class="oauth-grid">
+                            ' . $customFieldsHtml . '
+                            
                             <div class="col-span-2">
                                 <label class="oauth-input-label" for="oauth_company">Company Name <span class="opt">(Optional)</span></label>
                                 <input type="text" name="companyname" id="oauth_company" class="oauth-input" placeholder="e.g. Your Company Ltd.">
@@ -199,6 +251,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
                         <button type="submit" class="oauth-btn" onclick="this.innerHTML=\'<i class=&quot;fas fa-spinner fa-spin&quot;></i> Saving Profile...\'; this.style.opacity=\'0.8\'; this.style.pointerEvents=\'none\'; this.form.submit();">
                             Complete Profile &amp; Unlock Dashboard <i class="fas fa-arrow-right"></i>
                         </button>
+                        
+                        <a href="logout.php" class="oauth-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout / Use Different Account</a>
                     </form>
                 </div>
             </div>
