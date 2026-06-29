@@ -547,8 +547,8 @@
     <div class="register-right">
         <div class="register-card">
 
-            <h1 class="reg-form-headline">Create an Account</h1>
-            <p class="reg-form-subhead">Join SNBD HOST and get started in seconds.</p>
+<h1 class="reg-form-headline">{if $clientfirstname && $clientemail}Almost There, <span style="color:#BA1114">{$clientfirstname}!</span>{else}Create an Account{/if}</h1>
+            <p class="reg-form-subhead">{if $clientfirstname && $clientemail}We got your details from Google. Just confirm to create your account.{else}Join SNBD HOST and get started in seconds.{/if}</p>
 
             {if $errormessage}
                 <div class="reg-alert" id="regErrAlert">
@@ -570,9 +570,53 @@
                 </script>
             {/if}
 
+{if !($clientfirstname && $clientemail)}
             <div class="providerLinking mb-4 mt-3" data-link-context="registration">
                 {include file="$template/includes/linkedaccounts.tpl" linkContext="registration" customFeedback=true}
             </div>
+            {/if}
+
+            {if $clientfirstname && $clientemail}
+                {* ── GOOGLE OAUTH FLOW: Skip full form, show confirmation card ── *}
+                <div class="oauth-confirm-card" style="background:#f9f9f9; border:1px solid #e0e0e0; border-radius:10px; padding:1.75rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:#BA1114;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-user" style="color:#fff;font-size:1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;color:#1a1a1a;font-size:1rem;">{$clientfirstname} {$clientlastname}</div>
+                        <div style="font-size:0.85rem;color:#777;">{$clientemail}</div>
+                    </div>
+                    <div style="margin-left:auto;">
+                        <span style="background:rgba(186,17,20,0.08);color:#BA1114;font-size:0.72rem;font-weight:700;padding:0.25rem 0.65rem;border-radius:50rem;border:1px solid rgba(186,17,20,0.2);"><i class="fab fa-google"></i> Via Google</span>
+                    </div>
+                </div>
+
+                <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" role="form" style="margin:0;">
+                    <input type="hidden" name="register" value="true" />
+                    <input type="hidden" name="token" value="{$token}" />
+                    <input type="hidden" name="firstname" value="{$clientfirstname}" />
+                    <input type="hidden" name="lastname" value="{$clientlastname|default:'-'}" />
+                    <input type="hidden" name="email" value="{$clientemail}" />
+                    <input type="hidden" name="phonenumber" value="+00000000000" />
+                    <input type="hidden" name="address1" value="Pending Completion" />
+                    <input type="hidden" name="city" value="N/A" />
+                    <input type="hidden" name="state" value="N/A" />
+                    <input type="hidden" name="postcode" value="0000" />
+                    <input type="hidden" name="country" value="{$defaultCountry|default:'BD'}" />
+                    <input type="hidden" name="password" value="" />
+                    <input type="hidden" name="password2" value="" />
+                    {if $accepttos}<input type="hidden" name="accepttos" value="1" />{/if}
+
+                    <button type="submit" class="reg-btn" style="display:flex;align-items:center;justify-content:center;gap:0.6rem;">
+                        <i class="fab fa-google"></i> Confirm &amp; Create My Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-3" style="font-size:0.78rem;color:#999;">
+                    Not you? <a href="{$WEB_ROOT}/register.php" style="color:#BA1114;font-weight:600;text-decoration:none;">Sign up manually</a> instead.
+                </div>
+
+            {else}
 
             <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation text-start" role="form">
                 <input type="hidden" name="register" value="true" />
@@ -740,6 +784,7 @@
                     Create My Account &nbsp;<i class="fas fa-arrow-right" style="font-size:0.85em;"></i>
                 </button>
             </form>
+            {/if} {* end else (non-OAuth flow) *}
 
             <!-- Trust footer -->
             <div class="reg-trust">
