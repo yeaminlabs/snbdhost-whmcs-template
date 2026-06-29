@@ -603,9 +603,42 @@
                     <input type="hidden" name="state" value="N/A" />
                     <input type="hidden" name="postcode" value="0000" />
                     <input type="hidden" name="country" value="{$defaultCountry|default:'BD'}" />
-                    <input type="hidden" name="password" value="" />
-                    <input type="hidden" name="password2" value="" />
+                    <input type="hidden" name="password" value="G00gleAuth!2026_{$token|substr:0:8}" />
+                    <input type="hidden" name="password2" value="G00gleAuth!2026_{$token|substr:0:8}" />
                     {if $accepttos}<input type="hidden" name="accepttos" value="1" />{/if}
+
+                    {if $securityquestions}
+                        <div class="row g-3 mb-3 text-start">
+                            <div class="col-12">
+                                <label class="reg-label" for="inputSecurityQid">Security Question *</label>
+                                <select name="securityqid" class="reg-input reg-select" id="inputSecurityQid">
+                                    {foreach $securityquestions as $question}
+                                        <option value="{$question.id}">{$question.question}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="reg-label" for="inputSecurityAns">Answer *</label>
+                                <input type="text" name="securityqans" class="reg-input" id="inputSecurityAns" placeholder="Your answer" required>
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $customfields}
+                        <div class="row g-3 mb-3">
+                            {foreach $customfields as $customfield}
+                                <div class="col-12">
+                                    <label class="reg-label" for="customfield{$customfield.id}">
+                                        {$customfield.name}{if $customfield.required} *{/if}
+                                    </label>
+                                    <div class="control-group">
+                                        {$customfield.input}
+                                        {if $customfield.description}<div class="text-muted" style="font-size:0.75rem; margin-top:0.3rem;">{$customfield.description}</div>{/if}
+                                    </div>
+                                </div>
+                            {/foreach}
+                        </div>
+                    {/if}
 
                     <button type="submit" class="reg-btn" style="display:flex;align-items:center;justify-content:center;gap:0.6rem;">
                         <i class="fab fa-google"></i> Confirm &amp; Create My Account
