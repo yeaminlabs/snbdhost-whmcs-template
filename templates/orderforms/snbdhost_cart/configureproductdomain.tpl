@@ -442,60 +442,35 @@
 
 /* ── Continue Button ── */
 .cpd-continue-wrap {
-    max-width: 800px;
-    margin: 2.5rem auto 0;
-    padding: 0 1.5rem 3rem;
+    margin: 1.5rem auto 0;
+    padding: 0;
     text-align: center;
 }
-
-/* Sticky Continue Bar */
-.cpd-sticky-continue {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: #ffffff;
-    border-top: 2px solid #fca5a5;
-    padding: 1rem 1.5rem;
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    z-index: 9999;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-}
-.cpd-sticky-continue.visible { display: flex; }
-.cpd-sticky-domain-label {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0f172a;
-}
-.cpd-sticky-domain-label span {
-    color: #16a34a;
-    font-size: 1.2rem;
-}
-.cpd-sticky-continue-btn {
-    background: linear-gradient(135deg, #d32f2f, #c62828);
-    color: #fff;
-    border: none;
-    border-radius: 99px;
-    font-size: 1.05rem;
-    font-weight: 800;
-    padding: 0.85rem 2.5rem;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(211,47,47,0.4);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.cpd-sticky-continue-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(211,47,47,0.5);
-}
-
 #btnDomainContinue {
+    background: linear-gradient(135deg, #d32f2f, #c62828) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 99px !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    padding: 1rem 4rem !important;
+    box-shadow: 0 4px 20px rgba(211,47,47,0.35) !important;
+    transition: all 0.25s ease !important;
+    letter-spacing: 0.01em;
+    width: 100%;
+    max-width: 400px;
+    display: inline-block;
+}
+#btnDomainContinue.w-hidden {
     display: none !important;
+}
+#btnDomainContinue:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(211,47,47,0.45) !important;
+}
+#btnDomainContinue:disabled {
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
 }
 </style>
 
@@ -729,6 +704,13 @@
                         <input type="hidden" id="resultDomain" name="domains[]" />
                         <input type="hidden" id="resultDomainPricingTerm" />
                     </div>
+
+                    <div class="cpd-continue-wrap">
+                        <button id="btnDomainContinue" type="submit" class="btn btn-primary btn-lg w-hidden" disabled="disabled">
+                            {$LANG.continue} &nbsp;<i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
                 </div>
 
                 {if $registerdomainenabled}
@@ -801,27 +783,10 @@
 
             </div>
 
-            <div class="cpd-continue-wrap">
-                <button id="btnDomainContinue" type="submit" class="btn btn-primary btn-lg w-hidden" disabled="disabled">
-                    {$LANG.continue} &nbsp;<i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-
         </form>
     </div>
 
 </div>
-</div>
-
-{* Sticky Continue Bar - appears after domain is selected *}
-<div class="cpd-sticky-continue" id="cpd-sticky-bar">
-    <div class="cpd-sticky-domain-label">
-        <span id="cpd-sticky-domain-name"></span>
-        <span id="cpd-sticky-price" style="display:block; font-size:0.85rem; color:#64748b; font-weight:500;"></span>
-    </div>
-    <button type="button" class="cpd-sticky-continue-btn" id="cpd-sticky-btn">
-        Continue &nbsp;<i class="fas fa-arrow-right"></i>
-    </button>
 </div>
 
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
@@ -873,36 +838,6 @@
             jQuery("#domain" + $radios.first().val()).show();
         }
 
-        /* ── Sticky Continue Bar Logic ── */
-        var $stickyBar = jQuery('#cpd-sticky-bar');
-        var $stickyBtn = jQuery('#cpd-sticky-btn');
-
-        // Watch the original hidden continue button: when it un-disables, show sticky bar
-        var observer = new MutationObserver(function() {
-            var $origBtn = jQuery('#btnDomainContinue');
-            var isReady = !$origBtn.prop('disabled') && !$origBtn.hasClass('w-hidden');
-            if (isReady) {
-                // Grab the domain name from result
-                var domainText = jQuery('.domain-available.headline').text().trim();
-                var priceText = jQuery('#primaryLookupResult .price').text().trim();
-                jQuery('#cpd-sticky-domain-name').text(domainText || 'Domain ready!');
-                jQuery('#cpd-sticky-price').text(priceText ? 'Register for ' + priceText : '');
-                $stickyBar.addClass('visible');
-                jQuery('body').css('padding-bottom', '80px');
-            } else {
-                $stickyBar.removeClass('visible');
-                jQuery('body').css('padding-bottom', '');
-            }
-        });
-
-        var origBtnEl = document.getElementById('btnDomainContinue');
-        if (origBtnEl) {
-            observer.observe(origBtnEl, { attributes: true, attributeFilter: ['disabled', 'class'] });
-        }
-
-        // Sticky button clicks the hidden form submit
-        $stickyBtn.on('click', function() {
-            jQuery('#frmProductDomainSelections').submit();
-        });
+        // Sticky bar removed
     });
 </script>
