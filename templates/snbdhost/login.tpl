@@ -552,8 +552,8 @@
                 </div>
             {/if}
 
-            <div class="providerLinking mb-4 mt-3" data-link-context="login">
-                {include file="$template/includes/linkedaccounts.tpl" linkContext="login" customFeedback=true}
+            <div class="providerLinking mb-4 mt-3" data-link-context="registration">
+                {include file="$template/includes/linkedaccounts.tpl" linkContext="registration" customFeedback=true}
             </div>
 
             <!-- Form -->
@@ -655,3 +655,30 @@
 {if $linkedaccountpendingregistration || $oauthPendingRegistration}
     <script>window.location.replace("{$WEB_ROOT}/register.php");</script>
 {/if}
+
+<script>
+// ── Safety Net: Detect WHMCS "Account not found" error on login page and push to register ──
+document.addEventListener("DOMContentLoaded", function() {
+    function checkSocialError() {
+        var alerts = document.querySelectorAll('.providerLinking .alert, .providerLinking .social-login-error, .auth-alert');
+        for (var i = 0; i < alerts.length; i++) {
+            var text = alerts[i].innerText.toLowerCase();
+            if (text.includes('could not find') || text.includes('not find an account') || text.includes('register a new account')) {
+                // WHMCS couldn't log them in because they don't exist. Push to register and auto-click Google.
+                window.location.replace("{$WEB_ROOT}/register.php?auto_google=1");
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    if (!checkSocialError()) {
+        // Watch for AJAX changes in case the error is injected dynamically
+        var targetNode = document.querySelector('.providerLinking');
+        if (targetNode) {
+            var observer = new MutationObserver(function() { checkSocialError(); });
+            observer.observe(targetNode, { childList: true, subtree: true });
+        }
+    }
+});
+</script>
