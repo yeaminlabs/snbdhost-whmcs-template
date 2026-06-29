@@ -195,87 +195,7 @@
         margin-left: 0;
         margin-top: 1rem;
     }
-/* Spotlight TLDs */
-.spotlight-tlds-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-}
-.spotlight-tld-container {
-    flex: 1 1 calc(16.666% - 1rem);
-    min-width: 140px;
-}
-.spotlight-tld {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1e293b;
-    position: relative;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 150px;
-}
-.spotlight-tld .domain-lookup-result {
-    margin-top: 1rem;
-    width: 100%;
-}
-.spotlight-tld .price {
-    display: block;
-    font-size: 1.1rem;
-    color: #16a34a;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-.spotlight-tld .btn {
-    width: 100%;
-    border-radius: 99px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0.5rem;
-    white-space: normal;
-    line-height: 1.2;
-}
 
-/* Suggested Domains */
-.domain-suggestion:not(.w-hidden) {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-}
-.domain-suggestion .domain {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #1e293b;
-}
-.domain-suggestion .extension {
-    font-size: 1.15rem;
-    color: #64748b;
-    font-weight: 600;
-}
-.domain-suggestion .actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-.domain-suggestion .price {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #0f172a;
-}
-.domain-suggestion .btn-add-to-cart,
-.domain-suggestion .domain-contact-support {
-    border-radius: 99px;
-    font-weight: 600;
-    padding: 0.5rem 1.5rem;
-}
 </style>
 
 <div id="order-standard_cart">
@@ -558,20 +478,20 @@
                             {lang key='domainSearch.errors.noSuggestions'}
                         </div>
                         <div id="domainSuggestions" class="domain-lookup-result list-group w-hidden">
-                            <div class="domain-suggestion list-group-item w-hidden p-3">
-                                <div><strong class="domain"></strong><span class="extension"></span></div>
+                            <div class="domain-suggestion list-group-item w-hidden">
+                                <span class="domain"></span><span class="extension"></span>
                                 <div class="actions">
-                                    <span class="price mr-3"></span>
-                                    <span class="promo w-hidden"></span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger btn-add-to-cart product-domain" data-whois="1" data-domain="" style="border-radius:99px; font-weight:600;">
+                                    <button type="button" class="btn btn-add-to-cart product-domain" data-whois="1" data-domain="">
                                         <span class="to-add">{$LANG.addtocart}</span>
                                         <span class="loading">
-                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <i class="fas fa-spinner fa-spin"></i> {lang key='loading'}
                                         </span>
-                                        <span class="added"><i class="fas fa-check"></i> Added</span>
+                                        <span class="added"><i class="far fa-shopping-cart"></i> {lang key='domaincheckeradded'}</span>
                                         <span class="unavailable">{$LANG.domaincheckertaken}</span>
                                     </button>
                                     <button type="button" class="btn btn-primary domain-contact-support w-hidden">{lang key='domainChecker.contactSupport'}</button>
+                                    <span class="price"></span>
+                                    <span class="promo w-hidden"></span>
                                 </div>
                             </div>
                         </div>
