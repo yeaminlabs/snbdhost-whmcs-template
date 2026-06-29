@@ -760,46 +760,8 @@
     </div>
 </div>
 
-<!-- intl-tel-input for phone field -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
-<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 <script>
 (function () {
-    /* ── Phone field: intl-tel-input ── */
-    var phoneInput = document.getElementById('inputPhone');
-    if (phoneInput && typeof intlTelInput !== 'undefined') {
-        var iti = intlTelInput(phoneInput, {
-            initialCountry: 'bd',
-            separateDialCode: true,
-            preferredCountries: ['bd', 'us', 'gb', 'in', 'sg'],
-            utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js'
-        });
-        function sanitizePhone() {
-            var fullNum = iti.getNumber();
-            if (fullNum && fullNum.length > 2) {
-                /* E.164 from intl-tel-input — still sanitize just in case */
-                phoneInput.value = fullNum.replace(/[^\d+]/g, '');
-            } else {
-                /* utils.js not loaded yet — build number manually */
-                var dialCode = '+' + iti.getSelectedCountryData().dialCode;
-                var raw = phoneInput.value.replace(/[^\d]/g, '');
-                if (raw) {
-                    phoneInput.value = dialCode + raw;
-                }
-            }
-        }
-
-        /* Sanitize when the user clicks away from the field */
-        phoneInput.addEventListener('blur', sanitizePhone);
-        
-        /* Sanitize when the submit button is clicked. 
-           (reCAPTCHA v3 bypasses form 'submit' event, so we hook 'click' on the button) */
-        var submitBtn = document.getElementById('btnRegistrationSubmit');
-        if (submitBtn) {
-            submitBtn.addEventListener('click', sanitizePhone);
-        }
-    }
-
     /* ── CAPTCHA client-side hint (non-blocking) ── */
     /* Note: WHMCS server-side handles actual captcha validation.
        We only show a visual hint if reCAPTCHA v2 checkbox is clearly unchecked. */
