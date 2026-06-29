@@ -784,22 +784,23 @@
         }
     }
 
-    /* ── CAPTCHA client-side guard ── */
+    /* ── CAPTCHA client-side hint (non-blocking) ── */
+    /* Note: WHMCS server-side handles actual captcha validation.
+       We only show a visual hint if reCAPTCHA v2 checkbox is clearly unchecked. */
     var regForm2 = document.getElementById('frmRegistration');
     if (regForm2) {
         regForm2.addEventListener('submit', function (e) {
-            /* Check if reCAPTCHA widget exists but hasn't been completed */
             var rcResp = null;
             try {
                 if (typeof grecaptcha !== 'undefined') {
                     rcResp = grecaptcha.getResponse();
                 }
-            } catch (ex) { rcResp = null; }
+            } catch (ex) { rcResp = 'skip'; }
 
-            /* If widget exists and response is empty, block submit */
-            var captchaContainer = document.querySelector('.g-recaptcha, #captchaContainer');
-            var hasWidget = captchaContainer && captchaContainer.querySelector('iframe, [data-sitekey]');
-            if (hasWidget && (rcResp === null || rcResp === '')) {
+            /* Only block if: grecaptcha is loaded, widget is a v2 checkbox type,
+               AND the response is definitively empty */
+            var captchaCheckbox = document.querySelector('.g-recaptcha[data-sitekey]');
+            if (captchaCheckbox && rcResp !== null && rcResp !== 'skip' && rcResp === '') {
                 e.preventDefault();
                 var warn = document.getElementById('regCaptchaWarn');
                 if (warn) {
