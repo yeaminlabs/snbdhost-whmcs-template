@@ -1,10 +1,20 @@
 {* Captcha include — supports reCAPTCHA v2 and built-in image captcha *}
 {if $captcha}
+    {if is_object($captcha)}
+        {assign var="isRecaptcha" value=$captcha->recaptcha->isEnabled()}
+    {else}
+        {assign var="isRecaptcha" value=($captcha == "recaptcha")}
+    {/if}
+
     <div class="text-center{if $containerClass} {$containerClass}{/if}" style="width:100%;">
         <div class="captcha-container" id="captchaContainer">
-            {if $captcha == "recaptcha"}
-                {* reCAPTCHA v2 — WHMCS injects the full widget HTML via $recaptchahtml *}
-                {$recaptchahtml}
+            {if $isRecaptcha}
+                {* reCAPTCHA v2 *}
+                {if $recaptchahtml}
+                    {$recaptchahtml}
+                {else}
+                    <div class="form-group recaptcha-container mx-auto" data-action="{$captchaForm|default:'register'}"></div>
+                {/if}
             {elseif $captcha == "custom"}
                 <div class="captchainput text-center">
                     <p>{$LANG.captchaverify}</p>
