@@ -1,5 +1,14 @@
-{* Captcha include — supports reCAPTCHA v2 and built-in image captcha *}
-{if $captcha}
+{* Captcha include — supports reCAPTCHA v2/v3 and built-in image captcha *}
+{assign var="showCaptcha" value=false}
+{if is_object($captcha)}
+    {if $captcha->isEnabled() && $captcha->isEnabledForForm($captchaForm|default:'register')}
+        {assign var="showCaptcha" value=true}
+    {/if}
+{elseif $captcha}
+    {assign var="showCaptcha" value=true}
+{/if}
+
+{if $showCaptcha}
     {if is_object($captcha)}
         {assign var="isRecaptcha" value=$captcha->recaptcha->isEnabled()}
     {else}
@@ -9,13 +18,13 @@
     <div class="text-center{if $containerClass} {$containerClass}{/if}" style="width:100%;">
         <div class="captcha-container" id="captchaContainer">
             {if $isRecaptcha}
-                {* reCAPTCHA v2 *}
+                {* reCAPTCHA v2 / v3 *}
                 {if $recaptchahtml}
                     {$recaptchahtml}
                 {else}
                     <div class="form-group recaptcha-container mx-auto" data-action="{$captchaForm|default:'register'}"></div>
                 {/if}
-            {elseif $captcha == "custom"}
+            {elseif $captcha == "custom" || (is_object($captcha) && $captcha->isCustom())}
                 <div class="captchainput text-center">
                     <p>{$LANG.captchaverify}</p>
                     {$customcaptcha}
