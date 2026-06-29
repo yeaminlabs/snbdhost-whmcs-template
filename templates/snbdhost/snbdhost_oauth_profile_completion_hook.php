@@ -54,7 +54,10 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         
         // Check if phone or address1 is missing (Google OAuth doesn't provide these)
         $missingFields = false;
-        if (empty(trim($client->address1)) || empty(trim($client->phonenumber))) {
+        $addr = trim($client->address1);
+        $phone = trim($client->phonenumber);
+        
+        if (empty($addr) || $addr === 'Pending Completion' || empty($phone) || $phone === '+00000000000') {
             $missingFields = true;
         }
         
