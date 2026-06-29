@@ -726,14 +726,14 @@
                 {if $captcha}
                     <div class="reg-captcha-wrap" id="regCaptchaWrap">
                         {include file="$template/includes/captcha.tpl"}
-                        <div class="reg-captcha-warn" id="regCaptchaWarn">
+                        <div class="reg-captcha-warn" id="regCaptchaWarn" style="display:none;">
                             <i class="fas fa-exclamation-triangle"></i>
                             Please complete the CAPTCHA verification above before submitting.
                         </div>
                     </div>
                 {/if}
 
-                <button type="submit" id="btnRegistrationSubmit" class="reg-btn">
+                <button type="submit" id="btnRegistrationSubmit" class="reg-btn{if is_object($captcha)} {$captcha->getButtonClass($captchaForm)}{/if}">
                     Create My Account &nbsp;<i class="fas fa-arrow-right" style="font-size:0.85em;"></i>
                 </button>
             </form>

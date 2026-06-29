@@ -588,8 +588,15 @@
                     </a>
                 </div>
 
+                <!-- Captcha -->
+                {if $captcha}
+                    <div style="margin-bottom: 1.25rem;">
+                        {include file="$template/includes/captcha.tpl"}
+                    </div>
+                {/if}
+
                 <!-- Submit -->
-                <button id="login" type="submit" class="auth-clean-btn">
+                <button id="login" type="submit" class="auth-clean-btn{if is_object($captcha)} {$captcha->getButtonClass($captchaForm)}{/if}">
                     Sign In to Dashboard &nbsp;<i class="fas fa-arrow-right" style="font-size:0.85em;"></i>
                 </button>
             </form>

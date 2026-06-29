@@ -235,7 +235,14 @@
                 <div class="mb-3">
                     <input type="email" name="email" class="form-control pwreset-input" id="inputEmail" placeholder="{$LANG.loginemail}" autofocus required>
                 </div>
-                <button type="submit" class="pwreset-btn">
+
+                {if $captcha}
+                    <div style="margin-bottom: 1.25rem;">
+                        {include file="$template/includes/captcha.tpl"}
+                    </div>
+                {/if}
+
+                <button type="submit" class="pwreset-btn{if is_object($captcha)} {$captcha->getButtonClass($captchaForm)}{/if}">
                     {$LANG.pwresetsubmit}
                 </button>
             </form>
