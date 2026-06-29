@@ -11,6 +11,26 @@ if (!defined("WHMCS")) {
 
 use WHMCS\Database\Capsule;
 
+// ── If a NEW user authenticates with Google on the LOGIN page, WHMCS sets a
+//    pending OAuth session but keeps them on login.php with no account yet.
+//    This hook detects that state and pushes them straight to register.php. ──
+add_hook('ClientAreaPageLogin', 1, function($vars) {
+    // WHMCS stores the pending social/OAuth registration info in these session keys
+    $sessionKeys = ['sociallogin', 'SocialSignOnData', 'oAuthLinkedAccountData', 'linkedAccountsData'];
+    foreach ($sessionKeys as $key) {
+        if (!empty($_SESSION[$key])) {
+            header("Location: register.php");
+            exit;
+        }
+    }
+    
+    // Fallback: check for the WHMCS linked accounts OAuth pending flag
+    if (isset($_SESSION['linkedAccountPendingRegistration']) && $_SESSION['linkedAccountPendingRegistration']) {
+        header("Location: register.php");
+        exit;
+    }
+});
+
 // ── Redirect to dashboard on any successful login (including Google OAuth) ──
 add_hook('ClientLogin', 1, function($vars) {
     // If there's a specific return URL from a previous page (e.g. an invoice), honour it

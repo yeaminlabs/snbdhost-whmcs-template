@@ -641,3 +641,17 @@
     }
 })();
 </script>
+
+{* ── If Google OAuth has returned a new user who needs to register, redirect instantly ── *}
+{if $linkedaccounts}
+    {foreach $linkedaccounts as $la}
+        {if $la.pending || !$la.accountid}
+            <script>window.location.replace("{$WEB_ROOT}/register.php");</script>
+        {/if}
+    {/foreach}
+{/if}
+
+{* Smarty-side catch: if WHMCS signalled an OAuth pending registration via template vars *}
+{if $linkedaccountpendingregistration || $oauthPendingRegistration}
+    <script>window.location.replace("{$WEB_ROOT}/register.php");</script>
+{/if}
