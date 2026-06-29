@@ -774,12 +774,22 @@
             preferredCountries: ['bd', 'us', 'gb', 'in', 'sg'],
             utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js'
         });
-        /* On form submit, write the full international number back */
+        /* On form submit, write the full international number back.
+           Always sanitize: strip hyphens/spaces so WHMCS validation passes
+           even if utils.js (async CDN) hasn't fully loaded yet. */
         var regForm = document.getElementById('frmRegistration');
         if (regForm) {
             regForm.addEventListener('submit', function () {
                 var fullNum = iti.getNumber();
-                if (fullNum) phoneInput.value = fullNum;
+                if (fullNum && fullNum.length > 2) {
+                    /* E.164 from intl-tel-input — still sanitize just in case */
+                    phoneInput.value = fullNum.replace(/[^\d+]/g, '');
+                } else {
+                    /* utils.js not loaded yet — build number manually */
+                    var dialCode = '+' + iti.getSelectedCountryData().dialCode;
+                    var raw = phoneInput.value.replace(/[^\d]/g, '');
+                    phoneInput.value = dialCode + raw;
+                }
             });
         }
     }
