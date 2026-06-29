@@ -4,19 +4,6 @@
         <span class="product-group" style="display: block; font-size: 0.9rem; color: #64748b; font-weight: 500;">{$producttotals.productinfo.groupname}</span>
     </div>
 
-    {assign var="cartIndex" value=$smarty.post.i|default:$smarty.get.i|default:0}
-    {assign var="selectedDomain" value=""}
-    {if isset($smarty.session.cart.products[$cartIndex].domain)}
-        {assign var="selectedDomain" value=$smarty.session.cart.products[$cartIndex].domain}
-    {/if}
-
-    {if $selectedDomain}
-    <div class="clearfix" style="margin: 0 0 1rem 0; padding: 0.75rem 1rem; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; display: flex; justify-content: space-between; align-items: center;">
-        <span class="pull-left float-left" style="font-weight:600; font-size:0.85rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Domain</span>
-        <span class="pull-right float-right" style="font-weight:700; color:#0f172a; font-size:1rem;">{$selectedDomain}</span>
-    </div>
-    {/if}
-
     <div class="summary-line-items" style="display: flex; flex-direction: column; gap: 0.75rem;">
         <div class="clearfix" style="display: flex; justify-content: space-between; align-items: center; color: #475569; font-weight: 500;">
             <span class="pull-left float-left">{$producttotals.productinfo.name}</span>
