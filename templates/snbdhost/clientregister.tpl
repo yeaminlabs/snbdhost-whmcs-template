@@ -570,6 +570,9 @@
                 </script>
             {/if}
 
+            <div class="providerLinking mb-4 mt-3" data-link-context="registration">
+                {include file="$template/includes/linkedaccounts.tpl" linkContext="registration" customFeedback=true}
+            </div>
 
             <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation text-start" role="form">
                 <input type="hidden" name="register" value="true" />

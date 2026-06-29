@@ -552,6 +552,10 @@
                 </div>
             {/if}
 
+            <div class="providerLinking mb-4 mt-3" data-link-context="login">
+                {include file="$template/includes/linkedaccounts.tpl" linkContext="login" customFeedback=true}
+            </div>
+
             <!-- Form -->
             <form method="post" action="{$WEB_ROOT}/dologin.php" class="needs-validation login-form" role="form" id="frmLogin" novalidate>
                 <input type="hidden" name="token" value="{$token}" />
