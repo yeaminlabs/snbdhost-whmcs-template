@@ -862,17 +862,5 @@
     }
 })();
 
-// ── Auto-trigger Google Auth if redirected from Login Page ──
-document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.search.includes('auto_google=1')) {
-        // Show a brief loading message so they don't see the normal form
-        document.body.insertAdjacentHTML('beforeend', '<div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#ffffff; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;"><i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:#BA1114; margin-bottom:1rem;"></i><h2 style="font-family:Inter, sans-serif; font-weight:700; color:#1a1a1a;">Switching to Registration...</h2><p style="color:#666;">Please wait while we start your Google sign up.</p></div>');
-        
-        // Find the Google button and click it
-        var googleBtn = document.querySelector('.btn-social.btn-google, .providerLinking button[value="google"], .providerLinking a.btn-google');
-        if (googleBtn) {
-            googleBtn.click();
-        }
-    }
-});
+// ── Note: Auto-trigger Google Auth removed because it conflicts with Google Identity Services clickjacking protection. ──
 </script>
