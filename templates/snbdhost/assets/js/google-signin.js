@@ -61,3 +61,17 @@ function showGoogleError(htmlMsg) {
 function escapeHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('auth') === 'google') {
+        // Poll until the Google Identity Services API (GSI) is fully loaded
+        const checkGSI = setInterval(function() {
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                clearInterval(checkGSI);
+                // Programmatically trigger Google account selector/prompt
+                google.accounts.id.prompt();
+            }
+        }, 100);
+    }
+});
