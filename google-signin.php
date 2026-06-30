@@ -74,7 +74,17 @@ if (!$jwks || !isset($jwks['keys'])) {
 if (class_exists('Firebase\JWT\JWT') && class_exists('Firebase\JWT\JWK')) {
     try {
         $keys = \Firebase\JWT\JWK::parseKeySet($jwks);
-        $decoded = \Firebase\JWT\JWT::decode($idToken, $keys);
+        
+        // Handle different versions of firebase/php-jwt dynamically
+        $ref = new \ReflectionMethod('Firebase\JWT\JWT', 'decode');
+        $params = $ref->getParameters();
+        if (count($params) >= 3) {
+            // Older versions (v5) require the allowed algorithms array
+            $decoded = \Firebase\JWT\JWT::decode($idToken, $keys, ['RS256']);
+        } else {
+            // Newer versions (v6+) expect Key objects and no algorithms array
+            $decoded = \Firebase\JWT\JWT::decode($idToken, $keys);
+        }
         $isValid = true;
     } catch (\Exception $e) {
         $verifyError = $e->getMessage();
