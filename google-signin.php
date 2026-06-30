@@ -235,7 +235,6 @@ try {
 // Generate SSO Token
 $ssoResult = localAPI('CreateSsoToken', [
     'client_id' => $client->id,
-    'destination' => 'clientarea:home'
 ]);
 
 if ($ssoResult['result'] === 'success') {
