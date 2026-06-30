@@ -547,8 +547,8 @@
     <div class="register-right">
         <div class="register-card">
 
-<h1 class="reg-form-headline">{if $clientfirstname && $clientemail}Almost There, <span style="color:#BA1114">{$clientfirstname}!</span>{else}Create an Account{/if}</h1>
-            <p class="reg-form-subhead">{if $clientfirstname && $clientemail}We got your details from Google. Just confirm to create your account.{else}Join SNBD HOST and get started in seconds.{/if}</p>
+<h1 class="reg-form-headline">Create an Account</h1>
+            <p class="reg-form-subhead">Join SNBD HOST and get started in seconds.</p>
 
             {if $errormessage}
                 <div class="reg-alert" id="regErrAlert">
@@ -570,160 +570,9 @@
                 </script>
             {/if}
 
-{if !($clientfirstname && $clientemail)}
             <div class="providerLinking mb-4 mt-3" data-link-context="registration">
                 {include file="$template/includes/linkedaccounts.tpl" linkContext="registration" customFeedback=true}
             </div>
-            {/if}
-
-            {if $clientfirstname && $clientemail}
-                {if $errormessage}
-                    <div class="alert alert-danger" style="margin-top:2rem;">
-                        <strong>Registration Error:</strong><br/>
-                        {$errormessage}
-                    </div>
-                    <div style="margin-top:1rem; padding:1rem; background:#fff; border-radius:8px; border:1px solid #ddd;">
-                        <p>We tried to auto-complete your registration via Google, but the server required more information. Please review the form below and click Submit.</p>
-                    </div>
-                {else}
-                    {* ── GOOGLE OAUTH FLOW: Auto-Submit ── *}
-                    <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#ffffff; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
-                        <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:#BA1114; margin-bottom:1rem;"></i>
-                        <h2 style="font-family:Inter, sans-serif; font-weight:700; color:#1a1a1a;">Authenticating with Google...</h2>
-                        <p style="color:#666;">Please wait while we set up your account.</p>
-                    </div>
-                {/if}
-
-                <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation text-start" role="form" {if !$errormessage}style="display:none;"{/if}>
-                    <input type="hidden" name="register" value="true" />
-                    <input type="hidden" name="token" value="{$token}" />
-                    
-                    {if !$errormessage}
-                    <input type="hidden" name="firstname" value="{$clientfirstname}" />
-                    <input type="hidden" name="lastname" value="{$clientlastname|default:'-'}" />
-                    <input type="hidden" name="email" value="{$clientemail}" />
-                    <input type="hidden" name="phonenumber" value="+00000000000" />
-                    <input type="hidden" name="address1" value="Pending Completion" />
-                    <input type="hidden" name="city" value="N/A" />
-                    <input type="hidden" name="state" value="N/A" />
-                    <input type="hidden" name="postcode" value="0000" />
-                    <input type="hidden" name="country" value="{$defaultCountry|default:'BD'}" />
-                    <input type="hidden" name="password" value="G00gleAuth!2026_{$token|substr:0:8}" />
-                    <input type="hidden" name="password2" value="G00gleAuth!2026_{$token|substr:0:8}" />
-                    {if $accepttos}<input type="hidden" name="accepttos" value="1" />{/if}
-
-                    {if $securityquestions}
-                        {foreach $securityquestions as $question}
-                            <input type="hidden" name="securityqid" value="{$question.id}" />
-                            <input type="hidden" name="securityqans" value="Pending" />
-                            {break}
-                        {/foreach}
-                    {/if}
-
-                    {if $customfields}
-                        {foreach $customfields as $customfield}
-                            <div class="oauth-cf-wrap">{$customfield.input}</div>
-                        {/foreach}
-                    {/if}
-                    {else}
-                        <!-- Show the normal form if there's an error -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputFirstName">First Name *</label>
-                                <input type="text" name="firstname" id="inputFirstName" class="form-control" value="{$clientfirstname}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputLastName">Last Name *</label>
-                                <input type="text" name="lastname" id="inputLastName" class="form-control" value="{$clientlastname}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputEmail">Email Address *</label>
-                                <input type="email" name="email" id="inputEmail" class="form-control" value="{$clientemail}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputPhone">Phone Number *</label>
-                                <input type="tel" name="phonenumber" id="inputPhone" class="form-control" value="{$clientphonenumber}" required>
-                            </div>
-                            
-                            <!-- Address -->
-                            <div class="col-12">
-                                <label class="reg-label" for="inputAddress1">Street Address *</label>
-                                <input type="text" name="address1" id="inputAddress1" class="form-control" value="{$clientaddress1}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputCity">City *</label>
-                                <input type="text" name="city" id="inputCity" class="form-control" value="{$clientcity}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputState">State/Region *</label>
-                                <input type="text" name="state" id="inputState" class="form-control" value="{$clientstate}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputPostcode">Postcode *</label>
-                                <input type="text" name="postcode" id="inputPostcode" class="form-control" value="{$clientpostcode}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputCountry">Country *</label>
-                                {$clientcountriesdropdown}
-                            </div>
-
-                            <!-- Passwords -->
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputNewPassword1">Password *</label>
-                                <input type="password" name="password" id="inputNewPassword1" class="form-control" required autocomplete="new-password">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="reg-label" for="inputNewPassword2">Confirm Password *</label>
-                                <input type="password" name="password2" id="inputNewPassword2" class="form-control" required autocomplete="new-password">
-                            </div>
-
-                            {if $customfields}
-                                {foreach $customfields as $customfield}
-                                    <div class="col-md-6">
-                                        <label class="reg-label">{$customfield.name} {if $customfield.required}*{/if}</label>
-                                        {$customfield.input}
-                                    </div>
-                                {/foreach}
-                            {/if}
-
-                            {if $captcha->isEnabled()}
-                                <div class="col-12 text-center my-3">
-                                    {include file="$template/includes/captcha.tpl"}
-                                </div>
-                            {/if}
-
-                            <div class="col-12 text-center mt-4">
-                                <button type="submit" class="reg-btn">Submit Registration</button>
-                            </div>
-                        </div>
-                    {/if}
-                </form>
-
-                {if !$errormessage}
-                <script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        var form = document.getElementById('frmRegistration');
-                        
-                        var customWraps = document.querySelectorAll('.oauth-cf-wrap');
-                        customWraps.forEach(function(wrap) {
-                            var inputs = wrap.querySelectorAll('input[type="text"]');
-                            inputs.forEach(function(i) { i.value = 'Pending'; });
-                            
-                            var selects = wrap.querySelectorAll('select');
-                            selects.forEach(function(s) { 
-                                if (s.options.length > 0) s.selectedIndex = s.options.length - 1; 
-                            });
-                            
-                            var textareas = wrap.querySelectorAll('textarea');
-                            textareas.forEach(function(t) { t.value = 'Pending'; });
-                        });
-                        
-                        form.submit();
-                    });
-                </script>
-                {/if}
-
-            {else}
 
             <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation text-start" role="form">
                 <input type="hidden" name="register" value="true" />
@@ -891,7 +740,6 @@
                     Create My Account &nbsp;<i class="fas fa-arrow-right" style="font-size:0.85em;"></i>
                 </button>
             </form>
-            {/if} {* end else (non-OAuth flow) *}
 
             <!-- Trust footer -->
             <div class="reg-trust">
