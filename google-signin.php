@@ -131,42 +131,41 @@ $googleSub = $payload['sub'];
 $client = Capsule::table('tblclients')->where('email', $email)->first();
 
 if (!$client) {
-        // Temporarily disable 'required' flag on custom fields to bypass WHMCS AddClient password bug
-        $requiredFields = \WHMCS\Database\Capsule::table('tblcustomfields')
-            ->where('type', 'client')
-            ->where('required', 'on')
-            ->get();
-            
-        foreach ($requiredFields as $field) {
-            \WHMCS\Database\Capsule::table('tblcustomfields')->where('id', $field->id)->update(['required' => '']);
-        }
+    // If no client exists, check if a User exists with this email, or create one.
+    $user = Capsule::table('tblusers')->where('email', $email)->first();
+    $ownerUserId = $user ? $user->id : 0;
 
-        // Register new client placeholder without customfields to prevent "The Password field is required" error
-        $result = localAPI('AddClient', [
+    if (!$ownerUserId) {
+        $userPassword = 'G00gleAuth!' . bin2hex(random_bytes(8));
+        $userResult = localAPI('AddUser', [
             'firstname' => $payload['given_name'] ?? 'Unknown',
             'lastname' => $payload['family_name'] ?? 'Unknown',
             'email' => $email,
-            'phonenumber' => '+00000000000',
-            'address1' => 'Pending Completion',
-            'city' => 'N/A',
-            'state' => 'N/A',
-            'postcode' => '0000',
-            'country' => 'BD',
-            'password' => 'G00gleAuth!' . bin2hex(random_bytes(8))
+            'password2' => $userPassword
         ]);
 
-        // Restore custom fields required flag
-        foreach ($requiredFields as $field) {
-            \WHMCS\Database\Capsule::table('tblcustomfields')->where('id', $field->id)->update(['required' => 'on']);
+        if ($userResult['result'] === 'success' && isset($userResult['user_id'])) {
+            $ownerUserId = $userResult['user_id'];
+        } else {
+            echo json_encode(['error' => 'Failed to create user account: ' . ($userResult['message'] ?? 'Unknown error')]);
+            exit;
         }
+    }
 
-        // Update custom fields manually
-        if ($result['result'] === 'success' && isset($result['clientid'])) {
-            localAPI('UpdateClient', [
-                'clientid' => $result['clientid'],
-                'customfields' => base64_encode(serialize(['9' => 'Google']))
-            ]);
-        }
+    // Now create the Client and assign the owner_user_id to bypass the AddClient password bug
+    $result = localAPI('AddClient', [
+        'firstname' => $payload['given_name'] ?? 'Unknown',
+        'lastname' => $payload['family_name'] ?? 'Unknown',
+        'email' => $email,
+        'phonenumber' => '+00000000000',
+        'address1' => 'Pending Completion',
+        'city' => 'N/A',
+        'state' => 'N/A',
+        'postcode' => '0000',
+        'country' => 'BD',
+        'owner_user_id' => $ownerUserId,
+        'customfields' => base64_encode(serialize(['9' => 'Google'])),
+    ]);
     
     if ($result['result'] !== 'success') {
         echo json_encode(['error' => 'Failed to create client account: ' . ($result['message'] ?? 'Unknown error')]);
