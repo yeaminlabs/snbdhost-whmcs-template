@@ -552,9 +552,27 @@
                 </div>
             {/if}
 
-            <div class="providerLinking mb-4 mt-3" data-link-context="login">
-                {include file="$template/includes/linkedaccounts.tpl" linkContext="login" customFeedback=true}
+            <!-- Custom Google Sign-In -->
+            {if $googleClientId}
+            <div class="snbd-google-signin-wrapper mb-4 mt-3 d-flex flex-column align-items-center">
+                <div id="g_id_onload"
+                     data-client_id="{$googleClientId}"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="onGoogleSignIn"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="center">
+                </div>
+                <div id="snbdGoogleSignInError" style="display:none; width:100%;" class="auth-alert mt-3 text-start"></div>
             </div>
+            {/if}
 
             <!-- Form -->
             <form method="post" action="{$WEB_ROOT}/dologin.php" class="needs-validation login-form" role="form" id="frmLogin" novalidate>

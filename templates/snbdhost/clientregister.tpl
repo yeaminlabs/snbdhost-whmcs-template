@@ -570,9 +570,27 @@
                 </script>
             {/if}
 
-            <div class="providerLinking mb-4 mt-3" data-link-context="registration">
-                {include file="$template/includes/linkedaccounts.tpl" linkContext="registration" customFeedback=true}
+            <!-- Custom Google Sign-In -->
+            {if $googleClientId}
+            <div class="snbd-google-signin-wrapper mb-4 mt-3 d-flex flex-column align-items-center">
+                <div id="g_id_onload"
+                     data-client_id="{$googleClientId}"
+                     data-context="signup"
+                     data-ux_mode="popup"
+                     data-callback="onGoogleSignIn"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signup_with"
+                     data-size="large"
+                     data-logo_alignment="center">
+                </div>
+                <div id="snbdGoogleSignInError" style="display:none; width:100%;" class="auth-alert mt-3 text-start"></div>
             </div>
+            {/if}
 
             <form method="post" action="{$WEB_ROOT}/register.php" id="frmRegistration" class="needs-validation text-start" role="form">
                 <input type="hidden" name="register" value="true" />

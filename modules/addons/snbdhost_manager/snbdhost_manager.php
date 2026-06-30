@@ -46,6 +46,13 @@ function snbdhost_manager_config()
                 'Default' => '',
                 'Description' => 'Your UptimeRobot Read-Only API key. Used to display server status on the client portal Network Status page. Get it from https://uptimerobot.com/dashboard -> My Settings -> API Settings.',
             ],
+            'google_client_id' => [
+                'FriendlyName' => 'Google Client ID',
+                'Type' => 'text',
+                'Size' => '80',
+                'Default' => '219815663641-p50rq613ol3ilqgbotogg4bb4hvg9s1e.apps.googleusercontent.com',
+                'Description' => 'Your Google OAuth 2.0 Client ID for enabling "Sign in with Google" on the login/register pages.',
+            ],
         ]
     ];
 }

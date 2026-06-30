@@ -40,6 +40,11 @@
     <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
     
     {$headoutput}
+    
+    {if $templatefile == 'login' || $templatefile == 'clientregister'}
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$smarty.now}"></script>
+    {/if}
 </head>
 <body data-phone-cc-input="{$phoneNumberInputStyle}">
 
