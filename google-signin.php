@@ -131,20 +131,42 @@ $googleSub = $payload['sub'];
 $client = Capsule::table('tblclients')->where('email', $email)->first();
 
 if (!$client) {
-    // Register new user placeholder
-    $result = localAPI('AddClient', [
-        'firstname' => $payload['given_name'] ?? 'Unknown',
-        'lastname' => $payload['family_name'] ?? 'Unknown',
-        'email' => $email,
-        'phonenumber' => '+00000000000',
-        'address1' => 'Pending Completion',
-        'city' => 'N/A',
-        'state' => 'N/A',
-        'postcode' => '0000',
-        'country' => 'BD',
-        'password' => 'G00gleAuth!' . bin2hex(random_bytes(8)),
-        'customfields' => base64_encode(serialize(['9' => 'Google'])),
-    ]);
+        // Temporarily disable 'required' flag on custom fields to bypass WHMCS AddClient password bug
+        $requiredFields = \WHMCS\Database\Capsule::table('tblcustomfields')
+            ->where('type', 'client')
+            ->where('required', 'on')
+            ->get();
+            
+        foreach ($requiredFields as $field) {
+            \WHMCS\Database\Capsule::table('tblcustomfields')->where('id', $field->id)->update(['required' => '']);
+        }
+
+        // Register new client placeholder without customfields to prevent "The Password field is required" error
+        $result = localAPI('AddClient', [
+            'firstname' => $payload['given_name'] ?? 'Unknown',
+            'lastname' => $payload['family_name'] ?? 'Unknown',
+            'email' => $email,
+            'phonenumber' => '+00000000000',
+            'address1' => 'Pending Completion',
+            'city' => 'N/A',
+            'state' => 'N/A',
+            'postcode' => '0000',
+            'country' => 'BD',
+            'password' => 'G00gleAuth!' . bin2hex(random_bytes(8))
+        ]);
+
+        // Restore custom fields required flag
+        foreach ($requiredFields as $field) {
+            \WHMCS\Database\Capsule::table('tblcustomfields')->where('id', $field->id)->update(['required' => 'on']);
+        }
+
+        // Update custom fields manually
+        if ($result['result'] === 'success' && isset($result['clientid'])) {
+            localAPI('UpdateClient', [
+                'clientid' => $result['clientid'],
+                'customfields' => base64_encode(serialize(['9' => 'Google']))
+            ]);
+        }
     
     if ($result['result'] !== 'success') {
         echo json_encode(['error' => 'Failed to create client account: ' . ($result['message'] ?? 'Unknown error')]);
