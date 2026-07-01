@@ -156,8 +156,8 @@ function snbdhost_manager_output($vars)
     // ----------------------------------------------------------------
     //  Action handling
     // ----------------------------------------------------------------
-    $action     = $_GET['action'] ?? '';
-    $updateType = $_GET['type']   ?? 'all';
+    $action     = $_REQUEST['snbd_action'] ?? '';
+    $updateType = $_REQUEST['snbd_type']   ?? 'all';
     $message    = '';
 
     // --- Theme / module update ---
@@ -242,7 +242,7 @@ function snbdhost_manager_output($vars)
     // --- Add managed module ---
     if ($action === 'add_module') {
         $entry = [
-            'name'         => strip_tags(trim($_POST['mod_name']         ?? '')),
+            'name'         => strip_tags(trim($_REQUEST['mod_name']         ?? '')),
             'repo'         => trim($_POST['mod_repo']         ?? ''),
             'token'        => trim($_POST['mod_token']        ?? ''),
             'branch'       => trim($_POST['mod_branch']       ?? 'main') ?: 'main',
@@ -260,16 +260,16 @@ function snbdhost_manager_output($vars)
 
     // --- Edit managed module ---
     if ($action === 'edit_module') {
-        $id = trim($_POST['mod_id'] ?? '');
+        $id = trim($_REQUEST['mod_id'] ?? '');
         if ($id) {
             $data = [
-                'name'         => strip_tags(trim($_POST['mod_name']         ?? '')),
-                'repo'         => trim($_POST['mod_repo']         ?? ''),
-                'token'        => trim($_POST['mod_token']        ?? ''),
-                'branch'       => trim($_POST['mod_branch']       ?? 'main') ?: 'main',
-                'install_path' => trim($_POST['mod_install_path'] ?? ''),
-                'extract_mode' => trim($_POST['mod_extract_mode'] ?? 'contents'),
-                'description'  => strip_tags(trim($_POST['mod_description']  ?? '')),
+                'name'         => strip_tags(trim($_REQUEST['mod_name']         ?? '')),
+                'repo'         => trim($_REQUEST['mod_repo']         ?? ''),
+                'token'        => trim($_REQUEST['mod_token']        ?? ''),
+                'branch'       => trim($_REQUEST['mod_branch']       ?? 'main') ?: 'main',
+                'install_path' => trim($_REQUEST['mod_install_path'] ?? ''),
+                'extract_mode' => trim($_REQUEST['mod_extract_mode'] ?? 'contents'),
+                'description'  => strip_tags(trim($_REQUEST['mod_description']  ?? '')),
             ];
             $moduleManager->updateModuleEntry($id, $data);
             $message = snbdmgr_alert('success', '<i class="fas fa-check-circle me-2"></i> Module updated.');
@@ -278,7 +278,7 @@ function snbdhost_manager_output($vars)
 
     // --- Delete managed module ---
     if ($action === 'delete_module') {
-        $id = trim($_GET['module_id'] ?? '');
+        $id = trim($_REQUEST['module_id'] ?? '');
         if ($id) {
             $mod = $moduleManager->getModule($id);
             $moduleManager->deleteModule($id);
@@ -288,7 +288,7 @@ function snbdhost_manager_output($vars)
 
     // --- Install / Update a managed module ---
     if ($action === 'install_module' || $action === 'update_module') {
-        $id = trim($_GET['module_id'] ?? '');
+        $id = trim($_REQUEST['module_id'] ?? '');
         if ($id) {
             try {
                 $result  = $moduleManager->installOrUpdate($id);
@@ -317,7 +317,7 @@ function snbdhost_manager_output($vars)
     $managedModules = $moduleManager->loadModules();
 
     // Determine active tab from GET param (preserve after post-redirect)
-    $activeTab = $_GET['tab'] ?? 'overview';
+    $activeTab = $_REQUEST['tab'] ?? 'overview';
     $validTabs = ['overview', 'modules', 'notifications', 'banner', 'uptimerobot'];
     if (!in_array($activeTab, $validTabs)) $activeTab = 'overview';
 
@@ -718,7 +718,7 @@ function snbdhost_manager_output($vars)
                     if ($devMode): ?>
                     <span class="snbdmgr-badge warning"><i class="fas fa-code"></i> Dev Mode ON</span>
                 <?php endif; ?>
-                <a href="<?= $modulelink ?>&action=update_theme&type=all" onclick="return confirm('Update both Theme and Manager Module now?')" class="snbdmgr-btn primary sm"><i class="fas fa-sync-alt"></i> Update All</a>
+                <a href="<?= $modulelink ?>&snbd_action=update_theme&snbd_type=all" onclick="return confirm('Update both Theme and Manager Module now?')" class="snbdmgr-btn primary sm"><i class="fas fa-sync-alt"></i> Update All</a>
             </div>
         </div>
 
@@ -772,7 +772,7 @@ function snbdhost_manager_output($vars)
                                         <div class="update-desc">templates/snbdhost, orderforms, hooks</div>
                                     </div>
                                     <div class="update-action">
-                                        <a href="<?= $modulelink ?>&action=update_theme&type=theme"
+                                        <a href="<?= $modulelink ?>&snbd_action=update_theme&snbd_type=theme"
                                            onclick="return confirm('Update Theme files now?')"
                                            class="snbdmgr-btn primary sm">
                                             <i class="fas fa-download"></i> Update Theme
@@ -790,7 +790,7 @@ function snbdhost_manager_output($vars)
                                         <div class="update-desc">modules/addons/snbdhost_manager</div>
                                     </div>
                                     <div class="update-action">
-                                        <a href="<?= $modulelink ?>&action=update_theme&type=module"
+                                        <a href="<?= $modulelink ?>&snbd_action=update_theme&snbd_type=module"
                                            onclick="return confirm('Update the Manager Module now?')"
                                            class="snbdmgr-btn dark sm">
                                             <i class="fas fa-sync"></i> Update Module
@@ -808,7 +808,7 @@ function snbdhost_manager_output($vars)
                                         <div class="update-desc">Theme + Manager Module in one go</div>
                                     </div>
                                     <div class="update-action">
-                                        <a href="<?= $modulelink ?>&action=update_theme&type=all"
+                                        <a href="<?= $modulelink ?>&snbd_action=update_theme&snbd_type=all"
                                            onclick="return confirm('Update Theme AND Manager Module together?')"
                                            class="snbdmgr-btn primary sm">
                                             <i class="fas fa-rocket"></i> Update All
@@ -934,13 +934,13 @@ function snbdhost_manager_output($vars)
                                         <td>
                                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                                 <?php if ($mod['status'] === 'installed'): ?>
-                                                    <a href="<?= $modulelink ?>&action=update_module&module_id=<?= urlencode($mod['id']) ?>&tab=modules"
+                                                    <a href="<?= $modulelink ?>&snbd_action=update_module&module_id=<?= urlencode($mod['id']) ?>&tab=modules"
                                                        onclick="return confirm('Update <?= htmlspecialchars(addslashes($mod['name'])) ?> now?')"
                                                        class="snbdmgr-btn info sm">
                                                         <i class="fas fa-sync"></i> Update
                                                     </a>
                                                 <?php else: ?>
-                                                    <a href="<?= $modulelink ?>&action=install_module&module_id=<?= urlencode($mod['id']) ?>&tab=modules"
+                                                    <a href="<?= $modulelink ?>&snbd_action=install_module&module_id=<?= urlencode($mod['id']) ?>&tab=modules"
                                                        onclick="return confirm('Install <?= htmlspecialchars(addslashes($mod['name'])) ?> now?')"
                                                        class="snbdmgr-btn success sm">
                                                         <i class="fas fa-download"></i> Install
@@ -950,7 +950,7 @@ function snbdhost_manager_output($vars)
                                                         class="snbdmgr-btn ghost sm">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </button>
-                                                <a href="<?= $modulelink ?>&action=delete_module&module_id=<?= urlencode($mod['id']) ?>&tab=modules"
+                                                <a href="<?= $modulelink ?>&snbd_action=delete_module&module_id=<?= urlencode($mod['id']) ?>&tab=modules"
                                                    onclick="return confirm('Remove this module from the list? Files on disk will NOT be deleted.')"
                                                    class="snbdmgr-btn danger sm">
                                                     <i class="fas fa-trash"></i>
@@ -999,7 +999,7 @@ function snbdhost_manager_output($vars)
                         </div>
                         <div class="snbdmgr-card-body">
                             <p style="font-size:0.83rem;color:var(--muted);margin:0 0 20px;">Override the auto-fetched GitHub data. Leave fields blank to let the system pull from the CHANGELOG.md automatically.</p>
-                            <form method="post" action="<?= $modulelink ?>&action=save_bugs&tab=notifications">
+                            <form method="post" action="<?= $modulelink ?>&snbd_action=save_bugs&tab=notifications">
                                 <div class="snbdmgr-form-group">
                                     <label class="snbdmgr-label">Most Recent Fix</label>
                                     <input type="text" name="fixed_bug" class="snbdmgr-input"
@@ -1063,7 +1063,7 @@ function snbdhost_manager_output($vars)
                             </div>
                         </div>
                         <div class="snbdmgr-card-body">
-                            <form method="post" action="<?= $modulelink ?>&action=save_client_banner&tab=banner">
+                            <form method="post" action="<?= $modulelink ?>&snbd_action=save_client_banner&tab=banner">
                                 <div class="snbdmgr-form-group" style="display:flex;align-items:center;gap:12px;">
                                     <input type="checkbox" name="banner_enabled" id="banner_enabled_chk" value="1"
                                            <?= ($bannerData['enabled'] == '1') ? 'checked' : '' ?>
@@ -1219,7 +1219,7 @@ function snbdhost_manager_output($vars)
     <div class="snbdmgr-modal-backdrop" id="snbdmgr-add-modal">
         <div class="snbdmgr-modal">
             <h3><i class="fas fa-plus-circle"></i> Add Managed Module</h3>
-            <form method="post" action="<?= $modulelink ?>&action=add_module&tab=modules">
+            <form method="post" action="<?= $modulelink ?>&snbd_action=add_module&tab=modules">
                 <div class="snbdmgr-form-group">
                     <label class="snbdmgr-label">Module Name <span class="req">*</span></label>
                     <input type="text" name="mod_name" class="snbdmgr-input" placeholder="e.g., OpenClaw Manager" required>
@@ -1264,7 +1264,7 @@ function snbdhost_manager_output($vars)
     <div class="snbdmgr-modal-backdrop" id="snbdmgr-edit-modal">
         <div class="snbdmgr-modal">
             <h3><i class="fas fa-pencil-alt"></i> Edit Module</h3>
-            <form method="post" action="<?= $modulelink ?>&action=edit_module&tab=modules" id="snbdmgr-edit-form">
+            <form method="post" action="<?= $modulelink ?>&snbd_action=edit_module&tab=modules" id="snbdmgr-edit-form">
                 <input type="hidden" name="mod_id" id="edit_mod_id">
                 <div class="snbdmgr-form-group">
                     <label class="snbdmgr-label">Module Name <span class="req">*</span></label>
@@ -1357,7 +1357,7 @@ function snbdhost_manager_output($vars)
         resultDiv.innerHTML     = '<i class="fas fa-spinner fa-spin"></i> Connecting to UptimeRobot...';
         resultDiv.className     = 'snbdmgr-api-status loading';
 
-        fetch('<?= $modulelink ?>&action=test_uptimerobot', {
+        fetch('<?= $modulelink ?>&snbd_action=test_uptimerobot', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'api_key=' + encodeURIComponent(key)
