@@ -504,6 +504,5 @@ function snbdmgr_alert(string $type, string $html): string
     if ($type === 'success') $class = 'alert alert-success';
     if ($type === 'danger') $class = 'alert alert-danger';
     if ($type === 'warning') $class = 'alert alert-warning';
-    
-    return "<div class="{$class}">{$html}</div>";
+    return "<div class=\"{$class}\">{$html}</div>";
 }
