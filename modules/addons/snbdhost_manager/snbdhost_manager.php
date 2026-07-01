@@ -59,6 +59,28 @@ function snbdhost_manager_config()
 
 function snbdhost_manager_activate()
 {
+    try {
+        if (!Capsule::schema()->hasTable('mod_snbd_migrations')) {
+            Capsule::schema()->create('mod_snbd_migrations', function ($table) {
+                $table->increments('id');
+                $table->integer('user_id')->default(0);
+                $table->string('previous_provider', 255)->nullable();
+                $table->string('website_url', 255)->nullable();
+                $table->string('cms', 100)->nullable();
+                $table->string('is_web_app', 100)->nullable();
+                $table->string('hosting_required', 100)->nullable();
+                $table->string('existing_username', 100)->nullable();
+                $table->string('target_package', 255)->nullable();
+                $table->timestamps();
+            });
+        }
+    } catch (\Exception $e) {
+        return [
+            'status' => 'error',
+            'description' => 'Could not activate module. Database table creation failed: ' . $e->getMessage()
+        ];
+    }
+
     return [
         'status' => 'success',
         'description' => 'SNBDHost Theme Manager has been successfully activated.'

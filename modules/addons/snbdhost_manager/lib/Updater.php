@@ -126,17 +126,51 @@ class Updater
             $scanned = array_diff(scandir($tempExtractDir), ['..', '.']);
             $rootFolder = reset($scanned);
             
-            // 1. Update templates/snbdhost
+            $whmcsRootDir = realpath(__DIR__ . '/../../../../');
+            if (!$whmcsRootDir) {
+                throw new \Exception("Could not locate the WHMCS root directory.");
+            }
+            
+            // 1. Update templates/snbdhost and related packages
             if ($type === 'all' || $type === 'theme') {
                 $sourceThemeDir = $tempExtractDir . '/' . $rootFolder . '/templates/snbdhost';
                 if (is_dir($sourceThemeDir)) {
                     $finalDest = $targetDir . '/snbdhost';
                     $this->recurseCopy($sourceThemeDir, $finalDest);
+                    
+                    // 1a. Copy any WHMCS hook files (snbdhost_*_hook.php) from templates/snbdhost/ to includes/hooks/
+                    $hooksDestDir = $whmcsRootDir . '/includes/hooks';
+                    @mkdir($hooksDestDir, 0755, true);
+                    if (is_dir($hooksDestDir)) {
+                        $files = scandir($sourceThemeDir);
+                        foreach ($files as $file) {
+                            if (strpos($file, 'snbdhost_') === 0 && substr($file, -9) === '_hook.php') {
+                                copy($sourceThemeDir . '/' . $file, $hooksDestDir . '/' . $file);
+                            }
+                        }
+                    }
                 } elseif (is_dir($tempExtractDir . '/' . $rootFolder)) {
-                    // If the repo doesn't have a templates folder, assume the whole repo is the theme
+                    // Fallback: If the repo doesn't have a templates folder, assume the whole repo is the theme
                     $this->recurseCopy($tempExtractDir . '/' . $rootFolder, $targetDir . '/snbdhost');
                 } else {
                      throw new \Exception("Could not find the theme files inside the extracted archive.");
+                }
+                
+                // 1b. Update templates/orderforms/snbdhost_cart
+                $sourceCartDir = $tempExtractDir . '/' . $rootFolder . '/templates/orderforms/snbdhost_cart';
+                if (is_dir($sourceCartDir)) {
+                    $cartDestDir = $whmcsRootDir . '/templates/orderforms';
+                    @mkdir($cartDestDir, 0755, true);
+                    $this->recurseCopy($sourceCartDir, $cartDestDir . '/snbdhost_cart');
+                }
+                
+                // 1c. Copy root utility scripts
+                $rootFiles = ['google-signin.php', 'serverstatus-cron.php', 'serverstatus-data.php', 'migration.php'];
+                foreach ($rootFiles as $file) {
+                    $sourceFile = $tempExtractDir . '/' . $rootFolder . '/' . $file;
+                    if (file_exists($sourceFile)) {
+                        copy($sourceFile, $whmcsRootDir . '/' . $file);
+                    }
                 }
             }
             

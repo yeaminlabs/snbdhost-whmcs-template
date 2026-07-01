@@ -274,7 +274,7 @@
             <div class="row g-4 mb-4">
                 
                 <!-- Left: Service Details Card -->
-                <div class="col-lg-6">
+                <div class="col-lg-6" id="serviceDetailsContainer">
                     <div class="card h-100 dash-card-clean">
                         <div class="card-header">
                             <span class="d-flex align-items-center gap-2">
@@ -343,7 +343,7 @@
                 </div>
                 
                 <!-- Right: Control Panel Access Card -->
-                <div class="col-lg-6">
+                <div class="col-lg-6" id="controlPanelContainer">
                     <div class="card h-100 dash-card-clean" style="border-top: 4px solid #ff6c2c !important;">
                         <div class="card-header d-flex justify-content-between align-items-center">
                                 <span class="d-flex align-items-center gap-2" id="cpanelCardTitle">
@@ -444,9 +444,24 @@
 
             <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Detect n8n purely from the rendered product name in the DOM
+                // Detect product name in the DOM
                 var productHeading = document.querySelector('.dash-headline .dash-headline-accent');
                 var productName = productHeading ? productHeading.textContent.toLowerCase() : '';
+                
+                // Handle OpenClaw Manager
+                var isOpenClaw = productName.indexOf('openclaw') !== -1;
+                if (isOpenClaw) {
+                    var cpContainer = document.getElementById('controlPanelContainer');
+                    if (cpContainer) {
+                        cpContainer.style.display = 'none';
+                    }
+                    var sdContainer = document.getElementById('serviceDetailsContainer');
+                    if (sdContainer) {
+                        sdContainer.classList.remove('col-lg-6');
+                        sdContainer.classList.add('col-lg-12');
+                    }
+                }
+
                 var isN8n = productName.indexOf('n8n') !== -1;
 
                 if (!isN8n) return; // Nothing to do for non-n8n products
