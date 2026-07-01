@@ -241,20 +241,23 @@ function snbdhost_manager_output($vars)
 
     // --- Add managed module ---
     if ($action === 'add_module') {
+        $repo = trim($_POST['mod_repo'] ?? '');
+        // Auto-derive install path: modules/addons/{repo-name}
+        $repoName = basename($repo);
         $entry = [
-            'name'         => strip_tags(trim($_POST['mod_name']         ?? '')),
-            'repo'         => trim($_POST['mod_repo']         ?? ''),
-            'token'        => trim($_POST['mod_token']        ?? ''),
-            'branch'       => trim($_POST['mod_branch']       ?? 'main') ?: 'main',
-            'install_path' => trim($_POST['mod_install_path'] ?? ''),
-            'extract_mode' => trim($_POST['mod_extract_mode'] ?? 'contents'),
-            'description'  => strip_tags(trim($_POST['mod_description']  ?? '')),
+            'name'         => strip_tags(trim($_POST['mod_name']        ?? '')),
+            'repo'         => $repo,
+            'token'        => trim($_POST['mod_token']       ?? ''),
+            'branch'       => trim($_POST['mod_branch']      ?? 'main') ?: 'main',
+            'install_path' => 'modules/addons/' . $repoName,
+            'extract_mode' => 'contents',
+            'description'  => strip_tags(trim($_POST['mod_description'] ?? '')),
         ];
-        if (empty($entry['name']) || empty($entry['repo']) || empty($entry['install_path'])) {
-            $message = snbdmgr_alert('danger', '<i class="fas fa-exclamation-circle me-2"></i> Module Name, GitHub Repo, and Install Path are required.');
+        if (empty($entry['name']) || empty($repo)) {
+            $message = snbdmgr_alert('danger', '<i class="fas fa-exclamation-circle me-2"></i> Module Name and GitHub Repo are required.');
         } else {
             $moduleManager->addModule($entry);
-            $message = snbdmgr_alert('success', '<i class="fas fa-check-circle me-2"></i> Module <strong>' . htmlspecialchars($entry['name']) . '</strong> added successfully.');
+            $message = snbdmgr_alert('success', '<i class="fas fa-check-circle me-2"></i> Module <strong>' . htmlspecialchars($entry['name']) . '</strong> added — will install to <code>modules/addons/' . htmlspecialchars($repoName) . '</code>.');
         }
     }
 
@@ -262,14 +265,16 @@ function snbdhost_manager_output($vars)
     if ($action === 'edit_module') {
         $id = trim($_POST['mod_id'] ?? '');
         if ($id) {
+            $repo = trim($_POST['mod_repo'] ?? '');
+            $repoName = basename($repo);
             $data = [
-                'name'         => strip_tags(trim($_POST['mod_name']         ?? '')),
-                'repo'         => trim($_POST['mod_repo']         ?? ''),
-                'token'        => trim($_POST['mod_token']        ?? ''),
-                'branch'       => trim($_POST['mod_branch']       ?? 'main') ?: 'main',
-                'install_path' => trim($_POST['mod_install_path'] ?? ''),
-                'extract_mode' => trim($_POST['mod_extract_mode'] ?? 'contents'),
-                'description'  => strip_tags(trim($_POST['mod_description']  ?? '')),
+                'name'         => strip_tags(trim($_POST['mod_name']        ?? '')),
+                'repo'         => $repo,
+                'token'        => trim($_POST['mod_token']       ?? ''),
+                'branch'       => trim($_POST['mod_branch']      ?? 'main') ?: 'main',
+                'install_path' => 'modules/addons/' . $repoName,
+                'extract_mode' => 'contents',
+                'description'  => strip_tags(trim($_POST['mod_description'] ?? '')),
             ];
             $moduleManager->updateModuleEntry($id, $data);
             $message = snbdmgr_alert('success', '<i class="fas fa-check-circle me-2"></i> Module updated.');
@@ -896,8 +901,6 @@ function snbdhost_manager_output($vars)
                                 <thead>
                                     <tr>
                                         <th>Module</th>
-                                        <th>Repository</th>
-                                        <th>Install Path</th>
                                         <th>Status</th>
                                         <th>Last Updated</th>
                                         <th>Actions</th>
@@ -905,18 +908,20 @@ function snbdhost_manager_output($vars)
                                 </thead>
                                 <tbody>
                                 <?php foreach ($managedModules as $mod): ?>
+                                    <?php
+                                    $autoPath = 'modules/addons/' . basename($mod['repo']);
+                                    ?>
                                     <tr>
                                         <td>
                                             <div class="mod-name"><?= htmlspecialchars($mod['name']) ?></div>
+                                            <div style="font-size:0.73rem;color:var(--muted);margin-top:2px;">
+                                                <span class="mod-repo"><?= htmlspecialchars($mod['repo']) ?></span>
+                                                &nbsp;·&nbsp; branch: <?= htmlspecialchars($mod['branch'] ?? 'main') ?>
+                                            </div>
                                             <?php if (!empty($mod['description'])): ?>
-                                                <div style="font-size:0.74rem;color:var(--muted);margin-top:2px;"><?= htmlspecialchars($mod['description']) ?></div>
+                                                <div style="font-size:0.74rem;color:var(--muted);margin-top:1px;"><?= htmlspecialchars($mod['description']) ?></div>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <div class="mod-repo"><?= htmlspecialchars($mod['repo']) ?></div>
-                                            <div style="font-size:0.73rem;color:var(--muted);">branch: <?= htmlspecialchars($mod['branch'] ?? 'main') ?></div>
-                                        </td>
-                                        <td><span class="mod-path"><?= htmlspecialchars($mod['install_path']) ?></span></td>
                                         <td>
                                             <?php
                                             $status = $mod['status'] ?? 'not_installed';
@@ -967,14 +972,11 @@ function snbdhost_manager_output($vars)
             </div>
 
             <!-- Info box -->
-            <div class="snbdmgr-card" style="background:linear-gradient(135deg,#fffbeb,#fff7ed);border-color:#fde68a;">
+            <div class="snbdmgr-card" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;">
                 <div class="snbdmgr-card-body" style="display:flex;gap:14px;align-items:flex-start;">
-                    <i class="fas fa-lightbulb" style="color:#f59e0b;margin-top:2px;font-size:1.1rem;flex-shrink:0;"></i>
-                    <div style="font-size:0.82rem;color:#78350f;line-height:1.6;">
-                        <strong>How Install Path works:</strong> Enter the path <em>relative to your WHMCS root</em> where the module should be installed.
-                        For example: <code style="background:#fef3c7;padding:1px 6px;border-radius:4px;">modules/addons/my_module</code> will place files at
-                        <code style="background:#fef3c7;padding:1px 6px;border-radius:4px;">/path/to/whmcs/modules/addons/my_module/</code>.
-                        The module zip contents are extracted directly into that path — matching the typical GitHub repo layout.
+                    <i class="fas fa-info-circle" style="color:#3b82f6;margin-top:2px;font-size:1.1rem;flex-shrink:0;"></i>
+                    <div style="font-size:0.82rem;color:#1d4ed8;line-height:1.6;">
+                        Modules are automatically installed to <code style="background:#dbeafe;padding:1px 6px;border-radius:4px;">modules/addons/{repo-name}</code> — the same directory where SNBDHost Theme Manager lives. Just enter the GitHub repo and click Install.
                     </div>
                 </div>
             </div>
@@ -1240,15 +1242,9 @@ function snbdhost_manager_output($vars)
                     </div>
                 </div>
                 <div class="snbdmgr-form-group">
-                    <label class="snbdmgr-label">Install Path <span class="req">*</span></label>
-                    <input type="text" name="mod_install_path" class="snbdmgr-input" placeholder="modules/addons/my_module" required>
-                    <div class="snbdmgr-hint">Relative to WHMCS root. The zip contents will be extracted here.</div>
-                </div>
-                <div class="snbdmgr-form-group">
                     <label class="snbdmgr-label">Description <em style="font-weight:400;">(optional)</em></label>
                     <input type="text" name="mod_description" class="snbdmgr-input" placeholder="Short description of what this module does...">
                 </div>
-                <input type="hidden" name="mod_extract_mode" value="contents">
                 <div class="snbdmgr-modal-footer">
                     <button type="button" onclick="snbdmgrCloseModals()" class="snbdmgr-btn ghost">Cancel</button>
                     <button type="submit" class="snbdmgr-btn primary"><i class="fas fa-plus"></i> Add Module</button>
@@ -1285,14 +1281,9 @@ function snbdhost_manager_output($vars)
                     </div>
                 </div>
                 <div class="snbdmgr-form-group">
-                    <label class="snbdmgr-label">Install Path <span class="req">*</span></label>
-                    <input type="text" name="mod_install_path" id="edit_mod_install_path" class="snbdmgr-input" required>
-                </div>
-                <div class="snbdmgr-form-group">
                     <label class="snbdmgr-label">Description</label>
                     <input type="text" name="mod_description" id="edit_mod_description" class="snbdmgr-input">
                 </div>
-                <input type="hidden" name="mod_extract_mode" value="contents">
                 <div class="snbdmgr-modal-footer">
                     <button type="button" onclick="snbdmgrCloseModals()" class="snbdmgr-btn ghost">Cancel</button>
                     <button type="submit" class="snbdmgr-btn primary"><i class="fas fa-save"></i> Save Changes</button>
@@ -1325,7 +1316,6 @@ function snbdhost_manager_output($vars)
         document.getElementById('edit_mod_repo').value        = mod.repo         || '';
         document.getElementById('edit_mod_branch').value      = mod.branch       || 'main';
         document.getElementById('edit_mod_token').value       = '';   // never pre-fill token
-        document.getElementById('edit_mod_install_path').value = mod.install_path || '';
         document.getElementById('edit_mod_description').value = mod.description  || '';
         document.getElementById('snbdmgr-edit-modal').classList.add('open');
     }
