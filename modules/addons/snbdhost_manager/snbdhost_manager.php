@@ -115,36 +115,8 @@ function snbdhost_manager_output($vars)
     if (file_exists($configFile)) {
         $currentConfig = json_decode(file_get_contents($configFile), true) ?: [];
     }
-    if (($currentConfig['api_key'] ?? '') !== $uptimerobotApiKey || !file_exists(__DIR__ . '/../../../network-status.json')) {
+    if (($currentConfig['api_key'] ?? '') !== $uptimerobotApiKey) {
         file_put_contents($configFile, json_encode(['api_key' => $uptimerobotApiKey], JSON_PRETTY_PRINT));
-        if (!empty($uptimerobotApiKey)) {
-            $ch = curl_init('https://api.uptimerobot.com/v2/getMonitors');
-            curl_setopt_array($ch, [
-                CURLOPT_POST           => true,
-                CURLOPT_POSTFIELDS     => http_build_query([
-                    'api_key'               => $uptimerobotApiKey,
-                    'format'                => 'json',
-                    'logs'                  => '0',
-                    'response_times'        => '1',
-                    'response_times_limit'  => '10',
-                    'custom_uptime_ratios'  => '30',
-                    'all_time_uptime_ratio' => '1',
-                ]),
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT        => 15,
-                CURLOPT_CONNECTTIMEOUT => 10,
-                CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json'],
-            ]);
-            $resp = curl_exec($ch);
-            curl_close($ch);
-            if ($resp !== false) {
-                $decoded = json_decode($resp, true);
-                if (isset($decoded['stat']) && $decoded['stat'] === 'ok') {
-                    $decoded['last_updated_timestamp'] = time();
-                    @file_put_contents(__DIR__ . '/../../../network-status.json', json_encode($decoded));
-                }
-            }
-        }
     }
 
     // ----------------------------------------------------------------
@@ -156,8 +128,8 @@ function snbdhost_manager_output($vars)
     // ----------------------------------------------------------------
     //  Action handling
     // ----------------------------------------------------------------
-    $action     = isset($_GET['action']) ? $_GET['action'] : '';
-    $updateType = isset($_GET['type'])   ? $_GET['type']   : 'all';
+    $action     = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+    $updateType = isset($_REQUEST['type'])   ? $_REQUEST['type']   : 'all';
     $message    = '';
 
     // --- Theme / module update ---
