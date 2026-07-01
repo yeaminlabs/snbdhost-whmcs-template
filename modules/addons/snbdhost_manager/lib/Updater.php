@@ -65,6 +65,11 @@ class Updater
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, 'WHMCS-SNBDHost-Manager');
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // Follow redirects for downloads
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 
         $headers = [];
         if (!empty($this->githubToken)) {
@@ -82,14 +87,15 @@ class Updater
         $response = curl_exec($ch);
         $error = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
         curl_close($ch);
 
-        if ($error) {
+        if ($error || $response === false) {
             throw new \Exception("cURL Error: " . $error);
         }
 
-        if ($httpCode >= 400 && !$isDownload) {
-            throw new \Exception("GitHub API Error (HTTP {$httpCode}): " . $response);
+        if ($httpCode >= 400) {
+            throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$finalUrl}. Response: " . substr(strip_tags($response), 0, 200));
         }
 
         if ($isDownload) {
@@ -105,13 +111,25 @@ class Updater
         if ($data === false) {
             throw new \Exception("Failed to download the theme zip file.");
         }
+        
+        // Validate it is actually a zip file (magic bytes PK = 0x50 0x4B)
+        if (strlen($data) < 4 || substr($data, 0, 2) !== 'PK') {
+            $preview = substr(strip_tags($data), 0, 300);
+            throw new \Exception("Downloaded theme file is not a valid zip archive. GitHub may have returned an error page. Response preview: " . $preview);
+        }
+        
         file_put_contents($destination, $data);
     }
 
     private function extractTheme($zipPath, $targetDir, $type = 'all')
     {
+        if (!file_exists($zipPath) || filesize($zipPath) < 4) {
+            throw new \Exception("Zip file is missing or empty at: {$zipPath}");
+        }
+
         $zip = new \ZipArchive;
-        if ($zip->open($zipPath) === true) {
+        $openResult = $zip->open($zipPath);
+        if ($openResult === true) {
             // Usually GitHub zips contain a root folder (e.g. repo-name-1.0.0/)
             // We need to extract its contents, particularly the 'templates/snbdhost' directory if structured that way.
             // For simplicity, we extract to a temp directory and then move the theme folder.
@@ -189,7 +207,17 @@ class Updater
             $this->recurseRmdir($tempExtractDir);
             
         } else {
-            throw new \Exception("Failed to open the downloaded zip file.");
+            $zipErrors = [
+                \ZipArchive::ER_NOZIP  => 'Not a zip file',
+                \ZipArchive::ER_INCONS => 'Zip archive inconsistent',
+                \ZipArchive::ER_CRC    => 'CRC error',
+                \ZipArchive::ER_NOENT  => 'No such file',
+                \ZipArchive::ER_OPEN   => 'Cannot open file',
+                \ZipArchive::ER_READ   => 'Read error',
+                \ZipArchive::ER_SEEK   => 'Seek error',
+            ];
+            $reason = isset($zipErrors[$openResult]) ? $zipErrors[$openResult] : "error code {$openResult}";
+            throw new \Exception("Failed to open the downloaded zip file: {$reason}. The file may be corrupted.");
         }
     }
 
