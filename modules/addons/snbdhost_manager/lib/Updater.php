@@ -64,8 +64,6 @@ class Updater
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, 'WHMCS-SNBDHost-Manager');
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // Follow redirects for downloads
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
         curl_setopt($ch, CURLOPT_TIMEOUT, 120);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -78,31 +76,63 @@ class Updater
 
         if (!$isDownload) {
             $headers[] = 'Accept: application/vnd.github.v3+json';
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+            if (!empty($headers)) curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            
+            $response = curl_exec($ch);
+            $error = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+            curl_close($ch);
+            
+            if ($error || $response === false) throw new \Exception("cURL Error: " . $error);
+            if ($httpCode >= 400) throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$finalUrl}. Response: " . substr(strip_tags($response), 0, 200));
+            return json_decode($response, true);
         }
 
-        if (!empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-
+        // For downloads, handle redirect manually to strip token
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        if (!empty($headers)) curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
         $response = curl_exec($ch);
-        $error = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         curl_close($ch);
-
-        if ($error || $response === false) {
-            throw new \Exception("cURL Error: " . $error);
+        
+        if ($response === false) throw new \Exception("cURL Error getting download link.");
+        
+        $finalUrl = $url;
+        if (in_array($httpCode, [301, 302, 307, 308])) {
+            $headerStr = substr($response, 0, $headerSize);
+            if (preg_match('/^Location:\s*(.+)$/im', $headerStr, $matches)) {
+                $finalUrl = trim($matches[1]);
+            }
+        } elseif ($httpCode >= 400) {
+            throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$url}. Check repo, branch, and token.");
         }
-
-        if ($httpCode >= 400) {
-            throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$finalUrl}. Response: " . substr(strip_tags($response), 0, 200));
-        }
-
-        if ($isDownload) {
-            return $response;
-        }
-
-        return json_decode($response, true);
+        
+        $ch2 = curl_init($finalUrl);
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch2, CURLOPT_USERAGENT, 'WHMCS-SNBDHost-Manager');
+        curl_setopt($ch2, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch2, CURLOPT_MAXREDIRS, 5);
+        curl_setopt($ch2, CURLOPT_TIMEOUT, 120);
+        curl_setopt($ch2, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch2, CURLOPT_SSL_VERIFYHOST, 0);
+        
+        $data = curl_exec($ch2);
+        $error = curl_error($ch2);
+        $httpCode = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        $finalUrl = curl_getinfo($ch2, CURLINFO_EFFECTIVE_URL);
+        curl_close($ch2);
+        
+        if ($error || $data === false) throw new \Exception("cURL Error downloading zip: " . $error);
+        if ($httpCode >= 400) throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$finalUrl}. Check token.");
+        
+        return $data;
     }
 
     private function downloadFile($url, $destination)

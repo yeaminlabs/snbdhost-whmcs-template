@@ -159,9 +159,9 @@ class ModuleManager
                 return $data['zipball_url'];
             }
         } catch (\Exception $e) {
-            // fall through to branch zip
+            // fall through to branch zip using API to support private repos
         }
-        return "https://github.com/{$repo}/archive/refs/heads/{$branch}.zip";
+        return "https://api.github.com/repos/{$repo}/zipball/{$branch}";
     }
 
     private function apiRequest(string $url, string $token = ''): array
@@ -202,14 +202,46 @@ class ModuleManager
         if ($token) {
             $headers[] = "Authorization: token {$token}";
         }
+        // Step 1: Request the API URL without following redirects to capture the S3 Location
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_FOLLOWLOCATION => false, // We handle redirect manually
+            CURLOPT_HEADER         => true,
             CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        curl_close($ch);
+
+        if ($response === false) {
+            throw new \Exception("cURL error getting download link.");
+        }
+
+        $finalUrl = $url;
+        if ($httpCode === 301 || $httpCode === 302 || $httpCode === 307 || $httpCode === 308) {
+            $headerStr = substr($response, 0, $headerSize);
+            if (preg_match('/^Location:\s*(.+)$/im', $headerStr, $matches)) {
+                $finalUrl = trim($matches[1]);
+            }
+        } elseif ($httpCode >= 400) {
+            throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$url}. Check the repo name, branch, and token.");
+        }
+
+        // Step 2: Download the actual file from the (redirected) URL without the Authorization header
+        $ch2 = curl_init($finalUrl);
+        curl_setopt_array($ch2, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 5,
+            CURLOPT_HTTPHEADER     => ['User-Agent: WHMCS-SNBDHost-Manager'], // NO TOKEN!
             CURLOPT_TIMEOUT        => 120,
             CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_SSL_VERIFYPEER => false,  // Required on many shared hosting servers
+            CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => 0,
         ]);
         $data     = curl_exec($ch);
