@@ -67,7 +67,8 @@ class ModuleManager
     public function deleteModule(string $id): void
     {
         $modules = $this->loadModules();
-        $modules = array_filter($modules, fn($m) => $m['id'] !== $id);
+        $idToDelete = $id;
+        $modules = array_filter($modules, function($m) use ($idToDelete) { return $m['id'] !== $idToDelete; });
         $this->saveModules($modules);
     }
 
