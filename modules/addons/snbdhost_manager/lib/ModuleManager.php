@@ -114,7 +114,10 @@ class ModuleManager
             throw new \Exception("Could not locate the WHMCS root directory.");
         }
 
-        // Resolve destination
+        // Resolve destination — auto-derive from repo name if not set
+        if (empty($installPath)) {
+            $installPath = 'modules/addons/' . basename($repo);
+        }
         $destination = $this->whmcsRoot . '/' . ltrim($installPath, '/');
 
         // 1. Get download URL — try latest release, fall back to branch zip
@@ -202,17 +205,36 @@ class ModuleManager
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 10,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_TIMEOUT        => 120,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_SSL_VERIFYPEER => false,  // Required on many shared hosting servers
+            CURLOPT_SSL_VERIFYHOST => 0,
         ]);
-        $data = curl_exec($ch);
-        $err  = curl_error($ch);
+        $data     = curl_exec($ch);
+        $err      = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
         curl_close($ch);
 
         if ($err || $data === false) {
-            throw new \Exception("Failed to download module zip: {$err}");
+            throw new \Exception("cURL error downloading zip: {$err}");
         }
-        file_put_contents($dest, $data);
+
+        if ($httpCode >= 400) {
+            throw new \Exception("GitHub returned HTTP {$httpCode} for URL: {$finalUrl}. Check the repo name and branch are correct and the repo is public (or add a token for private repos).");
+        }
+
+        // Validate it is actually a zip file (magic bytes PK = 0x50 0x4B)
+        if (strlen($data) < 4 || substr($data, 0, 2) !== 'PK') {
+            $preview = substr(strip_tags($data), 0, 300);
+            throw new \Exception("Downloaded file is not a valid zip archive (HTTP {$httpCode}). GitHub may have returned an error page. Response preview: " . $preview);
+        }
+
+        if (file_put_contents($dest, $data) === false) {
+            throw new \Exception("Could not write zip file to temp directory: {$dest}. Check disk space and permissions.");
+        }
     }
 
     /**
@@ -222,9 +244,24 @@ class ModuleManager
      */
     private function extractModule(string $zipPath, string $destination, string $extractMode = 'contents'): void
     {
+        if (!file_exists($zipPath) || filesize($zipPath) < 4) {
+            throw new \Exception("Zip file is missing or empty at: {$zipPath}");
+        }
+
         $zip = new \ZipArchive();
-        if ($zip->open($zipPath) !== true) {
-            throw new \Exception("Failed to open the downloaded zip file.");
+        $openResult = $zip->open($zipPath);
+        if ($openResult !== true) {
+            $zipErrors = [
+                \ZipArchive::ER_NOZIP  => 'Not a zip file',
+                \ZipArchive::ER_INCONS => 'Zip archive inconsistent',
+                \ZipArchive::ER_CRC    => 'CRC error',
+                \ZipArchive::ER_NOENT  => 'No such file',
+                \ZipArchive::ER_OPEN   => 'Cannot open file',
+                \ZipArchive::ER_READ   => 'Read error',
+                \ZipArchive::ER_SEEK   => 'Seek error',
+            ];
+            $reason = isset($zipErrors[$openResult]) ? $zipErrors[$openResult] : "ZipArchive error code {$openResult}";
+            throw new \Exception("Failed to open the downloaded zip file: {$reason}. The file may be corrupted or not a valid zip archive.");
         }
 
         $tmpDir = sys_get_temp_dir() . '/snbdmod_extract_' . time();
