@@ -53,6 +53,11 @@ function snbdhost_manager_config()
                 'Default' => '219815663641-p50rq613ol3ilqgbotogg4bb4hvg9s1e.apps.googleusercontent.com',
                 'Description' => 'Your Google OAuth 2.0 Client ID for enabling "Sign in with Google" on the login/register pages.',
             ],
+            'developer_mode' => [
+                'FriendlyName' => 'Developer Mode',
+                'Type' => 'yesno',
+                'Description' => 'Tick to enable Developer Mode. This hides reports, shows a developer alert message on the dashboards, and disables the theme modification check.',
+            ],
         ]
     ];
 }

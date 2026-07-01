@@ -308,7 +308,7 @@
         display:flex; align-items:center; justify-content:center;
         font-size:1.2rem; color:#fff;
     ">
-        <i class="fas fa-rocket"></i>
+        <i class="{if $snbdBannerIcon}{$snbdBannerIcon}{else}fas fa-rocket{/if}"></i>
     </div>
 
     <!-- Text -->

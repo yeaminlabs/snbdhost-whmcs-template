@@ -23,6 +23,14 @@ class SnbdhostThemeWidget extends AbstractWidget
             ->where('module', 'snbdhost_manager')
             ->pluck('value', 'setting');
 
+        $isDevMode = (($config['developer_mode'] ?? '') === 'on' || ($config['developer_mode'] ?? '') === '1' || ($config['developer_mode'] ?? '') === 'yes');
+        if ($isDevMode) {
+            return [
+                'isDevMode' => true,
+                'moduleLink' => 'addonmodules.php?module=snbdhost_manager'
+            ];
+        }
+
         $githubRepo = $config['github_repo'] ?? 'username/repo';
         $reportUrl = $config['bug_report_url'] ?? 'https://github.com/username/repo/issues';
 
@@ -78,6 +86,18 @@ class SnbdhostThemeWidget extends AbstractWidget
 
     public function generateOutput($data)
     {
+        if (!empty($data['isDevMode'])) {
+            $html = '<div class="widget-content-padded text-center">';
+            $html .= '<div style="font-size: 3rem; color: #f39c12; margin-bottom: 10px;"><i class="fas fa-code"></i></div>';
+            $html .= '<h4>Developer Mode Active</h4>';
+            $html .= '<p class="text-muted" style="font-size: 13px; line-height: 1.5;">All theme updates, release histories, and bug logs are hidden. Developers are asked to make custom additions compatible with the theme layout.</p>';
+            $html .= '<div style="margin-top: 15px;">';
+            $html .= '<a href="' . htmlspecialchars($data['moduleLink']) . '" class="btn btn-warning btn-sm btn-block"><i class="fas fa-tools"></i> Manage Module Settings</a>';
+            $html .= '</div>';
+            $html .= '</div>';
+            return $html;
+        }
+
         $html = '<div class="widget-content-padded">';
         
         $html .= '<h5>Recent Bug Fixes</h5>';

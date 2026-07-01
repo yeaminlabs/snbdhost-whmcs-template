@@ -23,6 +23,20 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Check for Developer Mode in database (bypasses theme lock verification)
+try {
+    $devModeSetting = Capsule::table('tbladdonmodules')
+        ->where('module', 'snbdhost_manager')
+        ->where('setting', 'developer_mode')
+        ->value('value');
+    $isDevMode = ($devModeSetting === 'on' || $devModeSetting === '1' || $devModeSetting === 'yes');
+    if ($isDevMode) {
+        return; // Exit file execution, no hooks will be registered
+    }
+} catch (\Exception $e) {
+    // Fail silent
+}
+
 /**
  * Hook 1: Intercept AJAX requests and enforce Server-side validation on Page Load
  */

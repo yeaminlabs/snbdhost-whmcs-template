@@ -102,6 +102,29 @@ add_hook('AdminAreaFooterOutput', 1, function($vars) {
 });
 
 add_hook('ClientAreaPageHome', 1, function($vars) {
+    // Check developer mode
+    $isDevMode = false;
+    try {
+        $devModeSetting = Capsule::table('tbladdonmodules')
+            ->where('module', 'snbdhost_manager')
+            ->where('setting', 'developer_mode')
+            ->value('value');
+        $isDevMode = ($devModeSetting === 'on' || $devModeSetting === '1' || $devModeSetting === 'yes');
+    } catch (\Exception $e) {
+        // DB error
+    }
+
+    if ($isDevMode) {
+        return [
+            'snbdBannerEnabled' => '1',
+            'snbdBannerTitle' => '🛠️ Developer Mode Active',
+            'snbdBannerDesc' => 'Developer Mode is enabled. Developers are asked to work on things making them compatible with this theme.',
+            'snbdBannerLink' => '#',
+            'snbdBannerLinkText' => 'Developer Mode',
+            'snbdBannerIcon' => 'fas fa-code'
+        ];
+    }
+
     $bannerData = ['enabled' => '1', 'title' => '', 'desc' => '', 'link' => '', 'link_text' => ''];
     if (file_exists(__DIR__ . '/client_banner.json')) {
         $data = json_decode(file_get_contents(__DIR__ . '/client_banner.json'), true);

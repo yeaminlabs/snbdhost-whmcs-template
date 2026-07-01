@@ -11,6 +11,7 @@ class DashboardTopNotice
 {
     private $githubRepo;
     private $githubToken;
+    private $developerMode;
 
     public function __construct()
     {
@@ -25,6 +26,8 @@ class DashboardTopNotice
                     $this->githubRepo = $setting->value;
                 } elseif ($setting->setting === 'github_token') {
                     $this->githubToken = $setting->value;
+                } elseif ($setting->setting === 'developer_mode') {
+                    $this->developerMode = $setting->value;
                 }
             }
         } catch (\Exception $e) {
@@ -34,6 +37,44 @@ class DashboardTopNotice
 
     public function render()
     {
+        $isDevMode = ($this->developerMode === 'on' || $this->developerMode === '1' || $this->developerMode === 'yes');
+        if ($isDevMode) {
+            $html = '
+            <div style="margin: 15px 0 25px 0;">
+                <div class="panel panel-warning" style="border: 1px solid #e0a800; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden;">
+                    <div class="panel-heading" style="background: linear-gradient(135deg, #f0ad4e 0%, #ec971f 100%); color: #fff; padding: 15px; font-size: 16px; border-bottom: none; border-radius: 8px 8px 0 0;">
+                        <i class="fas fa-code" style="margin-right: 8px;"></i> <strong>Developer Mode Active</strong>
+                    </div>
+                    <div class="panel-body" style="background-color: #fff; padding: 20px;">
+                        <p style="font-size: 14px; margin: 0; color: #333; line-height: 1.6;">
+                            This portal is currently running in <strong>Developer Mode</strong>. Developers are requested to work on making their custom features, modules, and code additions compatible with this theme layout. Updates and issue reporting are paused in this environment.
+                        </p>
+                    </div>
+                </div>
+            </div>';
+
+            $htmlEscaped = json_encode($html);
+            $js = '
+            <script>
+            jQuery(document).ready(function($) {
+                var noticeHtml = ' . $htmlEscaped . ';
+                var widgetContainer = $(\'.row.dashboard-widgets, #widgetRow, .widgets-container\').first();
+                if (widgetContainer.length > 0) {
+                    widgetContainer.before(noticeHtml);
+                } else {
+                    var mainContent = $(\'#contentarea, .contentarea, .main-content\').first();
+                    if (mainContent.length > 0) {
+                        mainContent.prepend(noticeHtml);
+                    } else {
+                        $(\'body\').prepend(noticeHtml);
+                    }
+                }
+            });
+            </script>
+            ';
+            return $js;
+        }
+
         if (empty($this->githubRepo)) {
             return '<script>console.error("SNBDHost Manager: githubRepo is empty in DB query.");</script>';
         }
