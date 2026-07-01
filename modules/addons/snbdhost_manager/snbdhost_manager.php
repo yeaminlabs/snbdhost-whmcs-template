@@ -214,6 +214,7 @@ function snbdhost_manager_output($vars)
     // --- Add managed module ---
     if ($action === 'add_module') {
         $repo = trim($_POST['mod_repo'] ?? '');
+        $repo = preg_replace('#^https?://(www\.)?github\.com/#i', '', $repo);
         // Auto-derive install path: modules/addons/{repo-name}
         $repoName = basename($repo);
         $entry = [
