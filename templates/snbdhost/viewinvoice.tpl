@@ -1,3 +1,7 @@
+{if $customadminpath}
+    {* This allows admin view of invoice to still render correctly if needed, though usually admin has its own *}
+{/if}
+{include file="header.tpl"}
 <style>
 /* ── Invoice Page Styles ── */
 .inv-page-header {
@@ -438,3 +442,4 @@
     </div>
 
 </div>
+{include file="footer.tpl"}
