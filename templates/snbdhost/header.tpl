@@ -9,10 +9,10 @@
 
     <script>
         var csrfToken = '{$token}',
-            markdownGuide = '{lang|addslashes key="markdown.title"}',
+            markdownGuide = '{lang key="markdown.title"}',
             locale = '{if !empty($mdeLocale)}{$mdeLocale}{else}en{/if}',
-            saved = '{lang|addslashes key="markdown.saved"}',
-            saving = '{lang|addslashes key="markdown.saving"}',
+            saved = '{lang key="markdown.saved"}',
+            saving = '{lang key="markdown.saving"}',
             whmcsBaseUrl = "{$WEB_ROOT}";
         // Force light theme — clear any leftover dark mode preference
         try { localStorage.removeItem('snbd-theme'); } catch(e) {}
