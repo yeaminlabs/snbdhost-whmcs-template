@@ -328,7 +328,9 @@
                 <div class="inv-pm-row mt-2">
                     <span class="inv-pm-label">Payment Method:</span>
                     <form method="post" action="{$smarty.server.PHP_SELF}?id={$invoiceid}" id="frmPaymentMethod" style="display:inline;">
-                        {$gatewaydropdown|replace:'<select ':'<select class="form-select form-select-sm" style="display:inline-block; width:auto;" '}
+                        {if $gatewaydropdown}
+                            {$gatewaydropdown|replace:'<select ':'<select class="form-select form-select-sm" style="display:inline-block; width:auto;" '}
+                        {/if}
                     </form>
                 </div>
             {elseif $paymentmethod}

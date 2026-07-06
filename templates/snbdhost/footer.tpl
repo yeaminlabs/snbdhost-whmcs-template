@@ -1,4 +1,4 @@
-{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile, 'password-reset') !== false}
+{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
     </div><!-- .auth-page -->
 {else}
             </div><!-- .snbd-content -->
@@ -6,7 +6,7 @@
     </div><!-- #snbd-wrapper -->
 {/if}
 
-{if $templatefile != 'login' && $templatefile != 'clientregister' && $templatefile != 'pwreset' && strpos($templatefile, 'password-reset') === false}
+{if $templatefile != 'login' && $templatefile != 'clientregister' && $templatefile != 'pwreset' && strpos($templatefile|default:'', 'password-reset') === false}
     <!-- Floating Action Button -->
     <div id="fab-container" class="fab-container">
         <button id="fab-main" class="fab-main"><i class="fas fa-plus"></i></button>
