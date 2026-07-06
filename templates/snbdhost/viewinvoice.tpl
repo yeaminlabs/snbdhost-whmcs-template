@@ -1,7 +1,28 @@
 {if $customadminpath}
     {* This allows admin view of invoice to still render correctly if needed, though usually admin has its own *}
 {/if}
-{include file="header.tpl"}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{$companyname} - {$pagetitle}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tabler Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom styling for standalone invoice -->
+    <style>
+    body { background-color: #f8fafc; font-family: 'Inter', sans-serif; padding: 2rem 1rem; color: #333; }
+    .invoice-container { max-width: 900px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
 <style>
 /* ── Invoice Page Styles ── */
 .inv-page-header {
@@ -444,4 +465,7 @@
     </div>
 
 </div>
-{include file="footer.tpl"}
+<!-- JS Dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
