@@ -374,6 +374,68 @@
 </script>
 {/if}
 
+{if !$clientsdetails.phonenumber || !$clientsdetails.address1}
+<!-- Verification Notification -->
+<div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-radius: 14px; background-color: #fff8e1; border: 1px solid #ffe082; color: #8f6d00; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.15); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+    <div style="font-size: 1.75rem; color: #ffb300; flex-shrink: 0;">
+        <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <div style="flex: 1;">
+        <h5 style="margin-bottom: 0.25rem; font-weight: 700; color: #8f6d00; font-size: 1rem;">Action Required: Complete Your Profile</h5>
+        <div style="font-size: 0.9rem; line-height: 1.5;">This is a verification process (often required after Google Sign-In). We just need a few details like your address and phone number before you can make purchases. <a href="clientarea.php?action=details" style="color: #d32f2f; font-weight: 700; text-decoration: none; border-bottom: 1px dashed #d32f2f; margin-left: 0.5rem;">Update Profile Now <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i></a></div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position: static; padding: 0; filter: opacity(0.5);"></button>
+</div>
+
+<!-- Profile Verification Modal -->
+<div class="modal fade" id="profileVerificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="profileVerificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.25); overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #111111 0%, #222222 100%); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" id="profileVerificationModalLabel" style="font-weight: 700; font-size: 1.15rem;">
+                    <i class="fas fa-shield-alt me-2" style="color: #CC0000;"></i> Account Verification
+                </h5>
+            </div>
+            <div class="modal-body p-4 p-md-5 text-center">
+                <div class="mb-4" style="font-size: 3.5rem; color: #ffb300;">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h4 style="font-weight: 800; color: #111; margin-bottom: 1rem; font-size: 1.35rem;">Just a few more details...</h4>
+                <p style="color: #555; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.6;">
+                    It looks like you haven't provided your <strong>phone number</strong> or <strong>address</strong> yet. This often happens if you created your account using Google Sign-In.
+                </p>
+                <p style="color: #555; font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.6;">
+                    This is a quick verification process. We need this information to comply with billing requirements before you can order any services.
+                </p>
+                <a href="clientarea.php?action=details" class="btn btn-brand-clean w-100 justify-content-center" style="font-size: 1.05rem !important; padding: 0.9rem !important;">
+                    <i class="fas fa-edit me-2"></i> Complete Profile Now
+                </a>
+                <button type="button" class="btn btn-link mt-3 text-muted w-100" data-bs-dismiss="modal" style="text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                    I'll do this later
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(function() {
+        if(typeof bootstrap !== 'undefined') {
+            var myModalEl = document.getElementById('profileVerificationModal');
+            if (myModalEl) {
+                var verificationModal = new bootstrap.Modal(myModalEl, {
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+                verificationModal.show();
+            }
+        }
+    }, 600);
+});
+</script>
+{/if}
+
 <!-- Dashboard Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
