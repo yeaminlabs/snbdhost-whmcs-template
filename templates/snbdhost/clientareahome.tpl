@@ -374,7 +374,7 @@
 </script>
 {/if}
 
-{if !$clientsdetails.phonenumber || !$clientsdetails.address1}
+{if !$clientsdetails.phonenumber || !$clientsdetails.address1 || $clientsdetails.phonenumber == '+00000000000' || $clientsdetails.address1 == 'Pending Completion'}
 <!-- Verification Notification -->
 <div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-radius: 14px; background-color: #fff8e1; border: 1px solid #ffe082; color: #8f6d00; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.15); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
     <div style="font-size: 1.75rem; color: #ffb300; flex-shrink: 0;">
