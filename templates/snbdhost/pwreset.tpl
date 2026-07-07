@@ -236,7 +236,7 @@
                     <input type="email" name="email" class="form-control pwreset-input" id="inputEmail" placeholder="{$LANG.loginemail}" autofocus required>
                 </div>
 
-                {if $captcha}
+                {if $captcha || $turnstileEnabled}
                     <div style="margin-bottom: 1.25rem;">
                         {include file="$template/includes/captcha.tpl"}
                     </div>

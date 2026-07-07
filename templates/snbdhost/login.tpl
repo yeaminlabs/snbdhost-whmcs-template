@@ -542,6 +542,11 @@
             </div>
 
             <!-- Error Messages -->
+            {if $turnstileError}
+                <div class="auth-alert">
+                    <i class="fas fa-exclamation-circle"></i> {$turnstileError}
+                </div>
+            {/if}
             {if $incorrect}
                 <div class="auth-alert">
                     <i class="fas fa-exclamation-circle"></i> {$LANG.loginincorrect}
@@ -611,7 +616,7 @@
                 </div>
 
                 <!-- Captcha -->
-                {if $captcha}
+                {if $captcha || $turnstileEnabled}
                     <div style="margin-bottom: 1.25rem;">
                         {include file="$template/includes/captcha.tpl"}
                     </div>

@@ -547,8 +547,8 @@
                     </div>
                 {/foreach}
 
-                {if $captcha && $captcha->isEnabled() && $captcha->isEnabledForForm($captchaForm)}
-                    {if !$captcha->isInvisible()}
+                {if ($captcha && $captcha->isEnabled() && $captcha->isEnabledForForm($captchaForm)) || $turnstileEnabled}
+                    {if !$captcha || !$captcha->isInvisible()}
                         <div class="sub-heading">
                             <span class="primary-bg-color">{$LANG.captchatitle}</span>
                         </div>

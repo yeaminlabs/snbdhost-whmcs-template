@@ -744,7 +744,7 @@
                 {/if}
 
                 <!-- CAPTCHA -->
-                {if $captcha}
+                {if $captcha || $turnstileEnabled}
                     <div class="reg-captcha-wrap" id="regCaptchaWrap">
                         {include file="$template/includes/captcha.tpl"}
                         <div class="reg-captcha-warn" id="regCaptchaWarn" style="display:none;">

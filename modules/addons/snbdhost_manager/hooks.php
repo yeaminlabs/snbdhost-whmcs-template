@@ -369,3 +369,207 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     <?php
     return ob_get_clean();
 });
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * CLOUDFLARE TURNSTILE CAPTCHA INTEGRATION
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/**
+ * Retrieve Cloudflare Turnstile Settings from Database
+ */
+function getSnbdhostTurnstileSettings() {
+    static $settings = null;
+    if ($settings === null) {
+        try {
+            $rows = Capsule::table('tbladdonmodules')
+                ->where('module', 'snbdhost_manager')
+                ->whereIn('setting', ['turnstile_enabled', 'turnstile_site_key', 'turnstile_secret_key'])
+                ->get();
+            
+            $settings = [
+                'enabled' => false,
+                'site_key' => '',
+                'secret_key' => ''
+            ];
+            
+            foreach ($rows as $row) {
+                if ($row->setting === 'turnstile_enabled') {
+                    $settings['enabled'] = ($row->value === 'on' || $row->value === '1' || $row->value === 'yes');
+                } elseif ($row->setting === 'turnstile_site_key') {
+                    $settings['site_key'] = trim($row->value);
+                } elseif ($row->setting === 'turnstile_secret_key') {
+                    $settings['secret_key'] = trim($row->value);
+                }
+            }
+        } catch (\Exception $e) {
+            $settings = [
+                'enabled' => false,
+                'site_key' => '',
+                'secret_key' => ''
+            ];
+        }
+    }
+    return $settings;
+}
+
+/**
+ * Verify Cloudflare Turnstile Token
+ */
+function verifySnbdhostTurnstileToken($token, $secretKey) {
+    if (empty($token) || empty($secretKey)) {
+        return false;
+    }
+    
+    $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    $postData = [
+        'secret' => $secretKey,
+        'response' => $token,
+        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    if ($response) {
+        $result = json_decode($response, true);
+        return isset($result['success']) && $result['success'] === true;
+    }
+    
+    return false;
+}
+
+/**
+ * Expose Turnstile variables to Smarty templates & handle session errors
+ */
+add_hook('ClientAreaPage', 1, function($vars) {
+    $settings = getSnbdhostTurnstileSettings();
+    
+    $extraVars = [];
+    if ($settings['enabled']) {
+        $extraVars['turnstileEnabled'] = true;
+        $extraVars['turnstileSiteKey'] = $settings['site_key'];
+        
+        if (isset($_SESSION['turnstile_error'])) {
+            $extraVars['turnstileError'] = $_SESSION['turnstile_error'];
+            
+            // Set error variables based on template context
+            if (isset($vars['templatefile']) && in_array($vars['templatefile'], ['login', 'pwreset'])) {
+                $extraVars['errormessage'] = $_SESSION['turnstile_error'];
+                if ($vars['templatefile'] === 'login') {
+                    $extraVars['incorrect'] = false;
+                }
+            }
+            unset($_SESSION['turnstile_error']);
+        }
+    }
+    
+    return $extraVars;
+});
+
+/**
+ * Early request intercept validation (for Login, Contact Form, Password Reset)
+ */
+add_hook('init', 1, function() {
+    $settings = getSnbdhostTurnstileSettings();
+    if (!$settings['enabled']) {
+        return;
+    }
+    
+    $scriptName = basename($_SERVER['SCRIPT_NAME']);
+    $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    
+    // A. Intercept Login form submissions (POST dologin.php)
+    if ($scriptName === 'dologin.php' && $requestMethod === 'POST') {
+        $token = $_POST['cf-turnstile-response'] ?? '';
+        if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+            $_SESSION['turnstile_error'] = 'Turnstile verification failed. Please try again.';
+            header('Location: login.php');
+            exit;
+        }
+    }
+    
+    // B. Intercept Pre-sales Contact form submissions (POST contact.php with action=send)
+    if ($scriptName === 'contact.php' && $requestMethod === 'POST' && ($_POST['action'] ?? '') === 'send') {
+        $token = $_POST['cf-turnstile-response'] ?? '';
+        if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+            exit('Cloudflare Turnstile verification failed. Please return and try again.');
+        }
+    }
+    
+    // C. Intercept Password Reset submissions (POST pwreset.php with action=reset)
+    if ($scriptName === 'pwreset.php' && $requestMethod === 'POST' && ($_POST['action'] ?? '') === 'reset') {
+        $token = $_POST['cf-turnstile-response'] ?? '';
+        if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+            $_SESSION['turnstile_error'] = 'Turnstile verification failed. Please try again.';
+            header('Location: pwreset.php');
+            exit;
+        }
+    }
+});
+
+/**
+ * Validate Client Registration
+ */
+add_hook('ClientDetailsValidation', 1, function($vars) {
+    if (defined('ADMINAREA')) {
+        return;
+    }
+    
+    $settings = getSnbdhostTurnstileSettings();
+    if (!$settings['enabled']) {
+        return;
+    }
+    
+    $token = $_POST['cf-turnstile-response'] ?? '';
+    if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+        return [
+            'Please complete the Cloudflare Turnstile verification.'
+        ];
+    }
+});
+
+/**
+ * Validate Shopping Cart Checkout
+ */
+add_hook('ShoppingCartValidateCheckout', 1, function($vars) {
+    $settings = getSnbdhostTurnstileSettings();
+    if (!$settings['enabled']) {
+        return;
+    }
+    
+    $token = $_POST['cf-turnstile-response'] ?? '';
+    if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+        return [
+            'Please complete the Cloudflare Turnstile verification.'
+        ];
+    }
+});
+
+/**
+ * Validate Support Ticket Submission
+ */
+add_hook('TicketOpenValidation', 1, function($vars) {
+    if (defined('ADMINAREA')) {
+        return;
+    }
+    
+    $settings = getSnbdhostTurnstileSettings();
+    if (!$settings['enabled']) {
+        return;
+    }
+    
+    $token = $_POST['cf-turnstile-response'] ?? '';
+    if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+        return 'Please complete the Cloudflare Turnstile verification.';
+    }
+});
+

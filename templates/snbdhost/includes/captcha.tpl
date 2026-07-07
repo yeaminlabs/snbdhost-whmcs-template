@@ -1,6 +1,8 @@
-{* Captcha include — supports reCAPTCHA v2/v3 and built-in image captcha *}
+{* Captcha include — supports reCAPTCHA v2/v3, built-in image captcha, and Cloudflare Turnstile *}
 {assign var="showCaptcha" value=false}
-{if is_object($captcha)}
+{if $turnstileEnabled}
+    {assign var="showCaptcha" value=true}
+{elseif is_object($captcha)}
     {if $captcha->isEnabled() && $captcha->isEnabledForForm($captchaForm|default:'register')}
         {assign var="showCaptcha" value=true}
     {/if}
@@ -9,11 +11,18 @@
 {/if}
 
 {if $showCaptcha}
-    {if is_object($captcha)}
-        {assign var="isRecaptcha" value=$captcha->recaptcha->isEnabled()}
+    {if $turnstileEnabled}
+        {* Cloudflare Turnstile widget *}
+        <div class="text-center" style="display: flex; justify-content: center; width: 100%; margin: 10px 0;">
+            <div class="cf-turnstile" data-sitekey="{$turnstileSiteKey}" data-size="normal" data-theme="auto"></div>
+        </div>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     {else}
-        {assign var="isRecaptcha" value=($captcha == "recaptcha")}
-    {/if}
+        {if is_object($captcha)}
+            {assign var="isRecaptcha" value=$captcha->recaptcha->isEnabled()}
+        {else}
+            {assign var="isRecaptcha" value=($captcha == "recaptcha")}
+        {/if}
 
     <div class="text-center{if $containerClass} {$containerClass}{/if}" style="width:100%;">
         <div class="captcha-container" id="captchaContainer">
@@ -60,4 +69,5 @@
             {/if}
         </div>
     </div>
+    {/if}
 {/if}

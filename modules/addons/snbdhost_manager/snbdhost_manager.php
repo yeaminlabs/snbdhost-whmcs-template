@@ -53,6 +53,25 @@ function snbdhost_manager_config()
                 'Default'      => '219815663641-p50rq613ol3ilqgbotogg4bb4hvg9s1e.apps.googleusercontent.com',
                 'Description'  => 'Your Google OAuth 2.0 Client ID for enabling "Sign in with Google" on the login/register pages.',
             ],
+            'turnstile_enabled' => [
+                'FriendlyName' => 'Enable Cloudflare Turnstile',
+                'Type'         => 'yesno',
+                'Description'  => 'Tick to enable Cloudflare Turnstile captcha protection across registration, checkout, login, ticket submission, and password resets.',
+            ],
+            'turnstile_site_key' => [
+                'FriendlyName' => 'Turnstile Site Key',
+                'Type'         => 'text',
+                'Size'         => '50',
+                'Default'      => '',
+                'Description'  => 'Your Cloudflare Turnstile Site Key.',
+            ],
+            'turnstile_secret_key' => [
+                'FriendlyName' => 'Turnstile Secret Key',
+                'Type'         => 'text',
+                'Size'         => '50',
+                'Default'      => '',
+                'Description'  => 'Your Cloudflare Turnstile Secret Key.',
+            ],
             'developer_mode' => [
                 'FriendlyName' => 'Developer Mode',
                 'Type'         => 'yesno',
