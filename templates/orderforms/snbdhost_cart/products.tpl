@@ -124,21 +124,7 @@
             {if !$panel@last}<div class="cart-nav-divider"></div>{/if}
         {/foreach}
 
-        {* Currency selector for guests *}
-        {if !$loggedin && $currencies}
-            <div class="cart-nav-divider"></div>
-            <div class="cart-nav-row d-flex align-items-center w-100 py-1">
-                <span class="nav-section-label me-3"><i class="ti ti-coin"></i> Currency</span>
-                <form method="post" action="{$WEB_ROOT}/cart.php{if $action}?a={$action}{if $domain}&domain={$domain}{/if}{elseif $gid}?gid={$gid}{/if}" class="d-inline-flex align-items-center">
-                    <select name="currency" onchange="submit()" class="form-select form-select-sm rounded-pill border-0" style="background:#f5f5f5;font-size:.82rem;font-weight:600;padding:.4rem .9rem;">
-                        <option value="">{$LANG.choosecurrency}</option>
-                        {foreach from=$currencies item=listcurr}
-                            <option value="{$listcurr.id}"{if $listcurr.id == $activeCurrency.id} selected{/if}>{$listcurr.code}</option>
-                        {/foreach}
-                    </select>
-                </form>
-            </div>
-        {/if}
+
     </div>
 
     {* ===== Keep old sidebar markup hidden (CSS hides it) so WHMCS JS doesn't break ===== *}

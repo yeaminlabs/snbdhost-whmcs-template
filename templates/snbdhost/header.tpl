@@ -182,16 +182,24 @@
                         </div>
                     </form>
 
-                    <!-- Currency selector (BDT / USD) -->
+                    <!-- Currency selector -->
+                    {if !$loggedin && $currencies}
                     <div class="topbar-currency dropdown">
                         <button class="btn btn-currency dropdown-toggle px-3 py-1" type="button" id="currencyMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            ৳ BDT
+                            {$activeCurrency.prefix} {$activeCurrency.code}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="currencyMenu">
-                            <li><a class="dropdown-item" href="#">৳ BDT</a></li>
-                            <li><a class="dropdown-item" href="#">$ USD</a></li>
+                            {foreach from=$currencies item=listcurr}
+                                <li>
+                                    <form method="post" action="{$currentpagelinkback}" class="m-0 p-0">
+                                        <input type="hidden" name="currency" value="{$listcurr.id}" />
+                                        <button type="submit" class="dropdown-item" style="cursor:pointer;">{$listcurr.prefix} {$listcurr.code}</button>
+                                    </form>
+                                </li>
+                            {/foreach}
                         </ul>
                     </div>
+                    {/if}
 
                     <a href="clientarea.php?action=details" class="topbar-icon-btn d-none d-md-inline-flex" aria-label="Settings" title="Account Settings">
                         <i class="ti ti-settings"></i>
