@@ -461,7 +461,7 @@
     max-width: 400px;
     display: inline-block;
 }
-#btnDomainContinue.w-hidden {
+#btnDomainContinue.w-hidden, #btnDomainContinue.hidden {
     display: none !important;
 }
 #btnDomainContinue:hover:not(:disabled) {
@@ -471,6 +471,11 @@
 #btnDomainContinue:disabled {
     opacity: 0.55 !important;
     cursor: not-allowed !important;
+}
+
+/* Hide the injected circular add-to-cart button in primary result */
+#primaryLookupResult .btn-add-to-cart {
+    display: none !important;
 }
 </style>
 
@@ -788,6 +793,43 @@
 
 </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Force the continue button to show up and be enabled automatically when domain is available
+    var observer = new MutationObserver(function(mutations) {
+        var resultDiv = document.getElementById('primaryLookupResult');
+        var availableText = resultDiv ? resultDiv.querySelector('.domain-checker-available') : null;
+        var continueBtn = document.getElementById('btnDomainContinue');
+        
+        if (resultDiv && availableText && window.getComputedStyle(resultDiv).display !== 'none' && window.getComputedStyle(availableText).display !== 'none') {
+            if (continueBtn) {
+                continueBtn.classList.remove('w-hidden', 'hidden');
+                continueBtn.removeAttribute('disabled');
+                continueBtn.style.display = 'inline-block';
+                
+                // Trigger WHMCS hidden field population just in case
+                var domainInput = document.getElementById('registersld');
+                var tldSelect = document.getElementById('registertld');
+                var resultDomain = document.getElementById('resultDomain');
+                var resultOption = document.getElementById('resultDomainOption');
+                
+                if (resultDomain && !resultDomain.value && domainInput && tldSelect) {
+                    resultDomain.value = domainInput.value + tldSelect.value;
+                }
+                if (resultOption && !resultOption.value) {
+                    resultOption.value = 'register';
+                }
+            }
+        }
+    });
+    
+    var targetNode = document.getElementById('primaryLookupResult');
+    if (targetNode) {
+        observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
+    }
+});
+</script>
 
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
 
