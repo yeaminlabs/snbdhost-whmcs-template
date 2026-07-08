@@ -140,7 +140,7 @@
 .payment-method-card {
     border: 2px solid #e2e8f0 !important;
     border-radius: 12px !important;
-    padding: 1.25rem 1rem !important;
+    padding: 1.5rem 1rem !important;
     background: #ffffff !important;
     cursor: pointer !important;
     transition: all 0.25s ease !important;
@@ -151,6 +151,7 @@
     position: relative !important;
     margin: 0 !important;
     text-align: center !important;
+    min-height: 120px;
 }
 .payment-method-card input[type="radio"] {
     position: absolute !important;
@@ -251,9 +252,12 @@
     color: #94a3b8 !important;
 }
 .summary-row.total strong {
-    font-size: 2rem !important;
+    font-size: 1.85rem !important;
     color: #38bdf8 !important;
     font-weight: 800 !important;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
 }
 
 /* Apply Credit Box inside Summary */
@@ -366,18 +370,18 @@ textarea.field.form-control:focus {
 /* Security notice */
 .checkout-security-msg {
     margin-top: 1.5rem !important;
-    font-size: 0.78rem !important;
-    color: #94a3b8 !important;
-    background: transparent !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+    font-size: 0.8rem !important;
+    color: #cbd5e1 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
     padding: 1rem !important;
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
 }
 .checkout-security-msg i {
     font-size: 1rem !important;
     color: #38bdf8 !important;
-    margin-right: 4px !important;
+    margin-right: 6px !important;
 }
 </style>
 
@@ -434,7 +438,7 @@ textarea.field.form-control:focus {
                                         <div class="col-sm-{if $accounts->count() == 1}12{else}6{/if}">
                                             <div class="account{if $selectedAccountId == $account->id} active{/if}">
                                                 <label class="radio-inline w-100" for="account{$account->id}">
-                                                    <input id="account{$account->id}" class="account-select{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled{/if}" type="radio" name="account_id" value="{$account->id}"{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled="disabled"{/if}{if $selectedAccountId == $account->id} checked="checked"{/if}>
+                                                    <input id="account{$account->id}" class="account-select no-icheck{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled{/if}" type="radio" name="account_id" value="{$account->id}"{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled="disabled"{/if}{if $selectedAccountId == $account->id} checked="checked"{/if}>
                                                     <span class="address">
                                                         <strong>
                                                             {if $account->company}{$account->company}{else}{$account->fullName}{/if}
@@ -468,7 +472,7 @@ textarea.field.form-control:focus {
                                     <div class="col-sm-12">
                                         <div class="account {if !$selectedAccountId || !is_numeric($selectedAccountId)} active{/if}">
                                             <label class="radio-inline w-100 m-0">
-                                                <input class="account-select" type="radio" name="account_id" value="new"{if !$selectedAccountId || !is_numeric($selectedAccountId)} checked="checked"{/if}{if $inExpressCheckout} disabled="disabled" class="disabled"{/if}>
+                                                <input class="account-select no-icheck" type="radio" name="account_id" value="new"{if !$selectedAccountId || !is_numeric($selectedAccountId)} checked="checked"{/if}{if $inExpressCheckout} disabled="disabled" class="disabled"{/if}>
                                                 <strong>{lang key='orderForm.createAccount'}</strong>
                                             </label>
                                         </div>
@@ -933,7 +937,7 @@ textarea.field.form-control:focus {
                                 <div id="paymentGatewaysContainer" class="form-group">
                                     <p class="small text-muted mb-3">{$LANG.orderForm.preferredPaymentMethod}</p>
 
-                                    <div class="payment-methods-grid">
+                                    <div class="payment-methods no-icheck-grid">
                                         {foreach $gateways as $gateway}
                                             <label class="payment-method-card" for="gateway_{$gateway.sysname}">
                                                 <input type="radio"
@@ -943,7 +947,7 @@ textarea.field.form-control:focus {
                                                        data-payment-type="{$gateway.payment_type}"
                                                        data-show-local="{$gateway.show_local_cards}"
                                                        data-remote-inputs="{$gateway.uses_remote_inputs}"
-                                                       class="payment-methods{if $gateway.type eq "CC"} is-credit-card{/if}"
+                                                       class="payment-methods no-icheck{if $gateway.type eq "CC"} is-credit-card{/if}"
                                                         {if $selectedgateway eq $gateway.sysname} checked{/if}
                                                 />
                                                 <div class="payment-method-icon">
@@ -1149,7 +1153,7 @@ textarea.field.form-control:focus {
                             {if $accepttos}
                                 <div class="mb-3">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="accepttos" id="accepttos" />
+                                        <input type="checkbox" class="no-icheck" name="accepttos" id="accepttos" />
                                         &nbsp; {$LANG.ordertosagreement} <a href="{$tosurl}" target="_blank">{$LANG.ordertos}</a>
                                     </label>
                                 </div>
