@@ -82,53 +82,20 @@
 
 /* ── Account & Payment Selectable Cards ─────────────────────────── */
 .account, .payment-method-card {
-    border: 1.5px solid #eeeeee !important;
-    border-radius: 12px !important;
+    border: 1px solid #eeeeee !important;
+    border-radius: 8px !important;
     background: #ffffff !important;
     cursor: pointer !important;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-.account {
-    padding: 1.125rem 1.25rem !important;
+    transition: border-color 0.15s ease, background 0.15s ease !important;
+    padding: 1rem !important;
     margin-bottom: 0.75rem !important;
-    display: block !important;
-}
-.payment-method-card {
-    padding: 1.25rem 0.875rem !important;
     display: flex !important;
-    flex-direction: column !important;
     align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    text-align: center !important;
-    min-height: 110px;
-}
-.account input[type="radio"], .payment-method-card input[type="radio"] {
-    position: absolute !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
+    gap: 12px !important;
 }
 .account:hover, .payment-method-card:hover {
-    border-color: rgba(204, 0, 0, 0.3) !important;
-    box-shadow: 0 2px 12px rgba(204, 0, 0, 0.06) !important;
     border-color: #cccccc !important;
     background: #fafafa !important;
-}
-.account .select-indicator {
-    top: 50%;
-    transform: translateY(-50%) scale(0.5);
-    right: 1.25rem;
-}
-.payment-method-card:has(input:checked) .select-indicator {
-    opacity: 1;
-    transform: scale(1);
-}
-.account:has(input:checked) .select-indicator {
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
 }
 
 /* ── Form Fields ────────────────────────────────────────────────── */
@@ -373,15 +340,13 @@ textarea.field.form-control:focus {
     padding: 1rem !important;
     text-align: left !important;
     line-height: 1.5 !important;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
 }
 .checkout-security-msg i {
     font-size: 1.125rem !important;
     color: #2e7d32 !important;
-    margin-right: 0 !important;
-    margin-top: 2px;
+    float: left !important;
+    margin-right: 8px !important;
+    margin-top: 1px;
 }
 </style>
 
