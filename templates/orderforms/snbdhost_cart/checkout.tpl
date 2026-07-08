@@ -19,107 +19,91 @@
 <style>
 /* Base Animations */
 @keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes popIn {
-    0% { opacity: 0; transform: scale(0.8); }
-    70% { transform: scale(1.05); }
+@keyframes checkPop {
+    0% { opacity: 0; transform: scale(0.6); }
+    70% { transform: scale(1.1); }
     100% { opacity: 1; transform: scale(1); }
 }
 
-/* Checkout Container & Columns */
-#order-standard_cart {
-    font-family: 'Outfit', 'Inter', sans-serif !important;
-    color: #1e293b !important;
-}
-
+/* ── Checkout Cards ─────────────────────────────────────────────── */
 #order-standard_cart .checkout-card {
     background: #ffffff;
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    margin-bottom: 2rem;
-    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    border-radius: 16px;
+    padding: 2rem 2.25rem;
+    border: 1px solid #eeeeee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 1.5rem;
+    animation: slideUpFade 0.4s ease both;
 }
-.col-lg-8 > .checkout-card:nth-child(1) { animation-delay: 0.1s; }
-.col-lg-8 > .checkout-card:nth-child(2) { animation-delay: 0.2s; }
-.col-lg-8 > .checkout-card:nth-child(3) { animation-delay: 0.3s; }
-.col-lg-8 > .checkout-card:nth-child(4) { animation-delay: 0.4s; }
+.col-lg-8 > .checkout-card:nth-child(1) { animation-delay: 0.05s; }
+.col-lg-8 > .checkout-card:nth-child(2) { animation-delay: 0.1s; }
+.col-lg-8 > .checkout-card:nth-child(3) { animation-delay: 0.15s; }
+.col-lg-8 > .checkout-card:nth-child(4) { animation-delay: 0.2s; }
 
-/* Titles */
+/* ── Section Titles ─────────────────────────────────────────────── */
 .checkout-section-title {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 1.75rem;
+    color: #111111;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 1rem;
+    gap: 0.6rem;
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 0.875rem;
 }
 .checkout-section-title i {
-    font-size: 1.5rem;
-    color: #e11d48;
-    margin-right: 0.75rem;
-    background: rgba(225, 29, 72, 0.1);
-    padding: 8px;
-    border-radius: 10px;
+    font-size: 1.1rem;
+    color: #CC0000;
 }
 
-/* Already Registered callout */
+/* ── Already Registered Banner ──────────────────────────────────── */
 .already-registered {
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
-    border-radius: 16px !important;
-    padding: 1.5rem !important;
-    margin-bottom: 2rem !important;
-    border: 1px solid #e2e8f0 !important;
+    background: #F7F7F4 !important;
+    border-radius: 10px !important;
+    padding: 1.125rem 1.25rem !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #eeeeee !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    gap: 1rem !important;
+    gap: 0.75rem !important;
 }
 .already-registered p {
     margin: 0 !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-}
-.already-registered .btn {
-    border-radius: 10px !important;
-    font-weight: 600 !important;
-    padding: 0.6rem 1.25rem !important;
-    transition: transform 0.2s ease !important;
-}
-.already-registered .btn:hover {
-    transform: translateY(-2px) !important;
+    font-weight: 500 !important;
+    color: #555555 !important;
+    font-size: 0.875rem !important;
 }
 
-/* Account selection & Payment Cards (The Interactive Elements) */
+/* ── Account & Payment Selectable Cards ─────────────────────────── */
 .account, .payment-method-card {
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 16px !important;
+    border: 1.5px solid #eeeeee !important;
+    border-radius: 12px !important;
     background: #ffffff !important;
     cursor: pointer !important;
-    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease !important;
     position: relative !important;
     overflow: hidden !important;
 }
 .account {
-    padding: 1.5rem !important;
-    margin-bottom: 1rem !important;
+    padding: 1.125rem 1.25rem !important;
+    margin-bottom: 0.75rem !important;
     display: block !important;
 }
 .payment-method-card {
-    padding: 1.5rem 1rem !important;
+    padding: 1.25rem 0.875rem !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
     text-align: center !important;
-    min-height: 120px;
+    min-height: 110px;
 }
 .account input[type="radio"], .payment-method-card input[type="radio"] {
     position: absolute !important;
@@ -127,52 +111,52 @@
     width: 0 !important;
     height: 0 !important;
 }
-
 .account:hover, .payment-method-card:hover {
-    border-color: #cbd5e1 !important;
-    transform: translateY(-4px) !important;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(204, 0, 0, 0.3) !important;
+    box-shadow: 0 2px 12px rgba(204, 0, 0, 0.06) !important;
+    transform: translateY(-1px) !important;
 }
 
-/* Active State (Glowing Ring Effect) */
+/* Selected State */
 .account:has(input:checked), .payment-method-card:has(input:checked) {
-    border-color: transparent !important;
-    background: #ffffff !important;
-    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #e11d48, 0 12px 24px rgba(225, 29, 72, 0.15) !important;
-    transform: translateY(-2px) !important;
+    border-color: #CC0000 !important;
+    background: rgba(204, 0, 0, 0.02) !important;
+    box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1) !important;
+    transform: translateY(-1px) !important;
 }
 .account .address {
-    font-size: 0.9rem !important;
+    font-size: 0.875rem !important;
     line-height: 1.5 !important;
-    color: #475569 !important;
+    color: #555555 !important;
 }
 .account:has(input:checked) .address strong {
-    color: #0f172a !important;
+    color: #111111 !important;
 }
 
-/* The Select Indicator (Animated Checkmark) */
-.payment-method-card .select-indicator, .account .select-indicator {
+/* Animated Select Indicator */
+.payment-method-card .select-indicator,
+.account .select-indicator {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 24px;
-    height: 24px;
-    background: #e11d48;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background: #CC0000;
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 12px;
     opacity: 0;
     transform: scale(0.5);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 6px rgba(204, 0, 0, 0.25);
 }
 .account .select-indicator {
     top: 50%;
     transform: translateY(-50%) scale(0.5);
-    right: 1.5rem;
+    right: 1.25rem;
 }
 .payment-method-card:has(input:checked) .select-indicator {
     opacity: 1;
@@ -183,218 +167,192 @@
     transform: translateY(-50%) scale(1);
 }
 
-/* Form fields customization */
+/* ── Form Fields ────────────────────────────────────────────────── */
 .form-group.prepend-icon {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 .form-group.prepend-icon .field-icon {
     position: absolute;
-    left: 16px;
+    left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: #999999;
     z-index: 4;
     margin-bottom: 0;
-    transition: color 0.3s ease;
+    transition: color 0.15s ease;
+    pointer-events: none;
 }
 .form-group.prepend-icon .field {
-    padding-left: 46px !important;
-    height: 52px !important;
-    border-radius: 12px !important;
-    border: 2px solid transparent !important;
-    background-color: #f8fafc !important;
-    font-weight: 500 !important;
-    font-size: 0.95rem !important;
-    color: #1e293b !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02) inset !important;
-}
-.form-group.prepend-icon .field:focus {
-    background-color: #ffffff !important;
-    border-color: #e11d48 !important;
-    box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.1), 0 2px 5px rgba(0,0,0,0.02) inset !important;
+    padding-left: 2.25rem !important;
 }
 .form-group.prepend-icon:has(.field:focus) .field-icon {
-    color: #e11d48;
+    color: #CC0000;
 }
 
-/* Payment Methods Grid */
+/* ── Payment Methods Grid ───────────────────────────────────────── */
 .payment-methods-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
-    gap: 1.25rem !important;
-    margin-top: 1.5rem !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 1rem !important;
+    margin-top: 1.25rem !important;
 }
 .payment-method-card .payment-method-icon {
-    height: 40px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
-    transition: transform 0.3s ease;
+    margin-bottom: 0.75rem;
+    transition: transform 0.15s ease;
 }
 .payment-method-card:hover .payment-method-icon {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 .payment-method-card .gateway-name {
-    font-size: 0.9rem !important;
+    font-size: 0.8125rem !important;
     font-weight: 600 !important;
-    color: #475569 !important;
-    transition: color 0.3s ease;
+    color: #555555 !important;
 }
 .payment-method-card:has(input:checked) .gateway-name {
-    color: #0f172a !important;
+    color: #111111 !important;
 }
 
-/* Gateway Badge (bKash, Nagad, etc) */
+/* Gateway Brand Badges */
 .gateway-badge {
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
-.gateway-badge.bkash { background: linear-gradient(135deg, #e2136e, #be105b); color: #ffffff; }
-.gateway-badge.nagad { background: linear-gradient(135deg, #f7941d, #d97d13); color: #ffffff; }
-.gateway-badge.rocket { background: linear-gradient(135deg, #8c3494, #732a79); color: #ffffff; }
+.gateway-badge.bkash { background: #e2136e; color: #ffffff; }
+.gateway-badge.nagad { background: #f7941d; color: #ffffff; }
+.gateway-badge.rocket { background: #8c3494; color: #ffffff; }
 
-/* Right Column Summary */
+/* ── Order Summary Sidebar ──────────────────────────────────────── */
 .checkout-summary-card {
-    background: linear-gradient(145deg, #0f172a, #1e293b) !important;
-    border-radius: 24px !important;
-    padding: 2.5rem !important;
-    color: #ffffff !important;
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
-    border: none !important;
-    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    padding: 1.75rem !important;
+    color: #111111 !important;
+    border: 1px solid #eeeeee !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    animation: slideUpFade 0.4s ease 0.1s both;
+    position: sticky;
+    top: 24px;
 }
 .checkout-summary-card h3 {
-    font-size: 1.35rem !important;
+    font-size: 1rem !important;
     font-weight: 700 !important;
-    margin-bottom: 1.75rem !important;
-    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
-    padding-bottom: 1rem !important;
-    color: #ffffff !important;
+    margin-bottom: 1.25rem !important;
+    border-bottom: 1px solid #eeeeee !important;
+    padding-bottom: 0.875rem !important;
+    color: #111111 !important;
 }
 .summary-row {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    margin-bottom: 1.25rem !important;
+    margin-bottom: 0.875rem !important;
+    font-size: 0.875rem !important;
+    color: #555555 !important;
 }
+.summary-row span { color: #555555 !important; }
 .summary-row.total {
-    border-top: 1px solid rgba(255,255,255,0.1) !important;
-    padding-top: 1.5rem !important;
-    margin-top: 1.5rem !important;
+    border-top: 1px solid #eeeeee !important;
+    padding-top: 1.125rem !important;
+    margin-top: 0.875rem !important;
+    margin-bottom: 0 !important;
 }
 .summary-row.total span {
     font-weight: 600 !important;
-    color: #94a3b8 !important;
-    font-size: 1.1rem;
+    color: #111111 !important;
+    font-size: 0.9375rem !important;
 }
 .summary-row.total strong {
-    font-size: 2.2rem !important;
-    color: #38bdf8 !important;
+    font-size: 1.75rem !important;
+    color: #CC0000 !important;
     font-weight: 800 !important;
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    text-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+    line-height: 1;
 }
 
-/* Apply Credit Box inside Summary */
+/* ── Apply Credit Box ───────────────────────────────────────────── */
 .apply-credit-container {
-    background: rgba(255,255,255,0.03) !important;
-    border-radius: 16px !important;
-    padding: 1.5rem !important;
-    margin-bottom: 1.75rem !important;
-    border: 1px solid rgba(255,255,255,0.05) !important;
+    background: #F7F7F4 !important;
+    border-radius: 10px !important;
+    padding: 1.125rem !important;
+    margin-bottom: 1.25rem !important;
+    border: 1px solid #eeeeee !important;
 }
 .apply-credit-container p {
-    font-size: 0.9rem !important;
-    margin-bottom: 1rem !important;
-    color: #e2e8f0 !important;
+    font-size: 0.875rem !important;
+    margin-bottom: 0.75rem !important;
+    color: #555555 !important;
+    font-weight: 500 !important;
 }
 .apply-credit-container label {
     display: flex !important;
     align-items: center !important;
-    font-size: 0.85rem !important;
-    color: #cbd5e1 !important;
+    font-size: 0.8125rem !important;
+    color: #555555 !important;
     cursor: pointer !important;
-    margin-bottom: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    gap: 0.5rem !important;
 }
-.apply-credit-container label:last-child {
-    margin-bottom: 0 !important;
-}
+.apply-credit-container label:last-child { margin-bottom: 0 !important; }
 
-/* Notes textarea */
+/* ── Notes Textarea ─────────────────────────────────────────────── */
 textarea.field.form-control {
-    background: #f8fafc !important;
-    border: 2px solid transparent !important;
-    border-radius: 16px !important;
-    padding: 1.25rem !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02) inset !important;
+    background: #F7F7F4 !important;
+    border: 1px solid #eeeeee !important;
+    border-radius: 10px !important;
+    padding: 0.875rem 1rem !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+    font-size: 0.875rem !important;
+    resize: vertical !important;
 }
 textarea.field.form-control:focus {
-    border-color: #e11d48 !important;
+    border-color: #CC0000 !important;
     background: #ffffff !important;
-    box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.1), 0 2px 5px rgba(0,0,0,0.02) inset !important;
+    box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1) !important;
 }
 
-/* Complete Button */
+/* ── Complete Order Button ──────────────────────────────────────── */
 #btnCompleteOrder {
     width: 100%;
-    height: 58px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #e11d48, #be123c) !important;
+    height: 52px;
+    border-radius: 10px;
+    background: #CC0000 !important;
     border: none !important;
     font-weight: 700;
-    font-size: 1.15rem;
-    letter-spacing: 0.5px;
+    font-size: 1rem;
     color: #ffffff !important;
-    box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3) !important;
-    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    box-shadow: 0 4px 14px rgba(204, 0, 0, 0.2) !important;
+    transition: all 0.2s ease !important;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 2rem;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-}
-#btnCompleteOrder::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, #be123c, #9f1239);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
+    margin-top: 1.5rem;
 }
 #btnCompleteOrder:hover:not(:disabled) {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 12px 25px rgba(225, 29, 72, 0.4) !important;
-}
-#btnCompleteOrder:hover:not(:disabled)::before {
-    opacity: 1;
+    background: #AA0000 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.3) !important;
 }
 
-/* Custom Checkbox for TOS */
+/* ── TOS Checkbox ───────────────────────────────────────────────── */
 .checkout-summary-card .checkbox-inline {
     position: relative;
-    padding-left: 32px !important;
+    padding-left: 28px !important;
     cursor: pointer;
     user-select: none;
-    font-size: 0.85rem !important;
-    color: #cbd5e1 !important;
+    font-size: 0.8125rem !important;
+    color: #555555 !important;
     display: flex !important;
     align-items: flex-start !important;
-    text-align: left !important;
     line-height: 1.5 !important;
+    margin-bottom: 0 !important;
 }
 .checkout-summary-card .checkbox-inline input {
     position: absolute;
@@ -405,65 +363,61 @@ textarea.field.form-control:focus {
 }
 .checkout-summary-card .checkbox-inline .checkmark {
     position: absolute;
-    top: 2px;
+    top: 1px;
     left: 0;
-    height: 20px;
-    width: 20px;
-    background-color: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    height: 18px;
+    width: 18px;
+    background-color: #F7F7F4;
+    border: 1.5px solid #eeeeee;
+    border-radius: 5px;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 .checkout-summary-card .checkbox-inline:hover .checkmark {
-    background-color: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.3);
+    border-color: #CC0000;
+    background-color: rgba(204, 0, 0, 0.04);
 }
 .checkout-summary-card .checkbox-inline input:checked ~ .checkmark {
-    background-color: #38bdf8;
-    border-color: #38bdf8;
-    box-shadow: 0 2px 8px rgba(56,189,248,0.4);
+    background-color: #CC0000;
+    border-color: #CC0000;
 }
 .checkout-summary-card .checkbox-inline .checkmark:after {
     content: "";
     position: absolute;
     display: none;
-    left: 6px;
-    top: 2px;
-    width: 6px;
-    height: 11px;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
 .checkout-summary-card .checkbox-inline input:checked ~ .checkmark:after {
     display: block;
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: checkPop 0.2s ease;
 }
 .checkout-summary-card .checkbox-inline a {
-    color: #38bdf8 !important;
+    color: #CC0000 !important;
     text-decoration: underline !important;
-    margin-left: 4px;
 }
 
-/* Security notice */
+/* ── Security Notice ────────────────────────────────────────────── */
 .checkout-security-msg {
-    margin-top: 1.5rem !important;
-    font-size: 0.8rem !important;
-    color: #94a3b8 !important;
-    background: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 12px !important;
-    padding: 1.25rem !important;
+    margin-top: 1.25rem !important;
+    font-size: 0.75rem !important;
+    color: #999999 !important;
+    text-align: center !important;
     line-height: 1.5 !important;
-    text-align: center;
 }
 .checkout-security-msg i {
-    font-size: 1.2rem !important;
-    color: #38bdf8 !important;
-    margin-right: 6px !important;
+    font-size: 0.875rem !important;
+    color: #555555 !important;
+    margin-right: 4px !important;
     vertical-align: middle;
 }
 </style>
+
 
 <div id="order-standard_cart">
 
