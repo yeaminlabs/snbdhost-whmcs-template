@@ -114,44 +114,8 @@
 .account:hover, .payment-method-card:hover {
     border-color: rgba(204, 0, 0, 0.3) !important;
     box-shadow: 0 2px 12px rgba(204, 0, 0, 0.06) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* Selected State */
-.account:has(input:checked), .payment-method-card:has(input:checked) {
-    border-color: #CC0000 !important;
-    background: rgba(204, 0, 0, 0.02) !important;
-    box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1) !important;
-    transform: translateY(-1px) !important;
-}
-.account .address {
-    font-size: 0.875rem !important;
-    line-height: 1.5 !important;
-    color: #555555 !important;
-}
-.account:has(input:checked) .address strong {
-    color: #111111 !important;
-}
-
-/* Animated Select Indicator */
-.payment-method-card .select-indicator,
-.account .select-indicator {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 20px;
-    height: 20px;
-    background: #CC0000;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 2px 6px rgba(204, 0, 0, 0.25);
+    border-color: #cccccc !important;
+    background: #fafafa !important;
 }
 .account .select-indicator {
     top: 50%;
@@ -193,30 +157,23 @@
 /* ── Payment Methods Grid ───────────────────────────────────────── */
 .payment-methods-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
     gap: 1rem !important;
-    margin-top: 1.25rem !important;
+    margin-top: 1rem !important;
+}
+.payment-method-card {
+    margin-bottom: 0;
 }
 .payment-method-card .payment-method-icon {
-    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
-    transition: transform 0.15s ease;
-}
-.payment-method-card:hover .payment-method-icon {
-    transform: scale(1.08);
 }
 .payment-method-card .gateway-name {
-    font-size: 0.8125rem !important;
+    font-size: 0.875rem !important;
     font-weight: 600 !important;
-    color: #555555 !important;
+    color: #333333 !important;
 }
-.payment-method-card:has(input:checked) .gateway-name {
-    color: #111111 !important;
-}
-
 /* Gateway Brand Badges */
 .gateway-badge {
     padding: 4px 12px;
@@ -481,8 +438,8 @@ textarea.field.form-control:focus {
                                     {foreach $accounts as $account}
                                         <div class="col-sm-{if $accounts->count() == 1}12{else}6{/if}">
                                             <div class="account{if $selectedAccountId == $account->id} active{/if}">
-                                                <label class="radio-inline w-100" for="account{$account->id}">
-                                                    <input id="account{$account->id}" class="account-select no-icheck{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled{/if}" type="radio" name="account_id" value="{$account->id}"{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled="disabled"{/if}{if $selectedAccountId == $account->id} checked="checked"{/if}>
+                                                <label class="radio-inline w-100" style="display: flex; align-items: center; gap: 8px;" for="account{$account->id}">
+                                                    <input id="account{$account->id}" class="account-select{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled{/if}" type="radio" name="account_id" value="{$account->id}"{if $account->isClosed || $account->noPermission || $inExpressCheckout} disabled="disabled"{/if}{if $selectedAccountId == $account->id} checked="checked"{/if}>
                                                     <span class="address">
                                                         <strong>
                                                             {if $account->company}{$account->company}{else}{$account->fullName}{/if}
@@ -509,17 +466,15 @@ textarea.field.form-control:focus {
                                                             {$account->countryName}
                                                         </span>
                                                     </span>
-                                                    <div class="select-indicator"><i class="ti ti-check"></i></div>
                                                 </label>
                                             </div>
                                         </div>
                                     {/foreach}
                                     <div class="col-sm-12">
                                         <div class="account {if !$selectedAccountId || !is_numeric($selectedAccountId)} active{/if}">
-                                            <label class="radio-inline w-100 m-0" style="display: flex; align-items: center; min-height: 50px;">
-                                                <input class="account-select no-icheck" type="radio" name="account_id" value="new"{if !$selectedAccountId || !is_numeric($selectedAccountId)} checked="checked"{/if}{if $inExpressCheckout} disabled="disabled" class="disabled"{/if}>
+                                            <label class="radio-inline w-100 m-0" style="display: flex; align-items: center; gap: 8px; min-height: 50px;">
+                                                <input class="account-select" type="radio" name="account_id" value="new"{if !$selectedAccountId || !is_numeric($selectedAccountId)} checked="checked"{/if}{if $inExpressCheckout} disabled="disabled" class="disabled"{/if}>
                                                 <strong style="margin-top: 2px;">{lang key='orderForm.createAccount'}</strong>
-                                                <div class="select-indicator"><i class="ti ti-check"></i></div>
                                             </label>
                                         </div>
                                     </div>
@@ -983,7 +938,7 @@ textarea.field.form-control:focus {
                                 <div id="paymentGatewaysContainer" class="form-group">
                                     <p class="small text-muted mb-3">{$LANG.orderForm.preferredPaymentMethod}</p>
 
-                                    <div class="payment-methods no-icheck-grid">
+                                    <div class="payment-methods-grid">
                                         {foreach $gateways as $gateway}
                                             <label class="payment-method-card" for="gateway_{$gateway.sysname}">
                                                 <input type="radio"
@@ -993,15 +948,19 @@ textarea.field.form-control:focus {
                                                        data-payment-type="{$gateway.payment_type}"
                                                        data-show-local="{$gateway.show_local_cards}"
                                                        data-remote-inputs="{$gateway.uses_remote_inputs}"
-                                                       class="payment-methods no-icheck{if $gateway.type eq "CC"} is-credit-card{/if}"
+                                                       class="payment-methods{if $gateway.type eq 'CC'} is-credit-card{/if}"
                                                         {if $selectedgateway eq $gateway.sysname} checked{/if}
                                                 />
                                                 <div class="payment-method-icon">
-                                                    <!-- Injected dynamically via JS or falls back to wallet icon -->
-                                                    <i class="ti ti-wallet font-size-26 text-muted"></i>
+                                                    {if $gateway.sysname eq "stripe" || $gateway.sysname eq "stripe_sepa" || $gateway.sysname eq "stripe_ach"}
+                                                        <i class="ti ti-brand-stripe" style="color: #635bff; font-size: 1.75rem;"></i>
+                                                    {elseif $gateway.sysname eq "paypal" || $gateway.sysname eq "paypalcheckout"}
+                                                        <i class="ti ti-brand-paypal" style="color: #003087; font-size: 1.5rem;"></i>
+                                                    {else}
+                                                        <i class="ti ti-wallet text-muted font-size-24"></i>
+                                                    {/if}
                                                 </div>
                                                 <span class="gateway-name">{$gateway.name}</span>
-                                                <div class="select-indicator"><i class="ti ti-circle-check"></i></div>
                                             </label>
                                         {/foreach}
                                     </div>
