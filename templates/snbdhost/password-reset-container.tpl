@@ -1,5 +1,5 @@
 <!-- password-reset-container.tpl — All states handled inline, no sub-template includes -->
-<style>
+<style>{literal}
 #particles-js { display: none !important; }
 html, body { background: #f4f5f7 !important; }
 .pr-page {
@@ -129,7 +129,7 @@ html, body { background: #f4f5f7 !important; }
     font-size: .85rem; padding: 0;
 }
 .pr-eye:hover { color: #CC0000; }
-</style>
+{/literal}</style>
 
 <div class="pr-page">
 <div class="pr-card">
@@ -169,7 +169,7 @@ html, body { background: #f4f5f7 !important; }
             </div>
         </div>
 
-        <style>
+        <style>{literal}
         .custom-modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -240,8 +240,8 @@ html, body { background: #f4f5f7 !important; }
             50% { transform: scale(1.08); }
             100% { transform: scale(1); }
         }
-        </style>
-        <script>
+        {/literal}</style>
+        <script>{literal}
         function closeSuccessModal() {
             var modal = document.getElementById('successModal');
             if (modal) {
@@ -253,7 +253,7 @@ html, body { background: #f4f5f7 !important; }
                 }, 200);
             }
         }
-        </script>
+        {/literal}</script>
     {/if}
     {if $errormessage}
         <div class="pr-error"><i class="fas fa-exclamation-circle me-2"></i>{$errormessage}</div>
@@ -266,7 +266,14 @@ html, body { background: #f4f5f7 !important; }
             <label class="pr-label" for="prEmail">{$LANG.loginemail}</label>
             <input type="email" name="email" class="pr-field" id="prEmail" placeholder="you@example.com" autofocus required>
         </div>
-        <button type="submit" class="pr-btn">{$LANG.pwresetsubmit}</button>
+        
+        {if $captcha || $turnstileEnabled}
+            <div style="margin-bottom: 1.25rem;">
+                {include file="$template/includes/captcha.tpl"}
+            </div>
+        {/if}
+
+        <button type="submit" class="pr-btn{if is_object($captcha)} {$captcha->getButtonClass($captchaForm)}{/if}">{$LANG.pwresetsubmit}</button>
     </form>
     {/if}
     <a href="{$WEB_ROOT}/login.php" class="pr-link"><i class="fas fa-arrow-left me-1"></i> {$LANG.login}</a>
@@ -344,7 +351,14 @@ html, body { background: #f4f5f7 !important; }
             <label class="pr-label" for="prEmailFb">{$LANG.loginemail}</label>
             <input type="email" name="email" class="pr-field" id="prEmailFb" placeholder="you@example.com" autofocus required>
         </div>
-        <button type="submit" class="pr-btn">{$LANG.pwresetsubmit}</button>
+        
+        {if $captcha || $turnstileEnabled}
+            <div style="margin-bottom: 1.25rem;">
+                {include file="$template/includes/captcha.tpl"}
+            </div>
+        {/if}
+
+        <button type="submit" class="pr-btn{if is_object($captcha)} {$captcha->getButtonClass($captchaForm)}{/if}">{$LANG.pwresetsubmit}</button>
     </form>
     <a href="{$WEB_ROOT}/login.php" class="pr-link"><i class="fas fa-arrow-left me-1"></i> {$LANG.login}</a>
 

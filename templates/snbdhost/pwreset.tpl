@@ -1,5 +1,5 @@
 <!-- ====== PASSWORD RESET PAGE ====== -->
-<style>
+<style>{literal}
 .pwreset-wrap {
     min-height: 100vh;
     display: flex;
@@ -108,7 +108,7 @@
     font-size: 0.9rem;
     margin-bottom: 1.25rem;
 }
-</style>
+{/literal}</style>
 
 <div class="pwreset-wrap">
     <div class="pwreset-card">
@@ -138,7 +138,7 @@
                 </div>
             </div>
 
-            <style>
+            <style>{literal}
             .custom-modal-overlay {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
@@ -209,8 +209,8 @@
                 50% { transform: scale(1.08); }
                 100% { transform: scale(1); }
             }
-            </style>
-            <script>
+            {/literal}</style>
+            <script>{literal}
             function closeSuccessModal() {
                 var modal = document.getElementById('successModal');
                 if (modal) {
@@ -222,7 +222,7 @@
                     }, 200);
                 }
             }
-            </script>
+            {/literal}</script>
         {else}
             {if $errormessage}
                 <div class="pwreset-alert-err">
