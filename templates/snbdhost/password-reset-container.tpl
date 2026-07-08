@@ -154,8 +154,8 @@ html, body { background: #f4f5f7 !important; }
     <div class="pr-title">{$LANG.pwreset}</div>
     <div class="pr-sub">{$LANG.pwresetemailneeded}</div>
 
-    {if $successmessage}
-        <div class="pr-success"><i class="fas fa-check-circle me-2"></i>{$successmessage}</div>
+    {if $successmessage || $successMessage || $success}
+        <div class="pr-success"><i class="fas fa-check-circle me-2"></i>{$successmessage|default:$successMessage|default:$LANG.pwresetvalidationsent}</div>
 
         <!-- Success Popup Modal -->
         <div id="successModal" class="custom-modal-overlay">
@@ -164,7 +164,7 @@ html, body { background: #f4f5f7 !important; }
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <h3 class="custom-modal-title">Reset Link Sent</h3>
-                <p class="custom-modal-text">{$successmessage}</p>
+                <p class="custom-modal-text">{$successmessage|default:$successMessage|default:$LANG.pwresetvalidationsent}</p>
                 <button class="custom-modal-btn" onclick="closeSuccessModal()">Close</button>
             </div>
         </div>
@@ -259,7 +259,7 @@ html, body { background: #f4f5f7 !important; }
         <div class="pr-error"><i class="fas fa-exclamation-circle me-2"></i>{$errormessage}</div>
     {/if}
 
-    {if !$successmessage}
+    {if !$successmessage && !$successMessage && !$success}
     <form method="post" action="{routePath('password-reset-begin')}" novalidate>
         <input type="hidden" name="action" value="reset" />
         <div class="mb-3">
