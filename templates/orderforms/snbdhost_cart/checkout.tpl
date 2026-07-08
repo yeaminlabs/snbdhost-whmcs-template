@@ -137,8 +137,8 @@
 .payment-method-card .select-indicator,
 .account .select-indicator {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 14px;
+    right: 14px;
     width: 20px;
     height: 20px;
     background: #CC0000;
@@ -270,10 +270,11 @@
     font-size: 0.9375rem !important;
 }
 .summary-row.total strong {
-    font-size: 1.75rem !important;
+    font-size: 1.6rem !important;
     color: #CC0000 !important;
     font-weight: 800 !important;
     line-height: 1;
+    letter-spacing: 0.5px;
 }
 
 /* ── Apply Credit Box ───────────────────────────────────────────── */
@@ -350,9 +351,10 @@ textarea.field.form-control:focus {
     font-size: 0.8125rem !important;
     color: #555555 !important;
     display: flex !important;
-    align-items: flex-start !important;
+    align-items: center !important;
     line-height: 1.5 !important;
     margin-bottom: 0 !important;
+    min-height: 20px;
 }
 .checkout-summary-card .checkbox-inline input {
     position: absolute;
@@ -363,8 +365,9 @@ textarea.field.form-control:focus {
 }
 .checkout-summary-card .checkbox-inline .checkmark {
     position: absolute;
-    top: 1px;
+    top: 50%;
     left: 0;
+    transform: translateY(-50%);
     height: 18px;
     width: 18px;
     background-color: #F7F7F4;
@@ -404,17 +407,24 @@ textarea.field.form-control:focus {
 
 /* ── Security Notice ────────────────────────────────────────────── */
 .checkout-security-msg {
-    margin-top: 1.25rem !important;
+    margin-top: 1.5rem !important;
     font-size: 0.75rem !important;
-    color: #999999 !important;
-    text-align: center !important;
+    color: #555555 !important;
+    background: #F7F7F4 !important;
+    border: 1px solid #eeeeee !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    text-align: left !important;
     line-height: 1.5 !important;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
 }
 .checkout-security-msg i {
-    font-size: 0.875rem !important;
-    color: #555555 !important;
-    margin-right: 4px !important;
-    vertical-align: middle;
+    font-size: 1.125rem !important;
+    color: #2e7d32 !important;
+    margin-right: 0 !important;
+    margin-top: 2px;
 }
 </style>
 
@@ -506,9 +516,9 @@ textarea.field.form-control:focus {
                                     {/foreach}
                                     <div class="col-sm-12">
                                         <div class="account {if !$selectedAccountId || !is_numeric($selectedAccountId)} active{/if}">
-                                            <label class="radio-inline w-100 m-0">
+                                            <label class="radio-inline w-100 m-0" style="display: flex; align-items: center; min-height: 50px;">
                                                 <input class="account-select no-icheck" type="radio" name="account_id" value="new"{if !$selectedAccountId || !is_numeric($selectedAccountId)} checked="checked"{/if}{if $inExpressCheckout} disabled="disabled" class="disabled"{/if}>
-                                                <strong>{lang key='orderForm.createAccount'}</strong>
+                                                <strong style="margin-top: 2px;">{lang key='orderForm.createAccount'}</strong>
                                                 <div class="select-indicator"><i class="ti ti-check"></i></div>
                                             </label>
                                         </div>
