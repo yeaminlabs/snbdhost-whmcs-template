@@ -17,6 +17,17 @@
 </script>
 
 <style>
+/* Base Animations */
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    70% { transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
 /* Checkout Container & Columns */
 #order-standard_cart {
     font-family: 'Outfit', 'Inter', sans-serif !important;
@@ -25,35 +36,43 @@
 
 #order-standard_cart .checkout-card {
     background: #ffffff;
-    border-radius: 16px;
-    padding: 2.25rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
-    border: 1px solid #f1f5f9;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(226, 232, 240, 0.8);
     margin-bottom: 2rem;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+.col-lg-8 > .checkout-card:nth-child(1) { animation-delay: 0.1s; }
+.col-lg-8 > .checkout-card:nth-child(2) { animation-delay: 0.2s; }
+.col-lg-8 > .checkout-card:nth-child(3) { animation-delay: 0.3s; }
+.col-lg-8 > .checkout-card:nth-child(4) { animation-delay: 0.4s; }
 
 /* Titles */
 .checkout-section-title {
     font-size: 1.25rem;
     font-weight: 700;
     color: #0f172a;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 0.75rem;
+    padding-bottom: 1rem;
 }
 .checkout-section-title i {
     font-size: 1.5rem;
-    color: #d32f2f;
+    color: #e11d48;
     margin-right: 0.75rem;
+    background: rgba(225, 29, 72, 0.1);
+    padding: 8px;
+    border-radius: 10px;
 }
 
 /* Already Registered callout */
 .already-registered {
-    background: #f8fafc !important;
-    border-radius: 12px !important;
-    padding: 1.25rem 1.5rem !important;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
     margin-bottom: 2rem !important;
     border: 1px solid #e2e8f0 !important;
     display: flex !important;
@@ -64,40 +83,104 @@
 }
 .already-registered p {
     margin: 0 !important;
-    font-weight: 500 !important;
-    color: #475569 !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
 }
 .already-registered .btn {
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     font-weight: 600 !important;
-    padding: 0.5rem 1.25rem !important;
+    padding: 0.6rem 1.25rem !important;
+    transition: transform 0.2s ease !important;
+}
+.already-registered .btn:hover {
+    transform: translateY(-2px) !important;
 }
 
-/* Account selection */
-.account {
+/* Account selection & Payment Cards (The Interactive Elements) */
+.account, .payment-method-card {
     border: 2px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 1.25rem !important;
-    margin-bottom: 1rem !important;
+    border-radius: 16px !important;
     background: #ffffff !important;
     cursor: pointer !important;
-    transition: all 0.25s ease !important;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.account {
+    padding: 1.5rem !important;
+    margin-bottom: 1rem !important;
     display: block !important;
 }
-.account:hover {
+.payment-method-card {
+    padding: 1.5rem 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    text-align: center !important;
+    min-height: 120px;
+}
+.account input[type="radio"], .payment-method-card input[type="radio"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.account:hover, .payment-method-card:hover {
     border-color: #cbd5e1 !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04) !important;
 }
-.account:has(input:checked) {
-    border-color: #d32f2f !important;
-    background: rgba(211, 47, 47, 0.02) !important;
-}
-.account input[type="radio"] {
-    accent-color: #d32f2f !important;
-    margin-right: 12px !important;
+
+/* Active State (Glowing Ring Effect) */
+.account:has(input:checked), .payment-method-card:has(input:checked) {
+    border-color: transparent !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #e11d48, 0 12px 24px rgba(225, 29, 72, 0.15) !important;
+    transform: translateY(-2px) !important;
 }
 .account .address {
-    font-size: 0.85rem !important;
+    font-size: 0.9rem !important;
     line-height: 1.5 !important;
+    color: #475569 !important;
+}
+.account:has(input:checked) .address strong {
+    color: #0f172a !important;
+}
+
+/* The Select Indicator (Animated Checkmark) */
+.payment-method-card .select-indicator, .account .select-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background: #e11d48;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);
+}
+.account .select-indicator {
+    top: 50%;
+    transform: translateY(-50%) scale(0.5);
+    right: 1.5rem;
+}
+.payment-method-card:has(input:checked) .select-indicator {
+    opacity: 1;
+    transform: scale(1);
+}
+.account:has(input:checked) .select-indicator {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
 }
 
 /* Form fields customization */
@@ -107,281 +190,278 @@
 }
 .form-group.prepend-icon .field-icon {
     position: absolute;
-    left: 14px;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
     z-index: 4;
     margin-bottom: 0;
+    transition: color 0.3s ease;
 }
 .form-group.prepend-icon .field {
-    padding-left: 42px !important;
-    height: 48px !important;
-    border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
+    padding-left: 46px !important;
+    height: 52px !important;
+    border-radius: 12px !important;
+    border: 2px solid transparent !important;
     background-color: #f8fafc !important;
     font-weight: 500 !important;
-    font-size: 0.9rem !important;
-    transition: all 0.25s ease !important;
+    font-size: 0.95rem !important;
+    color: #1e293b !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02) inset !important;
 }
 .form-group.prepend-icon .field:focus {
-    border-color: #d32f2f !important;
     background-color: #ffffff !important;
-    box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1) !important;
+    border-color: #e11d48 !important;
+    box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.1), 0 2px 5px rgba(0,0,0,0.02) inset !important;
+}
+.form-group.prepend-icon:has(.field:focus) .field-icon {
+    color: #e11d48;
 }
 
 /* Payment Methods Grid */
 .payment-methods-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
     gap: 1.25rem !important;
-    margin-top: 1.25rem !important;
-}
-.payment-method-card {
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 1.5rem 1rem !important;
-    background: #ffffff !important;
-    cursor: pointer !important;
-    transition: all 0.25s ease !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    margin: 0 !important;
-    text-align: center !important;
-    min-height: 120px;
-}
-.payment-method-card input[type="radio"] {
-    position: absolute !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-.payment-method-card:hover {
-    border-color: #cbd5e1 !important;
-    transform: translateY(-2px) !important;
-}
-.payment-method-card:has(input:checked) {
-    border-color: #d32f2f !important;
-    background: rgba(211, 47, 47, 0.02) !important;
-    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.05) !important;
+    margin-top: 1.5rem !important;
 }
 .payment-method-card .payment-method-icon {
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+.payment-method-card:hover .payment-method-icon {
+    transform: scale(1.1);
 }
 .payment-method-card .gateway-name {
-    font-size: 0.85rem !important;
+    font-size: 0.9rem !important;
     font-weight: 600 !important;
     color: #475569 !important;
+    transition: color 0.3s ease;
 }
 .payment-method-card:has(input:checked) .gateway-name {
-    color: #1e293b !important;
+    color: #0f172a !important;
 }
 
 /* Gateway Badge (bKash, Nagad, etc) */
 .gateway-badge {
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-.gateway-badge.bkash {
-    background: #e2136e;
-    color: #ffffff;
-}
-.gateway-badge.nagad {
-    background: #f7941d;
-    color: #ffffff;
-}
-.gateway-badge.rocket {
-    background: #8c3494;
-    color: #ffffff;
-}
-
-/* Select Indicator */
-.payment-method-card .select-indicator {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    color: #cbd5e1;
-    font-size: 1rem;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-.payment-method-card:has(input:checked) .select-indicator {
-    opacity: 1;
-    color: #d32f2f;
-}
+.gateway-badge.bkash { background: linear-gradient(135deg, #e2136e, #be105b); color: #ffffff; }
+.gateway-badge.nagad { background: linear-gradient(135deg, #f7941d, #d97d13); color: #ffffff; }
+.gateway-badge.rocket { background: linear-gradient(135deg, #8c3494, #732a79); color: #ffffff; }
 
 /* Right Column Summary */
 .checkout-summary-card {
-    background: #0f172a !important;
-    border-radius: 16px !important;
-    padding: 2.25rem !important;
+    background: linear-gradient(145deg, #0f172a, #1e293b) !important;
+    border-radius: 24px !important;
+    padding: 2.5rem !important;
     color: #ffffff !important;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
-    border: 1px solid #1e293b !important;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    border: none !important;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
 .checkout-summary-card h3 {
-    font-size: 1.25rem !important;
+    font-size: 1.35rem !important;
     font-weight: 700 !important;
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 1.75rem !important;
     border-bottom: 1px solid rgba(255,255,255,0.1) !important;
-    padding-bottom: 0.75rem !important;
+    padding-bottom: 1rem !important;
     color: #ffffff !important;
 }
 .summary-row {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 1.25rem !important;
 }
 .summary-row.total {
     border-top: 1px solid rgba(255,255,255,0.1) !important;
-    padding-top: 1.25rem !important;
-    margin-top: 1.25rem !important;
+    padding-top: 1.5rem !important;
+    margin-top: 1.5rem !important;
 }
 .summary-row.total span {
     font-weight: 600 !important;
     color: #94a3b8 !important;
+    font-size: 1.1rem;
 }
 .summary-row.total strong {
-    font-size: 1.85rem !important;
+    font-size: 2.2rem !important;
     color: #38bdf8 !important;
     font-weight: 800 !important;
     display: inline-flex;
     align-items: baseline;
-    gap: 4px;
+    gap: 6px;
+    text-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
 }
 
 /* Apply Credit Box inside Summary */
 .apply-credit-container {
-    background: rgba(255,255,255,0.05) !important;
-    border-radius: 12px !important;
-    padding: 1.25rem !important;
-    margin-bottom: 1.5rem !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.03) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.75rem !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
 }
 .apply-credit-container p {
-    font-size: 0.85rem !important;
-    margin-bottom: 0.75rem !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 1rem !important;
     color: #e2e8f0 !important;
 }
 .apply-credit-container label {
     display: flex !important;
     align-items: center !important;
-    font-size: 0.82rem !important;
+    font-size: 0.85rem !important;
     color: #cbd5e1 !important;
     cursor: pointer !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
 }
 .apply-credit-container label:last-child {
     margin-bottom: 0 !important;
-}
-.apply-credit-container input {
-    accent-color: #38bdf8 !important;
-    margin-right: 8px !important;
 }
 
 /* Notes textarea */
 textarea.field.form-control {
     background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 1rem !important;
-    transition: all 0.25s ease !important;
+    border: 2px solid transparent !important;
+    border-radius: 16px !important;
+    padding: 1.25rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02) inset !important;
 }
 textarea.field.form-control:focus {
-    border-color: #d32f2f !important;
+    border-color: #e11d48 !important;
     background: #ffffff !important;
-    box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1) !important;
+    box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.1), 0 2px 5px rgba(0,0,0,0.02) inset !important;
 }
 
 /* Complete Button */
 #btnCompleteOrder {
     width: 100%;
-    height: 52px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #d32f2f, #c62828) !important;
+    height: 58px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #e11d48, #be123c) !important;
     border: none !important;
     font-weight: 700;
-    font-size: 1.05rem;
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
     color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.35) !important;
-    transition: all 0.25s ease !important;
+    box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+#btnCompleteOrder::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #be123c, #9f1239);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
 }
 #btnCompleteOrder:hover:not(:disabled) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(211, 47, 47, 0.5) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 25px rgba(225, 29, 72, 0.4) !important;
+}
+#btnCompleteOrder:hover:not(:disabled)::before {
+    opacity: 1;
 }
 
-/* Marketing Email */
-.marketing-email-optin {
-    background: rgba(255,255,255,0.05) !important;
-    border-radius: 12px !important;
-    padding: 1.25rem !important;
-    margin-bottom: 1.5rem !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-}
-.marketing-email-optin h4 {
-    font-size: 0.95rem !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    margin-bottom: 0.5rem !important;
-}
-.marketing-email-optin p {
-    font-size: 0.8rem !important;
-    color: #94a3b8 !important;
-    margin-bottom: 0.75rem !important;
-    line-height: 1.4 !important;
-}
-
-/* TOS */
+/* Custom Checkbox for TOS */
 .checkout-summary-card .checkbox-inline {
-    font-size: 0.8rem !important;
+    position: relative;
+    padding-left: 32px !important;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.85rem !important;
     color: #cbd5e1 !important;
     display: flex !important;
     align-items: flex-start !important;
     text-align: left !important;
-    cursor: pointer !important;
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
 }
 .checkout-summary-card .checkbox-inline input {
-    margin-top: 3px !important;
-    margin-right: 8px !important;
-    accent-color: #38bdf8 !important;
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.checkout-summary-card .checkbox-inline .checkmark {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.checkout-summary-card .checkbox-inline:hover .checkmark {
+    background-color: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+}
+.checkout-summary-card .checkbox-inline input:checked ~ .checkmark {
+    background-color: #38bdf8;
+    border-color: #38bdf8;
+    box-shadow: 0 2px 8px rgba(56,189,248,0.4);
+}
+.checkout-summary-card .checkbox-inline .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.checkout-summary-card .checkbox-inline input:checked ~ .checkmark:after {
+    display: block;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .checkout-summary-card .checkbox-inline a {
     color: #38bdf8 !important;
     text-decoration: underline !important;
+    margin-left: 4px;
 }
 
 /* Security notice */
 .checkout-security-msg {
     margin-top: 1.5rem !important;
     font-size: 0.8rem !important;
-    color: #cbd5e1 !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #94a3b8 !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 12px !important;
-    padding: 1rem !important;
+    padding: 1.25rem !important;
     line-height: 1.5 !important;
+    text-align: center;
 }
 .checkout-security-msg i {
-    font-size: 1rem !important;
+    font-size: 1.2rem !important;
     color: #38bdf8 !important;
     margin-right: 6px !important;
+    vertical-align: middle;
 }
 </style>
 
@@ -465,6 +545,7 @@ textarea.field.form-control:focus {
                                                             {$account->countryName}
                                                         </span>
                                                     </span>
+                                                    <div class="select-indicator"><i class="ti ti-check"></i></div>
                                                 </label>
                                             </div>
                                         </div>
@@ -474,6 +555,7 @@ textarea.field.form-control:focus {
                                             <label class="radio-inline w-100 m-0">
                                                 <input class="account-select no-icheck" type="radio" name="account_id" value="new"{if !$selectedAccountId || !is_numeric($selectedAccountId)} checked="checked"{/if}{if $inExpressCheckout} disabled="disabled" class="disabled"{/if}>
                                                 <strong>{lang key='orderForm.createAccount'}</strong>
+                                                <div class="select-indicator"><i class="ti ti-check"></i></div>
                                             </label>
                                         </div>
                                     </div>
@@ -1151,10 +1233,11 @@ textarea.field.form-control:focus {
 
                             <!-- TOS -->
                             {if $accepttos}
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label class="checkbox-inline">
                                         <input type="checkbox" class="no-icheck" name="accepttos" id="accepttos" />
-                                        &nbsp; {$LANG.ordertosagreement} <a href="{$tosurl}" target="_blank">{$LANG.ordertos}</a>
+                                        <span class="checkmark"></span>
+                                        <span>{$LANG.ordertosagreement} <a href="{$tosurl}" target="_blank">{$LANG.ordertos}</a></span>
                                     </label>
                                 </div>
                             {/if}
