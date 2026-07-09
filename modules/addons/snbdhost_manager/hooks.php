@@ -573,3 +573,261 @@ add_hook('TicketOpenValidation', 1, function($vars) {
     }
 });
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * N8N MODULE CLIENT AREA REDESIGN
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+add_hook('ClientAreaPageProductDetails', 1, function($vars) {
+    // Check if this is an n8n product
+    $isN8n = false;
+    $productName = strtolower($vars['productinfo']['name'] ?? '');
+    
+    if (strpos($productName, 'n8n') !== false || ($vars['modulename'] ?? '') === 'n8n') {
+        $isN8n = true;
+    }
+    
+    if ($isN8n && !empty($vars['moduleclientarea'])) {
+        $html = $vars['moduleclientarea'];
+        
+        // If the HTML already contains our custom class, it was already processed.
+        if (strpos($html, 'n8n-modern-dashboard') !== false) {
+            return;
+        }
+
+        // --- Data Extraction ---
+        $status = preg_match('/Status:.*?<span.*?>\s*(.*?)\s*<\/span>/is', $html, $m) ? strip_tags($m[1]) : 'Unknown';
+        
+        $cpuText = preg_match('/CPU usage:.*?<div[^>]*>\s*([^<]+CPU)\s*</is', $html, $m) ? trim($m[1]) : 'N/A';
+        $cpuPct = preg_match('/CPU usage:.*?(\d+(?:\.\d+)?%)/is', $html, $m) ? trim($m[1]) : '0%';
+        
+        // Memory Text e.g., 334.4MiB / 1GiB
+        $memText = preg_match('/Memory usage:.*?<div[^>]*>\s*([^\s<]+.*?\/.*?)\s*</is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
+        // Used Memory Percentage (Red bar in original)
+        $memUsedPct = preg_match('/Memory usage:.*?width:\s*(\d+(?:\.\d+)?)%/is', $html, $m) ? trim($m[1]) . '%' : '0%';
+        
+        $diskText = preg_match('/Disk usage:.*?<div[^>]*>\s*([^\s<]+.*?\/.*?)\s*</is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
+        $diskPct = preg_match('/Disk usage:.*?width:\s*(\d+(?:\.\d+)?)%/is', $html, $m) ? trim($m[1]) . '%' : '0%';
+        
+        $url = preg_match('/href="(https?:\/\/[^\"]+n8nbysnbd\.top[^\"]*)"/i', $html, $m) ? trim($m[1]) : '#';
+        if ($url === '#') {
+            $url = preg_match('/(https?:\/\/[^\"]+n8nbysnbd\.top[^\s<]*)/i', $html, $m) ? trim($m[1]) : '#';
+        }
+        
+        $version = preg_match('/Version:.*?<td[^>]*>(.*?)<\/td>/is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
+        $owner = preg_match('/Owner:.*?<td[^>]*>(.*?)<\/td>/is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
+        $users = preg_match('/Users:.*?<td[^>]*>(.*?)<\/td>/is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
+        
+        // Safely extract the exact change password form/button to preserve functionality
+        $pwFormHtml = '';
+        if (preg_match('/(<form[^>]*>.*?Change Owner Password.*?<\/form>)/is', $html, $m)) {
+            $pwFormHtml = $m[1];
+            // Replace the ugly button class to match our premium aesthetic
+            $pwFormHtml = preg_replace('/class="btn\s+[^"]+"/i', 'class="btn btn-n8n-accent"', $pwFormHtml);
+            $pwFormHtml = str_replace('Change Owner Password', '<i class="ti ti-key me-2"></i> Change Owner Password', $pwFormHtml);
+        }
+
+        // Default Status Style
+        $statusClass = strtolower($status) !== 'running' ? 'stopped' : '';
+
+        // --- New Design Generation ---
+        $newHtml = '
+        <style>
+            .n8n-modern-dashboard {
+                font-family: "Outfit", "Inter", sans-serif;
+                margin-top: 0.5rem;
+            }
+            .n8n-card {
+                background: #ffffff;
+                border-radius: 16px;
+                border: 1px solid #eeeeee;
+                padding: 1.5rem;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.015);
+                margin-bottom: 1.5rem;
+                transition: all 0.3s ease;
+            }
+            .n8n-card:hover {
+                box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+            }
+            .n8n-card-title {
+                font-size: 1.15rem;
+                font-weight: 700;
+                color: #111;
+                margin-bottom: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .n8n-metric-row {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1.2rem;
+            }
+            .n8n-metric-header {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #555;
+                margin-bottom: 0.5rem;
+            }
+            .n8n-progress-bar {
+                height: 8px;
+                background: #f0f0f0;
+                border-radius: 10px;
+                overflow: hidden;
+                display: flex;
+            }
+            .n8n-progress-fill-success { background: #10B981; }
+            .n8n-progress-fill-danger { background: #EF4444; }
+            .n8n-progress-fill-warning { background: #F59E0B; }
+            
+            .n8n-status-badge {
+                padding: 4px 12px;
+                border-radius: 50rem;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                background: rgba(16, 185, 129, 0.1);
+                color: #10B981;
+                border: 1px solid rgba(16, 185, 129, 0.2);
+            }
+            .n8n-status-badge.stopped {
+                background: rgba(239, 68, 68, 0.1);
+                color: #EF4444;
+                border: 1px solid rgba(239, 68, 68, 0.2);
+            }
+            
+            .btn-n8n-accent {
+                background: linear-gradient(135deg, #EA4B71 0%, #D63C60 100%) !important;
+                color: #ffffff !important;
+                border: none !important;
+                border-radius: 12px !important;
+                font-weight: 700 !important;
+                padding: 0.6rem 1.5rem !important;
+                transition: all 0.25s ease !important;
+                box-shadow: 0 4px 15px rgba(234,75,113,0.3) !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .btn-n8n-accent:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 25px rgba(234,75,113,0.4) !important;
+            }
+            
+            .n8n-info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+            .n8n-info-item {
+                background: #fdfdfd;
+                padding: 1rem;
+                border-radius: 12px;
+                border: 1px solid #eeeeee;
+            }
+            .n8n-info-label {
+                font-size: 0.7rem;
+                color: #888;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 4px;
+            }
+            .n8n-info-value {
+                font-size: 0.95rem;
+                font-weight: 700;
+                color: #222;
+            }
+        </style>
+        
+        <div class="n8n-modern-dashboard">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="n8n-card h-100">
+                        <div class="n8n-card-title">
+                            <i class="ti ti-server" style="color: #EA4B71; font-size: 1.4rem;"></i> Resource Monitor
+                        </div>
+                        
+                        <div class="n8n-metric-row mt-3">
+                            <div class="n8n-metric-header">
+                                <span><i class="ti ti-cpu me-1 text-secondary"></i> CPU Usage</span>
+                                <span>'.$cpuText.' <span class="text-secondary small">('.$cpuPct.')</span></span>
+                            </div>
+                            <div class="n8n-progress-bar">
+                                <div class="n8n-progress-fill-success" style="width: '.$cpuPct.';"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="n8n-metric-row">
+                            <div class="n8n-metric-header">
+                                <span><i class="ti ti-device-sd-micro me-1 text-secondary"></i> Memory Usage</span>
+                                <span>'.$memText.'</span>
+                            </div>
+                            <div class="n8n-progress-bar">
+                                <div class="n8n-progress-fill-danger" style="width: '.$memUsedPct.';"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="n8n-metric-row mb-0">
+                            <div class="n8n-metric-header">
+                                <span><i class="ti ti-database me-1 text-secondary"></i> Disk Usage</span>
+                                <span>'.$diskText.' <span class="text-secondary small">('.$diskPct.')</span></span>
+                            </div>
+                            <div class="n8n-progress-bar">
+                                <div class="n8n-progress-fill-success" style="width: '.$diskPct.';"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="n8n-card h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                                <div class="n8n-card-title mb-0">
+                                    <i class="ti ti-info-circle" style="color: #EA4B71; font-size: 1.4rem;"></i> Instance Overview
+                                </div>
+                                <span class="n8n-status-badge '.$statusClass.'">'.$status.'</span>
+                            </div>
+                            
+                            <div class="n8n-info-grid mb-3">
+                                <div class="n8n-info-item">
+                                    <div class="n8n-info-label">Version</div>
+                                    <div class="n8n-info-value">'.$version.'</div>
+                                </div>
+                                <div class="n8n-info-item">
+                                    <div class="n8n-info-label">URL</div>
+                                    <div class="n8n-info-value">
+                                        <a href="'.$url.'" target="_blank" style="color: #EA4B71; text-decoration: none; font-weight: 700;">
+                                            Open Instance <i class="ti ti-external-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="n8n-info-grid">
+                                <div class="n8n-info-item">
+                                    <div class="n8n-info-label">Owner</div>
+                                    <div class="n8n-info-value">'.$owner.'</div>
+                                </div>
+                                <div class="n8n-info-item">
+                                    <div class="n8n-info-label">Users</div>
+                                    <div class="n8n-info-value">'.$users.'</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                            '.$pwFormHtml.'
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>';
+        
+        return ['moduleclientarea' => $newHtml];
+    }
+});
+
