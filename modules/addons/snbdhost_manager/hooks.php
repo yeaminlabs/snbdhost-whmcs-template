@@ -606,43 +606,12 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             return;
         }
 
-        // --- Data Extraction ---
-        $status = preg_match('/Status:.*?<span.*?>\s*(.*?)\s*<\/span>/is', $html, $m) ? strip_tags($m[1]) : 'Unknown';
+        // Instead of parsing via fragile PHP regex, we output the original HTML in a hidden container
+        // and use a robust Javascript approach to parse and populate the beautiful new UI.
         
-        $cpuText = preg_match('/CPU usage:.*?<div[^>]*>\s*([^<]+CPU)\s*</is', $html, $m) ? trim($m[1]) : 'N/A';
-        $cpuPct = preg_match('/CPU usage:.*?(\d+(?:\.\d+)?%)/is', $html, $m) ? trim($m[1]) : '0%';
-        
-        // Memory Text e.g., 334.4MiB / 1GiB
-        $memText = preg_match('/Memory usage:.*?<div[^>]*>\s*([^\s<]+.*?\/.*?)\s*</is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
-        // Used Memory Percentage (Red bar in original)
-        $memUsedPct = preg_match('/Memory usage:.*?width:\s*(\d+(?:\.\d+)?)%/is', $html, $m) ? trim($m[1]) . '%' : '0%';
-        
-        $diskText = preg_match('/Disk usage:.*?<div[^>]*>\s*([^\s<]+.*?\/.*?)\s*</is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
-        $diskPct = preg_match('/Disk usage:.*?width:\s*(\d+(?:\.\d+)?)%/is', $html, $m) ? trim($m[1]) . '%' : '0%';
-        
-        $url = preg_match('/href="(https?:\/\/[^\"]+n8nbysnbd\.top[^\"]*)"/i', $html, $m) ? trim($m[1]) : '#';
-        if ($url === '#') {
-            $url = preg_match('/(https?:\/\/[^\"]+n8nbysnbd\.top[^\s<]*)/i', $html, $m) ? trim($m[1]) : '#';
-        }
-        
-        $version = preg_match('/Version:.*?<td[^>]*>(.*?)<\/td>/is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
-        $owner = preg_match('/Owner:.*?<td[^>]*>(.*?)<\/td>/is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
-        $users = preg_match('/Users:.*?<td[^>]*>(.*?)<\/td>/is', $html, $m) ? trim(strip_tags($m[1])) : 'N/A';
-        
-        // Safely extract the exact change password form/button to preserve functionality
-        $pwFormHtml = '';
-        if (preg_match('/(<form[^>]*>.*?Change Owner Password.*?<\/form>)/is', $html, $m)) {
-            $pwFormHtml = $m[1];
-            // Replace the ugly button class to match our premium aesthetic
-            $pwFormHtml = preg_replace('/class="btn\s+[^"]+"/i', 'class="btn btn-n8n-accent"', $pwFormHtml);
-            $pwFormHtml = str_replace('Change Owner Password', '<i class="ti ti-key me-2"></i> Change Owner Password', $pwFormHtml);
-        }
-
-        // Default Status Style
-        $statusClass = strtolower($status) !== 'running' ? 'stopped' : '';
-
-        // --- New Design Generation ---
         $newHtml = '
+        <div id="n8n-original-module-data" style="display:none;">' . $html . '</div>
+        
         <style>
             .n8n-modern-dashboard {
                 font-family: "Outfit", "Inter", sans-serif;
@@ -721,6 +690,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                cursor: pointer;
             }
             .btn-n8n-accent:hover {
                 transform: translateY(-2px) !important;
@@ -753,7 +723,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             }
         </style>
         
-        <div class="n8n-modern-dashboard">
+        <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
             <div class="row g-4">
                 <div class="col-lg-6">
                     <div class="n8n-card h-100">
@@ -764,30 +734,30 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                         <div class="n8n-metric-row mt-3">
                             <div class="n8n-metric-header">
                                 <span><i class="ti ti-cpu me-1 text-secondary"></i> CPU Usage</span>
-                                <span>'.$cpuText.' <span class="text-secondary small">('.$cpuPct.')</span></span>
+                                <span id="n8n-val-cpu-text">N/A</span>
                             </div>
                             <div class="n8n-progress-bar">
-                                <div class="n8n-progress-fill-success" style="width: '.$cpuPct.';"></div>
+                                <div class="n8n-progress-fill-success" id="n8n-bar-cpu" style="width: 0%;"></div>
                             </div>
                         </div>
                         
                         <div class="n8n-metric-row">
                             <div class="n8n-metric-header">
                                 <span><i class="ti ti-device-sd-micro me-1 text-secondary"></i> Memory Usage</span>
-                                <span>'.$memText.'</span>
+                                <span id="n8n-val-mem-text">N/A</span>
                             </div>
                             <div class="n8n-progress-bar">
-                                <div class="n8n-progress-fill-danger" style="width: '.$memUsedPct.';"></div>
+                                <div class="n8n-progress-fill-danger" id="n8n-bar-mem" style="width: 0%;"></div>
                             </div>
                         </div>
                         
                         <div class="n8n-metric-row mb-0">
                             <div class="n8n-metric-header">
                                 <span><i class="ti ti-database me-1 text-secondary"></i> Disk Usage</span>
-                                <span>'.$diskText.' <span class="text-secondary small">('.$diskPct.')</span></span>
+                                <span id="n8n-val-disk-text">N/A</span>
                             </div>
                             <div class="n8n-progress-bar">
-                                <div class="n8n-progress-fill-success" style="width: '.$diskPct.';"></div>
+                                <div class="n8n-progress-fill-success" id="n8n-bar-disk" style="width: 0%;"></div>
                             </div>
                         </div>
                     </div>
@@ -800,18 +770,18 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                                 <div class="n8n-card-title mb-0">
                                     <i class="ti ti-info-circle" style="color: #EA4B71; font-size: 1.4rem;"></i> Instance Overview
                                 </div>
-                                <span class="n8n-status-badge '.$statusClass.'">'.$status.'</span>
+                                <span class="n8n-status-badge" id="n8n-val-status">Unknown</span>
                             </div>
                             
                             <div class="n8n-info-grid mb-3">
                                 <div class="n8n-info-item">
                                     <div class="n8n-info-label">Version</div>
-                                    <div class="n8n-info-value">'.$version.'</div>
+                                    <div class="n8n-info-value" id="n8n-val-version">N/A</div>
                                 </div>
                                 <div class="n8n-info-item">
                                     <div class="n8n-info-label">URL</div>
                                     <div class="n8n-info-value">
-                                        <a href="'.$url.'" target="_blank" style="color: #EA4B71; text-decoration: none; font-weight: 700;">
+                                        <a href="#" id="n8n-val-url" target="_blank" style="color: #EA4B71; text-decoration: none; font-weight: 700;">
                                             Open Instance <i class="ti ti-external-link"></i>
                                         </a>
                                     </div>
@@ -821,22 +791,114 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                             <div class="n8n-info-grid">
                                 <div class="n8n-info-item">
                                     <div class="n8n-info-label">Owner</div>
-                                    <div class="n8n-info-value">'.$owner.'</div>
+                                    <div class="n8n-info-value" id="n8n-val-owner">N/A</div>
                                 </div>
                                 <div class="n8n-info-item">
                                     <div class="n8n-info-label">Users</div>
-                                    <div class="n8n-info-value">'.$users.'</div>
+                                    <div class="n8n-info-value" id="n8n-val-users">N/A</div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-end">
-                            '.$pwFormHtml.'
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                            <button class="btn btn-n8n-accent" id="n8n-btn-changepw"><i class="ti ti-key me-2"></i> Change Password</button>
+                            <button class="btn btn-n8n-accent" id="n8n-btn-autologin" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important; box-shadow: 0 4px 15px rgba(16,185,129,0.3) !important;"><i class="ti ti-login me-2"></i> Auto Login</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>';
+        </div>
+        
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var orig = document.getElementById("n8n-original-module-data");
+            if (!orig) return;
+            
+            var text = orig.textContent || orig.innerText;
+            var html = orig.innerHTML;
+            
+            // Status
+            var mStatus = text.match(/Status:\s*([a-zA-Z]+)/i);
+            if (mStatus) {
+                var s = mStatus[1].trim();
+                var badge = document.getElementById("n8n-val-status");
+                badge.innerText = s;
+                if (s.toLowerCase() !== "running") {
+                    badge.classList.add("stopped");
+                }
+            }
+            
+            // CPU
+            var mCpu = text.match(/CPU usage:\s*([^\(]+(?:\([\d.%]+\))?)/i);
+            if (mCpu) {
+                document.getElementById("n8n-val-cpu-text").innerText = mCpu[1].trim();
+            }
+            var mCpuPct = html.match(/CPU usage:.*?(\d+(?:\.\d+)?%)/i) || text.match(/CPU usage:.*?(\d+(?:\.\d+)?%)/i);
+            if (mCpuPct) document.getElementById("n8n-bar-cpu").style.width = mCpuPct[1];
+            
+            // Memory
+            var mMem = text.match(/Memory usage:\s*([^\s]+(?:\s*\/\s*[^\s]+)?)/i);
+            if (mMem) document.getElementById("n8n-val-mem-text").innerText = mMem[1].trim();
+            var mMemPct = html.match(/Memory usage:.*?width:\s*(\d+(?:\.\d+)?)%/i);
+            if (mMemPct) document.getElementById("n8n-bar-mem").style.width = mMemPct[1] + "%";
+            
+            // Disk
+            var mDisk = text.match(/Disk usage:\s*([^\s]+(?:\s*\/\s*[^\s]+)?)/i);
+            if (mDisk) document.getElementById("n8n-val-disk-text").innerText = mDisk[1].trim();
+            var mDiskPct = html.match(/Disk usage:.*?width:\s*(\d+(?:\.\d+)?)%/i);
+            if (mDiskPct) document.getElementById("n8n-bar-disk").style.width = mDiskPct[1] + "%";
+            
+            // Version, Owner, Users
+            var mVer = text.match(/Version:\s*([^\s\n]+)/i);
+            if (mVer) document.getElementById("n8n-val-version").innerText = mVer[1].trim();
+            
+            var mOwn = text.match(/Owner:\s*([^\s\n]+)/i);
+            if (mOwn) document.getElementById("n8n-val-owner").innerText = mOwn[1].trim();
+            
+            var mUsr = text.match(/Users:\s*([^\s\n]+)/i);
+            if (mUsr) document.getElementById("n8n-val-users").innerText = mUsr[1].trim();
+            
+            // URL
+            var mUrl = html.match(/href=["\'](https?:\/\/[^\'"]+n8nbysnbd\.top[^\'"]*)["\']/i);
+            if (mUrl) {
+                document.getElementById("n8n-val-url").href = mUrl[1];
+            } else {
+                var mUrl2 = text.match(/(https?:\/\/[^\s]+n8nbysnbd\.top[^\s]*)/i);
+                if (mUrl2) document.getElementById("n8n-val-url").href = mUrl2[1];
+            }
+            
+            // Buttons logic
+            var forms = orig.getElementsByTagName("form");
+            
+            document.getElementById("n8n-btn-changepw").addEventListener("click", function(e) {
+                e.preventDefault();
+                for (var i=0; i<forms.length; i++) {
+                    if (forms[i].innerHTML.indexOf("Change Owner Password") !== -1 || forms[i].innerHTML.indexOf("Change Password") !== -1) {
+                        forms[i].submit();
+                        return;
+                    }
+                }
+                alert("Change Password action not found.");
+            });
+            
+            document.getElementById("n8n-btn-autologin").addEventListener("click", function(e) {
+                e.preventDefault();
+                for (var i=0; i<forms.length; i++) {
+                    if (forms[i].innerHTML.indexOf("Go to n8n") !== -1 || forms[i].innerHTML.indexOf("Auto Login") !== -1 || forms[i].innerHTML.indexOf("Login") !== -1) {
+                        forms[i].submit();
+                        return;
+                    }
+                }
+                // fallback if it\'s a link
+                if (mUrl) window.open(mUrl[1], "_blank");
+                else alert("Auto Login action not found.");
+            });
+            
+            // Now that we have setup our own "Go to n8n" button, hide the WHMCS one if it exists
+            var whmcsN8nBtnContainer = document.getElementById("n8nButtonContainer");
+            if (whmcsN8nBtnContainer) whmcsN8nBtnContainer.style.display = "none";
+        });
+        </script>';
         
         return [$overrideKey => $newHtml];
     }

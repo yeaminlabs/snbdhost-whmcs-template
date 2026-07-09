@@ -489,7 +489,6 @@
                 var n8nContainer = document.getElementById('n8nButtonContainer');
                 if (n8nContainer) n8nContainer.style.display = 'block';
 
-                }
             });
             </script>
             <style>
