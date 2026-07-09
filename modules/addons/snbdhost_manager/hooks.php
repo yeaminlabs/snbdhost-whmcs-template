@@ -581,15 +581,26 @@ add_hook('TicketOpenValidation', 1, function($vars) {
 add_hook('ClientAreaPageProductDetails', 1, function($vars) {
     // Check if this is an n8n product
     $isN8n = false;
-    $productName = strtolower($vars['productinfo']['name'] ?? '');
+    $productName = strtolower($vars['product'] ?? '');
     
-    if (strpos($productName, 'n8n') !== false || ($vars['modulename'] ?? '') === 'n8n') {
+    if (strpos($productName, 'n8n') !== false || ($vars['module'] ?? '') === 'n8n') {
         $isN8n = true;
     }
     
-    if ($isN8n && !empty($vars['moduleclientarea'])) {
-        $html = $vars['moduleclientarea'];
-        
+    $html = '';
+    $overrideKey = '';
+    
+    if ($isN8n) {
+        if (!empty($vars['tplOverviewTabOutput'])) {
+            $html = $vars['tplOverviewTabOutput'];
+            $overrideKey = 'tplOverviewTabOutput';
+        } elseif (!empty($vars['moduleclientarea'])) {
+            $html = $vars['moduleclientarea'];
+            $overrideKey = 'moduleclientarea';
+        }
+    }
+    
+    if ($html) {
         // If the HTML already contains our custom class, it was already processed.
         if (strpos($html, 'n8n-modern-dashboard') !== false) {
             return;
@@ -827,7 +838,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             </div>
         </div>';
         
-        return ['moduleclientarea' => $newHtml];
+        return [$overrideKey => $newHtml];
     }
 });
 
