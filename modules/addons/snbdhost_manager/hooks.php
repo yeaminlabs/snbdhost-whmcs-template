@@ -802,7 +802,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                         
                         <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
                             <button class="btn btn-n8n-accent" id="n8n-btn-changepw"><i class="ti ti-key me-2"></i> Change Password</button>
-                            <button class="btn btn-n8n-accent" id="n8n-btn-autologin" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important; box-shadow: 0 4px 15px rgba(16,185,129,0.3) !important;"><i class="ti ti-login me-2"></i> Auto Login</button>
+                            <button class="btn btn-n8n-accent" id="n8n-btn-autologin"><i class="ti ti-login me-2"></i> Auto Login</button>
                         </div>
                     </div>
                 </div>
@@ -814,11 +814,24 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             var orig = document.getElementById("n8n-original-module-data");
             if (!orig) return;
             
-            var text = orig.textContent || orig.innerText;
-            var html = orig.innerHTML;
+            // Clean out any scripts from the HTML so we don\'t accidentally match JS code
+            var cleanHtml = orig.innerHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+            
+            // Helper to safely extract values from divs or spans
+            var extractDiv = function(label) {
+                var regex = new RegExp(label + ".*?<div[^>]*>\\s*([^<]+)\\s*<", "i");
+                var m = cleanHtml.match(regex);
+                return m && m[1] ? m[1].trim() : null;
+            };
+            
+            var extractTd = function(label) {
+                var regex = new RegExp(label + ".*?<td[^>]*>\\s*([^<]+)\\s*<", "i");
+                var m = cleanHtml.match(regex);
+                return m && m[1] ? m[1].trim() : null;
+            };
             
             // Status
-            var mStatus = text.match(/Status:\s*([a-zA-Z]+)/i);
+            var mStatus = cleanHtml.match(/Status:.*?<span[^>]*>\\s*([^<]+)\\s*</i) || cleanHtml.match(/Status:\\s*([a-zA-Z]+)/i);
             if (mStatus) {
                 var s = mStatus[1].trim();
                 var badge = document.getElementById("n8n-val-status");
@@ -829,42 +842,37 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             }
             
             // CPU
-            var mCpu = text.match(/CPU usage:\s*([^\(]+(?:\([\d.%]+\))?)/i);
-            if (mCpu) {
-                document.getElementById("n8n-val-cpu-text").innerText = mCpu[1].trim();
-            }
-            var mCpuPct = html.match(/CPU usage:.*?(\d+(?:\.\d+)?%)/i) || text.match(/CPU usage:.*?(\d+(?:\.\d+)?%)/i);
+            var cpu = extractDiv("CPU usage:");
+            if (cpu) document.getElementById("n8n-val-cpu-text").innerText = cpu;
+            var mCpuPct = cleanHtml.match(/CPU usage:.*?(\\d+(?:\\.\\d+)?%)/i);
             if (mCpuPct) document.getElementById("n8n-bar-cpu").style.width = mCpuPct[1];
             
             // Memory
-            var mMem = text.match(/Memory usage:\s*([^\s]+(?:\s*\/\s*[^\s]+)?)/i);
-            if (mMem) document.getElementById("n8n-val-mem-text").innerText = mMem[1].trim();
-            var mMemPct = html.match(/Memory usage:.*?width:\s*(\d+(?:\.\d+)?)%/i);
+            var mem = extractDiv("Memory usage:");
+            if (mem) document.getElementById("n8n-val-mem-text").innerText = mem;
+            var mMemPct = cleanHtml.match(/Memory usage:.*?width:\\s*(\\d+(?:\\.\\d+)?)%/i);
             if (mMemPct) document.getElementById("n8n-bar-mem").style.width = mMemPct[1] + "%";
             
             // Disk
-            var mDisk = text.match(/Disk usage:\s*([^\s]+(?:\s*\/\s*[^\s]+)?)/i);
-            if (mDisk) document.getElementById("n8n-val-disk-text").innerText = mDisk[1].trim();
-            var mDiskPct = html.match(/Disk usage:.*?width:\s*(\d+(?:\.\d+)?)%/i);
+            var disk = extractDiv("Disk usage:");
+            if (disk) document.getElementById("n8n-val-disk-text").innerText = disk;
+            var mDiskPct = cleanHtml.match(/Disk usage:.*?width:\\s*(\\d+(?:\\.\\d+)?)%/i);
             if (mDiskPct) document.getElementById("n8n-bar-disk").style.width = mDiskPct[1] + "%";
             
             // Version, Owner, Users
-            var mVer = text.match(/Version:\s*([^\s\n]+)/i);
-            if (mVer) document.getElementById("n8n-val-version").innerText = mVer[1].trim();
+            var ver = extractTd("Version:");
+            if (ver) document.getElementById("n8n-val-version").innerText = ver;
             
-            var mOwn = text.match(/Owner:\s*([^\s\n]+)/i);
-            if (mOwn) document.getElementById("n8n-val-owner").innerText = mOwn[1].trim();
+            var own = extractTd("Owner:");
+            if (own) document.getElementById("n8n-val-owner").innerText = own;
             
-            var mUsr = text.match(/Users:\s*([^\s\n]+)/i);
-            if (mUsr) document.getElementById("n8n-val-users").innerText = mUsr[1].trim();
+            var usr = extractTd("Users:");
+            if (usr) document.getElementById("n8n-val-users").innerText = usr;
             
             // URL
-            var mUrl = html.match(/href=["\'](https?:\/\/[^\'"]+n8nbysnbd\.top[^\'"]*)["\']/i);
+            var mUrl = cleanHtml.match(/href=["\'](https?:\\/\\/[^\'"]+n8nbysnbd\\.top[^\'"]*)["\']/i);
             if (mUrl) {
                 document.getElementById("n8n-val-url").href = mUrl[1];
-            } else {
-                var mUrl2 = text.match(/(https?:\/\/[^\s]+n8nbysnbd\.top[^\s]*)/i);
-                if (mUrl2) document.getElementById("n8n-val-url").href = mUrl2[1];
             }
             
             // Buttons logic
@@ -881,10 +889,10 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 alert("Change Password action not found.");
             });
             
-            document.getElementById("n8n-btn-autologin").addEventListener("click", function(e) {
+            var autoLoginHandler = function(e) {
                 e.preventDefault();
                 for (var i=0; i<forms.length; i++) {
-                    if (forms[i].innerHTML.indexOf("Go to n8n") !== -1 || forms[i].innerHTML.indexOf("Auto Login") !== -1 || forms[i].innerHTML.indexOf("Login") !== -1) {
+                    if (forms[i].innerHTML.indexOf("Go to n8n") !== -1 || forms[i].innerHTML.indexOf("Auto Login") !== -1 || forms[i].innerHTML.indexOf("Login") !== -1 || forms[i].action.indexOf("login") !== -1) {
                         forms[i].submit();
                         return;
                     }
@@ -892,11 +900,19 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 // fallback if it\'s a link
                 if (mUrl) window.open(mUrl[1], "_blank");
                 else alert("Auto Login action not found.");
-            });
+            };
             
-            // Now that we have setup our own "Go to n8n" button, hide the WHMCS one if it exists
-            var whmcsN8nBtnContainer = document.getElementById("n8nButtonContainer");
-            if (whmcsN8nBtnContainer) whmcsN8nBtnContainer.style.display = "none";
+            document.getElementById("n8n-btn-autologin").addEventListener("click", autoLoginHandler);
+            
+            // Bind the main top button (n8nMainBtn) to auto-login as well
+            var whmcsN8nBtn = document.getElementById("n8nMainBtn");
+            if (whmcsN8nBtn) {
+                whmcsN8nBtn.addEventListener("click", autoLoginHandler);
+                var whmcsN8nBtnContainer = document.getElementById("n8nButtonContainer");
+                if (whmcsN8nBtnContainer) {
+                    whmcsN8nBtnContainer.style.display = "block";
+                }
+            }
         });
         </script>';
         
