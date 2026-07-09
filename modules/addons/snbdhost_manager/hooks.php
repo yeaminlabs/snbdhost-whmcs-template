@@ -814,12 +814,13 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             var orig = document.getElementById("n8n-original-module-data");
             if (!orig) return;
 
-            // ── 1. Extract serviceId and apiUrl from the module\'s embedded JS ──
+            // ── 1. Get serviceId from the page URL (?id=XXXX) ────────────────────
+            // WHMCS strips <script> tags from moduleclientarea, so we cannot
+            // extract serviceId from the module HTML — use the URL instead.
             var rawHtml = orig.innerHTML;
-            var mServiceId = rawHtml.match(/var\s+serviceId\s*=\s*[\'"](\d+)[\'"]/);
-            var mApiUrl    = rawHtml.match(/var\s+apiUrl\s*=\s*[\'"]([^\'"]+)[\'"]/);
-            var serviceId  = mServiceId ? mServiceId[1] : null;
-            var apiUrl     = mApiUrl    ? mApiUrl[1]    : "modules/servers/dockern8n/ajax.php";
+            var mId = window.location.href.match(/[?&]id=(\d+)/i);
+            var serviceId = mId ? mId[1] : null;
+            var apiUrl = "modules/servers/dockern8n/ajax.php";
 
             // ── 2. Parse the rendered DOM for static fields ──────────────────────
             // innerHTML parsed via a temp container gives us real DOM queries.
