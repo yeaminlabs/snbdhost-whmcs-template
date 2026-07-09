@@ -790,11 +790,11 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                             
                             <div class="n8n-info-grid">
                                 <div class="n8n-info-item">
-                                    <div class="n8n-info-label">Owner</div>
+                                    <div class="n8n-info-label">CPU Limit</div>
                                     <div class="n8n-info-value" id="n8n-val-owner">N/A</div>
                                 </div>
                                 <div class="n8n-info-item">
-                                    <div class="n8n-info-label">Users</div>
+                                    <div class="n8n-info-label">Memory Limit</div>
                                     <div class="n8n-info-value" id="n8n-val-users">N/A</div>
                                 </div>
                             </div>
@@ -814,135 +814,142 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             var orig = document.getElementById("n8n-original-module-data");
             if (!orig) return;
 
-            // Log raw module HTML to console to help diagnose parsing issues
-            console.log("[n8n-dashboard] raw module HTML:", orig.innerHTML);
+            // ── 1. Extract serviceId and apiUrl from the module\'s embedded JS ──
+            var rawHtml = orig.innerHTML;
+            var mServiceId = rawHtml.match(/var\s+serviceId\s*=\s*[\'"](\d+)[\'"]/);
+            var mApiUrl    = rawHtml.match(/var\s+apiUrl\s*=\s*[\'"]([^\'"]+)[\'"]/);
+            var serviceId  = mServiceId ? mServiceId[1] : null;
+            var apiUrl     = mApiUrl    ? mApiUrl[1]    : "modules/servers/dockern8n/ajax.php";
 
-            // Remove script tags so we don\'t accidentally match JS code in regexes
-            var cleanHtml = orig.innerHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+            // ── 2. Parse the rendered DOM for static fields ──────────────────────
+            // innerHTML parsed via a temp container gives us real DOM queries.
+            var tmp = document.createElement("div");
+            tmp.innerHTML = rawHtml;
 
-            // ── Generic extractors ──────────────────────────────────────────────
-            // Try to get the text value that follows a label string, searching
-            // inside <td>, <div>, <span>, or plain text nodes.
-            function extractAfterLabel(label) {
-                // Strategy 1: label inside one cell, value in the next <td>
-                var r1 = new RegExp(label + "[\\s\\S]*?<td[^>]*>\\s*([^<]+?)\\s*<", "i");
-                var m = cleanHtml.match(r1);
-                if (m && m[1].trim()) return m[1].trim();
+            var domainEl  = tmp.querySelector("#service-domain");
+            var versionEl = tmp.querySelector("#service-version");
+            // The header bar external link is the instance URL
+            var extLink   = tmp.querySelector(".header-bar a[target=\'_blank\']")
+                         || tmp.querySelector("a[target=\'_blank\'][href*=\'http\']");
 
-                // Strategy 2: label followed by value in a sibling/child <div> or <span>
-                var r2 = new RegExp(label + "[\\s\\S]*?<(?:div|span|td)[^>]*>\\s*([^<]{1,120}?)\\s*<", "i");
-                m = cleanHtml.match(r2);
-                if (m && m[1].trim()) return m[1].trim();
-
-                // Strategy 3: "Label: Value" plain text pattern
-                var r3 = new RegExp(label + "\\s*:?\\s*([^\\n<]{1,80})", "i");
-                m = cleanHtml.match(r3);
-                if (m && m[1].trim()) return m[1].trim();
-
-                return null;
+            if (versionEl && versionEl.textContent.trim()) {
+                document.getElementById("n8n-val-version").innerText = versionEl.textContent.trim();
             }
 
-            // Extract a percentage number (0-100) associated with a label
-            function extractPercent(label) {
-                // Pattern A: width: XX% in an inline style near the label
-                var rA = new RegExp(label + "[\\s\\S]{0,400}?width:\\s*(\\d+(?:\\.\\d+)?)%", "i");
-                var m = cleanHtml.match(rA);
-                if (m) return parseFloat(m[1]);
-
-                // Pattern B: explicit "XX%" text near the label
-                var rB = new RegExp(label + "[\\s\\S]{0,400}?(\\d+(?:\\.\\d+)?)%", "i");
-                m = cleanHtml.match(rB);
-                if (m) return parseFloat(m[1]);
-
-                return null;
-            }
-
-            // ── Status ──────────────────────────────────────────────────────────
-            var statusVal = null;
-            // Try badge/span inside a "Status" context
-            var mStatus = cleanHtml.match(/Status[\\s\\S]{0,80}?<(?:span|td|div)[^>]*>\\s*([a-zA-Z]+)\\s*</i);
-            if (!mStatus) mStatus = cleanHtml.match(/Status\\s*:?\\s*([a-zA-Z]+)/i);
-            if (mStatus) statusVal = mStatus[1].trim();
-
-            var badge = document.getElementById("n8n-val-status");
-            if (statusVal) {
-                badge.innerText = statusVal;
-                if (statusVal.toLowerCase() !== "running") badge.classList.add("stopped");
-            }
-
-            // ── CPU ─────────────────────────────────────────────────────────────
-            var cpuText = extractAfterLabel("CPU");
-            var cpuPct  = extractPercent("CPU");
-            if (cpuText) document.getElementById("n8n-val-cpu-text").innerText = cpuText;
-            if (cpuPct !== null) document.getElementById("n8n-bar-cpu").style.width = Math.min(cpuPct, 100) + "%";
-
-            // ── Memory ──────────────────────────────────────────────────────────
-            var memText = extractAfterLabel("Memory");
-            var memPct  = extractPercent("Memory");
-            if (memText) document.getElementById("n8n-val-mem-text").innerText = memText;
-            if (memPct !== null) document.getElementById("n8n-bar-mem").style.width = Math.min(memPct, 100) + "%";
-
-            // ── Disk ────────────────────────────────────────────────────────────
-            var diskText = extractAfterLabel("Disk");
-            var diskPct  = extractPercent("Disk");
-            if (diskText) document.getElementById("n8n-val-disk-text").innerText = diskText;
-            if (diskPct !== null) document.getElementById("n8n-bar-disk").style.width = Math.min(diskPct, 100) + "%";
-
-            // ── Version ─────────────────────────────────────────────────────────
-            var ver = extractAfterLabel("Version");
-            if (ver) document.getElementById("n8n-val-version").innerText = ver;
-
-            // ── Owner ───────────────────────────────────────────────────────────
-            var own = extractAfterLabel("Owner");
-            if (own) document.getElementById("n8n-val-owner").innerText = own;
-
-            // ── Users ───────────────────────────────────────────────────────────
-            var usr = extractAfterLabel("Users");
-            if (usr) document.getElementById("n8n-val-users").innerText = usr;
-
-            // ── URL ─────────────────────────────────────────────────────────────
-            // Try domain patterns used for n8n instances
-            var mUrl = cleanHtml.match(/href=["\'](https?:\/\/[^\'"]+n8nbysnbd\.top[^\'"]*)["\']/i)
-                    || cleanHtml.match(/href=["\'](https?:\/\/[^\'"]*\.n8n\.[^\'"]+)["\']/i)
-                    || cleanHtml.match(/href=["\'](https?:\/\/n8n[^\'"]+)["\']/i);
-            if (mUrl) {
+            var instanceUrl = null;
+            if (extLink && extLink.href) {
+                instanceUrl = extLink.href;
                 var urlEl = document.getElementById("n8n-val-url");
-                urlEl.href = mUrl[1];
+                urlEl.href = instanceUrl;
+            } else if (domainEl && domainEl.textContent.trim()) {
+                var rawDomain = domainEl.textContent.trim();
+                instanceUrl = rawDomain.startsWith("http") ? rawDomain : "https://" + rawDomain;
+                document.getElementById("n8n-val-url").href = instanceUrl;
             }
 
-            // ── Buttons ─────────────────────────────────────────────────────────
-            var forms = orig.getElementsByTagName("form");
-
-            document.getElementById("n8n-btn-changepw").addEventListener("click", function(e) {
-                e.preventDefault();
-                for (var i = 0; i < forms.length; i++) {
-                    var t = forms[i].innerHTML;
-                    if (t.indexOf("Change Owner Password") !== -1 || t.indexOf("Change Password") !== -1 || t.indexOf("changepw") !== -1) {
-                        forms[i].submit();
-                        return;
+            // ── 3. Fetch live data via the module\'s own AJAX endpoint ────────────
+            if (serviceId) {
+                fetch(apiUrl + "?action=getAllData&serviceId=" + serviceId)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    // Status
+                    if (data.status && data.status.status) {
+                        var s = data.status.status;
+                        var badge = document.getElementById("n8n-val-status");
+                        badge.innerText = s.charAt(0).toUpperCase() + s.slice(1);
+                        badge.classList.remove("stopped");
+                        if (s !== "running") badge.classList.add("stopped");
                     }
-                }
-                // Fallback: click any Change Password link in the original HTML
-                var pwLink = orig.querySelector(\'a[href*="changepw"], a[href*="changepassword"], a[href*="change_password"]\');
-                if (pwLink) { window.location.href = pwLink.href; return; }
-                alert("Change Password action not found.");
-            });
+
+                    // Resource stats
+                    var rs = data.resourcestats;
+                    if (rs && rs.success) {
+                        // CPU: "0.50%"
+                        var cpuStr = (rs.cpu || "").replace(/\s/g, "");
+                        document.getElementById("n8n-val-cpu-text").innerText = cpuStr || "N/A";
+                        var cpuPct = parseFloat(cpuStr);
+                        if (!isNaN(cpuPct)) document.getElementById("n8n-bar-cpu").style.width = Math.min(cpuPct, 100) + "%";
+
+                        // Memory: "256MiB / 1GiB"
+                        var memStr = rs.memory || "";
+                        document.getElementById("n8n-val-mem-text").innerText = memStr || "N/A";
+                        // Parse used/limit to get percentage
+                        var memM = memStr.match(/([\d.]+)\s*(\w+)\s*\/\s*([\d.]+)\s*(\w+)/);
+                        if (memM) {
+                            function toMiB(val, unit) {
+                                val = parseFloat(val);
+                                unit = unit.toLowerCase();
+                                if (unit === "gib" || unit === "gb") return val * 1024;
+                                if (unit === "kib" || unit === "kb") return val / 1024;
+                                return val; // MiB default
+                            }
+                            var used  = toMiB(memM[1], memM[2]);
+                            var limit = toMiB(memM[3], memM[4]);
+                            if (limit > 0) document.getElementById("n8n-bar-mem").style.width = Math.min((used/limit)*100, 100) + "%";
+                        }
+
+                        // Disk / storage
+                        var storage = rs.storage;
+                        if (storage && typeof storage === "object") {
+                            var diskStr = storage.used ? (storage.used + (storage.total ? " / " + storage.total : "")) : "N/A";
+                            document.getElementById("n8n-val-disk-text").innerText = diskStr;
+                            if (storage.percent) {
+                                document.getElementById("n8n-bar-disk").style.width = Math.min(parseFloat(storage.percent), 100) + "%";
+                            }
+                        } else if (typeof storage === "string" && storage) {
+                            document.getElementById("n8n-val-disk-text").innerText = storage;
+                        }
+                    }
+
+                    // CPU limit & memory limit from module vars (already in rendered HTML)
+                    var cpuLimitEl = tmp.querySelector("td:not([id])");
+                    // Use owner field for CPU limit, users field for memory limit
+                    var cpuLimitNode  = tmp.querySelector("tr td strong");
+                    // Find the CPU Limit row value
+                    tmp.querySelectorAll("tr").forEach(function(tr) {
+                        var cells = tr.querySelectorAll("td");
+                        if (cells.length >= 2) {
+                            var label = cells[0].textContent.trim().replace(/:$/, "");
+                            var value = cells[1].textContent.trim();
+                            if (label === "CPU Limit")  document.getElementById("n8n-val-owner").innerText = value;
+                            if (label === "Memory")     document.getElementById("n8n-val-users").innerText  = value;
+                        }
+                    });
+                })
+                .catch(function(e) {
+                    console.error("[n8n-dashboard] AJAX error:", e);
+                });
+            } else {
+                console.warn("[n8n-dashboard] Could not extract serviceId from module HTML");
+            }
+
+            // ── 4. Button handlers ───────────────────────────────────────────────
+            var resetPasswordHandler = function(e) {
+                e.preventDefault();
+                if (!serviceId) { alert("Service ID not found."); return; }
+                if (!confirm("Reset your n8n password? A new password will be generated.")) return;
+                fetch(apiUrl + "?action=resetPassword&serviceId=" + serviceId)
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (d.success) {
+                        alert("Password reset! New password: " + (d.password || "(check your email)"));
+                    } else {
+                        alert("Reset failed: " + (d.message || "Unknown error"));
+                    }
+                })
+                .catch(function() { alert("Request failed. Please try again."); });
+            };
 
             var autoLoginHandler = function(e) {
                 e.preventDefault();
-                for (var i = 0; i < forms.length; i++) {
-                    var t = forms[i].innerHTML;
-                    var act = (forms[i].action || "").toLowerCase();
-                    if (t.indexOf("Go to n8n") !== -1 || t.indexOf("Auto Login") !== -1 || t.indexOf("autologin") !== -1 || act.indexOf("login") !== -1 || act.indexOf("sso") !== -1) {
-                        forms[i].submit();
-                        return;
-                    }
+                if (instanceUrl) {
+                    window.open(instanceUrl, "_blank");
+                } else {
+                    alert("Instance URL not found.");
                 }
-                // Fallback: open the instance URL
-                if (mUrl) { window.open(mUrl[1], "_blank"); return; }
-                alert("Auto Login action not found.");
             };
 
+            document.getElementById("n8n-btn-changepw").addEventListener("click", resetPasswordHandler);
             document.getElementById("n8n-btn-autologin").addEventListener("click", autoLoginHandler);
 
             // Bind the main top "GO TO N8N" button
