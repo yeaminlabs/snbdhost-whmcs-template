@@ -679,14 +679,14 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             }
             
             .btn-n8n-accent {
-                background: linear-gradient(135deg, #EA4B71 0%, #D63C60 100%) !important;
+                background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%) !important;
                 color: #ffffff !important;
                 border: none !important;
                 border-radius: 12px !important;
                 font-weight: 700 !important;
                 padding: 0.6rem 1.5rem !important;
                 transition: all 0.25s ease !important;
-                box-shadow: 0 4px 15px rgba(234,75,113,0.3) !important;
+                box-shadow: 0 4px 15px rgba(204,0,0,0.3) !important;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
@@ -694,7 +694,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             }
             .btn-n8n-accent:hover {
                 transform: translateY(-2px) !important;
-                box-shadow: 0 8px 25px rgba(234,75,113,0.4) !important;
+                box-shadow: 0 8px 25px rgba(204,0,0,0.4) !important;
             }
             
             .n8n-info-grid {
@@ -728,7 +728,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 <div class="col-lg-6">
                     <div class="n8n-card h-100">
                         <div class="n8n-card-title">
-                            <i class="ti ti-server" style="color: #EA4B71; font-size: 1.4rem;"></i> Resource Monitor
+                            <i class="ti ti-server" style="color: #CC0000; font-size: 1.4rem;"></i> Resource Monitor
                         </div>
                         
                         <div class="n8n-metric-row mt-3">
@@ -768,7 +768,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                                 <div class="n8n-card-title mb-0">
-                                    <i class="ti ti-info-circle" style="color: #EA4B71; font-size: 1.4rem;"></i> Instance Overview
+                                    <i class="ti ti-info-circle" style="color: #CC0000; font-size: 1.4rem;"></i> Instance Overview
                                 </div>
                                 <span class="n8n-status-badge" id="n8n-val-status">Unknown</span>
                             </div>
@@ -781,7 +781,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                                 <div class="n8n-info-item">
                                     <div class="n8n-info-label">URL</div>
                                     <div class="n8n-info-value">
-                                        <a href="#" id="n8n-val-url" target="_blank" style="color: #EA4B71; text-decoration: none; font-weight: 700;">
+                                        <a href="#" id="n8n-val-url" target="_blank" style="color: #CC0000; text-decoration: none; font-weight: 700;">
                                             Open Instance <i class="ti ti-external-link"></i>
                                         </a>
                                     </div>
@@ -813,105 +813,144 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
         document.addEventListener("DOMContentLoaded", function() {
             var orig = document.getElementById("n8n-original-module-data");
             if (!orig) return;
-            
-            // Clean out any scripts from the HTML so we don\'t accidentally match JS code
+
+            // Log raw module HTML to console to help diagnose parsing issues
+            console.log("[n8n-dashboard] raw module HTML:", orig.innerHTML);
+
+            // Remove script tags so we don\'t accidentally match JS code in regexes
             var cleanHtml = orig.innerHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
-            
-            // Helper to safely extract values from divs or spans
-            var extractDiv = function(label) {
-                var regex = new RegExp(label + ".*?<div[^>]*>\\s*([^<]+)\\s*<", "i");
-                var m = cleanHtml.match(regex);
-                return m && m[1] ? m[1].trim() : null;
-            };
-            
-            var extractTd = function(label) {
-                var regex = new RegExp(label + ".*?<td[^>]*>\\s*([^<]+)\\s*<", "i");
-                var m = cleanHtml.match(regex);
-                return m && m[1] ? m[1].trim() : null;
-            };
-            
-            // Status
-            var mStatus = cleanHtml.match(/Status:.*?<span[^>]*>\\s*([^<]+)\\s*</i) || cleanHtml.match(/Status:\\s*([a-zA-Z]+)/i);
-            if (mStatus) {
-                var s = mStatus[1].trim();
-                var badge = document.getElementById("n8n-val-status");
-                badge.innerText = s;
-                if (s.toLowerCase() !== "running") {
-                    badge.classList.add("stopped");
-                }
+
+            // ── Generic extractors ──────────────────────────────────────────────
+            // Try to get the text value that follows a label string, searching
+            // inside <td>, <div>, <span>, or plain text nodes.
+            function extractAfterLabel(label) {
+                // Strategy 1: label inside one cell, value in the next <td>
+                var r1 = new RegExp(label + "[\\s\\S]*?<td[^>]*>\\s*([^<]+?)\\s*<", "i");
+                var m = cleanHtml.match(r1);
+                if (m && m[1].trim()) return m[1].trim();
+
+                // Strategy 2: label followed by value in a sibling/child <div> or <span>
+                var r2 = new RegExp(label + "[\\s\\S]*?<(?:div|span|td)[^>]*>\\s*([^<]{1,120}?)\\s*<", "i");
+                m = cleanHtml.match(r2);
+                if (m && m[1].trim()) return m[1].trim();
+
+                // Strategy 3: "Label: Value" plain text pattern
+                var r3 = new RegExp(label + "\\s*:?\\s*([^\\n<]{1,80})", "i");
+                m = cleanHtml.match(r3);
+                if (m && m[1].trim()) return m[1].trim();
+
+                return null;
             }
-            
-            // CPU
-            var cpu = extractDiv("CPU usage:");
-            if (cpu) document.getElementById("n8n-val-cpu-text").innerText = cpu;
-            var mCpuPct = cleanHtml.match(/CPU usage:.*?(\\d+(?:\\.\\d+)?%)/i);
-            if (mCpuPct) document.getElementById("n8n-bar-cpu").style.width = mCpuPct[1];
-            
-            // Memory
-            var mem = extractDiv("Memory usage:");
-            if (mem) document.getElementById("n8n-val-mem-text").innerText = mem;
-            var mMemPct = cleanHtml.match(/Memory usage:.*?width:\\s*(\\d+(?:\\.\\d+)?)%/i);
-            if (mMemPct) document.getElementById("n8n-bar-mem").style.width = mMemPct[1] + "%";
-            
-            // Disk
-            var disk = extractDiv("Disk usage:");
-            if (disk) document.getElementById("n8n-val-disk-text").innerText = disk;
-            var mDiskPct = cleanHtml.match(/Disk usage:.*?width:\\s*(\\d+(?:\\.\\d+)?)%/i);
-            if (mDiskPct) document.getElementById("n8n-bar-disk").style.width = mDiskPct[1] + "%";
-            
-            // Version, Owner, Users
-            var ver = extractTd("Version:");
+
+            // Extract a percentage number (0-100) associated with a label
+            function extractPercent(label) {
+                // Pattern A: width: XX% in an inline style near the label
+                var rA = new RegExp(label + "[\\s\\S]{0,400}?width:\\s*(\\d+(?:\\.\\d+)?)%", "i");
+                var m = cleanHtml.match(rA);
+                if (m) return parseFloat(m[1]);
+
+                // Pattern B: explicit "XX%" text near the label
+                var rB = new RegExp(label + "[\\s\\S]{0,400}?(\\d+(?:\\.\\d+)?)%", "i");
+                m = cleanHtml.match(rB);
+                if (m) return parseFloat(m[1]);
+
+                return null;
+            }
+
+            // ── Status ──────────────────────────────────────────────────────────
+            var statusVal = null;
+            // Try badge/span inside a "Status" context
+            var mStatus = cleanHtml.match(/Status[\\s\\S]{0,80}?<(?:span|td|div)[^>]*>\\s*([a-zA-Z]+)\\s*</i);
+            if (!mStatus) mStatus = cleanHtml.match(/Status\\s*:?\\s*([a-zA-Z]+)/i);
+            if (mStatus) statusVal = mStatus[1].trim();
+
+            var badge = document.getElementById("n8n-val-status");
+            if (statusVal) {
+                badge.innerText = statusVal;
+                if (statusVal.toLowerCase() !== "running") badge.classList.add("stopped");
+            }
+
+            // ── CPU ─────────────────────────────────────────────────────────────
+            var cpuText = extractAfterLabel("CPU");
+            var cpuPct  = extractPercent("CPU");
+            if (cpuText) document.getElementById("n8n-val-cpu-text").innerText = cpuText;
+            if (cpuPct !== null) document.getElementById("n8n-bar-cpu").style.width = Math.min(cpuPct, 100) + "%";
+
+            // ── Memory ──────────────────────────────────────────────────────────
+            var memText = extractAfterLabel("Memory");
+            var memPct  = extractPercent("Memory");
+            if (memText) document.getElementById("n8n-val-mem-text").innerText = memText;
+            if (memPct !== null) document.getElementById("n8n-bar-mem").style.width = Math.min(memPct, 100) + "%";
+
+            // ── Disk ────────────────────────────────────────────────────────────
+            var diskText = extractAfterLabel("Disk");
+            var diskPct  = extractPercent("Disk");
+            if (diskText) document.getElementById("n8n-val-disk-text").innerText = diskText;
+            if (diskPct !== null) document.getElementById("n8n-bar-disk").style.width = Math.min(diskPct, 100) + "%";
+
+            // ── Version ─────────────────────────────────────────────────────────
+            var ver = extractAfterLabel("Version");
             if (ver) document.getElementById("n8n-val-version").innerText = ver;
-            
-            var own = extractTd("Owner:");
+
+            // ── Owner ───────────────────────────────────────────────────────────
+            var own = extractAfterLabel("Owner");
             if (own) document.getElementById("n8n-val-owner").innerText = own;
-            
-            var usr = extractTd("Users:");
+
+            // ── Users ───────────────────────────────────────────────────────────
+            var usr = extractAfterLabel("Users");
             if (usr) document.getElementById("n8n-val-users").innerText = usr;
-            
-            // URL
-            var mUrl = cleanHtml.match(/href=["\'](https?:\\/\\/[^\'"]+n8nbysnbd\\.top[^\'"]*)["\']/i);
+
+            // ── URL ─────────────────────────────────────────────────────────────
+            // Try domain patterns used for n8n instances
+            var mUrl = cleanHtml.match(/href=["\'](https?:\/\/[^\'"]+n8nbysnbd\.top[^\'"]*)["\']/i)
+                    || cleanHtml.match(/href=["\'](https?:\/\/[^\'"]*\.n8n\.[^\'"]+)["\']/i)
+                    || cleanHtml.match(/href=["\'](https?:\/\/n8n[^\'"]+)["\']/i);
             if (mUrl) {
-                document.getElementById("n8n-val-url").href = mUrl[1];
+                var urlEl = document.getElementById("n8n-val-url");
+                urlEl.href = mUrl[1];
             }
-            
-            // Buttons logic
+
+            // ── Buttons ─────────────────────────────────────────────────────────
             var forms = orig.getElementsByTagName("form");
-            
+
             document.getElementById("n8n-btn-changepw").addEventListener("click", function(e) {
                 e.preventDefault();
-                for (var i=0; i<forms.length; i++) {
-                    if (forms[i].innerHTML.indexOf("Change Owner Password") !== -1 || forms[i].innerHTML.indexOf("Change Password") !== -1) {
+                for (var i = 0; i < forms.length; i++) {
+                    var t = forms[i].innerHTML;
+                    if (t.indexOf("Change Owner Password") !== -1 || t.indexOf("Change Password") !== -1 || t.indexOf("changepw") !== -1) {
                         forms[i].submit();
                         return;
                     }
                 }
+                // Fallback: click any Change Password link in the original HTML
+                var pwLink = orig.querySelector(\'a[href*="changepw"], a[href*="changepassword"], a[href*="change_password"]\');
+                if (pwLink) { window.location.href = pwLink.href; return; }
                 alert("Change Password action not found.");
             });
-            
+
             var autoLoginHandler = function(e) {
                 e.preventDefault();
-                for (var i=0; i<forms.length; i++) {
-                    if (forms[i].innerHTML.indexOf("Go to n8n") !== -1 || forms[i].innerHTML.indexOf("Auto Login") !== -1 || forms[i].innerHTML.indexOf("Login") !== -1 || forms[i].action.indexOf("login") !== -1) {
+                for (var i = 0; i < forms.length; i++) {
+                    var t = forms[i].innerHTML;
+                    var act = (forms[i].action || "").toLowerCase();
+                    if (t.indexOf("Go to n8n") !== -1 || t.indexOf("Auto Login") !== -1 || t.indexOf("autologin") !== -1 || act.indexOf("login") !== -1 || act.indexOf("sso") !== -1) {
                         forms[i].submit();
                         return;
                     }
                 }
-                // fallback if it\'s a link
-                if (mUrl) window.open(mUrl[1], "_blank");
-                else alert("Auto Login action not found.");
+                // Fallback: open the instance URL
+                if (mUrl) { window.open(mUrl[1], "_blank"); return; }
+                alert("Auto Login action not found.");
             };
-            
+
             document.getElementById("n8n-btn-autologin").addEventListener("click", autoLoginHandler);
-            
-            // Bind the main top button (n8nMainBtn) to auto-login as well
+
+            // Bind the main top "GO TO N8N" button
             var whmcsN8nBtn = document.getElementById("n8nMainBtn");
             if (whmcsN8nBtn) {
                 whmcsN8nBtn.addEventListener("click", autoLoginHandler);
                 var whmcsN8nBtnContainer = document.getElementById("n8nButtonContainer");
-                if (whmcsN8nBtnContainer) {
-                    whmcsN8nBtnContainer.style.display = "block";
-                }
+                if (whmcsN8nBtnContainer) whmcsN8nBtnContainer.style.display = "block";
             }
         });
         </script>';
