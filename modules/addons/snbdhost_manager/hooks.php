@@ -924,21 +924,61 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 console.warn("[n8n-dashboard] Could not extract serviceId from module HTML");
             }
 
-            // ── 4. Button handlers ───────────────────────────────────────────────
+            // ── 4. In-page password notice ───────────────────────────────────────
+            function showPwNotice(pw) {
+                var existing = document.getElementById("n8n-pw-notice");
+                if (existing) existing.remove();
+
+                var notice = document.createElement("div");
+                notice.id = "n8n-pw-notice";
+                notice.style.cssText = [
+                    "background:#fff8f0",
+                    "border:1.5px solid #f5a623",
+                    "border-radius:12px",
+                    "padding:1rem 1.25rem",
+                    "margin-top:1rem",
+                    "font-size:0.85rem",
+                    "position:relative"
+                ].join(";");
+
+                notice.innerHTML =
+                    \'<div style="font-weight:700;color:#b45309;margin-bottom:0.4rem;">\' +
+                    \'<i class="ti ti-alert-triangle" style="margin-right:6px;"></i>Save your new password — it will not be shown again after you leave this page.\' +
+                    \'</div>\' +
+                    \'<div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;">\' +
+                    \'<code id="n8n-new-pw-text" style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:0.4rem 0.8rem;font-size:1rem;font-weight:700;color:#92400e;letter-spacing:0.05em;flex:1;">\' + pw + \'</code>\' +
+                    \'<button onclick="(function(){var t=document.getElementById(\'n8n-new-pw-text\');if(t){navigator.clipboard.writeText(t.textContent).then(function(){var b=document.getElementById(\'n8n-copy-btn\');if(b){b.innerHTML=\'<i class=\\\"ti ti-check\\\"></i> Copied!\';setTimeout(function(){b.innerHTML=\'<i class=\\\"ti ti-copy\\\"></i> Copy\';},2000);}})}})()" id="n8n-copy-btn" style="background:#f5a623;border:none;border-radius:8px;color:#fff;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;white-space:nowrap;"><i class="ti ti-copy"></i> Copy</button>\' +
+                    \'<button onclick="document.getElementById(\'n8n-pw-notice\').remove()" style="background:transparent;border:none;color:#b45309;cursor:pointer;padding:0.2rem 0.4rem;font-size:1.1rem;" title="Dismiss">&times;</button>\' +
+                    \'</div>\';
+
+                var dashboard = document.getElementById("n8n-modern-dashboard");
+                if (dashboard) {
+                    dashboard.insertAdjacentElement("afterbegin", notice);
+                    notice.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            }
+
+            // ── 5. Button handlers ───────────────────────────────────────────────
             var resetPasswordHandler = function(e) {
                 e.preventDefault();
                 if (!serviceId) { alert("Service ID not found."); return; }
-                if (!confirm("Reset your n8n password? A new password will be generated.")) return;
+                var btn = document.getElementById("n8n-btn-changepw");
+                if (!confirm("Reset your n8n password? A new random password will be generated.")) return;
+                if (btn) { btn.disabled = true; btn.innerHTML = \'<i class="ti ti-loader-2 ti-spin me-2"></i> Resetting…\'; }
                 fetch(apiUrl + "?action=resetPassword&serviceId=" + serviceId)
                 .then(function(r) { return r.json(); })
                 .then(function(d) {
+                    if (btn) { btn.disabled = false; btn.innerHTML = \'<i class="ti ti-key me-2"></i> Change Password\'; }
                     if (d.success) {
-                        alert("Password reset! New password: " + (d.password || "(check your email)"));
+                        showPwNotice(d.password || "(check your email)");
                     } else {
                         alert("Reset failed: " + (d.message || "Unknown error"));
                     }
                 })
-                .catch(function() { alert("Request failed. Please try again."); });
+                .catch(function() {
+                    if (btn) { btn.disabled = false; btn.innerHTML = \'<i class="ti ti-key me-2"></i> Change Password\'; }
+                    alert("Request failed. Please try again.");
+                });
             };
 
             var autoLoginHandler = function(e) {
