@@ -929,27 +929,45 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 var existing = document.getElementById("n8n-pw-notice");
                 if (existing) existing.remove();
 
+                // Build with DOM methods to avoid quote-escaping issues
                 var notice = document.createElement("div");
                 notice.id = "n8n-pw-notice";
-                notice.style.cssText = [
-                    "background:#fff8f0",
-                    "border:1.5px solid #f5a623",
-                    "border-radius:12px",
-                    "padding:1rem 1.25rem",
-                    "margin-top:1rem",
-                    "font-size:0.85rem",
-                    "position:relative"
-                ].join(";");
+                notice.style.cssText = "background:#fff8f0;border:1.5px solid #f5a623;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:0.85rem;";
 
-                notice.innerHTML =
-                    \'<div style="font-weight:700;color:#b45309;margin-bottom:0.4rem;">\' +
-                    \'<i class="ti ti-alert-triangle" style="margin-right:6px;"></i>Save your new password — it will not be shown again after you leave this page.\' +
-                    \'</div>\' +
-                    \'<div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;">\' +
-                    \'<code id="n8n-new-pw-text" style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:0.4rem 0.8rem;font-size:1rem;font-weight:700;color:#92400e;letter-spacing:0.05em;flex:1;">\' + pw + \'</code>\' +
-                    \'<button onclick="(function(){var t=document.getElementById(\'n8n-new-pw-text\');if(t){navigator.clipboard.writeText(t.textContent).then(function(){var b=document.getElementById(\'n8n-copy-btn\');if(b){b.innerHTML=\'<i class=\\\"ti ti-check\\\"></i> Copied!\';setTimeout(function(){b.innerHTML=\'<i class=\\\"ti ti-copy\\\"></i> Copy\';},2000);}})}})()" id="n8n-copy-btn" style="background:#f5a623;border:none;border-radius:8px;color:#fff;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;white-space:nowrap;"><i class="ti ti-copy"></i> Copy</button>\' +
-                    \'<button onclick="document.getElementById(\'n8n-pw-notice\').remove()" style="background:transparent;border:none;color:#b45309;cursor:pointer;padding:0.2rem 0.4rem;font-size:1.1rem;" title="Dismiss">&times;</button>\' +
-                    \'</div>\';
+                var warn = document.createElement("div");
+                warn.style.cssText = "font-weight:700;color:#b45309;margin-bottom:0.6rem;";
+                warn.innerHTML = "<i class=\"ti ti-alert-triangle\" style=\"margin-right:6px;\"></i>Save your new password — it will disappear after you refresh this page.";
+
+                var row = document.createElement("div");
+                row.style.cssText = "display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;";
+
+                var code = document.createElement("code");
+                code.id = "n8n-new-pw-text";
+                code.style.cssText = "background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:0.4rem 0.8rem;font-size:1rem;font-weight:700;color:#92400e;letter-spacing:0.05em;flex:1;word-break:break-all;";
+                code.textContent = pw;
+
+                var copyBtn = document.createElement("button");
+                copyBtn.id = "n8n-copy-btn";
+                copyBtn.style.cssText = "background:#f5a623;border:none;border-radius:8px;color:#fff;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;white-space:nowrap;";
+                copyBtn.innerHTML = "<i class=\"ti ti-copy\"></i> Copy";
+                copyBtn.addEventListener("click", function() {
+                    navigator.clipboard.writeText(pw).then(function() {
+                        copyBtn.innerHTML = "<i class=\"ti ti-check\"></i> Copied!";
+                        setTimeout(function() { copyBtn.innerHTML = "<i class=\"ti ti-copy\"></i> Copy"; }, 2000);
+                    });
+                });
+
+                var closeBtn = document.createElement("button");
+                closeBtn.style.cssText = "background:transparent;border:none;color:#b45309;cursor:pointer;font-size:1.2rem;padding:0 0.3rem;line-height:1;";
+                closeBtn.title = "Dismiss";
+                closeBtn.textContent = "×";
+                closeBtn.addEventListener("click", function() { notice.remove(); });
+
+                row.appendChild(code);
+                row.appendChild(copyBtn);
+                row.appendChild(closeBtn);
+                notice.appendChild(warn);
+                notice.appendChild(row);
 
                 var dashboard = document.getElementById("n8n-modern-dashboard");
                 if (dashboard) {
