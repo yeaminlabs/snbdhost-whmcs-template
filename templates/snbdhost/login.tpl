@@ -575,6 +575,9 @@
                      data-size="large"
                      data-logo_alignment="center">
                 </div>
+                <div id="snbdGoogleSignInLoading" style="display:none; width:100%; text-align:center; margin-top:1rem; color:var(--snbd-text-muted); font-size:0.9rem;">
+                    <i class="fas fa-circle-notch fa-spin me-2" style="color:var(--snbd-red);"></i> Authenticating securely...
+                </div>
                 <div id="snbdGoogleSignInError" style="display:none; width:100%;" class="auth-alert mt-3 text-start"></div>
             </div>
             {/if}

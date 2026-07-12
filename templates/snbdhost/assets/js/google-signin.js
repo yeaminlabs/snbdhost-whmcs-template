@@ -5,6 +5,9 @@
 
 function onGoogleSignIn(credentialResponse) {
     var errorDiv = document.getElementById('snbdGoogleSignInError');
+    var loadingDiv = document.getElementById('snbdGoogleSignInLoading');
+    var signinBtn = document.querySelector('.g_id_signin');
+
     if (errorDiv) {
         errorDiv.style.display = 'none';
         errorDiv.innerHTML = '';
@@ -13,6 +16,15 @@ function onGoogleSignIn(credentialResponse) {
     if (!credentialResponse || !credentialResponse.credential) {
         showGoogleError('<i class="fas fa-exclamation-circle"></i> Invalid response from Google. Please try again.');
         return;
+    }
+
+    // Show loading state
+    if (loadingDiv) {
+        loadingDiv.style.display = 'block';
+    }
+    if (signinBtn) {
+        signinBtn.style.opacity = '0.5';
+        signinBtn.style.pointerEvents = 'none';
     }
 
     var csrfToken = window.csrfToken || ''; // Provided by WHMCS in header.tpl
@@ -35,19 +47,32 @@ function onGoogleSignIn(credentialResponse) {
         if (data.redirect) {
             window.location.href = data.redirect;
         } else if (data.error) {
+            hideGoogleLoading();
             if (data.error === 'twofa_required') {
                 showGoogleError('<i class="fas fa-shield-alt"></i> Two-factor authentication is enabled for this account. Please sign in with your password to complete 2FA verification.');
             } else {
                 showGoogleError('<i class="fas fa-exclamation-circle"></i> ' + escapeHtml(data.error));
             }
         } else {
+            hideGoogleLoading();
             showGoogleError('<i class="fas fa-exclamation-circle"></i> An unexpected error occurred. Please contact support.');
         }
     })
     .catch(function(error) {
+        hideGoogleLoading();
         showGoogleError('<i class="fas fa-exclamation-circle"></i> Connection error. Please try again.');
         console.error('Google Sign-In Error:', error);
     });
+}
+
+function hideGoogleLoading() {
+    var loadingDiv = document.getElementById('snbdGoogleSignInLoading');
+    var signinBtn = document.querySelector('.g_id_signin');
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    if (signinBtn) {
+        signinBtn.style.opacity = '1';
+        signinBtn.style.pointerEvents = 'auto';
+    }
 }
 
 function showGoogleError(htmlMsg) {
