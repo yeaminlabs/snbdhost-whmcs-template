@@ -113,10 +113,12 @@
 <div class="pwreset-wrap">
     <div class="pwreset-card">
 
-        <div class="pwreset-logo">
-            <div class="logo-icon"><i class="fas fa-key"></i></div>
-            <div class="logo-name">{$companyname}</div>
-        </div>
+        <a href="https://snbdhost.com" style="text-decoration: none;">
+            <div class="pwreset-logo">
+                <div class="logo-icon"><i class="fas fa-key"></i></div>
+                <div class="logo-name">{$companyname}</div>
+            </div>
+        </a>
 
         <div class="pwreset-title">{$LANG.pwreset}</div>
         <div class="pwreset-sub">{$LANG.pwresetemailneeded}</div>

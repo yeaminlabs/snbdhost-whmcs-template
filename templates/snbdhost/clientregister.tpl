@@ -495,7 +495,9 @@
 
         <!-- Logo -->
         <div class="register-logo-wrap">
-            <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" />
+            <a href="https://snbdhost.com">
+                <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" />
+            </a>
         </div>
 
         <!-- Main content -->

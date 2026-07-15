@@ -20,13 +20,16 @@
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tabler Icons CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <!-- Inter Font -->
+    <!-- Google Fonts Preconnect & Combined Load -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome (Asynchronous) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <!-- Tabler Icons CSS (Asynchronous) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"></noscript>
 
     <!-- Parent Twenty-One Theme CSS (required for cart/store/fallback pages) -->
     <link href="{$WEB_ROOT}/templates/{$template}/css/all.min.css?v={$versionHash}" rel="stylesheet">
@@ -45,8 +48,22 @@
         <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$smarty.now}"></script>
     {/if}
+
+    <!-- Google Tag Manager -->
+    {literal}
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-N675SJK');</script>
+    {/literal}
+    <!-- End Google Tag Manager -->
 </head>
 <body data-phone-cc-input="{$phoneNumberInputStyle}">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N675SJK"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 {$headeroutput}
 
@@ -71,52 +88,52 @@
             </div>
             <nav class="snbd-nav-menu">
                 <div class="nav-section-label">Main</div>
-                <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}" aria-label="Dashboard">
                     <i class="ti ti-layout-dashboard"></i>
                     <span class="snbd-nav-text">Dashboard</span>
                 </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}" aria-label="Services">
                     <i class="ti ti-server"></i>
                     <span class="snbd-nav-text">Services</span>
                 </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}" aria-label="Domains">
                     <i class="ti ti-world"></i>
                     <span class="snbd-nav-text">Domains</span>
                 </a>
-                <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}">
+                <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}" aria-label="Affiliates">
                     <i class="ti ti-users"></i>
                     <span class="snbd-nav-text">Affiliates</span>
                 </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}" aria-label="Billing">
                     <i class="ti ti-credit-card"></i>
                     <span class="snbd-nav-text">Billing</span>
                 </a>
-
+ 
                 <div class="nav-section-label">Support</div>
-                <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}">
+                <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}" aria-label="Tickets">
                     <i class="ti ti-lifebuoy"></i>
                     <span class="snbd-nav-text">Tickets</span>
                 </a>
-                <a href="{$WEB_ROOT}/knowledgebase.php" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}">
+                <a href="{$WEB_ROOT}/knowledgebase.php" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}" aria-label="Knowledge Base">
                     <i class="ti ti-book"></i>
                     <span class="snbd-nav-text">Knowledge Base</span>
                 </a>
-                <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}">
+                <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}" aria-label="Network Status">
                     <i class="ti ti-activity"></i>
                     <span class="snbd-nav-text">Network Status</span>
                 </a>
-
+ 
                 <div class="nav-section-label">Account</div>
-                <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}" aria-label="My Details">
                     <i class="ti ti-settings"></i>
                     <span class="snbd-nav-text">My Details</span>
                 </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}">
+                <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}" aria-label="Emails">
                     <i class="ti ti-mail"></i>
                     <span class="snbd-nav-text">Emails</span>
                 </a>
                 {if $loggedin}
-                <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item">
+                <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item" aria-label="Logout">
                     <i class="ti ti-logout"></i>
                     <span class="snbd-nav-text">Logout</span>
                 </a>
@@ -134,18 +151,6 @@
         </aside>
 
         <main id="snbd-main">
-            <!-- Announcement Bar -->
-            <div class="snbd-announcement-bar">
-                <div class="announcement-container">
-                    <div class="announcement-left">
-                        <span class="announcement-badge">NEW</span>
-                        <span class="announcement-text">AI-Powered Hosting is here! Deploy, manage & scale smarter than ever.</span>
-                    </div>
-                    <div class="announcement-right">
-                        <a href="{$WEB_ROOT}/index.php?rp=/store" class="announcement-link">View Offers <i class="ti ti-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
 
             <header id="snbd-topbar">
                 <div class="topbar-left-wrap">
@@ -201,9 +206,14 @@
                     </div>
                     {/if}
 
+                    {if $loggedin}
+                    <a href="{$WEB_ROOT}/cart.php" class="btn btn-brand btn-topbar-dashboard d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; margin-right: 0.5rem;">
+                        <i class="ti ti-plus" style="font-size: 0.9rem; vertical-align: middle;"></i> Order Service
+                    </a>
                     <a href="clientarea.php?action=details" class="topbar-icon-btn d-none d-md-inline-flex" aria-label="Settings" title="Account Settings">
                         <i class="ti ti-settings"></i>
                     </a>
+                    {/if}
                     
                     <button class="topbar-icon-btn position-relative d-none d-md-inline-flex" aria-label="Notifications">
                         <i class="ti ti-bell"></i>

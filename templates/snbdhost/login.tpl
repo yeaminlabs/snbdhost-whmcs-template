@@ -10,7 +10,7 @@
     --snbd-surface:     #ffffff;
     --snbd-text-1:      #1a1a1a;
     --snbd-text-2:      #555555;
-    --snbd-text-muted:  #999999;
+    --snbd-text-muted:  #757575;
     --snbd-border:      #e0e0e0;
     --snbd-border-sub:  #eeeeee;
     --snbd-font:        'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -479,7 +479,9 @@
 
         <!-- Logo -->
         <div class="login-logo-wrap">
-            <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" />
+            <a href="https://snbdhost.com">
+                <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" />
+            </a>
         </div>
 
         <div class="login-brand">

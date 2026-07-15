@@ -119,9 +119,32 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
         }
     } catch (\Throwable $e) { }
 
+    // ------ Open Support Tickets ------
+    $openTickets = [];
+    try {
+        $rows = Capsule::table('tbltickets')
+            ->where('userid', $userid)
+            ->whereNotIn('status', ['Closed', 'Answered'])
+            ->orderBy('lastreply', 'desc')
+            ->limit(5)
+            ->get();
+
+        foreach ($rows as $row) {
+            $openTickets[] = [
+                'id'         => $row->id,
+                'tid'        => $row->tid,
+                'title'      => $row->title,
+                'status'     => $row->status,
+                'c'          => $row->c,
+                'lastreply'  => date('M j, Y', strtotime($row->lastreply)),
+            ];
+        }
+    } catch (\Throwable $e) { }
+
     return [
         'invoices'     => $invoices,
         'services'     => $services,
         'loyalty_data' => $loyalty,
+        'open_tickets' => $openTickets,
     ];
 });

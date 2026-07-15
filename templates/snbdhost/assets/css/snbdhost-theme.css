@@ -3,9 +3,8 @@
    Bootstrap 5 Deep Integration | Corporate Red Accent
    ================================================================ */
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+/* Google Fonts (Deferred & preconnected via header.tpl) */
+
 
 /* ----------------------------------------------------------------
    1. CSS Custom Properties (Brand Tokens)
@@ -25,7 +24,7 @@
   --bg-input: #ffffff;
   --text-primary: #1a1a1a;
   --text-secondary: #555555;
-  --text-muted: #999999;
+  --text-muted: #757575;
   --border-color: #e0e0e0;
   --border-subtle: #eeeeee;
 
@@ -47,6 +46,28 @@
   --topbar-h: 70px;
   --sidebar-w: 260px;
   --sidebar-w-collapsed: 68px;
+}
+
+/* System Dark Mode Override */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-body: #0d0d0d;
+    --bg-surface: #171717;
+    --bg-elevated: #202020;
+    --bg-input: #262626;
+    --text-primary: #f5f5f5;
+    --text-secondary: #b3b3b3;
+    --text-muted: #888888;
+    --border-color: #333333;
+    --border-subtle: #262626;
+    --brand-light: rgba(186, 17, 20, 0.15);
+    --brand-light-border: rgba(186, 17, 20, 0.4);
+    
+    --success-bg: rgba(70, 180, 80, 0.12);
+    --warning-bg: rgba(255, 120, 0, 0.12);
+    --danger-bg: rgba(230, 40, 40, 0.12);
+    --info-bg: rgba(186, 17, 20, 0.12);
+  }
 }
 
 /* ----------------------------------------------------------------
@@ -448,7 +469,9 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 .toggle-sidebar-btn {
   background: none; border: none;
   color: var(--text-secondary); font-size: 1.125rem;
-  cursor: pointer; padding: 0.375rem;
+  cursor: pointer; padding: 0.6rem;
+  min-width: 44px; min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
   border-radius: 6px; transition: all 0.2s;
 }
 .toggle-sidebar-btn:hover { background: #f5f5f5; color: #CC0000; }
@@ -639,7 +662,7 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
    9. Dashboard Stat Cards
    ---------------------------------------------------------------- */
 .stat-card {
-  border-left: 4px solid var(--brand-primary) !important;
+  border: 1px solid var(--border-color) !important;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .stat-card:hover {

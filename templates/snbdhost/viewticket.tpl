@@ -45,8 +45,8 @@
             </div>
             {if $attachments}
             <div class="ticket-attachments mt-2">
-                {foreach $attachments as $attachment}
-                <a href="{$attachment.url}" target="_blank" class="ticket-attachment-pill"><i class="ti ti-paperclip me-1"></i>{$attachment.filename}</a>
+                {foreach from=$attachments key=num item=attachment}
+                <a href="dl.php?type=a&amp;id={$id}&amp;i={$num}" target="_blank" class="ticket-attachment-pill"><i class="ti ti-paperclip me-1"></i>{$attachment}</a>
                 {/foreach}
             </div>
             {/if}
@@ -73,8 +73,8 @@
             </div>
             {if $reply.attachments}
             <div class="ticket-attachments mt-2 {if $reply.admin}attachments-staff{/if}">
-                {foreach $reply.attachments as $attachment}
-                <a href="{$attachment.url}" target="_blank" class="ticket-attachment-pill"><i class="ti ti-paperclip me-1"></i>{$attachment.filename}</a>
+                {foreach from=$reply.attachments key=num item=attachment}
+                <a href="dl.php?type=ar&amp;id={$reply.id}&amp;i={$num}" target="_blank" class="ticket-attachment-pill"><i class="ti ti-paperclip me-1"></i>{$attachment}</a>
                 {/foreach}
             </div>
             {/if}
