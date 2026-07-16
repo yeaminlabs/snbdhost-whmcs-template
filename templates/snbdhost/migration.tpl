@@ -172,6 +172,7 @@
 </style>
 
 <script>
+{literal}
 document.addEventListener('DOMContentLoaded', function() {
     const radioAlreadyHave = document.getElementById('host_already_have');
     const radioNeedHelp = document.getElementById('host_need_help');
@@ -219,4 +220,5 @@ document.addEventListener('DOMContentLoaded', function() {
     radioAlreadyHave.addEventListener('change', updateUI);
     radioNeedHelp.addEventListener('change', updateUI);
 });
+{/literal}
 </script>

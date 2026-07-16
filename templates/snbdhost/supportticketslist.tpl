@@ -112,7 +112,7 @@
                         </td>
                         <td class="py-3 px-4 text-secondary small">{$ticket.lastreply}</td>
                         <td class="py-3 px-4 text-end" onclick="event.stopPropagation();">
-                            <a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}" class="topbar-icon-btn d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" title="View Ticket" aria-label="View Ticket #{$ticket.tid}">
+                            <a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}" class="topbar-icon-btn" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;" title="View Ticket" aria-label="View Ticket #{$ticket.tid}">
                                 <i class="ti ti-eye" style="font-size: 1.05rem;"></i>
                             </a>
                         </td>
