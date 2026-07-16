@@ -64,7 +64,7 @@
                   </div>
             </div>
 
-            <div class="table-container clearfix">
+            <div class="table-container table-responsive clearfix">
                 <table id="tableDomainsList" class="table table-list w-hidden">
                     <thead>
                         <tr>
