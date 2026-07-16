@@ -37,28 +37,28 @@
             <input id="bulkaction" name="update" type="hidden" />
 
             <div class="btn-group btn-group-sm mb-3" role="group">
-                <button type="button" class="btn btn-default setBulkAction" id="nameservers">
-                    <i class="fal fa-globe fa-fw"></i>
+                <button type="button" class="btn btn-outline-table setBulkAction" id="nameservers">
+                    <i class="fas fa-globe fa-fw"></i>
                     {lang key='domainmanagens'}
                 </button>
-                <button type="button" class="btn btn-default setBulkAction" id="contactinfo">
-                    <i class="fal fa-user"></i>
+                <button type="button" class="btn btn-outline-table setBulkAction" id="contactinfo">
+                    <i class="fas fa-user"></i>
                     {lang key='domaincontactinfoedit'}
                 </button>
                 {if $allowrenew}
-                    <button type="button" class="btn btn-default setBulkAction" id="renewDomains">
-                        <i class="fal fa-sync"></i>
+                    <button type="button" class="btn btn-outline-table setBulkAction" id="renewDomains">
+                        <i class="fas fa-sync"></i>
                         {lang key='domainmassrenew'}
                     </button>
                 {/if}
                 <div class="btn-group btn-group-sm" role="group">
-                    <button id="btnGroupDrop1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-outline-table dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       {lang key="more"}...
                     </button>
                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                      <a class="dropdown-item setBulkAction" href="#" id="autorenew"><i class="fal fa-sync"></i>
+                      <a class="dropdown-item setBulkAction" href="#" id="autorenew"><i class="fas fa-sync"></i>
                     {lang key='domainautorenewstatus'}</a>
-                      <a class="dropdown-item setBulkAction" href="#" id="reglock"><i class="fal fa-lock"></i>
+                      <a class="dropdown-item setBulkAction" href="#" id="reglock"><i class="fas fa-lock"></i>
                     {lang key='domainreglockstatus'}</a>
                     </div>
                   </div>
@@ -84,9 +84,9 @@
                             </td>
                             <td class="text-center ssl-info" data-element-id="{$domain.id}" data-type="domain" data-domain="{$domain.domain}">
                                 {if $domain.sslStatus}
-                                    <img src="{$domain.sslStatus->getImagePath()}" width="25" data-toggle="tooltip" title="{$domain.sslStatus->getTooltipContent()}" class="{$domain.sslStatus->getClass()}" width="25">
+                                    <img src="{$domain.sslStatus->getImagePath()}" width="25" data-bs-toggle="tooltip" title="{$domain.sslStatus->getTooltipContent()}" class="{$domain.sslStatus->getClass()}" width="25">
                                 {elseif !$domain.isActive}
-                                    <img src="{$BASE_PATH_IMG}/ssl/ssl-inactive-domain.png" width="25" data-toggle="tooltip" title="{lang key='sslState.sslInactiveDomain'}" width="25">
+                                    <img src="{$BASE_PATH_IMG}/ssl/ssl-inactive-domain.png" width="25" data-bs-toggle="tooltip" title="{lang key='sslState.sslInactiveDomain'}" width="25">
                                 {/if}
                             </td>
                             <td>
