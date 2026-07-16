@@ -84,7 +84,7 @@
                 <div class="modal-content">
                     <div class="modal-header d-block">
                         <h4 class="modal-title">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="{lang key='orderForm.close'}">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="{lang key='orderForm.close'}">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <i class="ti ti-x fa-3x"></i>
@@ -95,7 +95,7 @@
                         {lang key='cartremoveitemconfirm'}
                     </div>
                     <div class="modal-footer d-block">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{lang key='no'}</button>
+                        <button type="button" class="btn btn-default" data-bs-dismiss="modal">{lang key='no'}</button>
                         <button type="submit" class="btn btn-primary">{lang key='yes'}</button>
                     </div>
                 </div>

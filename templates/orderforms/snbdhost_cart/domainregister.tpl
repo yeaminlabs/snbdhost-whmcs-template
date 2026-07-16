@@ -1,5 +1,114 @@
 {include file="orderforms/snbdhost_cart/common.tpl"}
 
+<style>
+/* ── Premium Domain Search Form Redesign ── */
+.domain-checker-container {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 20px !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04) !important;
+    margin-bottom: 1.5rem !important;
+}
+.domain-checker-bg {
+    padding: 0 !important;
+    background-image: none !important; /* Remove giant globe background space */
+}
+.input-group-box {
+    display: flex !important;
+    width: 100% !important;
+    gap: 0.75rem !important;
+}
+.input-group-box input#inputDomain {
+    border-radius: 12px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    padding: 0.85rem 1.25rem !important;
+    font-size: 1.05rem !important;
+    background: #f8fafc !important;
+    transition: all 0.2s ease !important;
+    height: auto !important;
+}
+.input-group-box input#inputDomain:focus {
+    border-color: #CC0000 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 4px rgba(204, 0, 0, 0.12) !important;
+    outline: none !important;
+}
+.input-group-box .btn-primary, .domain-check-availability {
+    background: #CC0000 !important;
+    border-color: #CC0000 !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 2rem !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 14px rgba(204, 0, 0, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: auto !important;
+}
+.input-group-box .btn-primary:hover, .domain-check-availability:hover {
+    background: #aa0000 !important;
+    border-color: #aa0000 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.35) !important;
+}
+
+/* Compact Textarea for AI search step */
+.domain-checker-advanced textarea {
+    height: 70px !important;
+    border-radius: 12px !important;
+    padding: 1.2rem 8.5rem 1rem 1.2rem !important;
+}
+.domain-checker-advanced #btnCheckAvailability {
+    top: 15px !important;
+    right: 15px !important;
+    height: 40px !important;
+    padding: 0 1.5rem !important;
+}
+
+@media (max-width: 480px) {
+    .domain-checker-advanced textarea {
+        height: 110px !important;
+        padding: 0.8rem 1rem 3.2rem 1rem !important;
+    }
+    .domain-checker-advanced #btnCheckAvailability {
+        top: auto !important;
+        bottom: 10px !important;
+        right: 10px !important;
+        width: calc(100% - 20px) !important;
+        height: 34px !important;
+        padding: 0 !important;
+    }
+}
+
+/* ── Add to Cart Buttons Red Brand Styling ── */
+.btn-add-to-cart {
+    background: #CC0000 !important;
+    border-color: #CC0000 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    padding: 0.6rem 1.5rem !important;
+    transition: all 0.2s ease !important;
+}
+.btn-add-to-cart:hover {
+    background: #aa0000 !important;
+    border-color: #aa0000 !important;
+    color: #ffffff !important;
+}
+.btn-add-to-cart .added {
+    background: #2e7d32 !important; /* Keep checkouts green for success */
+}
+
+/* Hide Support Button */
+.domain-contact-support {
+    display: none !important;
+}
+</style>
+
 <div id="order-standard_cart">
 
     <div class="row">
@@ -45,7 +154,7 @@
                                             <input type="checkbox" class="no-icheck" name="filter" {if $safeSearchSelected}checked{/if}>{lang key="domainSearch.safeSearch"}
                                         </label>
                                     {else}
-                                        <input type="text" name="domain" class="form-control" placeholder="{$LANG.findyourdomain}" value="{$lookupTerm}" id="inputDomain" data-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.domainOrKeyword'}" />
+                                        <input type="text" name="domain" class="form-control" placeholder="{$LANG.findyourdomain}" value="{$lookupTerm}" id="inputDomain" data-bs-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.domainOrKeyword'}" />
                                         <span class="input-group-btn input-group-append">
                                             <button type="submit" id="btnCheckAvailability" class="btn btn-primary domain-check-availability{$captcha->getButtonClass($captchaForm)}">{$LANG.search}</button>
                                         </span>
@@ -66,7 +175,7 @@
                                                 <p>{lang key="cartSimpleCaptcha"}</p>
                                                 <div>
                                                     <img id="inputCaptchaImage" src="{$systemurl}includes/verifyimage.php" align="middle" />
-                                                    <input id="inputCaptcha" type="text" name="code" maxlength="6" class="form-control input-sm" data-toggle="tooltip" data-placement="right" data-trigger="manual" title="{lang key='orderForm.required'}" />
+                                                    <input id="inputCaptcha" type="text" name="code" maxlength="6" class="form-control input-sm" data-bs-toggle="tooltip" data-placement="right" data-trigger="manual" title="{lang key='orderForm.required'}" />
                                                 </div>
                                             </div>
                                         {/if}
@@ -360,8 +469,21 @@
 </div>
 
 <script>
+{literal}
 jQuery(document).ready(function() {
     jQuery('.tld-filters a:first-child').click();
+    
+    // Auto scroll to results when they are displayed
+    var resultsNode = document.getElementById('DomainSearchResults');
+    if (resultsNode) {
+        var resultObserver = new MutationObserver(function(mutations) {
+            if (!resultsNode.classList.contains('w-hidden') && window.getComputedStyle(resultsNode).display !== 'none') {
+                resultsNode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+        resultObserver.observe(resultsNode, { attributes: true, attributeFilter: ['class', 'style'] });
+    }
+{/literal}
 {if $lookupTerm && !$captchaError && !$invalid}
     jQuery('#btnCheckAvailability').click();
 {/if}
@@ -372,9 +494,12 @@ jQuery(document).ready(function() {
     jQuery('#DomainSearchResults').toggle();
     jQuery('.domain-invalid').toggle();
 {/if}
+{literal}
 });
+{/literal}
 
 {if $showAdvancedSearchOptions}
+    {literal}
     $(document).ready(function() {
         jQuery('#frmDomainChecker .multiselect').each(function () {
             const enableFiltering = $(this).hasClass('multiselect-filter');
@@ -402,7 +527,7 @@ jQuery(document).ready(function() {
             });
         })
     });
+    {/literal}
 {/if}
-
 </script>
 

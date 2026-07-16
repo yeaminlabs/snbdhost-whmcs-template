@@ -28,15 +28,16 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #999999;
+    color: #757575;
     margin-right: 0.75rem;
     white-space: nowrap;
 }
 .cart-top-nav .nav-pill {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
-    padding: 0.45rem 1rem;
+    padding: 0.55rem 1.15rem;
     border-radius: 50rem;
     font-size: 0.82rem;
     font-weight: 700;
@@ -47,6 +48,7 @@
     transition: all 0.2s ease;
     white-space: nowrap;
     cursor: pointer;
+    min-height: 44px;
 }
 .cart-top-nav .nav-pill:hover {
     background: rgba(204, 0, 0, 0.04);

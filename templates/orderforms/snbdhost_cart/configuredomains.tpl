@@ -1,10 +1,14 @@
 {include file="orderforms/snbdhost_cart/common.tpl"}
 
 <script>
+{literal}
 var _localLang = {
+{/literal}
     'addToCart': '{$LANG.orderForm.addToCart|escape}',
     'addedToCartRemove': '{$LANG.orderForm.addedToCartRemove|escape}'
+{literal}
 }
+{/literal}
 </script>
 
 <style>
@@ -301,6 +305,19 @@ var _localLang = {
     margin-bottom: 1.5rem;
     color: #991b1b;
     font-size: 0.9rem;
+}
+@media (max-width: 575px) {
+    .dc-domain-meta {
+        flex-direction: column !important;
+    }
+    .dc-meta-item {
+        border-right: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        padding: 0.85rem 1.25rem !important;
+    }
+    .dc-meta-item:last-child {
+        border-bottom: none !important;
+    }
 }
 </style>
 

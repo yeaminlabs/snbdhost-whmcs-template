@@ -795,6 +795,7 @@
 </div>
 
 <script>
+{literal}
 document.addEventListener("DOMContentLoaded", function() {
     // Force the continue button to show up and be enabled automatically when domain is available
     var observer = new MutationObserver(function(mutations) {
@@ -829,12 +830,14 @@ document.addEventListener("DOMContentLoaded", function() {
         observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
     }
 });
+{/literal}
 </script>
 
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
 
 {if $showAdvancedSearchOptions}
     <script>
+        {literal}
         $(document).ready(function() {
             jQuery('#frmProductDomain .multiselect').each(function () {
                 let enableFiltering = $(this).hasClass('multiselect-filter');
@@ -858,10 +861,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             })
         });
+        {/literal}
     </script>
 {/if}
 
 <script>
+    {literal}
     jQuery(document).ready(function() {
         function toggleDomainOption() {
             var val = jQuery(this).val();
@@ -882,4 +887,5 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Sticky bar removed
     });
+    {/literal}
 </script>

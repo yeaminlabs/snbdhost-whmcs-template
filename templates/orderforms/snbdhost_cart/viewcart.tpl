@@ -5,9 +5,11 @@
 {else}
 
     <script>
+        {literal}
         // Define state tab index value
         var statesTab = 10;
         var stateNotRequired = true;
+        {/literal}
     </script>
     {include file="orderforms/snbdhost_cart/common.tpl"}
     <script type="text/javascript" src="{$BASE_PATH_JS}/StatesDropdown.js"></script>
@@ -247,7 +249,7 @@
                                                 {else}
                                                     <span name="{$domain.domain}Price">{$domain.price}</span>
                                                     <div class="dropdown">
-                                                        <button class="btn btn-default btn-default btn-xs dropdown-toggle" type="button" id="{$domain.domain}Pricing" name="{$domain.domain}Pricing" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <button class="btn btn-default btn-default btn-xs dropdown-toggle" type="button" id="{$domain.domain}Pricing" name="{$domain.domain}Pricing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             {$domain.regperiod} {$domain.yearsLanguage}
                                                             <span class="caret"></span>
                                                         </button>
@@ -452,13 +454,13 @@
                         <div class="view-cart-tabs">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" class="nav-item active">
-                                    <a href="#applyPromo" class="nav-link active" aria-controls="applyPromo" role="tab" data-toggle="tab"{if $template == 'twenty-one'} aria-selected="true"{else} aria-expanded="true"{/if}>
+                                    <a href="#applyPromo" class="nav-link active" aria-controls="applyPromo" role="tab" data-bs-toggle="tab"{if $template == 'twenty-one'} aria-selected="true"{else} aria-expanded="true"{/if}>
                                         {$LANG.orderForm.applyPromoCode}
                                     </a>
                                 </li>
                                 {if $taxenabled && !$loggedin}
                                     <li role="presentation" class="nav-item">
-                                        <a href="#calcTaxes" class="nav-link" aria-controls="calcTaxes" role="tab" data-toggle="tab"{if $template == 'twenty-one'} aria-selected="false"{else} aria-expanded="false"{/if}>
+                                        <a href="#calcTaxes" class="nav-link" aria-controls="calcTaxes" role="tab" data-bs-toggle="tab"{if $template == 'twenty-one'} aria-selected="false"{else} aria-expanded="false"{/if}>
                                             {$LANG.orderForm.estimateTaxes}
                                         </a>
                                     </li>
