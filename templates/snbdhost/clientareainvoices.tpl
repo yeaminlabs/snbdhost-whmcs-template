@@ -111,11 +111,11 @@
                             {/if}
                         </td>
                         <td class="py-3 px-4 text-end" onclick="event.stopPropagation();">
-                            <a href="viewinvoice.php?id={$invoice.id}" class="topbar-icon-btn me-1" style="width: 32px; height: 32px;" title="View Invoice">
+                            <a href="viewinvoice.php?id={$invoice.id}" class="topbar-icon-btn me-1" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;" title="View Invoice" aria-label="View Invoice #{$invoice.invoicenum}">
                                 <i class="ti ti-eye" style="font-size: 1.05rem;"></i>
                             </a>
                             {if $invoice.status eq "Unpaid"}
-                            <a href="viewinvoice.php?id={$invoice.id}" class="btn btn-brand-clean py-1 px-3" style="font-size: 0.75rem !important; padding: 0.35rem 1rem !important; box-shadow: none !important;" title="Pay Now">
+                            <a href="viewinvoice.php?id={$invoice.id}" class="btn btn-brand-clean py-2 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; box-shadow: none !important; display: inline-flex; align-items: center; min-height: 44px;" title="Pay Now" aria-label="Pay Invoice #{$invoice.invoicenum}">
                                 <i class="ti ti-credit-card me-1"></i> Pay
                             </a>
                             {/if}
