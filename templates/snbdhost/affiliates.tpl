@@ -611,7 +611,7 @@
         border-radius: 12px; font-size: 1.1rem;
     }
     .aff-kpi__body { flex: 1; min-width: 0; }
-    .aff-kpi__label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #888; margin-bottom: .35rem; }
+    .aff-kpi__label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #757575; margin-bottom: .35rem; }
     .aff-kpi__value { font-size: 1.9rem; font-weight: 800; color: #1a1a1a; line-height: 1; margin-bottom: .35rem; }
     .aff-kpi__sub   { font-size: .78rem; color: #BA1114; font-weight: 500; }
     .aff-kpi__bar {
@@ -645,7 +645,7 @@
         padding: 1.25rem 1.5rem 0;
     }
     .aff-card__title { font-size: 1rem; font-weight: 700; color: #1a1a1a; }
-    .aff-card__sub   { font-size: .78rem; color: #999; margin-top: .2rem; }
+    .aff-card__sub   { font-size: .78rem; color: #757575; margin-top: .2rem; }
     .aff-card__badge {
         background: rgba(186,17,20,.07); color: #BA1114;
         border: 1px solid rgba(186,17,20,.15);
@@ -690,9 +690,9 @@
     .aff-link-box__btn:active { transform: scale(.97); }
     /* Share buttons */
     .aff-share-row { display: flex; align-items: center; gap: .5rem; }
-    .aff-share-label { font-size: .78rem; font-weight: 600; color: #888; }
+    .aff-share-label { font-size: .78rem; font-weight: 600; color: #757575; }
     .aff-share-btn {
-        width: 34px; height: 34px; border-radius: 8px;
+        width: 44px; height: 44px; border-radius: 8px;
         display: inline-flex; align-items: center; justify-content: center;
         font-size: .85rem; color: #fff; cursor: pointer;
         transition: transform .18s ease, opacity .18s ease;
@@ -704,7 +704,7 @@
     .aff-share-btn--wa { background: #25d366; }
     /* Code block */
     .aff-code-block { }
-    .aff-code-block__label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #888; margin-bottom: .5rem; }
+    .aff-code-block__label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #757575; margin-bottom: .5rem; }
     .aff-code-block__pre {
         background: #f5f5f5; border: 1px solid #e8e8e8; border-radius: 8px;
         padding: .75rem 1rem; font-size: .78rem; color: #444;
@@ -776,9 +776,9 @@
         line-height: 1; margin-bottom: .6rem;
     }
     .aff-rate-card__name { font-size: .95rem; font-weight: 700; color: #1a1a1a; margin-bottom: .4rem; }
-    .aff-rate-card__desc { font-size: .78rem; color: #888; line-height: 1.5; }
+    .aff-rate-card__desc { font-size: .78rem; color: #757575; line-height: 1.5; }
     .aff-rates-note {
-        font-size: .8rem; color: #888;
+        font-size: .8rem; color: #757575;
         background: rgba(186,17,20,.04);
         border: 1px solid rgba(186,17,20,.1);
         border-radius: 8px; padding: .75rem 1rem;
@@ -792,7 +792,7 @@
     .aff-table thead tr { border-bottom: 2px solid #f0f0f0; }
     .aff-table thead th {
         font-size: .72rem; font-weight: 700; text-transform: uppercase;
-        letter-spacing: .5px; color: #888; padding: .75rem 1rem;
+        letter-spacing: .5px; color: #757575; padding: .75rem 1rem;
         border: none; background: #fafafa;
     }
     .aff-table tbody tr {
@@ -823,7 +823,7 @@
         font-size: 1.4rem; color: rgba(186,17,20,.4);
     }
     .aff-empty__title { font-weight: 700; color: #1a1a1a; margin-bottom: .4rem; }
-    .aff-empty__sub   { font-size: .85rem; color: #888; }
+    .aff-empty__sub   { font-size: .85rem; color: #757575; }
 
     /* DataTables custom wrapper */
     .aff-dt-top {
@@ -834,7 +834,7 @@
     .aff-dt-foot {
         display: flex; align-items: center; justify-content: space-between;
         padding: .85rem 1.5rem; border-top: 1px solid #f0f0f0;
-        font-size: .8rem; color: #888;
+        font-size: .8rem; color: #757575;
     }
     div.dataTables_wrapper div.dataTables_filter input {
         border: 1px solid #e0e0e0; border-radius: 8px;
