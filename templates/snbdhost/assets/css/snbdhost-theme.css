@@ -48,26 +48,79 @@
   --sidebar-w-collapsed: 68px;
 }
 
-/* System Dark Mode Override */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-body: #0d0d0d;
-    --bg-surface: #171717;
-    --bg-elevated: #202020;
-    --bg-input: #262626;
-    --text-primary: #f5f5f5;
-    --text-secondary: #b3b3b3;
-    --text-muted: #888888;
-    --border-color: #333333;
-    --border-subtle: #262626;
-    --brand-light: rgba(186, 17, 20, 0.15);
-    --brand-light-border: rgba(186, 17, 20, 0.4);
-    
-    --success-bg: rgba(70, 180, 80, 0.12);
-    --warning-bg: rgba(255, 120, 0, 0.12);
-    --danger-bg: rgba(230, 40, 40, 0.12);
-    --info-bg: rgba(186, 17, 20, 0.12);
-  }
+/* Premium Red-Tinted Dark Mode Variables */
+html[data-theme="dark"] {
+  --bg-body: #0d0708;
+  --bg-surface: #140d0e;
+  --bg-elevated: #1b1113;
+  --bg-input: #231618;
+  --text-primary: #f9f6f6;
+  --text-secondary: #dcd1d2;
+  --text-muted: #9c8b8d;
+  --border-color: #2b1c1e;
+  --border-subtle: #221315;
+  --brand-light: rgba(186, 17, 20, 0.15);
+  --brand-light-border: rgba(186, 17, 20, 0.4);
+  
+  --success-bg: rgba(46, 125, 50, 0.15);
+  --warning-bg: rgba(239, 108, 0, 0.15);
+  --danger-bg: rgba(186, 17, 20, 0.15);
+  --info-bg: rgba(21, 101, 192, 0.15);
+}
+
+/* Force override of hardcoded background colors and text colors in Dark Mode */
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] [style*="background: #ffffff"],
+html[data-theme="dark"] [style*="background: #fff"],
+html[data-theme="dark"] [style*="background: white"],
+html[data-theme="dark"] [style*="background-color: #ffffff"],
+html[data-theme="dark"] [style*="background-color: #fff"],
+html[data-theme="dark"] [style*="background-color: white"] {
+  background-color: var(--bg-surface) !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] [style*="color: #1a1a1a"],
+html[data-theme="dark"] [style*="color: #333"],
+html[data-theme="dark"] [style*="color: #111"] {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] [style*="color: #757575"],
+html[data-theme="dark"] [style*="color: #666"],
+html[data-theme="dark"] [style*="color: #888"] {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .panel-heading {
+  background-color: var(--bg-elevated) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] [style*="border-bottom: 1px solid"] {
+  border-bottom-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .border,
+html[data-theme="dark"] [style*="border: 1px solid"] {
+  border-color: var(--border-color) !important;
+}
+
+/* Easing styles for theme transition icon buttons */
+.d-none-theme-dark, .d-none-theme-light {
+  transition: opacity 0.2s ease;
+}
+html[data-theme="dark"] .d-none-theme-dark {
+  display: none !important;
+}
+html:not([data-theme="dark"]) .d-none-theme-light {
+  display: none !important;
 }
 
 /* ----------------------------------------------------------------
