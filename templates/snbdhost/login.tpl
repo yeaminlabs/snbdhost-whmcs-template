@@ -249,13 +249,16 @@
 
 /* Tabs */
 .auth-clean-tabs {
-    display: inline-flex;
+    display: flex;
+    width: 100%;
     background: #f0f0f0;
     border-radius: 50rem;
     padding: 0.25rem;
     margin-bottom: 1.75rem;
 }
 .auth-clean-tab {
+    flex: 1;
+    text-align: center;
     padding: 0.5rem 1.2rem;
     font-weight: 600;
     font-size: 0.85rem;

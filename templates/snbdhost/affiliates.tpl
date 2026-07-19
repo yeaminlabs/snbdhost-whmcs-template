@@ -203,6 +203,123 @@
                         <a class="aff-share-btn aff-share-btn--wa" onclick="shareAffiliate('whatsapp')" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     </div>
 
+                    <!-- Custom Link Generator -->
+                    <div class="aff-custom-link-gen mt-4 pt-4" style="border-top: 1px solid var(--snbd-border-sub, #eeeeee);">
+                        <h4 class="font-size-16 fw-bold mb-2"><i class="ti ti-link text-danger me-1"></i> Custom Link Generator</h4>
+                        <p class="text-muted small mb-3">Generate custom referral links targeting a specific product or category group.</p>
+                        
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <label class="form-label small fw-semibold text-muted">Select Product Group</label>
+                                <select class="form-select form-select-sm" id="genProductGroup">
+                                    <option value="">-- All Product Groups --</option>
+                                    {foreach $affiliateProductGroups as $pg}
+                                        <option value="{$pg.id}">{$pg.name}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label small fw-semibold text-muted">Select Product</label>
+                                <select class="form-select form-select-sm" id="genProduct" disabled>
+                                    <option value="">-- Select Group First --</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="aff-link-box bg-light" style="border-style: dashed; padding: 0.25rem 0.5rem; display: flex; align-items: center; border-radius: 8px;">
+                            <input type="text" class="aff-link-box__input bg-transparent" id="customReferralLinkOutput" readonly value="{$referrallink}" style="flex: 1; border: none; padding: 0.5rem; outline: none; font-size: 0.9rem;">
+                            <button class="aff-link-box__btn" type="button" onclick="copyCustomLink()" id="copyCustomBtn" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 600;">
+                                <i class="fas fa-copy me-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <script>
+                    {literal}
+                    var affiliateProductGroupsData = {/literal}{$affiliateProductGroups|json_encode}{literal};
+                    var baseReferralLink = "{/literal}{$referrallink}{literal}";
+
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var groupSelect = document.getElementById('genProductGroup');
+                        var productSelect = document.getElementById('genProduct');
+                        var linkOutput = document.getElementById('customReferralLinkOutput');
+                        
+                        if (groupSelect && productSelect && linkOutput) {
+                            groupSelect.addEventListener('change', function() {
+                                var gid = this.value;
+                                productSelect.innerHTML = '<option value="">-- All Products in Group --</option>';
+                                
+                                if (!gid) {
+                                    productSelect.disabled = true;
+                                    updateCustomLink();
+                                    return;
+                                }
+                                
+                                var selectedGroup = affiliateProductGroupsData.find(function(g) {
+                                    return g.id == gid;
+                                });
+                                
+                                if (selectedGroup && selectedGroup.products && selectedGroup.products.length > 0) {
+                                    selectedGroup.products.forEach(function(p) {
+                                        var opt = document.createElement('option');
+                                        opt.value = p.id;
+                                        opt.textContent = p.name;
+                                        productSelect.appendChild(opt);
+                                    });
+                                    productSelect.disabled = false;
+                                } else {
+                                    productSelect.disabled = true;
+                                }
+                                updateCustomLink();
+                            });
+                            
+                            productSelect.addEventListener('change', updateCustomLink);
+                            
+                            function updateCustomLink() {
+                                var gid = groupSelect.value;
+                                var pid = productSelect.value;
+                                var targetUrl = baseReferralLink;
+                                
+                                if (gid || pid) {
+                                    var separator = baseReferralLink.indexOf('?') !== -1 ? '&' : '?';
+                                    if (pid) {
+                                        targetUrl += separator + 'pid=' + pid;
+                                    } else if (gid) {
+                                        targetUrl += separator + 'gid=' + gid;
+                                    }
+                                }
+                                linkOutput.value = targetUrl;
+                            }
+                        }
+                    });
+
+                    function copyCustomLink() {
+                        var input = document.getElementById('customReferralLinkOutput');
+                        if (input) {
+                            input.select();
+                            input.setSelectionRange(0, 99999);
+                            try {
+                                document.execCommand('copy');
+                                var btn = document.getElementById('copyCustomBtn');
+                                if (btn) {
+                                    var originalText = btn.innerHTML;
+                                    btn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                                    btn.style.background = '#2e7d32';
+                                    btn.style.borderColor = '#2e7d32';
+                                    btn.style.color = '#ffffff';
+                                    setTimeout(function() {
+                                        btn.innerHTML = originalText;
+                                        btn.style.background = '';
+                                        btn.style.borderColor = '';
+                                        btn.style.color = '';
+                                    }, 2000);
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                    {/literal}
+                    </script>
+
                     {if $affiliatelinkscode}
                         <div class="aff-code-block mt-4">
                             <div class="aff-code-block__label">{lang key='affiliateslinktous'}</div>

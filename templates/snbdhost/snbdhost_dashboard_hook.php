@@ -148,3 +148,45 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
         'open_tickets' => $openTickets,
     ];
 });
+
+/**
+ * ClientAreaPageAffiliates Hook
+ * Exposes active product groups and their products for custom referral link generation.
+ */
+add_hook('ClientAreaPageAffiliates', 1, function($vars) {
+    $productGroups = [];
+    try {
+        $groups = Capsule::table('tblproductgroups')
+            ->where('hidden', 0)
+            ->orderBy('order', 'asc')
+            ->get();
+            
+        foreach ($groups as $group) {
+            $products = Capsule::table('tblproducts')
+                ->where('gid', $group->id)
+                ->where('hidden', 0)
+                ->orderBy('order', 'asc')
+                ->select('id', 'name')
+                ->get();
+                
+            $productList = [];
+            foreach ($products as $product) {
+                $productList[] = [
+                    'id'   => $product->id,
+                    'name' => $product->name,
+                ];
+            }
+            
+            $productGroups[] = [
+                'id'       => $group->id,
+                'name'     => $group->name,
+                'products' => $productList,
+            ];
+        }
+    } catch (\Throwable $e) {}
+    
+    return [
+        'affiliateProductGroups' => $productGroups,
+    ];
+});
+

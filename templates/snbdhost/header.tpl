@@ -248,6 +248,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 localStorage.setItem('snbd-theme', target);
                             });
                         }
+
+                        var topbar = document.getElementById('snbd-topbar');
+                        if (topbar) {
+                            function handleScroll() {
+                                if (window.scrollY > 38) {
+                                    topbar.style.top = '0px';
+                                } else {
+                                    topbar.style.top = '38px';
+                                }
+                            }
+                            window.addEventListener('scroll', handleScroll);
+                            handleScroll();
+                        }
                     });
                     {/literal}
                     </script>

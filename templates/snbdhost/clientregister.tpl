@@ -558,6 +558,7 @@
                     <span id="regErrMsg">{$errormessage}</span>
                 </div>
                 <script>
+                {literal}
                 (function(){
                     var msgEl = document.getElementById('regErrMsg');
                     var iconEl = document.getElementById('regErrIcon');
@@ -569,6 +570,7 @@
                         }
                     }
                 })();
+                {/literal}
                 </script>
             {/if}
 
@@ -787,6 +789,7 @@
 </div>
 
 <script>
+{literal}
 (function () {
     /* ── CAPTCHA client-side hint (non-blocking) ── */
     /* Note: WHMCS server-side handles actual captcha validation.
@@ -818,4 +821,5 @@
 })();
 
 // ── Note: Auto-trigger Google Auth removed because it conflicts with Google Identity Services clickjacking protection. ──
+{/literal}
 </script>
