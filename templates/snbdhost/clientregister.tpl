@@ -17,6 +17,23 @@
     --snbd-font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* Dark Mode Overrides */
+html[data-theme="dark"] {
+    --snbd-red:          #ff4d4f;
+    --snbd-red-hover:    #ff7875;
+    --snbd-red-dark:     #ff4d4f;
+    --snbd-red-light:    rgba(255,77,79,0.15);
+    --snbd-red-border:   rgba(255,77,79,0.30);
+    --snbd-bg-body:      #0d0708;
+    --snbd-surface:      #140d0e;
+    --snbd-text-1:       #f9f6f6;
+    --snbd-text-2:       #dcd1d2;
+    --snbd-text-muted:   #9c8b8d;
+    --snbd-border:       #2b1c1e;
+    --snbd-border-sub:   #221315;
+}
+
+
 /* ── Auth page reset ── */
 .auth-page {
     background: var(--snbd-bg-body) !important;

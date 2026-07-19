@@ -59,12 +59,15 @@ html[data-theme="dark"] {
   --text-muted: #9c8b8d;
   --border-color: #2b1c1e;
   --border-subtle: #221315;
-  --brand-light: rgba(186, 17, 20, 0.15);
-  --brand-light-border: rgba(186, 17, 20, 0.4);
+  --brand-primary: #ff4d4f;
+  --brand-primary-rgb: 255, 77, 79;
+  --brand-hover: #ff7875;
+  --brand-light: rgba(255, 77, 79, 0.15);
+  --brand-light-border: rgba(255, 77, 79, 0.4);
   
   --success-bg: rgba(46, 125, 50, 0.15);
   --warning-bg: rgba(239, 108, 0, 0.15);
-  --danger-bg: rgba(186, 17, 20, 0.15);
+  --danger-bg: rgba(255, 77, 79, 0.15);
   --info-bg: rgba(21, 101, 192, 0.15);
 }
 
