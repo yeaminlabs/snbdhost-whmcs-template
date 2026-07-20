@@ -2,8 +2,9 @@
 /**
  * SNBD Host Dashboard Hook
  * Provides $invoices, $services, and $loyalty_data for the clientareahome.tpl dashboard template.
+ * Exposes active product groups and their products for custom referral link generation.
  *
- * INSTALLATION: Copy this file to your WHMCS: /includes/hooks/snbdhost_dashboard_hook.php
+ * INSTALLATION: Placed automatically in WHMCS /includes/hooks/
  */
 
 if (!defined("WHMCS")) {
@@ -189,4 +190,3 @@ add_hook('ClientAreaPageAffiliates', 1, function($vars) {
         'affiliateProductGroups' => $productGroups,
     ];
 });
-
