@@ -564,6 +564,16 @@ html[data-theme="dark"] {
             </div>
 
             <!-- Error Messages -->
+            {if $errorMessage}
+                <div class="auth-alert">
+                    <i class="fas fa-exclamation-circle"></i> {$errorMessage}
+                </div>
+            {/if}
+            {if $errormessage}
+                <div class="auth-alert">
+                    <i class="fas fa-exclamation-circle"></i> {$errormessage}
+                </div>
+            {/if}
             {if $turnstileError}
                 <div class="auth-alert">
                     <i class="fas fa-exclamation-circle"></i> {$turnstileError}
