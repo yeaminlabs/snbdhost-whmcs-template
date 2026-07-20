@@ -1,19 +1,23 @@
 <script>
+{literal}
     // Define state tab index value
     var statesTab = 10;
     // Do not enforce state input client side
     var stateNotRequired = true;
+{/literal}
 </script>
 {include file="orderforms/snbdhost_cart/common.tpl"}
 <script type="text/javascript" src="{$BASE_PATH_JS}/StatesDropdown.js"></script>
 <script type="text/javascript" src="{$BASE_PATH_JS}/PasswordStrength.js"></script>
 <script type="text/javascript" src="{$BASE_PATH_JS}/VatValidator.js"></script>
 <script>
-    window.langPasswordStrength = "{$LANG.pwstrength}";
-    window.langPasswordWeak = "{$LANG.pwstrengthweak}";
-    window.langPasswordModerate = "{$LANG.pwstrengthmoderate}";
-    window.langPasswordStrong = "{$LANG.pwstrengthstrong}";
-    window.langVatErrorInvalidFormat = "{$LANG.tax.errorVatInvalidFormat}";
+{literal}
+    window.langPasswordStrength = {/literal}"{$LANG.pwstrength}"{literal};
+    window.langPasswordWeak = {/literal}"{$LANG.pwstrengthweak}"{literal};
+    window.langPasswordModerate = {/literal}"{$LANG.pwstrengthmoderate}"{literal};
+    window.langPasswordStrong = {/literal}"{$LANG.pwstrengthstrong}"{literal};
+    window.langVatErrorInvalidFormat = {/literal}"{$LANG.tax.errorVatInvalidFormat}"{literal};
+{/literal}
 </script>
 
 <style>
@@ -950,7 +954,7 @@ textarea.field.form-control:focus {
                                                 <div class="input-group">
                                                     <input type="tel" name="cccvv" id="inputCardCVV2" class="field form-control" placeholder="{$LANG.creditcardcvvnumbershort}" autocomplete="cc-cvc">
                                                     <span class="input-group-btn input-group-append">
-                                                        <button type="button" class="btn btn-secondary px-3" data-toggle="popover" data-placement="bottom" data-content="<img src='{$BASE_PATH_IMG}/ccv.gif' width='210' />" style="border-top-left-radius:0;border-bottom-left-radius:0;">
+                                                        <button type="button" class="btn btn-secondary px-3" data-bs-toggle="popover" data-placement="bottom" data-content="<img src='{$BASE_PATH_IMG}/ccv.gif' width='210' />" style="border-top-left-radius:0;border-bottom-left-radius:0;">
                                                             ?
                                                         </button>
                                                     </span>
@@ -994,7 +998,7 @@ textarea.field.form-control:focus {
                                                 <div class="input-group">
                                                     <input type="tel" name="cccvv" id="inputCardCVV" class="field form-control" placeholder="{$LANG.creditcardcvvnumbershort}" autocomplete="cc-cvc">
                                                     <span class="input-group-btn input-group-append">
-                                                        <button type="button" class="btn btn-secondary px-3" data-toggle="popover" data-placement="bottom" data-content="<img src='{$BASE_PATH_IMG}/ccv.gif' width='210' />" style="border-top-left-radius:0;border-bottom-left-radius:0;">
+                                                        <button type="button" class="btn btn-secondary px-3" data-bs-toggle="popover" data-placement="bottom" data-content="<img src='{$BASE_PATH_IMG}/ccv.gif' width='210' />" style="border-top-left-radius:0;border-bottom-left-radius:0;">
                                                             ?
                                                         </button>
                                                     </span>
@@ -1161,6 +1165,7 @@ textarea.field.form-control:focus {
 </script>
 
 <script>
+{literal}
 document.addEventListener("DOMContentLoaded", function() {
     // Style payment method cards based on gateway type/value
     var gatewayCards = document.querySelectorAll('.payment-method-card');
@@ -1185,4 +1190,5 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+{/literal}
 </script>

@@ -3,9 +3,8 @@
    Bootstrap 5 Deep Integration | Corporate Red Accent
    ================================================================ */
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+/* Google Fonts (Deferred & preconnected via header.tpl) */
+
 
 /* ----------------------------------------------------------------
    1. CSS Custom Properties (Brand Tokens)
@@ -25,7 +24,7 @@
   --bg-input: #ffffff;
   --text-primary: #1a1a1a;
   --text-secondary: #555555;
-  --text-muted: #999999;
+  --text-muted: #757575;
   --border-color: #e0e0e0;
   --border-subtle: #eeeeee;
 
@@ -47,6 +46,84 @@
   --topbar-h: 70px;
   --sidebar-w: 260px;
   --sidebar-w-collapsed: 68px;
+}
+
+/* Premium Red-Tinted Dark Mode Variables */
+html[data-theme="dark"] {
+  --bg-body: #0a0506;
+  --bg-surface: #110b0c;
+  --bg-elevated: #181011;
+  --bg-input: #1f1415;
+  --text-primary: #ffffff;
+  --text-secondary: #f0e6e7;
+  --text-muted: #c2b2b4;
+  --border-color: #3a2729;
+  --border-subtle: #2b1c1d;
+  --brand-primary: #ff4d4f;
+  --brand-primary-rgb: 255, 77, 79;
+  --brand-hover: #ff7875;
+  --brand-light: rgba(255, 77, 79, 0.15);
+  --brand-light-border: rgba(255, 77, 79, 0.45);
+  
+  --success-bg: rgba(46, 125, 50, 0.2);
+  --warning-bg: rgba(239, 108, 0, 0.2);
+  --danger-bg: rgba(255, 77, 79, 0.2);
+  --info-bg: rgba(21, 101, 192, 0.2);
+}
+
+/* Force override of hardcoded background colors and text colors in Dark Mode */
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] [style*="background: #ffffff"],
+html[data-theme="dark"] [style*="background: #fff"],
+html[data-theme="dark"] [style*="background: white"],
+html[data-theme="dark"] [style*="background-color: #ffffff"],
+html[data-theme="dark"] [style*="background-color: #fff"],
+html[data-theme="dark"] [style*="background-color: white"] {
+  background-color: var(--bg-surface) !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] [style*="color: #1a1a1a"],
+html[data-theme="dark"] [style*="color: #333"],
+html[data-theme="dark"] [style*="color: #111"] {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] [style*="color: #757575"],
+html[data-theme="dark"] [style*="color: #666"],
+html[data-theme="dark"] [style*="color: #888"] {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .panel-heading {
+  background-color: var(--bg-elevated) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] [style*="border-bottom: 1px solid"] {
+  border-bottom-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .border,
+html[data-theme="dark"] [style*="border: 1px solid"] {
+  border-color: var(--border-color) !important;
+}
+
+/* Easing styles for theme transition icon buttons */
+.d-none-theme-dark, .d-none-theme-light {
+  transition: opacity 0.2s ease;
+}
+html[data-theme="dark"] .d-none-theme-dark {
+  display: none !important;
+}
+html:not([data-theme="dark"]) .d-none-theme-light {
+  display: none !important;
 }
 
 /* ----------------------------------------------------------------
@@ -448,7 +525,9 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
 .toggle-sidebar-btn {
   background: none; border: none;
   color: var(--text-secondary); font-size: 1.125rem;
-  cursor: pointer; padding: 0.375rem;
+  cursor: pointer; padding: 0.6rem;
+  min-width: 44px; min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
   border-radius: 6px; transition: all 0.2s;
 }
 .toggle-sidebar-btn:hover { background: #f5f5f5; color: #CC0000; }
@@ -639,7 +718,7 @@ h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
    9. Dashboard Stat Cards
    ---------------------------------------------------------------- */
 .stat-card {
-  border-left: 4px solid var(--brand-primary) !important;
+  border: 1px solid var(--border-color) !important;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .stat-card:hover {
@@ -1517,5 +1596,163 @@ div[class*="tawk-"] {
 .badge-clean-info    { background: rgba(204, 0, 0, 0.08) !important; color: #CC0000 !important; border: 1px solid rgba(204, 0, 0, 0.15) !important; }
 
 /* ================================================================
-   24. Network Status Page — styles are now scoped in serverstatus.tpl
+   25. Cart Elements (High Contrast Quantity Selector & Removal)
    ================================================================ */
+.btn-remove-from-cart {
+  background-color: rgba(220, 53, 69, 0.08) !important;
+  border: 1px solid rgba(220, 53, 69, 0.25) !important;
+  color: #dc3545 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 0.82rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease-in-out !important;
+  text-decoration: none !important;
+}
+.btn-remove-from-cart:hover {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2) !important;
+}
+.btn-remove-from-cart i {
+  font-size: 0.95rem !important;
+}
+
+/* Quantity selector controls */
+.quantity-control-group {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.quantity-control-group .btn-qty-dec,
+.quantity-control-group .btn-qty-inc {
+  padding: 0.35rem 0.65rem !important;
+  font-weight: 800 !important;
+  border-color: var(--border-color) !important;
+}
+.quantity-control-group .btn-qty-dec {
+  color: #c62828 !important;
+  background-color: rgba(198, 40, 40, 0.04) !important;
+}
+.quantity-control-group .btn-qty-dec:hover {
+  background-color: #c62828 !important;
+  color: #ffffff !important;
+}
+.quantity-control-group .btn-qty-inc {
+  color: #2e7d32 !important;
+  background-color: rgba(46, 125, 50, 0.04) !important;
+}
+.quantity-control-group .btn-qty-inc:hover {
+  background-color: #2e7d32 !important;
+  color: #ffffff !important;
+}
+.quantity-control-group input.qty-input {
+  border-top: 1px solid var(--border-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Shopping Cart & Domain Checker Dark Mode Overrides ── */
+html[data-theme="dark"] #order-standard_cart,
+html[data-theme="dark"] #order-standard_cart h1,
+html[data-theme="dark"] #order-standard_cart h2,
+html[data-theme="dark"] #order-standard_cart h3,
+html[data-theme="dark"] #order-standard_cart h4,
+html[data-theme="dark"] #order-standard_cart .dash-headline,
+html[data-theme="dark"] #order-standard_cart .header-lined h1 {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart p,
+html[data-theme="dark"] #order-standard_cart label,
+html[data-theme="dark"] #order-standard_cart span:not(.btn):not(.badge):not(.cost):not(.amt),
+html[data-theme="dark"] #order-standard_cart .text-muted,
+html[data-theme="dark"] #order-standard_cart .domain-renewal-desc,
+html[data-theme="dark"] #order-standard_cart .spotlight-tld span {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .domain-checker-container,
+html[data-theme="dark"] #order-standard_cart #DomainSearchResults .primary-domain-header,
+html[data-theme="dark"] #order-standard_cart .suggested-domains .list-group-item,
+html[data-theme="dark"] #order-standard_cart .view-cart-items .item,
+html[data-theme="dark"] #order-standard_cart .products .product,
+html[data-theme="dark"] #order-standard_cart .products .product header,
+html[data-theme="dark"] #order-standard_cart .panel-addon,
+html[data-theme="dark"] #order-standard_cart .secondary-cart-sidebar .order-summary,
+html[data-theme="dark"] #order-standard_cart .summary-container {
+  background-color: var(--bg-surface) !important;
+  background: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .input-group-box,
+html[data-theme="dark"] #order-standard_cart input#inputDomain,
+html[data-theme="dark"] #order-standard_cart .form-control {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart input#inputDomain:focus,
+html[data-theme="dark"] #order-standard_cart .form-control:focus {
+  border-color: var(--brand-primary) !important;
+  background-color: var(--bg-input) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .spotlight-tld {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .view-cart-items .item:nth-child(even) {
+  background-color: var(--bg-elevated) !important;
+}
+
+/* ── Global Client Area Dark Mode Overrides ── */
+html[data-theme="dark"] body,
+html[data-theme="dark"] #snbd-main,
+html[data-theme="dark"] #snbd-main h1,
+html[data-theme="dark"] #snbd-main h2,
+html[data-theme="dark"] #snbd-main h3,
+html[data-theme="dark"] #snbd-main h4,
+html[data-theme="dark"] #snbd-main h5,
+html[data-theme="dark"] #snbd-main h6,
+html[data-theme="dark"] #snbd-main p,
+html[data-theme="dark"] #snbd-main label,
+html[data-theme="dark"] #snbd-main .text-dark,
+html[data-theme="dark"] #snbd-main .text-secondary,
+html[data-theme="dark"] #snbd-main .card-title,
+html[data-theme="dark"] #snbd-main .card-body,
+html[data-theme="dark"] #snbd-main .table,
+html[data-theme="dark"] #snbd-main .table td,
+html[data-theme="dark"] #snbd-main .table th,
+html[data-theme="dark"] #snbd-main .list-group-item {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #snbd-main .text-muted,
+html[data-theme="dark"] #snbd-main .small {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] #snbd-main .card,
+html[data-theme="dark"] #snbd-main .list-group-item,
+html[data-theme="dark"] #snbd-main .card-header {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] #snbd-main .list-group-item-action:hover {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+}
+
+
+

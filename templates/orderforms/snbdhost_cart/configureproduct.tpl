@@ -1,10 +1,14 @@
 {include file="orderforms/snbdhost_cart/common.tpl"}
 
 <script>
+{literal}
 var _localLang = {
+{/literal}
     'addToCart': '{$LANG.orderForm.addToCart|escape}',
     'addedToCartRemove': '{$LANG.orderForm.addedToCartRemove|escape}'
+{literal}
 }
+{/literal}
 </script>
 
 <div id="order-standard_cart">
@@ -90,7 +94,7 @@ var _localLang = {
                                         -
                                         {if count($metric.pricing) > 1}
                                             {$LANG.metrics.startingFrom} {$metric.lowestPrice} / {if $metric.unitName}{$metric.unitName}{else}{$LANG.metrics.unit}{/if}
-                                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalMetricPricing-{$metric.systemName}">
+                                            <button type="button" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalMetricPricing-{$metric.systemName}">
                                                 {$LANG.metrics.viewPricing}
                                             </button>
                                         {elseif count($metric.pricing) == 1}
@@ -210,16 +214,19 @@ var _localLang = {
                                                 {/if}
                                                     <input type="text" name="configoption[{$configoption.id}]" value="{if $configoption.selectedqty}{$configoption.selectedqty}{else}{$configoption.qtyminimum}{/if}" id="inputConfigOption{$configoption.id}" class="form-control" />
                                                     <script>
+                                                        {literal}
                                                         var sliderTimeoutId = null;
+                                                        {/literal}
                                                         var sliderRangeDifference = {$configoption.qtymaximum} - {$configoption.qtyminimum};
+                                                        {literal}
                                                         // The largest size that looks nice on most screens.
                                                         var sliderStepThreshold = 25;
                                                         // Check if there are too many to display individually.
                                                         var setLargerMarkers = sliderRangeDifference > sliderStepThreshold;
 
-                                                        jQuery("#inputConfigOption{$configoption.id}").ionRangeSlider({
-                                                            min: {$configoption.qtyminimum},
-                                                            max: {$configoption.qtymaximum},
+                                                        jQuery("#inputConfigOption{/literal}{$configoption.id}{literal}").ionRangeSlider({
+                                                            min: {/literal}{$configoption.qtyminimum}{literal},
+                                                            max: {/literal}{$configoption.qtymaximum}{literal},
                                                             grid: true,
                                                             grid_snap: setLargerMarkers ? false : true,
                                                             onChange: function() {
@@ -233,6 +240,7 @@ var _localLang = {
                                                                 }, 250);
                                                             }
                                                         });
+                                                        {/literal}
                                                     </script>
                                                 {else}
                                                     <div>
@@ -348,6 +356,21 @@ var _localLang = {
     </div>
 </div>
 
-<script>recalctotals();</script>
+<script>
+{literal}
+document.addEventListener("DOMContentLoaded", function() {
+    var checkCount = 0;
+    var checkInterval = setInterval(function() {
+        checkCount++;
+        if (typeof recalctotals === 'function') {
+            clearInterval(checkInterval);
+            recalctotals();
+        } else if (checkCount > 50) { // Limit polling to 5 seconds
+            clearInterval(checkInterval);
+        }
+    }, 100);
+});
+{/literal}
+</script>
 
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}

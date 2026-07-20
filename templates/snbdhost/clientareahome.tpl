@@ -278,101 +278,6 @@
 }
 </style>
 
-<!-- ✦ UX Improvement Banner ✦ -->
-{if $snbdBannerEnabled neq '0'}
-<div id="snbd-ux-banner" style="
-    background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
-    border-radius: 14px;
-    padding: 1.1rem 1.5rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    box-shadow: 0 4px 20px rgba(204,0,0,0.18);
-    position: relative;
-    overflow: hidden;
-">
-    <!-- subtle shimmer overlay -->
-    <div style="
-        position:absolute; inset:0;
-        background: linear-gradient(105deg, rgba(255,255,255,0.08) 0%, transparent 60%);
-        pointer-events:none;
-    "></div>
-
-    <!-- Icon -->
-    <div style="
-        flex-shrink:0;
-        width:42px; height:42px;
-        background: rgba(255,255,255,0.18);
-        border-radius: 50%;
-        display:flex; align-items:center; justify-content:center;
-        font-size:1.2rem; color:#fff;
-    ">
-        <i class="{if $snbdBannerIcon}{$snbdBannerIcon}{else}fas fa-rocket{/if}"></i>
-    </div>
-
-    <!-- Text -->
-    <div style="flex:1; min-width:0;">
-        <div style="font-weight:700; font-size:0.9375rem; color:#fff; line-height:1.3; margin-bottom:0.2rem;">
-            {if $snbdBannerTitle}{$snbdBannerTitle}{else}🚀 SNBD HOST Client Panel Version 3.5 released — 2026{/if}
-        </div>
-        <div style="font-size:0.8125rem; color:rgba(255,255,255,0.88); line-height:1.5;">
-            {if $snbdBannerDesc}{$snbdBannerDesc}{else}New auth page layouts, particle rendering fixes, Developer Updates changelog, and more. See what's changed.{/if}
-        </div>
-    </div>
-
-    <!-- CTA -->
-    <a href="{if $snbdBannerLink}{$snbdBannerLink}{else}clientarea.php?action=devupdates{/if}" style="
-        flex-shrink:0;
-        background:#fff;
-        color:#CC0000;
-        font-weight:700;
-        font-size:0.8125rem;
-        border-radius:50rem;
-        padding:0.45rem 1.15rem;
-        text-decoration:none;
-        white-space:nowrap;
-        transition: box-shadow 0.15s, transform 0.15s;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-        display:inline-flex; align-items:center; gap:0.35rem;
-    "
-    onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.18)';this.style.transform='translateY(-1px)'"
-    onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)';this.style.transform='translateY(0)'">
-        {if $snbdBannerLinkText}{$snbdBannerLinkText}{else}See More{/if} <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
-    </a>
-
-    <!-- Dismiss -->
-    <button onclick="
-        document.getElementById('snbd-ux-banner').style.display='none';
-        try { sessionStorage.setItem('snbd_v35_banner_dismissed','1'); } catch(e) {}
-    " style="
-        flex-shrink:0;
-        background:rgba(255,255,255,0.18);
-        border:none; cursor:pointer;
-        color:#fff; border-radius:50%;
-        width:28px; height:28px;
-        display:flex; align-items:center; justify-content:center;
-        font-size:0.85rem;
-        transition: background 0.15s;
-        padding:0;
-    "
-    onmouseover="this.style.background='rgba(255,255,255,0.28)'"
-    onmouseout="this.style.background='rgba(255,255,255,0.18)'"
-    title="Dismiss">
-        <i class="fas fa-times"></i>
-    </button>
-</div>
-<script>
-(function(){
-    try {
-        if (sessionStorage.getItem('snbd_v35_banner_dismissed') === '1') {
-            var b = document.getElementById('snbd-ux-banner');
-            if (b) b.style.display = 'none';
-        }
-    } catch(e) {}
-})();
-</script>
-{/if}
 
 {if !$clientsdetails.phonenumber || !$clientsdetails.address1 || $clientsdetails.phonenumber == '+00000000000' || $clientsdetails.address1 == 'Pending Completion'}
 <!-- Verification Notification -->
@@ -398,6 +303,48 @@
     </div>
     <a href="cart.php" class="btn btn-brand-clean"><i class="fas fa-plus me-2"></i>Order New Service</a>
 </div>
+
+{if $open_tickets || $clientsstats.numunpaidinvoices > 0}
+<!-- Action Required Feed -->
+<div class="card dash-card-clean mb-4 border-danger-subtle" style="border-color: rgba(204, 0, 0, 0.25) !important; background: rgba(204, 0, 0, 0.01) !important; border-radius: 12px; box-shadow: 0 4px 20px rgba(204, 0, 0, 0.04);">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(204, 0, 0, 0.03) !important; border-bottom: 1px solid rgba(204, 0, 0, 0.08);">
+        <span class="text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Action Required</span>
+    </div>
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush" style="border-radius: 0 0 12px 12px; overflow: hidden;">
+            <!-- Unpaid/Overdue Invoices -->
+            {foreach key=num item=invoice from=$invoices}
+                {if $invoice.status eq "Unpaid" || $invoice.status eq "Overdue"}
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-transparent" style="border-bottom: 1px solid rgba(204, 0, 0, 0.05);">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge-clean badge-clean-danger d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border-radius: 8px; font-size: 1rem;"><i class="fas fa-file-invoice-dollar"></i></span>
+                        <div>
+                            <div class="fw-bold" style="color: #111111; font-size: 0.88rem;">Invoice #{$invoice.invoicenum} is Unpaid</div>
+                            <div class="text-secondary small mt-0.5">Due date: {$invoice.datedue} • Total: <span class="fw-semibold text-dark">{$invoice.total}</span></div>
+                        </div>
+                    </div>
+                    <a href="viewinvoice.php?id={$invoice.id}" class="btn btn-sm btn-brand-clean py-1.5 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; box-shadow: none !important; display: inline-flex; align-items: center; font-weight: 600;">Pay Invoice</a>
+                </li>
+                {/if}
+            {/foreach}
+            
+            <!-- Open Support Tickets -->
+            {foreach item=ticket from=$open_tickets}
+            <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-transparent" style="border-bottom: 1px solid rgba(204, 0, 0, 0.05);">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge-clean d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border-radius: 8px; font-size: 1rem; background: rgba(230, 81, 0, 0.08); color: #e65100; border: 1px solid rgba(230, 81, 0, 0.15);"><i class="fas fa-life-ring"></i></span>
+                    <div>
+                        <div class="fw-bold" style="color: #111111; font-size: 0.88rem;">Support Ticket #{$ticket.tid}: {$ticket.title}</div>
+                        <div class="text-secondary small mt-0.5">Last reply: {$ticket.lastreply} • Status: <span class="badge bg-warning text-dark px-2 py-1" style="font-size: 0.7rem; border-radius: 4px;">{$ticket.status}</span></div>
+                    </div>
+                </div>
+                <a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}" class="btn-outline-table py-1.5 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; font-weight: 600; display: inline-flex; align-items: center;">View Ticket</a>
+            </li>
+            {/foreach}
+        </ul>
+    </div>
+</div>
+{/if}
 
 <!-- Stat Cards -->
 <div class="row g-3 mb-5">
@@ -496,72 +443,6 @@
     <a href="clientarea.php?action=addfunds" class="btn-outline-clean"><i class="fas fa-wallet me-2"></i>Add Funds</a>
 </div>
 
-<!-- Loyalty Card (Premium Credit Card Aesthetics) -->
-<div class="card loyalty-card-premium mb-5 overflow-hidden">
-    <div class="card-body p-4 p-md-5">
-        <div class="row align-items-center g-4">
-            <!-- Icon wrapper with metallic glow -->
-            <div class="col-md-auto d-flex align-items-center justify-content-center">
-                <div style="
-                    width: 76px; height: 76px;
-                    background: rgba(255,255,255,0.06);
-                    border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 50%;
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 2.25rem; color: #CC0000;
-                    box-shadow: 0 0 25px rgba(204, 0, 0, 0.25);
-                    position: relative;
-                ">
-                    <i class="fas fa-trophy" style="background: linear-gradient(135deg, #ffffff 30%, #aaaaaa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
-                </div>
-            </div>
-            
-            <!-- Main Tier description and status progression -->
-            <div class="col text-white text-center text-md-start">
-                {if $loyalty_data}
-                    <h4 style="font-weight: 800; font-size: 1.35rem; color: #ffffff; letter-spacing: -0.02em; margin-bottom: 0.5rem; line-height:1.2;">
-                        Loyalty Tier: <span style="background: linear-gradient(90deg, #ff5b5b, #CC0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{$loyalty_data.tier}</span>
-                    </h4>
-                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-3 flex-wrap">
-                        <span class="badge rounded-pill" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;">
-                            <i class="fas fa-percentage me-1"></i>{$loyalty_data.discount} Lifetime Discount
-                        </span>
-                    </div>
-                    
-                    {if $loyalty_data.next_tier}
-                        <div class="mt-2" style="max-width: 450px; margin: 0 auto; margin-left: 0;">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small" style="color: #aaaaaa; font-weight: 500; font-size:0.8rem;">
-                                    Progress to <strong class="text-white">{$loyalty_data.next_tier}</strong> ({$loyalty_data.next_discount} Off)
-                                </span>
-                                <span class="small fw-bold" style="color: #ff5b5b; font-size:0.8rem;">Almost there! 🚀</span>
-                            </div>
-                            <div class="loyalty-progress-container">
-                                <div class="loyalty-progress-fill-premium" style="width: {if $loyalty_data.progress}{$loyalty_data.progress}%{else}40%{/if};"></div>
-                            </div>
-                        </div>
-                    {else}
-                        <p class="small mb-0" style="color: #aaaaaa; font-size:0.85rem;">You've reached the highest loyalty tier. Thank you for being a valued client! 🎉</p>
-                    {/if}
-                {else}
-                    <h4 style="font-weight: 800; font-size: 1.35rem; color: #ffffff; letter-spacing: -0.02em; margin-bottom: 0.5rem; line-height:1.2;">
-                        SNBD HOST Loyalty Program
-                    </h4>
-                    <p class="small mb-0" style="color: #aaaaaa; max-width: 550px; font-size:0.85rem; line-height:1.5;">
-                        Unlock higher discounts and VIP perks automatically as you stay with us. Check your details or place new orders to fast-track your status!
-                    </p>
-                {/if}
-            </div>
-            
-            <!-- CTA Button -->
-            <div class="col-md-auto text-center text-md-end">
-                <a href="index.php?m=loyaltymatrix" class="btn-loyalty-premium">
-                    <i class="fas fa-chart-line me-2"></i>View Benefits
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- WHMCS Addon Widgets -->
 {if $widgets}
@@ -640,7 +521,12 @@
         <div class="card dash-card-clean h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-file-invoice me-2" style="color: #CC0000;"></i>Recent Invoices</span>
-                <a href="clientarea.php?action=invoices" class="btn-outline-table">View All</a>
+                <div class="d-flex gap-2">
+                    {if $clientsstats.numunpaidinvoices > 0}
+                    <a href="clientarea.php?action=masspay&all=true" class="btn btn-sm btn-brand-clean py-1 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; box-shadow: none !important; display: inline-flex; align-items: center;"><i class="fas fa-credit-card me-1"></i>Pay All Unpaid ({$clientsstats.numunpaidinvoices})</a>
+                    {/if}
+                    <a href="clientarea.php?action=invoices" class="btn-outline-table">View All</a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

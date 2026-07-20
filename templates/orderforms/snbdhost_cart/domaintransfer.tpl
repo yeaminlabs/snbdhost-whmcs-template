@@ -28,14 +28,14 @@
                             <div class="panel-body card-body">
                                 <div class="form-group">
                                     <label for="inputTransferDomain">{lang key='domainname'}</label>
-                                    <input type="text" class="form-control" name="domain" id="inputTransferDomain" value="{$lookupTerm}" placeholder="{lang key='yourdomainplaceholder'}.{lang key='yourtldplaceholder'}" data-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.enterDomain'}" />
+                                    <input type="text" class="form-control" name="domain" id="inputTransferDomain" value="{$lookupTerm}" placeholder="{lang key='yourdomainplaceholder'}.{lang key='yourtldplaceholder'}" data-bs-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.enterDomain'}" />
                                 </div>
                                 <div class="form-group">
                                     <label for="inputAuthCode" style="width:100%;">
                                         {lang key='orderForm.authCode'}
-                                        <a data-toggle="tooltip" data-placement="left" title="{lang key='orderForm.authCodeTooltip'}" class="pull-right float-right"><i class="ti ti-help-circle"></i> {lang key='orderForm.help'}</a>
+                                        <a data-bs-toggle="tooltip" data-placement="left" title="{lang key='orderForm.authCodeTooltip'}" class="pull-right float-right"><i class="ti ti-help-circle"></i> {lang key='orderForm.help'}</a>
                                     </label>
-                                    <input type="text" class="form-control" name="epp" id="inputAuthCode" placeholder="{lang key='orderForm.authCodePlaceholder'}" data-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.required'}" />
+                                    <input type="text" class="form-control" name="epp" id="inputAuthCode" placeholder="{lang key='orderForm.authCodePlaceholder'}" data-bs-toggle="tooltip" data-placement="left" data-trigger="manual" title="{lang key='orderForm.required'}" />
                                 </div>
                                 <div id="transferUnavailable" class="alert alert-warning slim-alert text-center w-hidden"></div>
                                 {if $captcha->isEnabled() && !$captcha->recaptcha->isEnabled()}
@@ -44,7 +44,7 @@
                                             <p>{lang key="cartSimpleCaptcha"}</p>
                                             <div>
                                                 <img id="inputCaptchaImage" src="{$systemurl}includes/verifyimage.php" />
-                                                <input id="inputCaptcha" type="text" name="code" maxlength="6" class="form-control input-sm" data-toggle="tooltip" data-placement="right" data-trigger="manual" title="{lang key='orderForm.required'}" />
+                                                <input id="inputCaptcha" type="text" name="code" maxlength="6" class="form-control input-sm" data-bs-toggle="tooltip" data-placement="right" data-trigger="manual" title="{lang key='orderForm.required'}" />
                                             </div>
                                         </div>
                                     </div>

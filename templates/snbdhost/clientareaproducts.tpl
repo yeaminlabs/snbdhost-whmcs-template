@@ -37,9 +37,9 @@
                 </h4>
                 <div class="text-secondary small mb-4 text-truncate d-flex align-items-center gap-1">
                     {if $service.domain}
-                        <i class="ti ti-world" style="font-size: 0.95rem; color: #888888;"></i> {$service.domain}
+                        <i class="ti ti-world" style="font-size: 0.95rem; color: #757575;"></i> {$service.domain}
                     {else}
-                        <i class="ti ti-minus" style="font-size: 0.95rem; color: #888888;"></i> No domain associated
+                        <i class="ti ti-minus" style="font-size: 0.95rem; color: #757575;"></i> No domain associated
                     {/if}
                 </div>
 
