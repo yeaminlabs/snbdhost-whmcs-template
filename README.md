@@ -94,6 +94,10 @@ SNBDHOST Portal template/
 ├── 📄 README.md                          # ← You are here
 ├── 📁 screenshots/                       # UI screenshots for documentation
 │
+├── 📁 includes/                          # ═══ SYSTEM INCLUDES / HOOKS ═══
+│   └── 📁 hooks/
+│       └── 📄 snbdhost_dashboard_hook.php # Injects loyalty and affiliates data
+│
 └── 📁 templates/
     │
     ├── 📁 snbdhost/                      # ═══ MAIN CLIENT AREA THEME ═══
@@ -113,10 +117,6 @@ SNBDHOST Portal template/
     │   ├── 📄 login.tpl                  # Login page with particles background
     │   ├── 📄 clientregister.tpl         # Registration page
     │   ├── 📄 pwreset.tpl               # Password reset page
-    │   │
-    │   ├── ── Hooks (PHP) ────────────
-    │   ├── 📄 snbdhost_dashboard_hook.php       # Injects loyalty data into dashboard
-    │   ├── 📄 snbdhost_recent_invoices_hook.php  # Fetches recent invoices for dashboard
     │   │
     │   ├── ── Assets ─────────────────
     │   ├── 📁 assets/
@@ -210,14 +210,13 @@ cp -r templates/snbdhost /path/to/whmcs/templates/
 # 3. Copy the order form to your WHMCS order form directory  
 cp -r templates/orderforms/snbdhost_cart /path/to/whmcs/templates/orderforms/
 
-# 4. Set the theme in WHMCS Admin
+# 4. Copy the hook file to your WHMCS includes/hooks directory
+cp includes/hooks/snbdhost_dashboard_hook.php /path/to/whmcs/includes/hooks/
+
+# 5. Set the theme in WHMCS Admin
 #    → Setup → General Settings → Ordering tab
 #    → Template: snbdhost
 #    → Order Form Template: snbdhost_cart
-
-# 5. Copy hook files (if using Loyalty Matrix integration)
-cp templates/snbdhost/snbdhost_dashboard_hook.php /path/to/whmcs/includes/hooks/
-cp templates/snbdhost/snbdhost_recent_invoices_hook.php /path/to/whmcs/includes/hooks/
 ```
 
 ### Theme Configuration
