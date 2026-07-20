@@ -223,9 +223,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <a href="{$WEB_ROOT}/cart.php" class="btn btn-brand btn-topbar-dashboard d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; margin-right: 0.5rem;">
                         <i class="ti ti-plus" style="font-size: 0.9rem; vertical-align: middle;"></i> Order Service
                     </a>
-                    <a href="clientarea.php?action=details" class="topbar-icon-btn d-none d-md-inline-flex" aria-label="Settings" title="Account Settings">
-                        <i class="ti ti-settings"></i>
-                    </a>
                     {/if}
                     
                     <button class="topbar-icon-btn position-relative d-none d-md-inline-flex" aria-label="Notifications">
