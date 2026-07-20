@@ -1596,5 +1596,63 @@ div[class*="tawk-"] {
 .badge-clean-info    { background: rgba(204, 0, 0, 0.08) !important; color: #CC0000 !important; border: 1px solid rgba(204, 0, 0, 0.15) !important; }
 
 /* ================================================================
-   24. Network Status Page — styles are now scoped in serverstatus.tpl
+   25. Cart Elements (High Contrast Quantity Selector & Removal)
    ================================================================ */
+.btn-remove-from-cart {
+  background-color: rgba(220, 53, 69, 0.08) !important;
+  border: 1px solid rgba(220, 53, 69, 0.25) !important;
+  color: #dc3545 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 0.82rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease-in-out !important;
+  text-decoration: none !important;
+}
+.btn-remove-from-cart:hover {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2) !important;
+}
+.btn-remove-from-cart i {
+  font-size: 0.95rem !important;
+}
+
+/* Quantity selector controls */
+.quantity-control-group {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.quantity-control-group .btn-qty-dec,
+.quantity-control-group .btn-qty-inc {
+  padding: 0.35rem 0.65rem !important;
+  font-weight: 800 !important;
+  border-color: var(--border-color) !important;
+}
+.quantity-control-group .btn-qty-dec {
+  color: #c62828 !important;
+  background-color: rgba(198, 40, 40, 0.04) !important;
+}
+.quantity-control-group .btn-qty-dec:hover {
+  background-color: #c62828 !important;
+  color: #ffffff !important;
+}
+.quantity-control-group .btn-qty-inc {
+  color: #2e7d32 !important;
+  background-color: rgba(46, 125, 50, 0.04) !important;
+}
+.quantity-control-group .btn-qty-inc:hover {
+  background-color: #2e7d32 !important;
+  color: #ffffff !important;
+}
+.quantity-control-group input.qty-input {
+  border-top: 1px solid var(--border-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+}
+
