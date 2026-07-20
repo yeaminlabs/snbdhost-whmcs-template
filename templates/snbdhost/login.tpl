@@ -22,14 +22,15 @@ html[data-theme="dark"] {
     --snbd-red-hover:   #ff7875;
     --snbd-red-light:   rgba(255,77,79,0.15);
     --snbd-red-border:  rgba(255,77,79,0.30);
-    --snbd-bg-body:     #0d0708;
-    --snbd-surface:     #140d0e;
-    --snbd-text-1:      #f9f6f6;
-    --snbd-text-2:      #dcd1d2;
-    --snbd-text-muted:  #9c8b8d;
-    --snbd-border:      #2b1c1e;
-    --snbd-border-sub:  #221315;
+    --snbd-bg-body:     #0a0506;
+    --snbd-surface:     #110b0c;
+    --snbd-text-1:      #ffffff;
+    --snbd-text-2:      #f0e6e7;
+    --snbd-text-muted:  #c2b2b4;
+    --snbd-border:      #3a2729;
+    --snbd-border-sub:  #2b1c1d;
 }
+
 
 
 /* ── Auth page reset ── */

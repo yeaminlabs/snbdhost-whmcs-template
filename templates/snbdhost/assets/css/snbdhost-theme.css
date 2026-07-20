@@ -50,25 +50,25 @@
 
 /* Premium Red-Tinted Dark Mode Variables */
 html[data-theme="dark"] {
-  --bg-body: #0d0708;
-  --bg-surface: #140d0e;
-  --bg-elevated: #1b1113;
-  --bg-input: #231618;
-  --text-primary: #f9f6f6;
-  --text-secondary: #dcd1d2;
-  --text-muted: #9c8b8d;
-  --border-color: #2b1c1e;
-  --border-subtle: #221315;
+  --bg-body: #0a0506;
+  --bg-surface: #110b0c;
+  --bg-elevated: #181011;
+  --bg-input: #1f1415;
+  --text-primary: #ffffff;
+  --text-secondary: #f0e6e7;
+  --text-muted: #c2b2b4;
+  --border-color: #3a2729;
+  --border-subtle: #2b1c1d;
   --brand-primary: #ff4d4f;
   --brand-primary-rgb: 255, 77, 79;
   --brand-hover: #ff7875;
   --brand-light: rgba(255, 77, 79, 0.15);
-  --brand-light-border: rgba(255, 77, 79, 0.4);
+  --brand-light-border: rgba(255, 77, 79, 0.45);
   
-  --success-bg: rgba(46, 125, 50, 0.15);
-  --warning-bg: rgba(239, 108, 0, 0.15);
-  --danger-bg: rgba(255, 77, 79, 0.15);
-  --info-bg: rgba(21, 101, 192, 0.15);
+  --success-bg: rgba(46, 125, 50, 0.2);
+  --warning-bg: rgba(239, 108, 0, 0.2);
+  --danger-bg: rgba(255, 77, 79, 0.2);
+  --info-bg: rgba(21, 101, 192, 0.2);
 }
 
 /* Force override of hardcoded background colors and text colors in Dark Mode */
