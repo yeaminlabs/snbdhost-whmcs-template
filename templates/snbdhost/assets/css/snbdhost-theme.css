@@ -1715,4 +1715,44 @@ html[data-theme="dark"] #order-standard_cart .view-cart-items .item:nth-child(ev
   background-color: var(--bg-elevated) !important;
 }
 
+/* ── Global Client Area Dark Mode Overrides ── */
+html[data-theme="dark"] body,
+html[data-theme="dark"] #snbd-main,
+html[data-theme="dark"] #snbd-main h1,
+html[data-theme="dark"] #snbd-main h2,
+html[data-theme="dark"] #snbd-main h3,
+html[data-theme="dark"] #snbd-main h4,
+html[data-theme="dark"] #snbd-main h5,
+html[data-theme="dark"] #snbd-main h6,
+html[data-theme="dark"] #snbd-main p,
+html[data-theme="dark"] #snbd-main label,
+html[data-theme="dark"] #snbd-main .text-dark,
+html[data-theme="dark"] #snbd-main .text-secondary,
+html[data-theme="dark"] #snbd-main .card-title,
+html[data-theme="dark"] #snbd-main .card-body,
+html[data-theme="dark"] #snbd-main .table,
+html[data-theme="dark"] #snbd-main .table td,
+html[data-theme="dark"] #snbd-main .table th,
+html[data-theme="dark"] #snbd-main .list-group-item {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #snbd-main .text-muted,
+html[data-theme="dark"] #snbd-main .small {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] #snbd-main .card,
+html[data-theme="dark"] #snbd-main .list-group-item,
+html[data-theme="dark"] #snbd-main .card-header {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] #snbd-main .list-group-item-action:hover {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+}
+
+
 
