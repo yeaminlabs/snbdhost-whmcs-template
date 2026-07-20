@@ -356,6 +356,21 @@ var _localLang = {
     </div>
 </div>
 
-<script>recalctotals();</script>
+<script>
+{literal}
+document.addEventListener("DOMContentLoaded", function() {
+    var checkCount = 0;
+    var checkInterval = setInterval(function() {
+        checkCount++;
+        if (typeof recalctotals === 'function') {
+            clearInterval(checkInterval);
+            recalctotals();
+        } else if (checkCount > 50) { // Limit polling to 5 seconds
+            clearInterval(checkInterval);
+        }
+    }, 100);
+});
+{/literal}
+</script>
 
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
