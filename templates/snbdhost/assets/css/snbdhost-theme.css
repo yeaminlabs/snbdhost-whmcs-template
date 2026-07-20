@@ -1656,3 +1656,63 @@ div[class*="tawk-"] {
   color: var(--text-primary) !important;
 }
 
+/* ── Shopping Cart & Domain Checker Dark Mode Overrides ── */
+html[data-theme="dark"] #order-standard_cart,
+html[data-theme="dark"] #order-standard_cart h1,
+html[data-theme="dark"] #order-standard_cart h2,
+html[data-theme="dark"] #order-standard_cart h3,
+html[data-theme="dark"] #order-standard_cart h4,
+html[data-theme="dark"] #order-standard_cart .dash-headline,
+html[data-theme="dark"] #order-standard_cart .header-lined h1 {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart p,
+html[data-theme="dark"] #order-standard_cart label,
+html[data-theme="dark"] #order-standard_cart span:not(.btn):not(.badge):not(.cost):not(.amt),
+html[data-theme="dark"] #order-standard_cart .text-muted,
+html[data-theme="dark"] #order-standard_cart .domain-renewal-desc,
+html[data-theme="dark"] #order-standard_cart .spotlight-tld span {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .domain-checker-container,
+html[data-theme="dark"] #order-standard_cart #DomainSearchResults .primary-domain-header,
+html[data-theme="dark"] #order-standard_cart .suggested-domains .list-group-item,
+html[data-theme="dark"] #order-standard_cart .view-cart-items .item,
+html[data-theme="dark"] #order-standard_cart .products .product,
+html[data-theme="dark"] #order-standard_cart .products .product header,
+html[data-theme="dark"] #order-standard_cart .panel-addon,
+html[data-theme="dark"] #order-standard_cart .secondary-cart-sidebar .order-summary,
+html[data-theme="dark"] #order-standard_cart .summary-container {
+  background-color: var(--bg-surface) !important;
+  background: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .input-group-box,
+html[data-theme="dark"] #order-standard_cart input#inputDomain,
+html[data-theme="dark"] #order-standard_cart .form-control {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart input#inputDomain:focus,
+html[data-theme="dark"] #order-standard_cart .form-control:focus {
+  border-color: var(--brand-primary) !important;
+  background-color: var(--bg-input) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .spotlight-tld {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] #order-standard_cart .view-cart-items .item:nth-child(even) {
+  background-color: var(--bg-elevated) !important;
+}
+
+
