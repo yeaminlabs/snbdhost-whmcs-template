@@ -148,3 +148,56 @@ function initParticles() {
   }
 }
 
+/* ---- Global Currency Formatting Decorator & Password Generator Utils ---- */
+(function() {
+    function fixCurrencyTextNode(node) {
+        if (!node) return;
+        if (node.nodeType === Node.TEXT_NODE) {
+            var text = node.nodeValue;
+            if (text && (text.indexOf('USD') !== -1 || text.indexOf('BDT') !== -1 || text.indexOf('$-') !== -1 || text.indexOf('৳-') !== -1)) {
+                // Fix glued suffix: $1.63USD -> $1.63 USD, ৳217.00BDT -> ৳217.00 BDT
+                var updated = text.replace(/(\$|৳|€|£)(\d+(?:\.\d+)?)(USD|BDT|EUR|GBP)/gi, '$1$2 $3');
+                // Fix inverted negative prefix: $-518.37 -> -$518.37, ৳-518.37 -> -৳518.37
+                updated = updated.replace(/(\$|৳|€|£)-(\d+(?:\.\d+)?)/gi, '-$1$2');
+                if (updated !== text) {
+                    node.nodeValue = updated;
+                }
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'INPUT' && node.tagName !== 'TEXTAREA') {
+            for (var i = 0; i < node.childNodes.length; i++) {
+                fixCurrencyTextNode(node.childNodes[i]);
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fixCurrencyTextNode(document.body);
+
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(n) {
+                    fixCurrencyTextNode(n);
+                });
+            });
+        });
+        if (document.body) {
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    });
+
+    // Password generator helper utility
+    window.WHMCS = window.WHMCS || {};
+    window.WHMCS.utils = window.WHMCS.utils || {};
+    if (!window.WHMCS.utils.generatePassword) {
+        window.WHMCS.utils.generatePassword = function(length) {
+            var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+            var retVal = "";
+            for (var i = 0, n = charset.length; i < length; ++i) {
+                retVal += charset.charAt(Math.floor(Math.random() * n));
+            }
+            return retVal;
+        };
+    }
+})();
+
+

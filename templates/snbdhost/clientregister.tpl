@@ -841,3 +841,6 @@ html[data-theme="dark"] {
 // ── Note: Auto-trigger Google Auth removed because it conflicts with Google Identity Services clickjacking protection. ──
 {/literal}
 </script>
+
+{include file="$template/includes/generate-password.tpl"}
+
