@@ -319,7 +319,7 @@
                     <div class="d-flex align-items-center gap-3">
                         <span class="badge-clean badge-clean-danger d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border-radius: 8px; font-size: 1rem;"><i class="fas fa-file-invoice-dollar"></i></span>
                         <div>
-                            <div class="fw-bold" style="color: #111111; font-size: 0.88rem;">Invoice #{$invoice.invoicenum} is Unpaid</div>
+                            <div class="fw-bold" style="color: #111111; font-size: 0.88rem;">Invoice {if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if} is Unpaid</div>
                             <div class="text-secondary small mt-0.5">Due date: {$invoice.datedue} • Total: <span class="fw-semibold text-dark">{$invoice.total}</span></div>
                         </div>
                     </div>
@@ -543,7 +543,7 @@
                         <tbody>
                             {foreach key=num item=invoice from=$invoices}
                             <tr>
-                                <td class="fw-bold" style="color: #111111;">#{$invoice.invoicenum}</td>
+                                <td class="fw-bold" style="color: #111111;">{if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if}</td>
                                 <td class="text-secondary">{$invoice.datecreated}</td>
                                 <td class="fw-bold" style="color: #111111;">{$invoice.total}</td>
                                 <td>

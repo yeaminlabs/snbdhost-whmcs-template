@@ -13,6 +13,24 @@ if (!defined("WHMCS")) {
 
 use WHMCS\Database\Capsule;
 
+if (!function_exists('snbd_format_currency')) {
+    function snbd_format_currency($amount, $prefix = '$', $suffix = ' USD') {
+        $val = (float)$amount;
+        $isNegative = $val < 0;
+        $formattedNum = number_format(abs($val), 2);
+        
+        $suffixStr = '';
+        if (!empty($suffix)) {
+            $trimmed = trim($suffix);
+            if ($trimmed !== '') {
+                $suffixStr = ' ' . $trimmed;
+            }
+        }
+        
+        return ($isNegative ? '-' : '') . $prefix . $formattedNum . $suffixStr;
+    }
+}
+
 add_hook('ClientAreaPageHome', 1, function($vars) {
 
     if (empty($vars['clientsdetails']['userid'])) {
@@ -47,12 +65,12 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
             ->get();
 
         foreach ($rows as $row) {
-            $rawNum = $row->invoicenum ?: $row->id;
+            $rawNum = $row->invoicenum ? ltrim(trim($row->invoicenum), '#') : $row->id;
             $invoices[] = [
                 'id'          => $row->id,
-                'invoicenum'  => ltrim($rawNum, '#'),
+                'invoicenum'  => $rawNum,
                 'datecreated' => date('M j, Y', strtotime($row->date)),
-                'total'       => $prefix . number_format((float)$row->total, 2) . $suffix,
+                'total'       => snbd_format_currency($row->total, $prefix, $suffix),
                 'status'      => ucfirst(strtolower($row->status)),
             ];
         }
@@ -87,7 +105,7 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
                 'status'      => ucfirst(strtolower($p->status)),
                 'nextduedate' => ($p->nextduedate && $p->nextduedate !== '0000-00-00')
                                   ? date('M j, Y', strtotime($p->nextduedate)) : '—',
-                'amount'      => $prefix . number_format((float)$p->amount, 2) . $suffix,
+                'amount'      => snbd_format_currency($p->amount, $prefix, $suffix),
                 'billingcycle'=> $p->billingcycle,
             ];
         }
