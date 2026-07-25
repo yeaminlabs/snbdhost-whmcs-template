@@ -13,7 +13,7 @@
 
 <div class="tab-content">
     <div class="tab-pane fade show active" id="tabOverview">
-        {include file="$template/includes/tablelist.tpl" tableName="DomainsList" noSortColumns="0, 1" startOrderCol="2" filterColumn="5"}
+        {include file="$template/includes/tablelist.tpl" tableName="DomainsList" noSortColumns="0, 1, 6" startOrderCol="2" filterColumn="5"}
         <script>
             jQuery(document).ready(function () {
                 var table = jQuery('#tableDomainsList').show().DataTable();
@@ -74,11 +74,12 @@
                             <th>{lang key='clientareahostingregdate'}</th>
                             <th>{lang key='clientareahostingnextduedate'}</th>
                             <th>{lang key='domainstatus'}</th>
+                            <th class="text-end pe-3">{lang key='tableactions'}</th>
                         </tr>
                     </thead>
                     <tbody>
                     {foreach $domains as $domain}
-                        <tr onclick="clickableSafeRedirect(event, 'clientarea.php?action=domaindetails&amp;id={$domain.id}', false)">
+                        <tr>
                             <td>
                                 <input type="checkbox" name="domids[]" class="domids stopEventBubble" value="{$domain.id}" />
                             </td>
@@ -90,9 +91,9 @@
                                 {/if}
                             </td>
                             <td>
-                                <a href="http://{$domain.domain}" target="_blank">{$domain.domain}</a>
+                                <a href="http://{$domain.domain}" target="_blank" class="fw-bold text-dark text-decoration-none">{$domain.domain}</a>
                                 <br>
-                                <small>
+                                <small class="text-muted">
                                     {if $domain.autorenew}
                                         <i class="fas fa-fw fa-check text-success"></i>
                                         {lang key='domainsautorenew'}
@@ -109,6 +110,24 @@
                                 <span class="w-hidden">
                                     {if $domain.expiringSoon}<span>{lang key="domainsExpiringSoon"}</span>{/if}
                                 </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="dropdown d-inline-block">
+                                    <a href="clientarea.php?action=domaindetails&id={$domain.id}" class="btn btn-brand-clean py-1 px-2 me-1" style="font-size: 0.8rem;" title="Manage Domain">
+                                        <i class="ti ti-settings me-1"></i> Manage
+                                    </a>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.85rem;">
+                                        <li><a class="dropdown-item" href="clientarea.php?action=domaindetails&id={$domain.id}#tabNameservers"><i class="ti ti-world me-2 text-primary"></i> Nameservers</a></li>
+                                        <li><a class="dropdown-item" href="clientarea.php?action=domaindetails&id={$domain.id}#tabDNSHostRecords"><i class="ti ti-dns me-2 text-info"></i> DNS Management</a></li>
+                                        <li><a class="dropdown-item" href="clientarea.php?action=domaincontacts&domainid={$domain.id}"><i class="ti ti-id me-2 text-secondary"></i> Contact Information</a></li>
+                                        <li><a class="dropdown-item" href="clientarea.php?action=domaindetails&id={$domain.id}#tabAutorenew"><i class="ti ti-refresh me-2 text-warning"></i> Auto-Renew Settings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="clientarea.php?action=domaindetails&id={$domain.id}#tabGetEPP"><i class="ti ti-key me-2"></i> Get EPP Code</a></li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     {/foreach}

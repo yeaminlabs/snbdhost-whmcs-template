@@ -47,9 +47,10 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
             ->get();
 
         foreach ($rows as $row) {
+            $rawNum = $row->invoicenum ?: $row->id;
             $invoices[] = [
                 'id'          => $row->id,
-                'invoicenum'  => $row->invoicenum ?: '#' . $row->id,
+                'invoicenum'  => ltrim($rawNum, '#'),
                 'datecreated' => date('M j, Y', strtotime($row->date)),
                 'total'       => $prefix . number_format((float)$row->total, 2) . $suffix,
                 'status'      => ucfirst(strtolower($row->status)),
