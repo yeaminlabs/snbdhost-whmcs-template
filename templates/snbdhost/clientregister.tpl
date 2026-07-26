@@ -843,4 +843,3 @@ html[data-theme="dark"] {
 </script>
 
 {include file="$template/includes/generate-password.tpl"}
-

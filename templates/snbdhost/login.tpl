@@ -564,28 +564,25 @@ html[data-theme="dark"] {
             </div>
 
             <!-- Error Messages -->
-            {if $errorMessage}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$errorMessage}
+            {if $incorrect || $invalid || $smarty.get.incorrect}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; animation: shakeAlert 0.4s ease;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{lang key='loginincorrect'}</span>
                 </div>
-            {/if}
-            {if $errormessage}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$errormessage}
+            {elseif $errorMessage}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{$errorMessage}</span>
                 </div>
-            {/if}
-            {if $turnstileError}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$turnstileError}
+            {elseif $errormessage}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{$errormessage}</span>
                 </div>
-            {/if}
-            {if $incorrect}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$LANG.loginincorrect}
-                </div>
-            {elseif $invalid}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$LANG.logininvalid}
+            {elseif $turnstileError}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{$turnstileError}</span>
                 </div>
             {/if}
 

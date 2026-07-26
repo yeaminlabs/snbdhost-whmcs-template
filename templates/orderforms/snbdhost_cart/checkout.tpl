@@ -1194,4 +1194,3 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 {include file="orderforms/snbdhost_cart/includes/generate-password.tpl"}
-
