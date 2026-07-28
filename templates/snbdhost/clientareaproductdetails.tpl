@@ -30,23 +30,6 @@
     </div>
 {/if}
 
-<!-- Determine Service Type -->
-{assign var="prodLower" value=$product|lower}
-{assign var="groupLower" value=$groupname|lower}
-{assign var="modLower" value=$module|lower}
-
-{if $modLower eq 'n8n' || $prodLower|strpos:'n8n' !== false || $groupLower|strpos:'n8n' !== false}
-    {assign var="serviceType" value="n8n"}
-{elseif $prodLower|strpos:'reseller' !== false || $groupLower|strpos:'reseller' !== false || $modLower eq 'whm'}
-    {assign var="serviceType" value="reseller"}
-{elseif $prodLower|strpos:'openclaw' !== false || $groupLower|strpos:'openclaw' !== false || $modLower eq 'openclaw'}
-    {assign var="serviceType" value="openclaw"}
-{elseif $modLower eq 'cpanel' || $groupLower|strpos:'shared' !== false || $groupLower|strpos:'cpanel' !== false || $prodLower|strpos:'shared' !== false}
-    {assign var="serviceType" value="cpanel"}
-{else}
-    {assign var="serviceType" value="universal"}
-{/if}
-
 <!-- Scope styles -->
 <style>
 .nav-pills-snbd {
@@ -75,70 +58,33 @@
     box-shadow: 0 4px 12px rgba(224, 80, 82, 0.2) !important;
 }
 
-.sso-btn-main {
-    background: linear-gradient(135deg, var(--brand-primary, #E05052) 0%, var(--brand-dark, #4A1416) 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
-    box-shadow: 0 4px 18px rgba(224, 80, 82, 0.25) !important;
-    transition: all 0.25s ease !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    text-decoration: none !important;
+.module-clientarea-wrap {
+    width: 100%;
 }
-.sso-btn-main:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(224, 80, 82, 0.4) !important;
-    color: #ffffff !important;
-}
-
-.shortcut-card-item {
-    border: 1px solid var(--border-color, #e0e0e0) !important;
-    border-radius: 12px !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    color: var(--text-primary, #1a1a1a) !important;
+.module-clientarea-wrap .card, 
+.module-clientarea-wrap .panel {
     background: var(--bg-surface, #ffffff) !important;
-    transition: all 0.2s ease !important;
-    text-decoration: none !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.25rem 0.75rem;
-    height: 100%;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+    margin-bottom: 1.5rem !important;
+    overflow: hidden !important;
 }
-.shortcut-card-item:hover {
-    border-color: var(--brand-primary, #E05052) !important;
-    background: var(--brand-light, rgba(224, 80, 82, 0.04)) !important;
-    color: var(--brand-primary, #E05052) !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 16px rgba(224, 80, 82, 0.12) !important;
+.module-clientarea-wrap .card-header, 
+.module-clientarea-wrap .panel-heading {
+    background: var(--bg-surface, #ffffff) !important;
+    border-bottom: 1px solid var(--border-color, #e0e0e0) !important;
+    padding: 1.25rem 1.5rem !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    color: var(--text-primary, #1a1a1a) !important;
 }
-.shortcut-card-item i {
-    font-size: 1.75rem;
-    color: var(--brand-primary, #E05052);
-    margin-bottom: 0.5rem;
+.module-clientarea-wrap .card-body,
+.module-clientarea-wrap .panel-body {
+    padding: 1.5rem !important;
 }
-
-.progress-thin {
-    height: 10px;
-    border-radius: 10px;
-    background: var(--bg-elevated, #eeeeee);
-    overflow: hidden;
-}
-.progress-bar-danger {
-    background: linear-gradient(90deg, var(--brand-primary, #E05052), var(--brand-hover, #E87072));
-}
-
-/* Suppress duplicate WHMCS module HTML for cpanel, n8n, and reseller to avoid double output */
-.suppress-duplicate-module .module-clientarea-wrap,
-.suppress-duplicate-module #moduleClientAreaWrap {
-    display: none !important;
+.module-clientarea-wrap table {
+    width: 100% !important;
 }
 </style>
 
@@ -211,461 +157,70 @@
     
     <!-- OVERVIEW TAB -->
     <div class="tab-pane fade show active" id="tabOverview" role="tabpanel" aria-labelledby="overview-tab">
-        <div class="row g-4 mb-4">
-            
-            <!-- Left Card: Service Overview -->
-            <div class="{if $serviceType eq 'openclaw'}col-12{else}col-lg-6{/if}">
-                <div class="card h-100 dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                    <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                        <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                            <i class="ti ti-info-circle text-danger"></i> Service Overview
-                        </span>
-                    </div>
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <table class="table table-borderless align-middle mb-0" style="font-size: 0.9rem;">
-                            <tbody>
-                                <tr style="border-bottom: 1px solid var(--border-color, #f6f6f6);">
-                                    <td class="text-muted py-2.5">Registration Date</td>
-                                    <td class="fw-semibold text-end py-2.5">{$regdate}</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid var(--border-color, #f6f6f6);">
-                                    <td class="text-muted py-2.5">Recurring Amount</td>
-                                    <td class="fw-bold text-end py-2.5 text-danger">{$amount}</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid var(--border-color, #f6f6f6);">
-                                    <td class="text-muted py-2.5">Billing Cycle</td>
-                                    <td class="fw-semibold text-end py-2.5">{$billingcycle}</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid var(--border-color, #f6f6f6);">
-                                    <td class="text-muted py-2.5">Next Due Date</td>
-                                    <td class="fw-bold text-end py-2.5">{$nextduedate}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted py-2.5">Payment Method</td>
-                                    <td class="fw-semibold text-end py-2.5">{$paymentmethod}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <div class="mt-4 pt-3 d-flex gap-2 flex-wrap" style="border-top: 1px solid var(--border-color, #e0e0e0);">
-                            {if $packagesupgrade}
-                                <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-outline-secondary btn-sm py-2 px-3 fw-semibold" style="border-radius: 8px;">
-                                    <i class="ti ti-arrow-up-circle me-1"></i> Upgrade / Downgrade Plan
-                                </a>
-                            {/if}
-                            {if $showcancelbutton}
-                                <a href="clientarea.php?action=cancel&amp;id={$id}" class="btn btn-outline-danger btn-sm py-2 px-3 fw-semibold {if $pendingcancellation}disabled{/if}" style="border-radius: 8px;">
-                                    <i class="ti ti-ban me-1"></i> Request Cancellation
-                                </a>
-                            {/if}
+        
+        <!-- Clean Service Overview Card for All Services -->
+        <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
+            <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
+                <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
+                    <i class="ti ti-info-circle text-danger"></i> Service Overview
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                            <div class="small text-muted fw-semibold">Registration Date</div>
+                            <div class="fw-bold text-dark mt-1">{$regdate}</div>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            {if $serviceType neq "openclaw"}
-            <!-- Right Card: Control Panel Access / Workspace SSO -->
-            <div class="col-lg-6">
-                <div class="card h-100 dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                    <div class="card-header bg-transparent py-3 px-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                        <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                            {if $serviceType eq "n8n"}
-                                <i class="ti ti-bolt text-danger"></i> n8n Workspace Access
-                            {elseif $serviceType eq "reseller"}
-                                <i class="ti ti-building text-danger"></i> Reseller Control Panel
-                            {else}
-                                <i class="ti ti-world text-danger"></i> Control Panel Access
-                            {/if}
-                        </span>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style="font-size: 0.75rem; font-weight: 600;">
-                            <i class="ti ti-shield-check me-1"></i> Secure SSO
-                        </span>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                            <div class="small text-muted fw-semibold">Recurring Amount</div>
+                            <div class="fw-bold text-danger mt-1">{$amount}</div>
+                        </div>
                     </div>
-                    <div class="card-body p-4 d-flex flex-column justify-content-between text-center">
-                        <div>
-                            <div class="my-3">
-                                {if $serviceType eq "n8n"}
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" alt="n8n Logo" style="max-height: 48px; width: auto;">
-                                {elseif $serviceType eq "reseller"}
-                                    <div class="fw-bold fs-3 text-danger" style="font-family: var(--font-heading);">WHM</div>
-                                {else}
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Cpanel-logo.png" alt="cPanel Logo" style="max-height: 40px; width: auto;">
-                                {/if}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                            <div class="small text-muted fw-semibold">Billing Cycle</div>
+                            <div class="fw-bold text-dark mt-1">{$billingcycle}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                            <div class="small text-muted fw-semibold">Next Due Date</div>
+                            <div class="fw-bold text-dark mt-1">{$nextduedate}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                            <div class="small text-muted fw-semibold">Payment Method</div>
+                            <div class="fw-bold text-dark mt-1">{$paymentmethod}</div>
+                        </div>
+                    </div>
+                    {if $domain}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                                <div class="small text-muted fw-semibold">Domain / Hostname</div>
+                                <div class="fw-bold text-dark mt-1 text-truncate">{$domain}</div>
                             </div>
-                            <p class="text-muted small px-2 mb-3">
-                                {if $serviceType eq "n8n"}
-                                    Direct Single Sign-On to your private n8n workflow automation instance.
-                                {elseif $serviceType eq "reseller"}
-                                    Full WHM Reseller Portal to manage client accounts and packages.
-                                {else}
-                                    Manage files, databases, emails, and domain settings directly.
-                                {/if}
-                            </p>
                         </div>
-                        
-                        <div class="d-flex flex-column gap-2 mt-3">
-                            {if $serviceType eq "n8n"}
-                                {if $domain}
-                                    {if $domain|strpos:'http' === 0}
-                                        {assign var="n8nFullUrl" value=$domain}
-                                    {else}
-                                        {assign var="n8nFullUrl" value="https://`$domain`"}
-                                    {/if}
-                                    <a href="{$n8nFullUrl}" target="_blank" class="sso-btn-main w-100 py-3">
-                                        <i class="ti ti-external-link"></i> GO TO N8N WORKSPACE
-                                    </a>
-                                {else}
-                                    <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="sso-btn-main w-100 py-3">
-                                        <i class="ti ti-external-link"></i> GO TO N8N WORKSPACE
-                                    </a>
-                                {/if}
-                            {elseif $serviceType eq "reseller"}
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=WHM" target="_blank" class="sso-btn-main w-100 py-3">
-                                    <i class="ti ti-login me-1"></i> LOGIN TO WHM
-                                </a>
-                            {else}
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="sso-btn-main w-100 py-3">
-                                    <i class="ti ti-login me-1"></i> LOGIN TO CPANEL
-                                </a>
-                            {/if}
-                        </div>
-                        
-                        <div class="mt-3 p-2 text-start rounded" style="background: var(--bg-elevated, #fafafa); border: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="text-muted" style="font-size: 0.7rem; line-height: 1.4;">
-                                Licensed software provided under owner terms. SNBD HOST claims no ownership over third-party licensors.
-                            </span>
-                        </div>
-                    </div>
+                    {/if}
+                </div>
+                
+                <div class="pt-3 d-flex gap-2 flex-wrap" style="border-top: 1px solid var(--border-color, #e0e0e0);">
+                    {if $packagesupgrade}
+                        <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-outline-secondary btn-sm py-2 px-3 fw-semibold" style="border-radius: 8px;">
+                            <i class="ti ti-arrow-up-circle me-1"></i> Upgrade / Downgrade Plan
+                        </a>
+                    {/if}
+                    {if $showcancelbutton}
+                        <a href="clientarea.php?action=cancel&amp;id={$id}" class="btn btn-outline-danger btn-sm py-2 px-3 fw-semibold {if $pendingcancellation}disabled{/if}" style="border-radius: 8px;">
+                            <i class="ti ti-ban me-1"></i> Request Cancellation
+                        </a>
+                    {/if}
                 </div>
             </div>
-            {/if}
-            
         </div>
-
-        <!-- SERVICE FEATURE CARDS -->
-
-        <!-- A. n8n Managed Hosting Features -->
-        {if $serviceType eq "n8n"}
-            <div class="row g-4 mb-4">
-                <div class="col-12">
-                    <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                        <div class="card-header bg-transparent py-3 px-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                                <i class="ti ti-activity text-danger"></i> RESOURCE CONSUMPTION
-                            </span>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style="font-size: 0.75rem;">
-                                <i class="ti ti-point-filled me-1"></i> Running
-                            </span>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">CPU Usage (2 CPUs)</span>
-                                        <span class="fw-bold small text-dark">0.17% used</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 1%;" aria-valuenow="0.17" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Memory Usage (310.1MiB / 4GiB)</span>
-                                        <span class="fw-bold small text-dark">7.57% used</span>
-                                    </div>
-                                    <div class="progress progress-thin mb-2">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 7.57%;" aria-valuenow="7.57" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    {if $packagesupgrade}
-                                        <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-outline-secondary btn-xs py-0.5 px-2 fw-semibold float-end" style="font-size: 0.75rem; border-radius: 6px;">
-                                            <i class="ti ti-adjustments-alt me-1"></i> Scale Memory
-                                        </a>
-                                    {/if}
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Disk Usage (316M / 40G)</span>
-                                        <span class="fw-bold small text-dark">1.00% used</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 1%;" aria-valuenow="1.0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                        <div class="card-header bg-transparent py-3 px-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                                <i class="ti ti-server text-danger"></i> INSTANCE DETAILS
-                            </span>
-                            {if $domain}
-                                {if $domain|strpos:'http' === 0}
-                                    {assign var="n8nInstanceUrl" value=$domain}
-                                {else}
-                                    {assign var="n8nInstanceUrl" value="https://`$domain`"}
-                                {/if}
-                                <a href="{$n8nInstanceUrl}" target="_blank" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
-                                    <i class="ti ti-external-link me-1"></i> Open Instance
-                                </a>
-                            {/if}
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="p-3 mb-3 rounded border font-monospace small d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #fafafa);">
-                                <span>Instance URL: <strong class="text-danger">{$n8nInstanceUrl|default:"https://13-236.n8n1.deltadns.xyz/"}</strong></span>
-                                <button type="button" onclick="navigator.clipboard.writeText('{$n8nInstanceUrl|default:"https://13-236.n8n1.deltadns.xyz/"}')" class="btn btn-xs btn-outline-secondary">
-                                    <i class="ti ti-copy"></i> Copy
-                                </button>
-                            </div>
-                            
-                            <div class="row text-center g-3">
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
-                                        <div class="small text-muted fw-semibold mb-1">Version</div>
-                                        <div class="fw-bold text-dark">2.7.3</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
-                                        <div class="small text-muted fw-semibold mb-1">Owner</div>
-                                        <div class="fw-bold text-dark">N/A</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
-                                        <div class="small text-muted fw-semibold mb-1">Users</div>
-                                        <div class="fw-bold text-dark text-truncate">{$username|default:"rajensikderraj@gmail.com"}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {if $modulechangepassword}
-                                <div class="mt-3 text-end">
-                                    <button type="button" onclick="var t = document.querySelector('#password-tab'); if(t){ var tab = new bootstrap.Tab(t); tab.show(); }" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
-                                        <i class="ti ti-key me-1"></i> Change Owner Password
-                                    </button>
-                                </div>
-                            {/if}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        <!-- B. cPanel / Shared Hosting Features -->
-        {elseif $serviceType eq "cpanel"}
-            {if $domain}
-                <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                    <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="fw-bold text-danger fs-4" style="font-family: var(--font-heading);">SITEJET</div>
-                            <div>
-                                <h6 class="fw-bold mb-0">Sitejet Website Builder</h6>
-                                <p class="text-muted small mb-0">Build your website for {$domain} instantly without coding.</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <a href="http://{$domain}" target="_blank" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
-                                <i class="ti ti-external-link me-1"></i> Visit Website
-                            </a>
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Sitejet" target="_blank" class="btn btn-brand-clean btn-sm fw-bold" style="border-radius: 8px;">
-                                <i class="ti ti-edit me-1"></i> Edit with Sitejet
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {/if}
-
-            <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                    <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                        <i class="ti ti-layout-grid text-danger"></i> QUICK SHORTCUTS (Direct cPanel SSO)
-                    </span>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Email" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-mail"></i>
-                                <span>Email Accounts</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Forwarders" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-arrow-forward"></i>
-                                <span>Forwarders</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Autoresponders" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-message-dots"></i>
-                                <span>Autoresponders</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Filemanager" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-folder"></i>
-                                <span>File Manager</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Backups" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-database-export"></i>
-                                <span>Backups</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=AddonDomains" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-world"></i>
-                                <span>Addon Domains</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Cron" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-clock"></i>
-                                <span>Cron Jobs</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-md-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Phpmyadmin" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-database"></i>
-                                <span>MySQL Databases</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        <!-- C. Reseller Hosting Features -->
-        {elseif $serviceType eq "reseller"}
-            <div class="row g-4 mb-4">
-                <div class="col-12">
-                    <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                        <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                                <i class="ti ti-dns text-danger"></i> BRANDED NAMESERVERS &amp; DELEGATION
-                            </span>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded border d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #fafafa);">
-                                        <div>
-                                            <div class="small text-muted fw-semibold">Primary Nameserver (NS1)</div>
-                                            <div class="fw-bold text-dark font-monospace">ns1.{$domain|default:"testsnbd.com"} <span class="text-muted fw-normal">(103.87.214.10)</span></div>
-                                        </div>
-                                        <button type="button" onclick="navigator.clipboard.writeText('ns1.{$domain|default:"testsnbd.com"}')" class="btn btn-xs btn-outline-secondary">
-                                            <i class="ti ti-copy"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded border d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #fafafa);">
-                                        <div>
-                                            <div class="small text-muted fw-semibold">Secondary Nameserver (NS2)</div>
-                                            <div class="fw-bold text-dark font-monospace">ns2.{$domain|default:"testsnbd.com"} <span class="text-muted fw-normal">(103.87.214.11)</span></div>
-                                        </div>
-                                        <button type="button" onclick="navigator.clipboard.writeText('ns2.{$domain|default:"testsnbd.com"}')" class="btn btn-xs btn-outline-secondary">
-                                            <i class="ti ti-copy"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="p-2.5 rounded border small text-secondary d-flex justify-content-between flex-wrap gap-2" style="background: var(--bg-elevated, #fafafa);">
-                                <span>Server Hostname: <strong class="text-dark">us-reseller-01.snbdhost.com</strong></span>
-                                <span>Server IP: <strong class="text-dark">103.87.214.70</strong></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                        <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                                <i class="ti ti-chart-pie text-danger"></i> RESELLER RESOURCE QUOTAS
-                            </span>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Client Accounts (14 / 50)</span>
-                                        <span class="fw-bold small text-dark">28.0% used</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 28%;" aria-valuenow="28.0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Disk Space (45.2GB / 200GB)</span>
-                                        <span class="fw-bold small text-dark">22.6% used</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 22.6%;" aria-valuenow="22.6" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Monthly Bandwidth (120GB / 2TB)</span>
-                                        <span class="fw-bold small text-dark">6.00% used</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 6%;" aria-valuenow="6.0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        <!-- D. OpenClaw Managed Instance (Native Module View - Untouched) -->
-        {elseif $serviceType eq "openclaw"}
-            <!-- Native OpenClaw module output rendered below -->
-
-        <!-- E. Universal / Generic Hosting Features -->
-        {else}
-            <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                    <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                        <i class="ti ti-layout-grid text-danger"></i> QUICK ACTIONS &amp; SHORTCUTS
-                    </span>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        <div class="col-6 col-sm-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Email" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-mail"></i>
-                                <span>Email Accounts</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Filemanager" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-folder"></i>
-                                <span>File Manager</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-3">
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Phpmyadmin" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-database"></i>
-                                <span>Databases</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-3">
-                            <a href="clientarea.php?action=domaindetails&amp;id={$id}" target="_blank" class="shortcut-card-item">
-                                <i class="ti ti-dns"></i>
-                                <span>DNS Management</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {/if}
 
         {if $customfields}
             <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
@@ -689,17 +244,15 @@
             </div>
         {/if}
 
-        <!-- Only render moduleclientarea for openclaw and universal to avoid duplicate boxes on cpanel, n8n, and reseller -->
-        {if $serviceType eq "openclaw" || $serviceType eq "universal"}
-            {if $tplOverviewTabOutput}
-                <div class="module-clientarea-wrap mt-4" id="moduleClientAreaWrap">
-                    {$tplOverviewTabOutput}
-                </div>
-            {elseif $moduleclientarea}
-                <div class="module-clientarea-wrap mt-4" id="moduleClientAreaWrap">
-                    {$moduleclientarea}
-                </div>
-            {/if}
+        <!-- Native Module Information & Control Output -->
+        {if $tplOverviewTabOutput}
+            <div class="module-clientarea-wrap mb-4" id="moduleClientAreaWrap">
+                {$tplOverviewTabOutput}
+            </div>
+        {elseif $moduleclientarea}
+            <div class="module-clientarea-wrap mb-4" id="moduleClientAreaWrap">
+                {$moduleclientarea}
+            </div>
         {/if}
     </div>
     
@@ -841,18 +394,3 @@
         </div>
     {/if}
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const panels = document.querySelectorAll('.module-clientarea-wrap .card, .module-clientarea-wrap .panel, .module-clientarea-wrap > div');
-    panels.forEach(panel => {
-        const headerElement = panel.querySelector('.card-header, .panel-heading, h3');
-        if (headerElement) {
-            const headerText = headerElement.innerText.trim().toLowerCase();
-            if (headerText.includes('quick create email') || headerText.includes('billing overview') || headerText.includes('usage statistics')) {
-                panel.style.display = 'none';
-            }
-        }
-    });
-});
-</script>
