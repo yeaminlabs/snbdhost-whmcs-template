@@ -817,7 +817,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
         
         <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
             ' . ($promoEnabled ? '
-            <div class="n8n-masterclass-banner d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="n8n-masterclass-banner d-none align-items-center justify-content-between flex-wrap gap-3" id="secret-masterclass-banner">
                 <div class="d-flex align-items-center gap-3">
                     <div style="background: rgba(255,255,255,0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="ti ti-school" style="font-size: 1.8rem; color: #ff6666;"></i>
@@ -880,7 +880,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             <div class="row g-4">
                 <div class="col-lg-6">
                     <div class="n8n-card h-100">
-                        <div class="n8n-card-title">
+                        <div class="n8n-card-title" ondblclick="var b=document.getElementById('secret-masterclass-banner');if(b){b.classList.remove('d-none');b.classList.add('d-flex');}" style="cursor:default;">
                             <i class="ti ti-server" style="color: #CC0000; font-size: 1.4rem;"></i> Resource Monitor
                         </div>
                         
@@ -1181,12 +1181,14 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                         window.closeN8nMasterclassModal();
                     }
                 });
-                // Auto open popup if not dismissed
+                // Auto open popup removed for privacy
+                /*
                 if (!localStorage.getItem("snbd_n8n_masterclass_dismissed")) {
                     setTimeout(function() {
                         modalEl.style.display = "flex";
                     }, 600);
                 }
+                */
             }
 
             var dismissBtn = document.getElementById("n8n-dismiss-masterclass-btn");

@@ -375,7 +375,7 @@
                                     <a href="#" class="btn btn-sso-cpanel w-100 py-3" id="n8nMainBtn" style="background-color: #CC0000 !important; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(204,0,0,0.3); transition: all 0.3s ease;">
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.5rem; filter: brightness(0) invert(1);" alt="n8n"> GO TO N8N
                                     </a>
-                                    <a href="https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla" target="_blank" class="btn btn-outline-danger w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 fw-bold" style="border-radius: 12px; font-size: 0.95rem; border: 1.5px solid #CC0000; color: #CC0000; background: #FFF5F5;">
+                                    <a href="https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla" target="_blank" class="btn btn-outline-danger w-100 py-2.5 d-none align-items-center justify-content-center gap-2 fw-bold" id="hiddenN8nLearnBtn" style="border-radius: 12px; font-size: 0.95rem; border: 1.5px solid #CC0000; color: #CC0000; background: #FFF5F5;">
                                         <i class="ti ti-school" style="font-size: 1.2rem;"></i> 🎓 Free n8n Masterclass (বাংলায়)
                                     </a>
                                 </div>
@@ -472,7 +472,20 @@
                 // 1. Swap the card title
                 var cardTitle = document.getElementById('cpanelCardTitle');
                 if (cardTitle) {
-                    cardTitle.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height:1.5rem;vertical-align:middle;" alt="n8n"> n8n Access';
+                    cardTitle.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height:1.5rem;vertical-align:middle;cursor:default;" alt="n8n" id="n8nSecretLogo"> n8n Access';
+                    var secretLogo = document.getElementById('n8nSecretLogo');
+                    if (secretLogo) {
+                        secretLogo.addEventListener('dblclick', function(e) {
+                            e.preventDefault();
+                            var learnBtn = document.getElementById('hiddenN8nLearnBtn');
+                            if(learnBtn) {
+                                learnBtn.classList.remove('d-none');
+                                learnBtn.classList.add('d-flex');
+                            } else {
+                                window.open('https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla', '_blank');
+                            }
+                        });
+                    }
                 }
 
                 // 2. Swap the logo
