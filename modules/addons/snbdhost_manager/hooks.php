@@ -568,35 +568,19 @@ add_hook('TicketOpenValidation', 1, function($vars) {
     }
     
     $token = $_POST['cf-turnstile-response'] ?? '';
-    if (!verifySnbdhostTurnstileToken($token, $setfunction renderSnbdhostN8nDashboardHtml($html) {
+    if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
+        return 'Please complete the Cloudflare Turnstile verification.';
+    }
+});
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * N8N MODULE CLIENT AREA REDESIGN
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+function renderSnbdhostN8nDashboardHtml($html) {
     if (empty($html) || strpos($html, 'n8n-modern-dashboard') !== false) {
         return $html;
-    }
-
-    // Fetch n8n Masterclass Promo Config
-    $promoEnabled = true;
-    $promoUrl = 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla';
-    $promoTitle = 'বাংলায় n8n ফ্রি মাস্টারক্লাস! (Free n8n Masterclass)';
-    $promoImage = '';
-
-    try {
-        $settingsRows = Capsule::table('tbladdonmodules')
-            ->where('module', 'snbdhost_manager')
-            ->whereIn('setting', ['n8n_promo_enabled', 'n8n_promo_url', 'n8n_promo_title', 'n8n_promo_image'])
-            ->get();
-        foreach ($settingsRows as $row) {
-            if ($row->setting === 'n8n_promo_enabled' && ($row->value === 'off' || strtolower($row->value) === 'no')) {
-                $promoEnabled = false;
-            } elseif ($row->setting === 'n8n_promo_url' && !empty($row->value)) {
-                $promoUrl = $row->value;
-            } elseif ($row->setting === 'n8n_promo_title' && !empty($row->value)) {
-                $promoTitle = $row->value;
-            } elseif ($row->setting === 'n8n_promo_image' && !empty($row->value)) {
-                $promoImage = $row->value;
-            }
-        }
-    } catch (\Exception $e) {
-        // Use defaults if settings table is inaccessible
     }
 
     $newHtml = '
@@ -836,73 +820,11 @@ add_hook('TicketOpenValidation', 1, function($vars) {
             </div>
         </div>
 
-        ' . ($promoEnabled ? '
-        <div class="n8n-masterclass-banner d-none align-items-center justify-content-between flex-wrap gap-3" id="secret-masterclass-banner">
-            <div class="d-flex align-items-center gap-3">
-                <div style="background: rgba(255,255,255,0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="ti ti-school" style="font-size: 1.8rem; color: #ff6666;"></i>
-                </div>
-                <div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <span class="badge" style="background: #CC0000; color: white; font-size: 0.7rem; letter-spacing: 0.5px;">100% FREE</span>
-                        <span class="text-white-50 small" style="font-size: 0.75rem;"><i class="ti ti-language me-1"></i>বাংলায় কোর্স</span>
-                    </div>
-                    <h5 class="fw-bold mb-0 text-white" style="font-size: 1.05rem;">' . htmlspecialchars($promoTitle) . '</h5>
-                    <p class="mb-0 text-white-50 small" style="font-size: 0.82rem;">n8n Workflow Automation, API Integration & AI Agent তৈরি শিখুন ফ্রিতে।</p>
-                </div>
-            </div>
-            <div class="d-flex align-items-center gap-2 ms-auto">
-                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="openN8nMasterclassModal()"><i class="ti ti-info-circle me-1"></i> বিস্তারিত</button>
-                <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-sm text-white fw-bold px-4 py-2" style="background: #CC0000; border-radius: 10px; box-shadow: 0 4px 15px rgba(204,0,0,0.4); border: none;">
-                    ক্লাসে জয়েন করুন <i class="ti ti-arrow-up-right ms-1"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="n8n-modal-overlay" id="n8nMasterclassModal">
-            <div class="n8n-modal-card">
-                <div class="n8n-modal-header">
-                    <button class="n8n-modal-close" onclick="closeN8nMasterclassModal()">&times;</button>
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.4rem; filter: brightness(0) invert(1);" alt="n8n">
-                        <span class="badge" style="background: rgba(255,255,255,0.25); color: white; font-size: 0.75rem;">বাংলা ফ্রি মাস্টারক্লাস</span>
-                    </div>
-                    <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem;">' . htmlspecialchars($promoTitle) . '</h4>
-                    <p class="mb-0 text-white-50 small">SNBD HOST এর শিক্ষার্থীদের জন্য সম্পূর্ণ ফ্রি n8n টিউটোরিয়াল ও মাস্টারক্লাস!</p>
-                </div>
-                <div class="p-4" style="background: #ffffff;">
-                    ' . (!empty($promoImage) ? '<div class="mb-3 text-center"><img src="' . htmlspecialchars($promoImage) . '" class="img-fluid rounded-3 border" style="max-height: 200px; width: 100%; object-fit: cover;" alt="n8n Course Banner"></div>' : '') . '
-                    <div class="mb-3 p-3 rounded-3" style="background: #FFF5F5; border: 1px solid #FFE0E0;">
-                        <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem;"><i class="ti ti-sparkles text-danger me-1"></i> এই মাস্টারক্লাসে আপনি কী কী শিখবেন:</h6>
-                        <ul class="mb-0 text-secondary small ps-3" style="line-height: 1.7; font-size: 0.85rem;">
-                            <li>⚡ <strong>Automate Everything:</strong> কোনো কোডিং ছাড়াই n8n দিয়ে পাওয়ারফুল ওয়ার্কফ্লো অটোমেশন তৈরি।</li>
-                            <li>🔗 <strong>Webhooks & APIs:</strong> Facebook, WhatsApp, Telegram, Google Sheets ও CRM এর সাথে n8n কানেক্ট করা।</li>
-                            <li>🤖 <strong>AI Agent Integration:</strong> n8n-এ OpenAI / Gemini যুক্ত করে অটোমেটিক AI Agent তৈরি।</li>
-                            <li>🇧🇩 <strong>১০০% বাংলায় সহজ ব্যাখ্যা:</strong> নতুনদের জন্য স্টেপ-বাই-স্টেপ প্র্যাকটিক্যাল গাইড।</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="d-flex align-items-center justify-content-between gap-2 pt-2 flex-wrap">
-                        <button type="button" class="btn btn-link text-muted p-0 text-decoration-none small" id="n8n-dismiss-masterclass-btn" style="font-size: 0.78rem;">
-                            <i class="ti ti-eye-off me-1"></i> পরবর্তীতে আর দেখাবেন না (Don\'t show again)
-                        </button>
-                        <div class="d-flex gap-2 ms-auto">
-                            <button type="button" class="btn btn-light btn-sm px-3 border fw-semibold" onclick="closeN8nMasterclassModal()">পরে দেখবো</button>
-                            <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-danger btn-sm px-4 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 8px; border: none;">
-                                <i class="ti ti-rocket me-1"></i> ফ্রী মাস্টারক্লাস শুরু করুন
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        ' : '') . '
-
         <div class="row g-4">
             <!-- Left Side: Resource Usage -->
             <div class="col-lg-6">
                 <div class="n8n-card h-100">
-                    <div class="n8n-card-title" ondblclick="var b=document.getElementById(\'secret-masterclass-banner\');if(b){b.classList.remove(\'d-none\');b.classList.add(\'d-flex\');}" style="cursor:default;">
+                    <div class="n8n-card-title" style="cursor:default;">
                         <i class="ti ti-activity" style="color: #CC0000; font-size: 1.4rem;"></i> Server Resource Usage
                     </div>
                     

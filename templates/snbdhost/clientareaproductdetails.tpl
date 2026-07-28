@@ -232,27 +232,7 @@
             </div>
         </div>
 
-        {if $customfields}
-            <div class="card dash-card-clean border-0 mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid rgba(204,0,0,0.12) !important; box-shadow: 0 6px 18px rgba(204,0,0,0.05);">
-                <div class="card-header py-3 px-4" style="background: linear-gradient(to right, rgba(204,0,0,0.02), transparent); border-bottom: 1px solid rgba(204,0,0,0.08);">
-                    <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                        <i class="ti ti-list-details text-danger"></i> Additional Information
-                    </span>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        {foreach from=$customfields item=field}
-                            <div class="col-md-6 col-xl-4">
-                                <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
-                                    <div class="small text-muted fw-semibold">{$field.name}</div>
-                                    <div class="text-dark fw-bold mt-1" style="font-size: 0.95rem;">{$field.value|default:"-"}</div>
-                                </div>
-                            </div>
-                        {/foreach}
-                    </div>
-                </div>
-            </div>
-        {/if}
+
 
         <!-- Native Module Information & Control Output -->
         {if $tplOverviewTabOutput}

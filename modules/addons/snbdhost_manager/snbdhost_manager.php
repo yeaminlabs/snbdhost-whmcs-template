@@ -77,33 +77,6 @@ function snbdhost_manager_config()
                 'Type'         => 'yesno',
                 'Description'  => 'Tick to enable Developer Mode. This hides reports, shows a developer alert message on the dashboards, and disables the theme modification check.',
             ],
-            'n8n_promo_enabled' => [
-                'FriendlyName' => 'Enable n8n Bangla Masterclass Popup',
-                'Type'         => 'yesno',
-                'Default'      => 'on',
-                'Description'  => 'Show a notification popup and banner for n8n hosting clients promoting the free Bangla n8n masterclass.',
-            ],
-            'n8n_promo_url' => [
-                'FriendlyName' => 'n8n Masterclass URL',
-                'Type'         => 'text',
-                'Size'         => '80',
-                'Default'      => 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla',
-                'Description'  => 'The URL where clients will be directed to access the free n8n Masterclass (default: https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla).',
-            ],
-            'n8n_promo_title' => [
-                'FriendlyName' => 'n8n Masterclass Promo Title',
-                'Type'         => 'text',
-                'Size'         => '80',
-                'Default'      => 'বাংলায় n8n ফ্রি মাস্টারক্লাস! (Free n8n Masterclass)',
-                'Description'  => 'Title heading for the notification popup and banner.',
-            ],
-            'n8n_promo_image' => [
-                'FriendlyName' => 'n8n Promo Image URL (Optional)',
-                'Type'         => 'text',
-                'Size'         => '80',
-                'Default'      => '',
-                'Description'  => 'Optional URL of a custom banner image or poster to display inside the popup.',
-            ],
         ]
     ];
 }
