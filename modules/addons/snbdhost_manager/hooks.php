@@ -582,8 +582,9 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
     // Check if this is an n8n product
     $isN8n = false;
     $productName = strtolower($vars['product'] ?? '');
+    $moduleName = strtolower($vars['module'] ?? '');
     
-    if (strpos($productName, 'n8n') !== false || ($vars['module'] ?? '') === 'n8n') {
+    if (strpos($productName, 'n8n') !== false || strpos($moduleName, 'n8n') !== false) {
         $isN8n = true;
     }
     
