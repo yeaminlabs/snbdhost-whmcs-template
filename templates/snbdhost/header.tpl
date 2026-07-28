@@ -16,17 +16,10 @@
             saving = '{/literal}{lang key="markdown.saving"}{literal}',
             whmcsBaseUrl = "{/literal}{$WEB_ROOT}{literal}";
             
-        // Check and apply saved theme preference instantly to prevent flash
+        // Enforce clean light mode theme permanently
         (function() {
-            var savedTheme = localStorage.getItem('snbd-theme');
-            if (savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else if (savedTheme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-            }
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('snbd-theme', 'light');
         })();
         {/literal}
     </script>

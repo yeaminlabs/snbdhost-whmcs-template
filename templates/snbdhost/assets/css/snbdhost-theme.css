@@ -75,31 +75,31 @@
   --sidebar-w-collapsed: 68px;
 }
 
-/* User-Specified Dark Mode Design Tokens */
+/* Standard Theme Tokens (Light Mode Only) */
 html[data-theme="dark"] {
-  --brand-primary:   #E05052;                 /* Primary buttons, active tabs, main action CTA */
-  --brand-hover:     #E87072;                 /* Hover and focus states for interactive red elements */
-  --brand-light:     rgba(224, 80, 82, 0.15); /* Active pill backgrounds, badge fills */
-  --brand-dark:      #4A1416;                 /* Hero card accents, dark container backgrounds */
-  --brand-primary-rgb: 224, 80, 82;
+  --brand-primary: #BA1114;
+  --brand-hover: #9E0D10;
+  --brand-light: rgba(186, 17, 20, 0.08);
+  --brand-dark: #8A0C0E;
+  --brand-primary-rgb: 186, 17, 20;
 
-  --text-primary:    #E8E1E2;                 /* Headings, titles, main body text */
-  --text-secondary:  #B8ACAE;                 /* Subtitles, secondary navigation items */
-  --text-muted:      #887B7D;                 /* Placeholders, captions, disabled text */
-  --text-on-brand:   #FFFFFF;                 /* Text on top of solid red buttons/badges */
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #757575;
+  --text-on-brand: #FFFFFF;
 
-  --bg-body:         #140E0F;                 /* Main layout background */
-  --bg-surface:      #1C1416;                 /* Cards, sidebar, modal background */
-  --bg-elevated:     #261C1E;                 /* Input fields, active row zebra stripes, dropdowns */
-  --bg-input:        #261C1E;
+  --bg-body: #F7F7F4;
+  --bg-surface: #ffffff;
+  --bg-elevated: #fafafa;
+  --bg-input: #ffffff;
 
-  --border-color:    #332326;                 /* Card outlines, table dividers, panel borders */
-  --border-subtle:   #2a1c1e;
+  --border-color: #e0e0e0;
+  --border-subtle: #eeeeee;
   
-  --success-bg: rgba(46, 125, 50, 0.2);
-  --warning-bg: rgba(239, 108, 0, 0.2);
-  --danger-bg: rgba(224, 80, 82, 0.2);
-  --info-bg: rgba(224, 80, 82, 0.15);
+  --success-bg: rgba(46, 125, 50, 0.08);
+  --warning-bg: rgba(230, 81, 0, 0.08);
+  --danger-bg: rgba(198, 40, 40, 0.08);
+  --info-bg: rgba(186, 17, 20, 0.06);
 }
 
 /* Force override of hardcoded background colors and text colors in Dark Mode */

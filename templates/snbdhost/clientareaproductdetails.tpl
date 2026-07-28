@@ -218,7 +218,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
         <div class="row g-4 mb-4">
             
             <!-- Left Card: Service Overview -->
-            <div class="col-lg-6">
+            <div class="{if $serviceType eq 'openclaw'}col-12{else}col-lg-6{/if}">
                 <div class="card h-100 dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
                     <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
                         <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
@@ -267,6 +267,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                 </div>
             </div>
             
+            {if $serviceType neq "openclaw"}
             <!-- Right Card: Control Panel Access / Workspace SSO -->
             <div class="col-lg-6">
                 <div class="card h-100 dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
@@ -276,8 +277,6 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 <i class="ti ti-bolt text-danger"></i> n8n Workspace Access
                             {elseif $serviceType eq "reseller"}
                                 <i class="ti ti-building text-danger"></i> Reseller Control Panel
-                            {elseif $serviceType eq "openclaw"}
-                                <i class="ti ti-cpu text-danger"></i> OpenClaw Workspace
                             {else}
                                 <i class="ti ti-world text-danger"></i> Control Panel Access
                             {/if}
@@ -293,8 +292,6 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" alt="n8n Logo" style="max-height: 48px; width: auto;">
                                 {elseif $serviceType eq "reseller"}
                                     <div class="fw-bold fs-3 text-danger" style="font-family: var(--font-heading);">WHM</div>
-                                {elseif $serviceType eq "openclaw"}
-                                    <div class="fw-bold fs-3 text-danger" style="font-family: var(--font-heading);"><i class="ti ti-cpu me-1"></i> OpenClaw</div>
                                 {else}
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Cpanel-logo.png" alt="cPanel Logo" style="max-height: 40px; width: auto;">
                                 {/if}
@@ -304,8 +301,6 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                     Direct Single Sign-On to your private n8n workflow automation instance.
                                 {elseif $serviceType eq "reseller"}
                                     Full WHM Reseller Portal to manage client accounts and packages.
-                                {elseif $serviceType eq "openclaw"}
-                                    High-performance managed web automation &amp; AI workflow engine.
                                 {else}
                                     Manage files, databases, emails, and domain settings directly.
                                 {/if}
@@ -330,16 +325,6 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="sso-btn-main w-100 py-3">
                                     <i class="ti ti-login me-1"></i> LOGIN TO WHM
                                 </a>
-                            {elseif $serviceType eq "openclaw"}
-                                {if $domain}
-                                    <a href="https://{$domain}" target="_blank" class="sso-btn-main w-100 py-3">
-                                        <i class="ti ti-terminal me-1"></i> OPEN CONSOLE ACCESS
-                                    </a>
-                                {else}
-                                    <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="sso-btn-main w-100 py-3">
-                                        <i class="ti ti-terminal me-1"></i> OPEN CONSOLE ACCESS
-                                    </a>
-                                {/if}
                             {else}
                                 <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="sso-btn-main w-100 py-3">
                                     <i class="ti ti-login me-1"></i> LOGIN TO CPANEL
@@ -355,6 +340,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                     </div>
                 </div>
             </div>
+            {/if}
             
         </div>
 
@@ -635,108 +621,9 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                 </div>
             </div>
 
-        <!-- D. OpenClaw Managed Instance Features -->
+        <!-- D. OpenClaw Managed Instance (Native Module View) -->
         {elseif $serviceType eq "openclaw"}
-            <div class="row g-4 mb-4">
-                <div class="col-12">
-                    <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                        <div class="card-header bg-transparent py-3 px-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                                <i class="ti ti-cpu text-danger"></i> MANAGED NODE TELEMETRY &amp; RESOURCES
-                            </span>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style="font-size: 0.75rem;">
-                                <i class="ti ti-point-filled me-1"></i> Online
-                            </span>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">vCPU Load (2 vCPUs)</span>
-                                        <span class="fw-bold small text-dark">12.4% allocated</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 12.4%;" aria-valuenow="12.4" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">RAM Allocation (1.2GB / 4GB)</span>
-                                        <span class="fw-bold small text-dark">30.0% used</span>
-                                    </div>
-                                    <div class="progress progress-thin mb-2">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 30%;" aria-valuenow="30.0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    {if $packagesupgrade}
-                                        <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-outline-secondary btn-xs py-0.5 px-2 fw-semibold float-end" style="font-size: 0.75rem; border-radius: 6px;">
-                                            <i class="ti ti-adjustments-alt me-1"></i> Scale RAM
-                                        </a>
-                                    {/if}
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">SSD Storage (4.8GB / 40GB)</span>
-                                        <span class="fw-bold small text-dark">12.0% used</span>
-                                    </div>
-                                    <div class="progress progress-thin">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 12%;" aria-valuenow="12.0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                        <div class="card-header bg-transparent py-3 px-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
-                            <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
-                                <i class="ti ti-key text-danger"></i> INSTANCE ENDPOINT &amp; API KEYS
-                            </span>
-                            <button type="button" onclick="navigator.clipboard.writeText('https://{$domain|default:"claw-node-09.snbd.io"}/api/v1')" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
-                                <i class="ti ti-copy me-1"></i> Copy Endpoint
-                            </button>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="p-3 mb-3 rounded border font-monospace small" style="background: var(--bg-elevated, #fafafa);">
-                                Endpoint URL: <strong class="text-danger">https://{$domain|default:"claw-node-09.snbd.io"}/api/v1</strong>
-                            </div>
-                            
-                            <div class="row text-center g-3 mb-3">
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
-                                        <div class="small text-muted fw-semibold mb-1">Status</div>
-                                        <div class="fw-bold text-success"><i class="ti ti-check me-1"></i> Online (18ms)</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
-                                        <div class="small text-muted fw-semibold mb-1">Region</div>
-                                        <div class="fw-bold text-dark">BDIX (Dhaka)</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
-                                        <div class="small text-muted fw-semibold mb-1">API Secret</div>
-                                        <div class="fw-bold text-muted font-monospace">************************</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
-                                    <i class="ti ti-refresh me-1"></i> Regenerate API Key
-                                </button>
-                                {if $modulechangepassword}
-                                    <button type="button" onclick="jQuery('#password-tab').click()" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
-                                        <i class="ti ti-key me-1"></i> Change Master Password
-                                    </button>
-                                {/if}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Native OpenClaw module output rendered below -->
 
         <!-- E. Universal / Generic Hosting Features -->
         {else}
