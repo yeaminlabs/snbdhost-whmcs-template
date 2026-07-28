@@ -87,8 +87,8 @@ function snbdhost_manager_config()
                 'FriendlyName' => 'n8n Masterclass URL',
                 'Type'         => 'text',
                 'Size'         => '80',
-                'Default'      => 'https://snbdhost.com/learn',
-                'Description'  => 'The URL where clients will be directed to access the free n8n Masterclass (default: https://snbdhost.com/learn).',
+                'Default'      => 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla',
+                'Description'  => 'The URL where clients will be directed to access the free n8n Masterclass (default: https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla).',
             ],
             'n8n_promo_title' => [
                 'FriendlyName' => 'n8n Masterclass Promo Title',

@@ -608,7 +608,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
 
         // Fetch n8n Masterclass Promo Config
         $promoEnabled = true;
-        $promoUrl = 'https://snbdhost.com/learn';
+        $promoUrl = 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla';
         $promoTitle = 'বাংলায় n8n ফ্রি মাস্টারক্লাস! (Free n8n Masterclass)';
         $promoImage = '';
 
@@ -869,7 +869,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                             <div class="d-flex gap-2 ms-auto">
                                 <button type="button" class="btn btn-light btn-sm px-3 border fw-semibold" onclick="closeN8nMasterclassModal()">পরে দেখবো</button>
                                 <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-danger btn-sm px-4 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 8px; border: none;">
-                                    <i class="ti ti-rocket me-1"></i> ফ্রী মাস্টারক্লাস শুরু করুন (snbdhost.com/learn)
+                                    <i class="ti ti-rocket me-1"></i> ফ্রী মাস্টারক্লাস শুরু করুন
                                 </a>
                             </div>
                         </div>
