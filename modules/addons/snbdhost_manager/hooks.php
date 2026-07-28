@@ -664,6 +664,89 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 align-items: center;
                 gap: 8px;
             }
+            .n8n-metric-row {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1.2rem;
+            }
+            .n8n-metric-header {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #555;
+                margin-bottom: 0.5rem;
+            }
+            .n8n-progress-bar {
+                height: 8px;
+                background: #f0f0f0;
+                border-radius: 10px;
+                overflow: hidden;
+                display: flex;
+            }
+            .n8n-progress-fill-success { background: #10B981; }
+            .n8n-progress-fill-danger { background: #EF4444; }
+            .n8n-progress-fill-warning { background: #F59E0B; }
+            
+            .n8n-status-badge {
+                padding: 4px 12px;
+                border-radius: 50rem;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                background: rgba(16, 185, 129, 0.1);
+                color: #10B981;
+                border: 1px solid rgba(16, 185, 129, 0.2);
+            }
+            .n8n-status-badge.stopped {
+                background: rgba(239, 68, 68, 0.1);
+                color: #EF4444;
+                border: 1px solid rgba(239, 68, 68, 0.2);
+            }
+            
+            .btn-n8n-accent {
+                background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%) !important;
+                color: #ffffff !important;
+                border: none !important;
+                border-radius: 12px !important;
+                font-weight: 700 !important;
+                padding: 0.6rem 1.5rem !important;
+                transition: all 0.25s ease !important;
+                box-shadow: 0 4px 15px rgba(204,0,0,0.3) !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer;
+            }
+            .btn-n8n-accent:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 25px rgba(204,0,0,0.4) !important;
+            }
+            
+            .n8n-info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+            .n8n-info-item {
+                background: #fdfdfd;
+                padding: 1rem;
+                border-radius: 12px;
+                border: 1px solid #eeeeee;
+            }
+            .n8n-info-label {
+                font-size: 0.7rem;
+                color: #888;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 4px;
+            }
+            .n8n-info-value {
+                font-size: 0.95rem;
+                font-weight: 700;
+                color: #222;
+            }
             .n8n-masterclass-banner {
                 background: linear-gradient(135deg, #1e0505 0%, #3a0808 50%, #200404 100%);
                 border: 1px solid rgba(255, 68, 68, 0.3);
@@ -794,97 +877,6 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 </div>
             </div>
             ' : '') . '
-                margin-bottom: 1.25rem;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .n8n-metric-row {
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 1.2rem;
-            }
-            .n8n-metric-header {
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #555;
-                margin-bottom: 0.5rem;
-            }
-            .n8n-progress-bar {
-                height: 8px;
-                background: #f0f0f0;
-                border-radius: 10px;
-                overflow: hidden;
-                display: flex;
-            }
-            .n8n-progress-fill-success { background: #10B981; }
-            .n8n-progress-fill-danger { background: #EF4444; }
-            .n8n-progress-fill-warning { background: #F59E0B; }
-            
-            .n8n-status-badge {
-                padding: 4px 12px;
-                border-radius: 50rem;
-                font-size: 0.75rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                background: rgba(16, 185, 129, 0.1);
-                color: #10B981;
-                border: 1px solid rgba(16, 185, 129, 0.2);
-            }
-            .n8n-status-badge.stopped {
-                background: rgba(239, 68, 68, 0.1);
-                color: #EF4444;
-                border: 1px solid rgba(239, 68, 68, 0.2);
-            }
-            
-            .btn-n8n-accent {
-                background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%) !important;
-                color: #ffffff !important;
-                border: none !important;
-                border-radius: 12px !important;
-                font-weight: 700 !important;
-                padding: 0.6rem 1.5rem !important;
-                transition: all 0.25s ease !important;
-                box-shadow: 0 4px 15px rgba(204,0,0,0.3) !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer;
-            }
-            .btn-n8n-accent:hover {
-                transform: translateY(-2px) !important;
-                box-shadow: 0 8px 25px rgba(204,0,0,0.4) !important;
-            }
-            
-            .n8n-info-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 1rem;
-            }
-            .n8n-info-item {
-                background: #fdfdfd;
-                padding: 1rem;
-                border-radius: 12px;
-                border: 1px solid #eeeeee;
-            }
-            .n8n-info-label {
-                font-size: 0.7rem;
-                color: #888;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 4px;
-            }
-            .n8n-info-value {
-                font-size: 0.95rem;
-                font-weight: 700;
-                color: #222;
-            }
-        </style>
-        
-        <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
             <div class="row g-4">
                 <div class="col-lg-6">
                     <div class="n8n-card h-100">
