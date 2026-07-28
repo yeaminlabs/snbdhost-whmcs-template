@@ -128,6 +128,8 @@
         <div class="pwreset-sub">
             {if $action eq "pwreset"}
                 {$LANG.pwresetenterpassword}
+            {elseif $securityquestion}
+                {$LANG.pwresetsecurityquestionrequired|default:"Please answer your security question below."}
             {else}
                 {$LANG.pwresetemailneeded}
             {/if}
@@ -146,9 +148,25 @@
             <a href="{$WEB_ROOT}/login.php" class="pwreset-btn text-center d-block text-decoration-none mt-3">
                 <i class="ti ti-login me-1"></i> {$LANG.loginbutton|default:"Return to Login"}
             </a>
+        {elseif $securityquestion}
+            <!-- Security Question Stage -->
+            <form method="post" action="{$WEB_ROOT}/pwreset.php">
+                <input type="hidden" name="email" value="{$email}" />
+                <input type="hidden" name="action" value="reset" />
+                <input type="hidden" name="sub" value="send" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">{$securityquestion}</label>
+                    <input type="text" name="answer" class="form-control pwreset-input" required autofocus autocomplete="off">
+                </div>
+
+                <button type="submit" class="pwreset-btn mt-2">
+                    {$LANG.pwresetsubmit}
+                </button>
+            </form>
         {elseif $action eq "pwreset" || $step eq "3"}
-            <!-- Stage 2: Set New Password -->
-            <form method="post" action="{$systemurl}pwreset.php">
+            <!-- Set New Password Stage -->
+            <form method="post" action="{$WEB_ROOT}/pwreset.php">
                 <input type="hidden" name="key" value="{$key}" />
                 <input type="hidden" name="email" value="{$email}" />
                 <input type="hidden" name="action" value="pwreset" />
@@ -169,8 +187,8 @@
                 </button>
             </form>
         {else}
-            <!-- Stage 1: Request Reset Link -->
-            <form method="post" action="{$systemurl}pwreset.php" novalidate>
+            <!-- Request Reset Link Stage -->
+            <form method="post" action="{$WEB_ROOT}/pwreset.php" novalidate>
                 <input type="hidden" name="action" value="reset" />
                 <input type="hidden" name="sub" value="send" />
 

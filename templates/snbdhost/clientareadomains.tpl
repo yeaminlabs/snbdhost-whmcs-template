@@ -8,7 +8,7 @@
         <h1 class="dash-headline" style="font-size: 2rem; margin-bottom: 0.25rem; font-weight: 800;">My <span class="dash-headline-accent">Domains</span></h1>
         <p class="text-muted small mb-0">Manage, renew, and configure your registered domain names and DNS.</p>
     </div>
-    <a href="domainregister.php" class="btn btn-brand-clean d-inline-flex align-items-center gap-2" style="border-radius: 8px; padding: 0.6rem 1.25rem; font-weight: 600;">
+    <a href="cart.php?a=add&amp;domain=register" class="btn btn-brand-clean d-inline-flex align-items-center gap-2" style="border-radius: 8px; padding: 0.6rem 1.25rem; font-weight: 600;">
         <i class="ti ti-plus" style="font-size: 1rem;"></i> Register New Domain
     </a>
 </div>
