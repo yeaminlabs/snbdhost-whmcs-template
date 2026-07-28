@@ -114,15 +114,58 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
         // DB error
     }
 
-    if ($isDevMode) {
-        return [
-            'snbdBannerEnabled' => '1',
-            'snbdBannerTitle' => '🛠️ Developer Mode Active',
-            'snbdBannerDesc' => 'Developer Mode is enabled. Developers are asked to work on things making them compatible with this theme.',
-            'snbdBannerLink' => '#',
-            'snbdBannerLinkText' => 'Developer Mode',
-            'snbdBannerIcon' => 'fas fa-code'
-        ];
+    // Check n8n Dashboard Promo Config & User Product Ownership
+    $userId = $_SESSION['uid'] ?? null;
+    $hasN8nProduct = false;
+    $promoEnabled = true;
+    $promoTitle = 'SNBD Host n8n Free Video Masterclass Guide';
+    $promoDesc = 'Learn n8n workflow automation, webhooks, API integrations & AI agents with our free step-by-step video guide.';
+    $promoUrl = 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla';
+    $promoBtnText = 'Watch Masterclass Guide';
+    $promoVersion = 'v1';
+
+    try {
+        $settingsRows = Capsule::table('tbladdonmodules')
+            ->where('module', 'snbdhost_manager')
+            ->whereIn('setting', [
+                'n8n_dash_promo_enabled', 
+                'n8n_dash_promo_title', 
+                'n8n_dash_promo_desc', 
+                'n8n_dash_promo_url', 
+                'n8n_dash_promo_btn_text', 
+                'n8n_dash_promo_version'
+            ])
+            ->get();
+            
+        foreach ($settingsRows as $row) {
+            if ($row->setting === 'n8n_dash_promo_enabled' && ($row->value === 'off' || $row->value === '0' || $row->value === 'no')) {
+                $promoEnabled = false;
+            } elseif ($row->setting === 'n8n_dash_promo_title' && !empty($row->value)) {
+                $promoTitle = $row->value;
+            } elseif ($row->setting === 'n8n_dash_promo_desc' && !empty($row->value)) {
+                $promoDesc = $row->value;
+            } elseif ($row->setting === 'n8n_dash_promo_url' && !empty($row->value)) {
+                $promoUrl = $row->value;
+            } elseif ($row->setting === 'n8n_dash_promo_btn_text' && !empty($row->value)) {
+                $promoBtnText = $row->value;
+            } elseif ($row->setting === 'n8n_dash_promo_version' && !empty($row->value)) {
+                $promoVersion = $row->value;
+            }
+        }
+
+        if ($userId && $promoEnabled) {
+            $hasN8nProduct = Capsule::table('tblhosting')
+                ->join('tblproducts', 'tblhosting.packageid', '=', 'tblproducts.id')
+                ->where('tblhosting.userid', $userId)
+                ->whereIn('tblhosting.domainstatus', ['Active', 'Pending'])
+                ->where(function($query) {
+                    $query->where('tblproducts.name', 'LIKE', '%n8n%')
+                          ->orWhere('tblproducts.servertype', 'LIKE', '%n8n%');
+                })
+                ->exists();
+        }
+    } catch (\Exception $e) {
+        // Silently handle DB exceptions
     }
 
     $bannerData = ['enabled' => '1', 'title' => '', 'desc' => '', 'link' => '', 'link_text' => ''];
@@ -132,12 +175,30 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
             $bannerData = $data;
         }
     }
+
+    if ($isDevMode) {
+        $bannerData = [
+            'enabled' => '1',
+            'title' => '🛠️ Developer Mode Active',
+            'desc' => 'Developer Mode is enabled. Developers are asked to work on things making them compatible with this theme.',
+            'link' => '#',
+            'link_text' => 'Developer Mode',
+            'icon' => 'fas fa-code'
+        ];
+    }
+
     return [
-        'snbdBannerEnabled' => $bannerData['enabled'],
-        'snbdBannerTitle' => $bannerData['title'],
-        'snbdBannerDesc' => $bannerData['desc'],
-        'snbdBannerLink' => $bannerData['link'],
-        'snbdBannerLinkText' => $bannerData['link_text']
+        'snbdBannerEnabled' => $bannerData['enabled'] ?? '0',
+        'snbdBannerTitle' => $bannerData['title'] ?? '',
+        'snbdBannerDesc' => $bannerData['desc'] ?? '',
+        'snbdBannerLink' => $bannerData['link'] ?? '',
+        'snbdBannerLinkText' => $bannerData['link_text'] ?? '',
+        'showN8nDashboardPromo' => ($hasN8nProduct && $promoEnabled),
+        'n8nDashboardPromoTitle' => $promoTitle,
+        'n8nDashboardPromoDesc' => $promoDesc,
+        'n8nDashboardPromoUrl' => $promoUrl,
+        'n8nDashboardPromoBtnText' => $promoBtnText,
+        'n8nDashboardPromoVersion' => $promoVersion,
     ];
 });
 

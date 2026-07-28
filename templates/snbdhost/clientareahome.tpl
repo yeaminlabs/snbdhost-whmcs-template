@@ -304,6 +304,61 @@
     <a href="cart.php" class="btn btn-brand-clean"><i class="fas fa-plus me-2"></i>Order New Service</a>
 </div>
 
+{if $showN8nDashboardPromo}
+<!-- n8n Video Masterclass Guide Promotion Segment -->
+<div id="n8n-dashboard-promo-segment" class="mb-4" style="display: none;">
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #1e0505 0%, #3a0808 50%, #200404 100%); color: #ffffff; border: 1px solid rgba(255, 68, 68, 0.35) !important; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -40px; right: -40px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(204, 0, 0, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
+        <div class="card-body p-4 position-relative" style="z-index: 1;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3" style="max-width: 750px;">
+                    <div style="background: rgba(255, 255, 255, 0.12); width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.18);">
+                        <i class="fas fa-play-circle" style="font-size: 1.8rem; color: #ff6666;"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge" style="background: #CC0000; color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; border-radius: 6px;">EXCLUSIVE FOR N8N CLIENTS</span>
+                            <span class="text-white-50 small" style="font-size: 0.78rem;"><i class="fas fa-video me-1"></i>Free Video Masterclass Guide</span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-1" style="font-size: 1.25rem;">{$n8nDashboardPromoTitle|default:'SNBD Host n8n Free Video Masterclass Guide'}</h4>
+                        <p class="text-white-50 mb-0 small" style="font-size: 0.88rem; line-height: 1.5;">{$n8nDashboardPromoDesc|default:'Learn how to build n8n workflow automation, webhooks, API integrations & AI agents with our free step-by-step video guide.'}</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
+                    <a href="{$n8nDashboardPromoUrl|default:'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla'}" target="_blank" class="btn text-white fw-bold px-4 py-2.5 d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 12px; box-shadow: 0 6px 20px rgba(204,0,0,0.4); border: none; font-size: 0.9rem; text-decoration: none;">
+                        <span>{$n8nDashboardPromoBtnText|default:'Watch Masterclass Guide'}</span>
+                        <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
+                    </a>
+                    <button type="button" id="n8n-dash-promo-close-btn" class="btn btn-sm text-white-50 p-2 text-decoration-none" title="Dismiss Segment" style="font-size: 1.2rem; line-height: 1; background: transparent; border: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var promoVersion = "{$n8nDashboardPromoVersion|default:'v1'}";
+    var storageKey = "snbd_n8n_dash_promo_dismissed_" + promoVersion;
+    var segment = document.getElementById("n8n-dashboard-promo-segment");
+    
+    if (segment && !localStorage.getItem(storageKey)) {
+        segment.style.display = "block";
+    }
+    
+    var closeBtn = document.getElementById("n8n-dash-promo-close-btn");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", function() {
+            localStorage.setItem(storageKey, "true");
+            if (segment) segment.style.display = "none";
+        });
+    }
+});
+</script>
+{/if}
+
 {if $open_tickets || $clientsstats.numunpaidinvoices > 0}
 <!-- Action Required Feed -->
 <div class="card dash-card-clean mb-4 border-danger-subtle" style="border-color: rgba(204, 0, 0, 0.25) !important; background: rgba(204, 0, 0, 0.01) !important; border-radius: 12px; box-shadow: 0 4px 20px rgba(204, 0, 0, 0.04);">

@@ -77,6 +77,48 @@ function snbdhost_manager_config()
                 'Type'         => 'yesno',
                 'Description'  => 'Tick to enable Developer Mode. This hides reports, shows a developer alert message on the dashboards, and disables the theme modification check.',
             ],
+            'n8n_dash_promo_enabled' => [
+                'FriendlyName' => 'Enable n8n Masterclass Segment on Dashboard',
+                'Type'         => 'yesno',
+                'Default'      => 'on',
+                'Description'  => 'Promote the free n8n Video Masterclass Guide as an in-page segment on the main Client Dashboard for n8n hosting clients.',
+            ],
+            'n8n_dash_promo_title' => [
+                'FriendlyName' => 'n8n Dashboard Promo Title',
+                'Type'         => 'text',
+                'Size'         => '80',
+                'Default'      => 'SNBD Host n8n Free Video Masterclass Guide',
+                'Description'  => 'Heading title for the n8n promotion segment on the Client Dashboard.',
+            ],
+            'n8n_dash_promo_desc' => [
+                'FriendlyName' => 'n8n Dashboard Promo Description',
+                'Type'         => 'textarea',
+                'Rows'         => '2',
+                'Cols'         => '80',
+                'Default'      => 'Learn n8n workflow automation, webhooks, API integrations & AI agents with our free step-by-step video guide.',
+                'Description'  => 'Sub-description text for the promotion segment.',
+            ],
+            'n8n_dash_promo_url' => [
+                'FriendlyName' => 'n8n Dashboard Promo Link URL',
+                'Type'         => 'text',
+                'Size'         => '80',
+                'Default'      => 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla',
+                'Description'  => 'Destination URL for the promotion button.',
+            ],
+            'n8n_dash_promo_btn_text' => [
+                'FriendlyName' => 'n8n Dashboard Promo Button Text',
+                'Type'         => 'text',
+                'Size'         => '50',
+                'Default'      => 'Watch Masterclass Guide',
+                'Description'  => 'Label text for the action button.',
+            ],
+            'n8n_dash_promo_version' => [
+                'FriendlyName' => 'n8n Dashboard Promo Reset Key / Version',
+                'Type'         => 'text',
+                'Size'         => '20',
+                'Default'      => 'v1',
+                'Description'  => 'Change this version key (e.g. v2) to re-show the promo segment to clients who previously dismissed it.',
+            ],
         ]
     ];
 }
