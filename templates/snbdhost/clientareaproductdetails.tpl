@@ -64,20 +64,30 @@
 .module-clientarea-wrap .card, 
 .module-clientarea-wrap .panel {
     background: var(--bg-surface, #ffffff) !important;
-    border: 1px solid var(--border-color, #e0e0e0) !important;
+    border: 1px solid rgba(204, 0, 0, 0.12) !important;
     border-radius: 16px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+    box-shadow: 0 6px 18px rgba(204, 0, 0, 0.05) !important;
     margin-bottom: 1.5rem !important;
     overflow: hidden !important;
+    transition: all 0.25s ease;
+}
+.module-clientarea-wrap .card:hover, 
+.module-clientarea-wrap .panel:hover {
+    box-shadow: 0 10px 25px rgba(204, 0, 0, 0.08) !important;
+    border-color: rgba(204, 0, 0, 0.2) !important;
 }
 .module-clientarea-wrap .card-header, 
 .module-clientarea-wrap .panel-heading {
-    background: var(--bg-surface, #ffffff) !important;
-    border-bottom: 1px solid var(--border-color, #e0e0e0) !important;
+    background: linear-gradient(to right, rgba(204, 0, 0, 0.02), transparent) !important;
+    border-bottom: 1px solid rgba(204, 0, 0, 0.08) !important;
     padding: 1.25rem 1.5rem !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
-    color: var(--text-primary, #1a1a1a) !important;
+    color: #CC0000 !important;
+}
+.module-clientarea-wrap .card-header i, 
+.module-clientarea-wrap .panel-heading i {
+    color: #CC0000 !important;
 }
 .module-clientarea-wrap .card-body,
 .module-clientarea-wrap .panel-body {
@@ -159,8 +169,8 @@
     <div class="tab-pane fade show active" id="tabOverview" role="tabpanel" aria-labelledby="overview-tab">
         
         <!-- Clean Service Overview Card for All Services -->
-        <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-            <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
+        <div class="card dash-card-clean border-0 mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid rgba(204,0,0,0.12) !important; box-shadow: 0 6px 18px rgba(204,0,0,0.05);">
+            <div class="card-header py-3 px-4" style="background: linear-gradient(to right, rgba(204,0,0,0.02), transparent); border-bottom: 1px solid rgba(204,0,0,0.08);">
                 <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
                     <i class="ti ti-info-circle text-danger"></i> Service Overview
                 </span>
@@ -168,38 +178,38 @@
             <div class="card-body p-4">
                 <div class="row g-3 mb-3">
                     <div class="col-md-6 col-lg-4">
-                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                        <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Registration Date</div>
                             <div class="fw-bold text-dark mt-1">{$regdate}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                        <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Recurring Amount</div>
                             <div class="fw-bold text-danger mt-1">{$amount}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                        <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Billing Cycle</div>
                             <div class="fw-bold text-dark mt-1">{$billingcycle}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                        <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Next Due Date</div>
                             <div class="fw-bold text-dark mt-1">{$nextduedate}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                        <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Payment Method</div>
                             <div class="fw-bold text-dark mt-1">{$paymentmethod}</div>
                         </div>
                     </div>
                     {if $domain}
                         <div class="col-md-6 col-lg-4">
-                            <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                            <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                                 <div class="small text-muted fw-semibold">Domain / Hostname</div>
                                 <div class="fw-bold text-dark mt-1 text-truncate">{$domain}</div>
                             </div>
@@ -223,8 +233,8 @@
         </div>
 
         {if $customfields}
-            <div class="card dash-card-clean border-0 shadow-sm mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
+            <div class="card dash-card-clean border-0 mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid rgba(204,0,0,0.12) !important; box-shadow: 0 6px 18px rgba(204,0,0,0.05);">
+                <div class="card-header py-3 px-4" style="background: linear-gradient(to right, rgba(204,0,0,0.02), transparent); border-bottom: 1px solid rgba(204,0,0,0.08);">
                     <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
                         <i class="ti ti-list-details text-danger"></i> Additional Information
                     </span>
@@ -233,7 +243,7 @@
                     <div class="row g-3">
                         {foreach from=$customfields item=field}
                             <div class="col-md-6 col-xl-4">
-                                <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
+                                <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                                     <div class="small text-muted fw-semibold">{$field.name}</div>
                                     <div class="text-dark fw-bold mt-1" style="font-size: 0.95rem;">{$field.value|default:"-"}</div>
                                 </div>
@@ -259,8 +269,8 @@
     <!-- CHANGE PASSWORD TAB -->
     {if $modulechangepassword}
         <div class="tab-pane fade" id="tabPassword" role="tabpanel" aria-labelledby="password-tab">
-            <div class="card dash-card-clean border-0 shadow-sm" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #e0e0e0) !important;">
-                <div class="card-header bg-transparent py-3 px-4" style="border-bottom: 1px solid var(--border-color, #e0e0e0);">
+            <div class="card dash-card-clean border-0 mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid rgba(204,0,0,0.12) !important; box-shadow: 0 6px 18px rgba(204,0,0,0.05);">
+                <div class="card-header py-3 px-4" style="background: linear-gradient(to right, rgba(204,0,0,0.02), transparent); border-bottom: 1px solid rgba(204,0,0,0.08);">
                     <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
                         <i class="ti ti-key text-danger"></i> Change Password
                     </span>
