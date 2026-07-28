@@ -135,14 +135,10 @@
     background: linear-gradient(90deg, var(--brand-primary, #E05052), var(--brand-hover, #E87072));
 }
 
-html[data-theme="dark"] .dash-card-clean {
-    background: var(--bg-surface, #1C1416) !important;
-    border: 1px solid var(--border-color, #332326) !important;
-}
-html[data-theme="dark"] .dash-card-clean .card-header {
-    background: var(--bg-surface, #1C1416) !important;
-    border-bottom: 1px solid var(--border-color, #332326) !important;
-    color: var(--text-primary, #E8E1E2) !important;
+/* Suppress duplicate WHMCS module HTML for cpanel, n8n, and reseller to avoid double output */
+.suppress-duplicate-module .module-clientarea-wrap,
+.suppress-duplicate-module #moduleClientAreaWrap {
+    display: none !important;
 }
 </style>
 
@@ -310,7 +306,12 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                         <div class="d-flex flex-column gap-2 mt-3">
                             {if $serviceType eq "n8n"}
                                 {if $domain}
-                                    <a href="https://{$domain}" target="_blank" class="sso-btn-main w-100 py-3">
+                                    {if $domain|strpos:'http' === 0}
+                                        {assign var="n8nFullUrl" value=$domain}
+                                    {else}
+                                        {assign var="n8nFullUrl" value="https://`$domain`"}
+                                    {/if}
+                                    <a href="{$n8nFullUrl}" target="_blank" class="sso-btn-main w-100 py-3">
                                         <i class="ti ti-external-link"></i> GO TO N8N WORKSPACE
                                     </a>
                                 {else}
@@ -318,11 +319,8 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                         <i class="ti ti-external-link"></i> GO TO N8N WORKSPACE
                                     </a>
                                 {/if}
-                                <a href="https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla" target="_blank" class="btn btn-outline-danger w-100 py-2 fw-bold" style="border-radius: 10px; font-size: 0.9rem;">
-                                    <i class="ti ti-school me-1"></i> Free n8n Masterclass (বাংলায়)
-                                </a>
                             {elseif $serviceType eq "reseller"}
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="sso-btn-main w-100 py-3">
+                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=WHM" target="_blank" class="sso-btn-main w-100 py-3">
                                     <i class="ti ti-login me-1"></i> LOGIN TO WHM
                                 </a>
                             {else}
@@ -363,7 +361,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                             <div class="row g-4">
                                 <div class="col-md-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">CPU Usage (1 CPU)</span>
+                                        <span class="small text-muted fw-semibold">CPU Usage (2 CPUs)</span>
                                         <span class="fw-bold small text-dark">0.17% used</span>
                                     </div>
                                     <div class="progress progress-thin">
@@ -372,11 +370,11 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 </div>
                                 <div class="col-md-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Memory Usage (544.3MiB / 1GiB)</span>
-                                        <span class="fw-bold small text-dark">53.15% used</span>
+                                        <span class="small text-muted fw-semibold">Memory Usage (310.1MiB / 4GiB)</span>
+                                        <span class="fw-bold small text-dark">7.57% used</span>
                                     </div>
                                     <div class="progress progress-thin mb-2">
-                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 53%;" aria-valuenow="53.15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: 7.57%;" aria-valuenow="7.57" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                     {if $packagesupgrade}
                                         <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-outline-secondary btn-xs py-0.5 px-2 fw-semibold float-end" style="font-size: 0.75rem; border-radius: 6px;">
@@ -386,7 +384,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 </div>
                                 <div class="col-md-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted fw-semibold">Disk Usage (6.7M / 9.8G)</span>
+                                        <span class="small text-muted fw-semibold">Disk Usage (316M / 40G)</span>
                                         <span class="fw-bold small text-dark">1.00% used</span>
                                     </div>
                                     <div class="progress progress-thin">
@@ -405,15 +403,20 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 <i class="ti ti-server text-danger"></i> INSTANCE DETAILS
                             </span>
                             {if $domain}
-                                <a href="https://{$domain}" target="_blank" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
+                                {if $domain|strpos:'http' === 0}
+                                    {assign var="n8nInstanceUrl" value=$domain}
+                                {else}
+                                    {assign var="n8nInstanceUrl" value="https://`$domain`"}
+                                {/if}
+                                <a href="{$n8nInstanceUrl}" target="_blank" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
                                     <i class="ti ti-external-link me-1"></i> Open Instance
                                 </a>
                             {/if}
                         </div>
                         <div class="card-body p-4">
                             <div class="p-3 mb-3 rounded border font-monospace small d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #fafafa);">
-                                <span>Instance URL: <strong class="text-danger">https://{$domain|default:"2369-1670.n8nbysnbd.top"}/</strong></span>
-                                <button type="button" onclick="navigator.clipboard.writeText('https://{$domain|default:"2369-1670.n8nbysnbd.top"}')" class="btn btn-xs btn-outline-secondary">
+                                <span>Instance URL: <strong class="text-danger">{$n8nInstanceUrl|default:"https://13-236.n8n1.deltadns.xyz/"}</strong></span>
+                                <button type="button" onclick="navigator.clipboard.writeText('{$n8nInstanceUrl|default:"https://13-236.n8n1.deltadns.xyz/"}')" class="btn btn-xs btn-outline-secondary">
                                     <i class="ti ti-copy"></i> Copy
                                 </button>
                             </div>
@@ -422,7 +425,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 <div class="col-md-4">
                                     <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
                                         <div class="small text-muted fw-semibold mb-1">Version</div>
-                                        <div class="fw-bold text-dark">2.31.7</div>
+                                        <div class="fw-bold text-dark">2.7.3</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -434,14 +437,14 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                 <div class="col-md-4">
                                     <div class="p-3 rounded border" style="background: var(--bg-elevated, #fafafa);">
                                         <div class="small text-muted fw-semibold mb-1">Users</div>
-                                        <div class="fw-bold text-dark text-truncate">{$username|default:"swadeallhadefp@gmail.com"}</div>
+                                        <div class="fw-bold text-dark text-truncate">{$username|default:"rajensikderraj@gmail.com"}</div>
                                     </div>
                                 </div>
                             </div>
                             
                             {if $modulechangepassword}
                                 <div class="mt-3 text-end">
-                                    <button type="button" onclick="jQuery('#password-tab').click()" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
+                                    <button type="button" onclick="var t = document.querySelector('#password-tab'); if(t){ var tab = new bootstrap.Tab(t); tab.show(); }" class="btn btn-outline-secondary btn-sm fw-semibold" style="border-radius: 8px;">
                                         <i class="ti ti-key me-1"></i> Change Owner Password
                                     </button>
                                 </div>
@@ -551,9 +554,9 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                     <div class="p-3 rounded border d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #fafafa);">
                                         <div>
                                             <div class="small text-muted fw-semibold">Primary Nameserver (NS1)</div>
-                                            <div class="fw-bold text-dark font-monospace">ns1.{$domain|default:"agencybrand.com"} <span class="text-muted fw-normal">(103.87.214.10)</span></div>
+                                            <div class="fw-bold text-dark font-monospace">ns1.{$domain|default:"testsnbd.com"} <span class="text-muted fw-normal">(103.87.214.10)</span></div>
                                         </div>
-                                        <button type="button" onclick="navigator.clipboard.writeText('ns1.{$domain|default:"agencybrand.com"}')" class="btn btn-xs btn-outline-secondary">
+                                        <button type="button" onclick="navigator.clipboard.writeText('ns1.{$domain|default:"testsnbd.com"}')" class="btn btn-xs btn-outline-secondary">
                                             <i class="ti ti-copy"></i>
                                         </button>
                                     </div>
@@ -562,9 +565,9 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                                     <div class="p-3 rounded border d-flex justify-content-between align-items-center" style="background: var(--bg-elevated, #fafafa);">
                                         <div>
                                             <div class="small text-muted fw-semibold">Secondary Nameserver (NS2)</div>
-                                            <div class="fw-bold text-dark font-monospace">ns2.{$domain|default:"agencybrand.com"} <span class="text-muted fw-normal">(103.87.214.11)</span></div>
+                                            <div class="fw-bold text-dark font-monospace">ns2.{$domain|default:"testsnbd.com"} <span class="text-muted fw-normal">(103.87.214.11)</span></div>
                                         </div>
-                                        <button type="button" onclick="navigator.clipboard.writeText('ns2.{$domain|default:"agencybrand.com"}')" class="btn btn-xs btn-outline-secondary">
+                                        <button type="button" onclick="navigator.clipboard.writeText('ns2.{$domain|default:"testsnbd.com"}')" class="btn btn-xs btn-outline-secondary">
                                             <i class="ti ti-copy"></i>
                                         </button>
                                     </div>
@@ -621,7 +624,7 @@ html[data-theme="dark"] .dash-card-clean .card-header {
                 </div>
             </div>
 
-        <!-- D. OpenClaw Managed Instance (Native Module View) -->
+        <!-- D. OpenClaw Managed Instance (Native Module View - Untouched) -->
         {elseif $serviceType eq "openclaw"}
             <!-- Native OpenClaw module output rendered below -->
 
@@ -686,14 +689,17 @@ html[data-theme="dark"] .dash-card-clean .card-header {
             </div>
         {/if}
 
-        {if $tplOverviewTabOutput}
-            <div class="module-clientarea-wrap mt-4" id="moduleClientAreaWrap">
-                {$tplOverviewTabOutput}
-            </div>
-        {elseif $moduleclientarea}
-            <div class="module-clientarea-wrap mt-4" id="moduleClientAreaWrap">
-                {$moduleclientarea}
-            </div>
+        <!-- Only render moduleclientarea for openclaw and universal to avoid duplicate boxes on cpanel, n8n, and reseller -->
+        {if $serviceType eq "openclaw" || $serviceType eq "universal"}
+            {if $tplOverviewTabOutput}
+                <div class="module-clientarea-wrap mt-4" id="moduleClientAreaWrap">
+                    {$tplOverviewTabOutput}
+                </div>
+            {elseif $moduleclientarea}
+                <div class="module-clientarea-wrap mt-4" id="moduleClientAreaWrap">
+                    {$moduleclientarea}
+                </div>
+            {/if}
         {/if}
     </div>
     
