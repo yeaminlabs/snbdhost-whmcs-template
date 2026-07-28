@@ -568,424 +568,433 @@ add_hook('TicketOpenValidation', 1, function($vars) {
     }
     
     $token = $_POST['cf-turnstile-response'] ?? '';
-    if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
-        return 'Please complete the Cloudflare Turnstile verification.';
+    if (!verifySnbdhostTurnstileToken($token, $setfunction renderSnbdhostN8nDashboardHtml($html) {
+    if (empty($html) || strpos($html, 'n8n-modern-dashboard') !== false) {
+        return $html;
     }
-});
 
-/**
- * ─────────────────────────────────────────────────────────────────────────────
- * N8N MODULE CLIENT AREA REDESIGN
- * ─────────────────────────────────────────────────────────────────────────────
- */
-add_hook('ClientAreaPageProductDetails', 1, function($vars) {
-    // Check if this is an n8n product
-    $isN8n = false;
-    $productName = strtolower($vars['product'] ?? '');
-    $moduleName = strtolower($vars['module'] ?? '');
-    
-    if (strpos($productName, 'n8n') !== false || strpos($moduleName, 'n8n') !== false) {
-        $isN8n = true;
+    // Fetch n8n Masterclass Promo Config
+    $promoEnabled = true;
+    $promoUrl = 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla';
+    $promoTitle = 'বাংলায় n8n ফ্রি মাস্টারক্লাস! (Free n8n Masterclass)';
+    $promoImage = '';
+
+    try {
+        $settingsRows = Capsule::table('tbladdonmodules')
+            ->where('module', 'snbdhost_manager')
+            ->whereIn('setting', ['n8n_promo_enabled', 'n8n_promo_url', 'n8n_promo_title', 'n8n_promo_image'])
+            ->get();
+        foreach ($settingsRows as $row) {
+            if ($row->setting === 'n8n_promo_enabled' && ($row->value === 'off' || strtolower($row->value) === 'no')) {
+                $promoEnabled = false;
+            } elseif ($row->setting === 'n8n_promo_url' && !empty($row->value)) {
+                $promoUrl = $row->value;
+            } elseif ($row->setting === 'n8n_promo_title' && !empty($row->value)) {
+                $promoTitle = $row->value;
+            } elseif ($row->setting === 'n8n_promo_image' && !empty($row->value)) {
+                $promoImage = $row->value;
+            }
+        }
+    } catch (\Exception $e) {
+        // Use defaults if settings table is inaccessible
     }
-    
-    $html = '';
-    $overrideKey = '';
-    
-    if ($isN8n) {
-        if (!empty($vars['tplOverviewTabOutput'])) {
-            $html = $vars['tplOverviewTabOutput'];
-            $overrideKey = 'tplOverviewTabOutput';
-        } elseif (!empty($vars['moduleclientarea'])) {
-            $html = $vars['moduleclientarea'];
-            $overrideKey = 'moduleclientarea';
-        }
-    }
-    
-    if ($html) {
-        // If the HTML already contains our custom class, it was already processed.
-        if (strpos($html, 'n8n-modern-dashboard') !== false) {
-            return;
-        }
 
-        // Fetch n8n Masterclass Promo Config
-        $promoEnabled = true;
-        $promoUrl = 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla';
-        $promoTitle = 'বাংলায় n8n ফ্রি মাস্টারক্লাস! (Free n8n Masterclass)';
-        $promoImage = '';
-
-        try {
-            $settingsRows = Capsule::table('tbladdonmodules')
-                ->where('module', 'snbdhost_manager')
-                ->whereIn('setting', ['n8n_promo_enabled', 'n8n_promo_url', 'n8n_promo_title', 'n8n_promo_image'])
-                ->get();
-            foreach ($settingsRows as $row) {
-                if ($row->setting === 'n8n_promo_enabled' && ($row->value === 'off' || strtolower($row->value) === 'no')) {
-                    $promoEnabled = false;
-                } elseif ($row->setting === 'n8n_promo_url' && !empty($row->value)) {
-                    $promoUrl = $row->value;
-                } elseif ($row->setting === 'n8n_promo_title' && !empty($row->value)) {
-                    $promoTitle = $row->value;
-                } elseif ($row->setting === 'n8n_promo_image' && !empty($row->value)) {
-                    $promoImage = $row->value;
-                }
-            }
-        } catch (\Exception $e) {
-            // Use defaults if settings table is inaccessible
+    $newHtml = '
+    <div id="n8n-original-module-data" style="display:none !important;">' . $html . '</div>
+    
+    <style>
+        .n8n-modern-dashboard {
+            font-family: "Outfit", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            margin-top: 0.5rem;
         }
-
-        // Instead of parsing via fragile PHP regex, we output the original HTML in a hidden container
-        // and use a robust Javascript approach to parse and populate the beautiful new UI.
+        .n8n-header-card {
+            background: linear-gradient(135deg, #180808 0%, #2a0b0b 50%, #150606 100%);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 20px;
+            padding: 1.75rem 2rem;
+            color: #ffffff;
+            box-shadow: 0 12px 35px rgba(204, 0, 0, 0.15);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .n8n-header-card::after {
+            content: "";
+            position: absolute;
+            top: -40%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .n8n-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid rgba(204, 0, 0, 0.1);
+            padding: 1.75rem;
+            box-shadow: 0 6px 24px rgba(204, 0, 0, 0.04);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .n8n-card:hover {
+            box-shadow: 0 12px 35px rgba(204, 0, 0, 0.08);
+            border-color: rgba(204, 0, 0, 0.2);
+        }
+        .n8n-card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .n8n-metric-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.25rem;
+        }
+        .n8n-metric-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 0.5rem;
+        }
+        .n8n-progress-bar {
+            height: 10px;
+            background: #f1f3f5;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+        }
+        .n8n-progress-fill-success { background: linear-gradient(90deg, #10B981 0%, #059669 100%); }
+        .n8n-progress-fill-danger { background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%); }
+        .n8n-progress-fill-warning { background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%); }
         
-        $newHtml = '
-        <div id="n8n-original-module-data" style="display:none;">' . $html . '</div>
+        .n8n-status-badge {
+            padding: 6px 14px;
+            border-radius: 50rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .n8n-status-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+        }
+        .n8n-status-badge.stopped {
+            background: rgba(239, 68, 68, 0.12);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+        .n8n-status-badge.stopped::before {
+            background: #EF4444;
+            box-shadow: 0 0 8px #EF4444;
+        }
         
-        <style>
-            .n8n-modern-dashboard {
-                font-family: "Outfit", "Inter", sans-serif;
-                margin-top: 0.5rem;
-            }
-            .n8n-card {
-                background: #ffffff;
-                border-radius: 16px;
-                border: 1px solid #eeeeee;
-                padding: 1.5rem;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.015);
-                margin-bottom: 1.5rem;
-                transition: all 0.3s ease;
-            }
-            .n8n-card:hover {
-                box-shadow: 0 8px 30px rgba(0,0,0,0.04);
-            }
-            .n8n-card-title {
-                font-size: 1.15rem;
-                font-weight: 700;
-                color: #111;
-                margin-bottom: 1.25rem;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .n8n-metric-row {
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 1.2rem;
-            }
-            .n8n-metric-header {
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #555;
-                margin-bottom: 0.5rem;
-            }
-            .n8n-progress-bar {
-                height: 8px;
-                background: #f0f0f0;
-                border-radius: 10px;
-                overflow: hidden;
-                display: flex;
-            }
-            .n8n-progress-fill-success { background: #10B981; }
-            .n8n-progress-fill-danger { background: #EF4444; }
-            .n8n-progress-fill-warning { background: #F59E0B; }
-            
-            .n8n-status-badge {
-                padding: 4px 12px;
-                border-radius: 50rem;
-                font-size: 0.75rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                background: rgba(16, 185, 129, 0.1);
-                color: #10B981;
-                border: 1px solid rgba(16, 185, 129, 0.2);
-            }
-            .n8n-status-badge.stopped {
-                background: rgba(239, 68, 68, 0.1);
-                color: #EF4444;
-                border: 1px solid rgba(239, 68, 68, 0.2);
-            }
-            
-            .btn-n8n-accent {
-                background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%) !important;
-                color: #ffffff !important;
-                border: none !important;
-                border-radius: 12px !important;
-                font-weight: 700 !important;
-                padding: 0.6rem 1.5rem !important;
-                transition: all 0.25s ease !important;
-                box-shadow: 0 4px 15px rgba(204,0,0,0.3) !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer;
-            }
-            .btn-n8n-accent:hover {
-                transform: translateY(-2px) !important;
-                box-shadow: 0 8px 25px rgba(204,0,0,0.4) !important;
-            }
-            
-            .n8n-info-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 1rem;
-            }
-            .n8n-info-item {
-                background: #fdfdfd;
-                padding: 1rem;
-                border-radius: 12px;
-                border: 1px solid #eeeeee;
-            }
-            .n8n-info-label {
-                font-size: 0.7rem;
-                color: #888;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 4px;
-            }
-            .n8n-info-value {
-                font-size: 0.95rem;
-                font-weight: 700;
-                color: #222;
-            }
-            .n8n-masterclass-banner {
-                background: linear-gradient(135deg, #1e0505 0%, #3a0808 50%, #200404 100%);
-                border: 1px solid rgba(255, 68, 68, 0.3);
-                border-radius: 16px;
-                padding: 1.25rem 1.5rem;
-                margin-bottom: 1.5rem;
-                color: #ffffff;
-                box-shadow: 0 10px 30px rgba(204, 0, 0, 0.15);
-                position: relative;
-                overflow: hidden;
-            }
-            .n8n-masterclass-banner::before {
-                content: "";
-                position: absolute;
-                top: -50%;
-                right: -10%;
-                width: 250px;
-                height: 250px;
-                background: radial-gradient(circle, rgba(204,0,0,0.25) 0%, rgba(0,0,0,0) 70%);
-                pointer-events: none;
-            }
-            .n8n-modal-overlay {
-                display: none;
-                position: fixed;
-                top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0, 0, 0, 0.65);
-                backdrop-filter: blur(6px);
-                z-index: 99999;
-                align-items: center;
-                justify-content: center;
-                padding: 1rem;
-            }
-            .n8n-modal-card {
-                background: #ffffff;
-                border-radius: 20px;
-                max-width: 580px;
-                width: 100%;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-                overflow: hidden;
-                position: relative;
-                animation: n8nPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
-            @keyframes n8nPopIn {
-                from { opacity: 0; transform: scale(0.9) translateY(20px); }
-                to { opacity: 1; transform: scale(1) translateY(0); }
-            }
-            .n8n-modal-header {
-                background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
-                padding: 1.5rem;
-                color: #ffffff;
-                position: relative;
-            }
-            .n8n-modal-close {
-                position: absolute;
-                top: 15px; right: 18px;
-                background: rgba(255, 255, 255, 0.2);
-                border: none;
-                color: white;
-                width: 32px; height: 32px;
-                border-radius: 50%;
-                font-size: 1.2rem;
-                display: flex; align-items: center; justify-content: center;
-                cursor: pointer;
-                transition: background 0.2s;
-            }
-            .n8n-modal-close:hover { background: rgba(255, 255, 255, 0.4); }
-        </style>
+        .btn-n8n-accent {
+            background: linear-gradient(135deg, #CC0000 0%, #990000 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+            padding: 0.7rem 1.6rem !important;
+            transition: all 0.25s ease !important;
+            box-shadow: 0 6px 20px rgba(204,0,0,0.35) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer;
+            text-decoration: none !important;
+        }
+        .btn-n8n-accent:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 10px 28px rgba(204,0,0,0.45) !important;
+            color: #ffffff !important;
+        }
         
-        <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
-            ' . ($promoEnabled ? '
-            <div class="n8n-masterclass-banner d-none align-items-center justify-content-between flex-wrap gap-3" id="secret-masterclass-banner">
-                <div class="d-flex align-items-center gap-3">
-                    <div style="background: rgba(255,255,255,0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="ti ti-school" style="font-size: 1.8rem; color: #ff6666;"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge" style="background: #CC0000; color: white; font-size: 0.7rem; letter-spacing: 0.5px;">100% FREE</span>
-                            <span class="text-white-50 small" style="font-size: 0.75rem;"><i class="ti ti-language me-1"></i>বাংলায় কোর্স</span>
-                        </div>
-                        <h5 class="fw-bold mb-0 text-white" style="font-size: 1.05rem;">' . htmlspecialchars($promoTitle) . '</h5>
-                        <p class="mb-0 text-white-50 small" style="font-size: 0.82rem;">n8n Workflow Automation, API Integration & AI Agent তৈরি শিখুন ফ্রিতে।</p>
-                    </div>
+        .n8n-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 1.25rem;
+        }
+        .n8n-info-item {
+            background: #fffafa;
+            padding: 1.15rem;
+            border-radius: 14px;
+            border: 1px solid rgba(204,0,0,0.08);
+        }
+        .n8n-info-label {
+            font-size: 0.72rem;
+            color: #777;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 6px;
+        }
+        .n8n-info-value {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+        .n8n-masterclass-banner {
+            background: linear-gradient(135deg, #1e0505 0%, #3a0808 50%, #200404 100%);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            box-shadow: 0 10px 30px rgba(204, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .n8n-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .n8n-modal-card {
+            background: #ffffff;
+            border-radius: 24px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            position: relative;
+            animation: n8nPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes n8nPopIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .n8n-modal-header {
+            background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
+            padding: 1.5rem;
+            color: #ffffff;
+            position: relative;
+        }
+        .n8n-modal-close {
+            position: absolute;
+            top: 15px; right: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .n8n-modal-close:hover { background: rgba(255, 255, 255, 0.4); }
+    </style>
+    
+    <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
+        <!-- Header Banner -->
+        <div class="n8n-header-card d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="background: rgba(255,255,255,0.12); padding: 10px 14px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#FF6D5A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="#FF6D5A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="#FF6D5A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-                <div class="d-flex align-items-center gap-2 ms-auto">
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="openN8nMasterclassModal()"><i class="ti ti-info-circle me-1"></i> বিস্তারিত</button>
-                    <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-sm text-white fw-bold px-4 py-2" style="background: #CC0000; border-radius: 10px; box-shadow: 0 4px 15px rgba(204,0,0,0.4); border: none;">
-                        ক্লাসে জয়েন করুন <i class="ti ti-arrow-up-right ms-1"></i>
-                    </a>
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h4 class="fw-bold text-white mb-0" style="font-size: 1.35rem;">n8n Workflow Instance</h4>
+                        <span class="n8n-status-badge" id="n8n-val-status">Running</span>
+                    </div>
+                    <p class="text-white-50 mb-0 small" id="n8n-val-url-subtitle"><i class="ti ti-link me-1"></i>Loading instance endpoint...</p>
                 </div>
             </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <a href="#" id="n8n-btn-open-top" target="_blank" class="btn btn-n8n-accent">
+                    <i class="ti ti-external-link me-2"></i> Launch n8n Dashboard
+                </a>
+            </div>
+        </div>
 
-            <div class="n8n-modal-overlay" id="n8nMasterclassModal">
-                <div class="n8n-modal-card">
-                    <div class="n8n-modal-header">
-                        <button class="n8n-modal-close" onclick="closeN8nMasterclassModal()">&times;</button>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.4rem; filter: brightness(0) invert(1);" alt="n8n">
-                            <span class="badge" style="background: rgba(255,255,255,0.25); color: white; font-size: 0.75rem;">বাংলা ফ্রি মাস্টারক্লাস</span>
-                        </div>
-                        <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem;">' . htmlspecialchars($promoTitle) . '</h4>
-                        <p class="mb-0 text-white-50 small">SNBD HOST এর শিক্ষার্থীদের জন্য সম্পূর্ণ ফ্রি n8n টিউটোরিয়াল ও মাস্টারক্লাস!</p>
+        ' . ($promoEnabled ? '
+        <div class="n8n-masterclass-banner d-none align-items-center justify-content-between flex-wrap gap-3" id="secret-masterclass-banner">
+            <div class="d-flex align-items-center gap-3">
+                <div style="background: rgba(255,255,255,0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="ti ti-school" style="font-size: 1.8rem; color: #ff6666;"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge" style="background: #CC0000; color: white; font-size: 0.7rem; letter-spacing: 0.5px;">100% FREE</span>
+                        <span class="text-white-50 small" style="font-size: 0.75rem;"><i class="ti ti-language me-1"></i>বাংলায় কোর্স</span>
                     </div>
-                    <div class="p-4" style="background: #ffffff;">
-                        ' . (!empty($promoImage) ? '<div class="mb-3 text-center"><img src="' . htmlspecialchars($promoImage) . '" class="img-fluid rounded-3 border" style="max-height: 200px; width: 100%; object-fit: cover;" alt="n8n Course Banner"></div>' : '') . '
-                        <div class="mb-3 p-3 rounded-3" style="background: #FFF5F5; border: 1px solid #FFE0E0;">
-                            <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem;"><i class="ti ti-sparkles text-danger me-1"></i> এই মাস্টারক্লাসে আপনি কী কী শিখবেন:</h6>
-                            <ul class="mb-0 text-secondary small ps-3" style="line-height: 1.7; font-size: 0.85rem;">
-                                <li>⚡ <strong>Automate Everything:</strong> কোনো কোডিং ছাড়াই n8n দিয়ে পাওয়ারফুল ওয়ার্কফ্লো অটোমেশন তৈরি।</li>
-                                <li>🔗 <strong>Webhooks & APIs:</strong> Facebook, WhatsApp, Telegram, Google Sheets ও CRM এর সাথে n8n কানেক্ট করা।</li>
-                                <li>🤖 <strong>AI Agent Integration:</strong> n8n-এ OpenAI / Gemini যুক্ত করে অটোমেটিক AI Agent তৈরি।</li>
-                                <li>🇧🇩 <strong>১০০% বাংলায় সহজ ব্যাখ্যা:</strong> নতুনদের জন্য স্টেপ-বাই-স্টেপ প্র্যাকটিক্যাল গাইড।</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="d-flex align-items-center justify-content-between gap-2 pt-2 flex-wrap">
-                            <button type="button" class="btn btn-link text-muted p-0 text-decoration-none small" id="n8n-dismiss-masterclass-btn" style="font-size: 0.78rem;">
-                                <i class="ti ti-eye-off me-1"></i> পরবর্তীতে আর দেখাবেন না (Don\'t show again)
-                            </button>
-                            <div class="d-flex gap-2 ms-auto">
-                                <button type="button" class="btn btn-light btn-sm px-3 border fw-semibold" onclick="closeN8nMasterclassModal()">পরে দেখবো</button>
-                                <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-danger btn-sm px-4 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 8px; border: none;">
-                                    <i class="ti ti-rocket me-1"></i> ফ্রী মাস্টারক্লাস শুরু করুন
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    <h5 class="fw-bold mb-0 text-white" style="font-size: 1.05rem;">' . htmlspecialchars($promoTitle) . '</h5>
+                    <p class="mb-0 text-white-50 small" style="font-size: 0.82rem;">n8n Workflow Automation, API Integration & AI Agent তৈরি শিখুন ফ্রিতে।</p>
                 </div>
             </div>
-            ' : '') . '
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="n8n-card h-100">
-                        <div class="n8n-card-title" ondblclick="var b=document.getElementById('secret-masterclass-banner');if(b){b.classList.remove('d-none');b.classList.add('d-flex');}" style="cursor:default;">
-                            <i class="ti ti-server" style="color: #CC0000; font-size: 1.4rem;"></i> Resource Monitor
-                        </div>
-                        
-                        <div class="n8n-metric-row mt-3">
-                            <div class="n8n-metric-header">
-                                <span><i class="ti ti-cpu me-1 text-secondary"></i> CPU Usage</span>
-                                <span id="n8n-val-cpu-text">N/A</span>
-                            </div>
-                            <div class="n8n-progress-bar">
-                                <div class="n8n-progress-fill-success" id="n8n-bar-cpu" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="n8n-metric-row">
-                            <div class="n8n-metric-header">
-                                <span><i class="ti ti-device-sd-micro me-1 text-secondary"></i> Memory Usage</span>
-                                <span id="n8n-val-mem-text">N/A</span>
-                            </div>
-                            <div class="n8n-progress-bar">
-                                <div class="n8n-progress-fill-danger" id="n8n-bar-mem" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="n8n-metric-row mb-0">
-                            <div class="n8n-metric-header">
-                                <span><i class="ti ti-database me-1 text-secondary"></i> Disk Usage</span>
-                                <span id="n8n-val-disk-text">N/A</span>
-                            </div>
-                            <div class="n8n-progress-bar">
-                                <div class="n8n-progress-fill-success" id="n8n-bar-disk" style="width: 0%;"></div>
-                            </div>
-                        </div>
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="openN8nMasterclassModal()"><i class="ti ti-info-circle me-1"></i> বিস্তারিত</button>
+                <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-sm text-white fw-bold px-4 py-2" style="background: #CC0000; border-radius: 10px; box-shadow: 0 4px 15px rgba(204,0,0,0.4); border: none;">
+                    ক্লাসে জয়েন করুন <i class="ti ti-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="n8n-modal-overlay" id="n8nMasterclassModal">
+            <div class="n8n-modal-card">
+                <div class="n8n-modal-header">
+                    <button class="n8n-modal-close" onclick="closeN8nMasterclassModal()">&times;</button>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.4rem; filter: brightness(0) invert(1);" alt="n8n">
+                        <span class="badge" style="background: rgba(255,255,255,0.25); color: white; font-size: 0.75rem;">বাংলা ফ্রি মাস্টারক্লাস</span>
                     </div>
+                    <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem;">' . htmlspecialchars($promoTitle) . '</h4>
+                    <p class="mb-0 text-white-50 small">SNBD HOST এর শিক্ষার্থীদের জন্য সম্পূর্ণ ফ্রি n8n টিউটোরিয়াল ও মাস্টারক্লাস!</p>
                 </div>
-                
-                <div class="col-lg-6">
-                    <div class="n8n-card h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-                                <div class="n8n-card-title mb-0">
-                                    <i class="ti ti-info-circle" style="color: #CC0000; font-size: 1.4rem;"></i> Instance Overview
-                                </div>
-                                <span class="n8n-status-badge" id="n8n-val-status">Unknown</span>
-                            </div>
-                            
-                            <div class="n8n-info-grid mb-3">
-                                <div class="n8n-info-item">
-                                    <div class="n8n-info-label">Version</div>
-                                    <div class="n8n-info-value" id="n8n-val-version">N/A</div>
-                                </div>
-                                <div class="n8n-info-item">
-                                    <div class="n8n-info-label">URL</div>
-                                    <div class="n8n-info-value">
-                                        <a href="#" id="n8n-val-url" target="_blank" style="color: #CC0000; text-decoration: none; font-weight: 700;">
-                                            Open Instance <i class="ti ti-external-link"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="n8n-info-grid">
-                                <div class="n8n-info-item">
-                                    <div class="n8n-info-label">CPU Limit</div>
-                                    <div class="n8n-info-value" id="n8n-val-owner">N/A</div>
-                                </div>
-                                <div class="n8n-info-item">
-                                    <div class="n8n-info-label">Memory Limit</div>
-                                    <div class="n8n-info-value" id="n8n-val-users">N/A</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
-                            <button class="btn btn-n8n-accent" id="n8n-btn-changepw"><i class="ti ti-key me-2"></i> Change Password</button>
-                            <button class="btn btn-n8n-accent" id="n8n-btn-autologin"><i class="ti ti-login me-2"></i> Auto Login</button>
+                <div class="p-4" style="background: #ffffff;">
+                    ' . (!empty($promoImage) ? '<div class="mb-3 text-center"><img src="' . htmlspecialchars($promoImage) . '" class="img-fluid rounded-3 border" style="max-height: 200px; width: 100%; object-fit: cover;" alt="n8n Course Banner"></div>' : '') . '
+                    <div class="mb-3 p-3 rounded-3" style="background: #FFF5F5; border: 1px solid #FFE0E0;">
+                        <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem;"><i class="ti ti-sparkles text-danger me-1"></i> এই মাস্টারক্লাসে আপনি কী কী শিখবেন:</h6>
+                        <ul class="mb-0 text-secondary small ps-3" style="line-height: 1.7; font-size: 0.85rem;">
+                            <li>⚡ <strong>Automate Everything:</strong> কোনো কোডিং ছাড়াই n8n দিয়ে পাওয়ারফুল ওয়ার্কফ্লো অটোমেশন তৈরি।</li>
+                            <li>🔗 <strong>Webhooks & APIs:</strong> Facebook, WhatsApp, Telegram, Google Sheets ও CRM এর সাথে n8n কানেক্ট করা।</li>
+                            <li>🤖 <strong>AI Agent Integration:</strong> n8n-এ OpenAI / Gemini যুক্ত করে অটোমেটিক AI Agent তৈরি।</li>
+                            <li>🇧🇩 <strong>১০০% বাংলায় সহজ ব্যাখ্যা:</strong> নতুনদের জন্য স্টেপ-বাই-স্টেপ প্র্যাকটিক্যাল গাইড।</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex align-items-center justify-content-between gap-2 pt-2 flex-wrap">
+                        <button type="button" class="btn btn-link text-muted p-0 text-decoration-none small" id="n8n-dismiss-masterclass-btn" style="font-size: 0.78rem;">
+                            <i class="ti ti-eye-off me-1"></i> পরবর্তীতে আর দেখাবেন না (Don\'t show again)
+                        </button>
+                        <div class="d-flex gap-2 ms-auto">
+                            <button type="button" class="btn btn-light btn-sm px-3 border fw-semibold" onclick="closeN8nMasterclassModal()">পরে দেখবো</button>
+                            <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-danger btn-sm px-4 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 8px; border: none;">
+                                <i class="ti ti-rocket me-1"></i> ফ্রী মাস্টারক্লাস শুরু করুন
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        ' : '') . '
+
+        <div class="row g-4">
+            <!-- Left Side: Resource Usage -->
+            <div class="col-lg-6">
+                <div class="n8n-card h-100">
+                    <div class="n8n-card-title" ondblclick="var b=document.getElementById(\'secret-masterclass-banner\');if(b){b.classList.remove(\'d-none\');b.classList.add(\'d-flex\');}" style="cursor:default;">
+                        <i class="ti ti-activity" style="color: #CC0000; font-size: 1.4rem;"></i> Server Resource Usage
+                    </div>
+                    
+                    <div class="n8n-metric-row mt-3">
+                        <div class="n8n-metric-header">
+                            <span><i class="ti ti-cpu me-1 text-danger"></i> CPU Utilization</span>
+                            <span id="n8n-val-cpu-text" class="fw-bold">N/A</span>
+                        </div>
+                        <div class="n8n-progress-bar">
+                            <div class="n8n-progress-fill-success" id="n8n-bar-cpu" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="n8n-metric-row">
+                        <div class="n8n-metric-header">
+                            <span><i class="ti ti-device-sd-micro me-1 text-danger"></i> RAM / Memory Usage</span>
+                            <span id="n8n-val-mem-text" class="fw-bold">N/A</span>
+                        </div>
+                        <div class="n8n-progress-bar">
+                            <div class="n8n-progress-fill-danger" id="n8n-bar-mem" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="n8n-metric-row mb-0">
+                        <div class="n8n-metric-header">
+                            <span><i class="ti ti-database me-1 text-danger"></i> Storage / Disk Usage</span>
+                            <span id="n8n-val-disk-text" class="fw-bold">N/A</span>
+                        </div>
+                        <div class="n8n-progress-bar">
+                            <div class="n8n-progress-fill-success" id="n8n-bar-disk" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side: Instance Info & Quick Actions -->
+            <div class="col-lg-6">
+                <div class="n8n-card h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="n8n-card-title pb-2 border-bottom">
+                            <i class="ti ti-server-2" style="color: #CC0000; font-size: 1.4rem;"></i> Instance Configuration
+                        </div>
+                        
+                        <div class="n8n-info-grid my-3">
+                            <div class="n8n-info-item">
+                                <div class="n8n-info-label">n8n Version</div>
+                                <div class="n8n-info-value text-danger" id="n8n-val-version">v2.31.6</div>
+                            </div>
+                            <div class="n8n-info-item">
+                                <div class="n8n-info-label">CPU Cores</div>
+                                <div class="n8n-info-value" id="n8n-val-owner">1 CPU</div>
+                            </div>
+                            <div class="n8n-info-item">
+                                <div class="n8n-info-label">RAM Allocated</div>
+                                <div class="n8n-info-value" id="n8n-val-users">1 GiB</div>
+                            </div>
+                            <div class="n8n-info-item">
+                                <div class="n8n-info-label">Access Protocol</div>
+                                <div class="n8n-info-value text-success">HTTPS Secured</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-3 border-top d-flex justify-content-end gap-2 flex-wrap">
+                        <button class="btn btn-n8n-accent" id="n8n-btn-changepw">
+                            <i class="ti ti-key me-2"></i> Reset Owner Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    (function() {
+        function initN8nDashboard() {
             var orig = document.getElementById("n8n-original-module-data");
             if (!orig) return;
 
-            // ── 1. Get serviceId from the page URL (?id=XXXX) ────────────────────
-            // WHMCS strips <script> tags from moduleclientarea, so we cannot
-            // extract serviceId from the module HTML — use the URL instead.
             var rawHtml = orig.innerHTML;
             var mId = window.location.href.match(/[?&]id=(\d+)/i);
             var serviceId = mId ? mId[1] : null;
             var apiUrl = "modules/servers/dockern8n/ajax.php";
 
-            // ── 2. Parse the rendered DOM for static fields ──────────────────────
-            // innerHTML parsed via a temp container gives us real DOM queries.
+            // Parse DOM from raw HTML container
             var tmp = document.createElement("div");
             tmp.innerHTML = rawHtml;
 
-            var domainEl  = tmp.querySelector("#service-domain");
+            // Extract instance URL
+            var extLink = tmp.querySelector("a[href*=\'n8n\']") || tmp.querySelector("a[target=\'_blank\'][href*=\'http\']");
+            var domainEl = tmp.querySelector("#service-domain");
             var versionEl = tmp.querySelector("#service-version");
-            // The header bar external link is the instance URL
-            var extLink   = tmp.querySelector(".header-bar a[target=\'_blank\']")
-                         || tmp.querySelector("a[target=\'_blank\'][href*=\'http\']");
 
             if (versionEl && versionEl.textContent.trim()) {
                 document.getElementById("n8n-val-version").innerText = versionEl.textContent.trim();
@@ -994,20 +1003,27 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             var instanceUrl = null;
             if (extLink && extLink.href) {
                 instanceUrl = extLink.href;
-                var urlEl = document.getElementById("n8n-val-url");
-                urlEl.href = instanceUrl;
             } else if (domainEl && domainEl.textContent.trim()) {
                 var rawDomain = domainEl.textContent.trim();
                 instanceUrl = rawDomain.startsWith("http") ? rawDomain : "https://" + rawDomain;
-                document.getElementById("n8n-val-url").href = instanceUrl;
+            } else {
+                // Try finding any url matching .n8n in rawHtml
+                var match = rawHtml.match(/https?:\/\/[^\s"<>\']+/i);
+                if (match) instanceUrl = match[0];
             }
 
-            // ── 3. Fetch live data via the module\'s own AJAX endpoint ────────────
+            if (instanceUrl) {
+                var topBtn = document.getElementById("n8n-btn-open-top");
+                if (topBtn) topBtn.href = instanceUrl;
+                var subEl = document.getElementById("n8n-val-url-subtitle");
+                if (subEl) subEl.innerHTML = \'<i class="ti ti-link me-1"></i>\' + instanceUrl;
+            }
+
+            // Fetch live stats via module AJAX endpoint
             if (serviceId) {
                 fetch(apiUrl + "?action=getAllData&serviceId=" + serviceId)
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    // Status
                     if (data.status && data.status.status) {
                         var s = data.status.status;
                         var badge = document.getElementById("n8n-val-status");
@@ -1016,19 +1032,15 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                         if (s !== "running") badge.classList.add("stopped");
                     }
 
-                    // Resource stats
                     var rs = data.resourcestats;
                     if (rs && rs.success) {
-                        // CPU: "0.50%"
                         var cpuStr = (rs.cpu || "").replace(/\s/g, "");
                         document.getElementById("n8n-val-cpu-text").innerText = cpuStr || "N/A";
                         var cpuPct = parseFloat(cpuStr);
                         if (!isNaN(cpuPct)) document.getElementById("n8n-bar-cpu").style.width = Math.min(cpuPct, 100) + "%";
 
-                        // Memory: "256MiB / 1GiB"
                         var memStr = rs.memory || "";
                         document.getElementById("n8n-val-mem-text").innerText = memStr || "N/A";
-                        // Parse used/limit to get percentage
                         var memM = memStr.match(/([\d.]+)\s*(\w+)\s*\/\s*([\d.]+)\s*(\w+)/);
                         if (memM) {
                             function toMiB(val, unit) {
@@ -1036,14 +1048,13 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                                 unit = unit.toLowerCase();
                                 if (unit === "gib" || unit === "gb") return val * 1024;
                                 if (unit === "kib" || unit === "kb") return val / 1024;
-                                return val; // MiB default
+                                return val;
                             }
                             var used  = toMiB(memM[1], memM[2]);
                             var limit = toMiB(memM[3], memM[4]);
                             if (limit > 0) document.getElementById("n8n-bar-mem").style.width = Math.min((used/limit)*100, 100) + "%";
                         }
 
-                        // Disk / storage
                         var storage = rs.storage;
                         if (storage && typeof storage === "object") {
                             var diskStr = storage.used ? (storage.used + (storage.total ? " / " + storage.total : "")) : "N/A";
@@ -1056,53 +1067,41 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                         }
                     }
 
-                    // CPU limit & memory limit from module vars (already in rendered HTML)
-                    var cpuLimitEl = tmp.querySelector("td:not([id])");
-                    // Use owner field for CPU limit, users field for memory limit
-                    var cpuLimitNode  = tmp.querySelector("tr td strong");
-                    // Find the CPU Limit row value
                     tmp.querySelectorAll("tr").forEach(function(tr) {
                         var cells = tr.querySelectorAll("td");
                         if (cells.length >= 2) {
                             var label = cells[0].textContent.trim().replace(/:$/, "");
                             var value = cells[1].textContent.trim();
-                            if (label === "CPU Limit")  document.getElementById("n8n-val-owner").innerText = value;
-                            if (label === "Memory")     document.getElementById("n8n-val-users").innerText  = value;
+                            if (label === "CPU Limit" || label === "CPU")  document.getElementById("n8n-val-owner").innerText = value;
+                            if (label === "Memory" || label === "Memory Limit") document.getElementById("n8n-val-users").innerText  = value;
                         }
                     });
                 })
-                .catch(function(e) {
-                    console.error("[n8n-dashboard] AJAX error:", e);
-                });
-            } else {
-                console.warn("[n8n-dashboard] Could not extract serviceId from module HTML");
+                .catch(function(e) { console.error("[n8n-dashboard] AJAX error:", e); });
             }
 
-            // ── 4. In-page password notice ───────────────────────────────────────
+            // Password Notice
             function showPwNotice(pw) {
                 var existing = document.getElementById("n8n-pw-notice");
                 if (existing) existing.remove();
 
-                // Build with DOM methods to avoid quote-escaping issues
                 var notice = document.createElement("div");
                 notice.id = "n8n-pw-notice";
-                notice.style.cssText = "background:#fff8f0;border:1.5px solid #f5a623;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:0.85rem;";
+                notice.style.cssText = "background:#fff8f0;border:1.5px solid #f5a623;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:0.85rem;";
 
                 var warn = document.createElement("div");
                 warn.style.cssText = "font-weight:700;color:#b45309;margin-bottom:0.6rem;";
-                warn.innerHTML = "<i class=\"ti ti-alert-triangle\" style=\"margin-right:6px;\"></i>Save your new password — it will disappear after you refresh this page.";
+                warn.innerHTML = "<i class=\"ti ti-alert-triangle\" style=\"margin-right:6px;\"></i>Save your new password — it will disappear after page refresh.";
 
                 var row = document.createElement("div");
                 row.style.cssText = "display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;";
 
                 var code = document.createElement("code");
-                code.id = "n8n-new-pw-text";
-                code.style.cssText = "background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:0.4rem 0.8rem;font-size:1rem;font-weight:700;color:#92400e;letter-spacing:0.05em;flex:1;word-break:break-all;";
+                code.style.cssText = "background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:0.4rem 0.8rem;font-size:1rem;font-weight:700;color:#92400e;flex:1;";
                 code.textContent = pw;
 
                 var copyBtn = document.createElement("button");
-                copyBtn.id = "n8n-copy-btn";
-                copyBtn.style.cssText = "background:#f5a623;border:none;border-radius:8px;color:#fff;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;white-space:nowrap;";
+                copyBtn.style.cssText = "background:#f5a623;border:none;border-radius:8px;color:#fff;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;";
                 copyBtn.innerHTML = "<i class=\"ti ti-copy\"></i> Copy";
                 copyBtn.addEventListener("click", function() {
                     navigator.clipboard.writeText(pw).then(function() {
@@ -1112,8 +1111,7 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 });
 
                 var closeBtn = document.createElement("button");
-                closeBtn.style.cssText = "background:transparent;border:none;color:#b45309;cursor:pointer;font-size:1.2rem;padding:0 0.3rem;line-height:1;";
-                closeBtn.title = "Dismiss";
+                closeBtn.style.cssText = "background:transparent;border:none;color:#b45309;cursor:pointer;font-size:1.2rem;";
                 closeBtn.textContent = "×";
                 closeBtn.addEventListener("click", function() { notice.remove(); });
 
@@ -1130,42 +1128,30 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 }
             }
 
-            // ── 5. Button handlers ───────────────────────────────────────────────
-            var resetPasswordHandler = function(e) {
-                e.preventDefault();
-                if (!serviceId) { alert("Service ID not found."); return; }
-                var btn = document.getElementById("n8n-btn-changepw");
-                if (!confirm("Reset your n8n password? A new random password will be generated.")) return;
-                if (btn) { btn.disabled = true; btn.innerHTML = \'<i class="ti ti-loader-2 ti-spin me-2"></i> Resetting…\'; }
-                fetch(apiUrl + "?action=resetPassword&serviceId=" + serviceId)
-                .then(function(r) { return r.json(); })
-                .then(function(d) {
-                    if (btn) { btn.disabled = false; btn.innerHTML = \'<i class="ti ti-key me-2"></i> Change Password\'; }
-                    if (d.success) {
-                        showPwNotice(d.password || "(check your email)");
-                    } else {
-                        alert("Reset failed: " + (d.message || "Unknown error"));
-                    }
-                })
-                .catch(function() {
-                    if (btn) { btn.disabled = false; btn.innerHTML = \'<i class="ti ti-key me-2"></i> Change Password\'; }
-                    alert("Request failed. Please try again.");
+            var btnPw = document.getElementById("n8n-btn-changepw");
+            if (btnPw) {
+                btnPw.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    if (!serviceId) { alert("Service ID not found."); return; }
+                    if (!confirm("Reset your n8n owner password? A new random password will be generated.")) return;
+                    btnPw.disabled = true;
+                    btnPw.innerHTML = \'<i class="ti ti-loader-2 ti-spin me-2"></i> Resetting…\';
+                    fetch(apiUrl + "?action=resetPassword&serviceId=" + serviceId)
+                    .then(function(r) { return r.json(); })
+                    .then(function(d) {
+                        btnPw.disabled = false;
+                        btnPw.innerHTML = \'<i class="ti ti-key me-2"></i> Reset Owner Password\';
+                        if (d.success) showPwNotice(d.password || "(check your email)");
+                        else alert("Reset failed: " + (d.message || "Unknown error"));
+                    })
+                    .catch(function() {
+                        btnPw.disabled = false;
+                        btnPw.innerHTML = \'<i class="ti ti-key me-2"></i> Reset Owner Password\';
+                        alert("Request failed. Please try again.");
+                    });
                 });
-            };
+            }
 
-            var autoLoginHandler = function(e) {
-                e.preventDefault();
-                if (instanceUrl) {
-                    window.open(instanceUrl, "_blank");
-                } else {
-                    alert("Instance URL not found.");
-                }
-            };
-
-            document.getElementById("n8n-btn-changepw").addEventListener("click", resetPasswordHandler);
-            document.getElementById("n8n-btn-autologin").addEventListener("click", autoLoginHandler);
-
-            // ── 6. n8n Masterclass Promo Modal Handlers ───────────────────────
             window.openN8nMasterclassModal = function() {
                 var modal = document.getElementById("n8nMasterclassModal");
                 if (modal) modal.style.display = "flex";
@@ -1174,35 +1160,135 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 var modal = document.getElementById("n8nMasterclassModal");
                 if (modal) modal.style.display = "none";
             };
+        }
 
-            var modalEl = document.getElementById("n8nMasterclassModal");
-            if (modalEl) {
-                modalEl.addEventListener("click", function(e) {
-                    if (e.target === modalEl) {
-                        window.closeN8nMasterclassModal();
-                    }
-                });
-                // Auto open popup removed for privacy
-                /*
-                if (!localStorage.getItem("snbd_n8n_masterclass_dismissed")) {
-                    setTimeout(function() {
-                        modalEl.style.display = "flex";
-                    }, 600);
-                }
-                */
-            }
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initN8nDashboard);
+        } else {
+            initN8nDashboard();
+        }
+    })();
+    </script>';
 
-            var dismissBtn = document.getElementById("n8n-dismiss-masterclass-btn");
-            if (dismissBtn) {
-                dismissBtn.addEventListener("click", function() {
-                    localStorage.setItem("snbd_n8n_masterclass_dismissed", "true");
-                    window.closeN8nMasterclassModal();
-                });
-            }
-        });
-        </script>';
-        
-        return [$overrideKey => $newHtml];
+    return $newHtml;
+}
+
+/**
+ * Hook for ClientAreaProductDetailsOutput (Runs specifically on Module HTML output)
+ */
+add_hook('ClientAreaProductDetailsOutput', 1, function($service) {
+    $html = $service['html'] ?? '';
+    $moduleName = strtolower($service['modulename'] ?? '');
+    
+    if (strpos($moduleName, 'n8n') !== false || stripos($html, 'n8n') !== false || stripos($html, 'dockern8n') !== false) {
+        return renderSnbdhostN8nDashboardHtml($html);
     }
+});
+
+/**
+ * Hook for ClientAreaPageProductDetails (Runs on Page Variables)
+ */
+add_hook('ClientAreaPageProductDetails', 1, function($vars) {
+    $htmlContent = ($vars['tplOverviewTabOutput'] ?? '') . ($vars['moduleclientarea'] ?? '');
+    $productName = strtolower($vars['product'] ?? '');
+    $moduleName = strtolower($vars['modulename'] ?? $vars['module'] ?? '');
+    
+    if (
+        strpos($productName, 'n8n') !== false || 
+        strpos($moduleName, 'n8n') !== false || 
+        stripos($htmlContent, 'n8n') !== false || 
+        stripos($htmlContent, 'dockern8n') !== false
+    ) {
+        if (!empty($vars['tplOverviewTabOutput']) && strpos($vars['tplOverviewTabOutput'], 'n8n-modern-dashboard') === false) {
+            $new = renderSnbdhostN8nDashboardHtml($vars['tplOverviewTabOutput']);
+            return ['tplOverviewTabOutput' => $new];
+        }
+        if (!empty($vars['moduleclientarea']) && strpos($vars['moduleclientarea'], 'n8n-modern-dashboard') === false) {
+            $new = renderSnbdhostN8nDashboardHtml($vars['moduleclientarea']);
+            return ['moduleclientarea' => $new];
+        }
+    }
+});
+
+/**
+ * Hook for ClientAreaFooterOutput (Frontend JS Transformer Fallback)
+ */
+add_hook('ClientAreaFooterOutput', 1, function($vars) {
+    if (empty($vars['filename']) || $vars['filename'] !== 'clientareaproductdetails') {
+        return;
+    }
+    
+    return '
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (document.getElementById("n8n-modern-dashboard")) return;
+        
+        // Find raw dockern8n container if present on client side
+        var moduleWrap = document.getElementById("moduleClientAreaWrap") || document.querySelector(".module-clientarea-wrap");
+        if (!moduleWrap) return;
+        
+        var hasN8n = moduleWrap.innerText.indexOf("n8n") !== -1 || moduleWrap.innerHTML.indexOf("dockern8n") !== -1 || moduleWrap.querySelector("a[href*=\'n8n\']");
+        if (!hasN8n) return;
+        
+        // Wrap original in hidden div
+        var origHtml = moduleWrap.innerHTML;
+        moduleWrap.innerHTML = "";
+        
+        var hiddenDiv = document.createElement("div");
+        hiddenDiv.id = "n8n-original-module-data";
+        hiddenDiv.style.cssText = "display:none !important;";
+        hiddenDiv.innerHTML = origHtml;
+        moduleWrap.appendChild(hiddenDiv);
+        
+        // Create modern container shell
+        var dash = document.createElement("div");
+        dash.id = "n8n-modern-dashboard-shell";
+        moduleWrap.appendChild(dash);
+        
+        // Fetch instance URL
+        var extLink = hiddenDiv.querySelector("a[href*=\'n8n\']") || hiddenDiv.querySelector("a[target=\'_blank\'][href*=\'http\']");
+        var instanceUrl = extLink ? extLink.href : "#";
+        
+        dash.innerHTML = `
+        <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
+            <div class="n8n-header-card d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: linear-gradient(135deg, #180808 0%, #2a0b0b 50%, #150606 100%); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 20px; padding: 1.75rem 2rem; color: #ffffff; box-shadow: 0 12px 35px rgba(204, 0, 0, 0.15); margin-bottom: 1.5rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="background: rgba(255,255,255,0.12); padding: 10px 14px; border-radius: 14px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#FF6D5A" stroke-width="2"/><path d="M2 17L12 22L22 17" stroke="#FF6D5A" stroke-width="2"/><path d="M2 12L12 17L22 12" stroke="#FF6D5A" stroke-width="2"/></svg>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h4 class="fw-bold text-white mb-0" style="font-size: 1.35rem;">n8n Workflow Instance</h4>
+                            <span class="n8n-status-badge" id="n8n-val-status" style="padding: 6px 14px; border-radius: 50rem; font-size: 0.78rem; font-weight: 700; background: rgba(16, 185, 129, 0.12); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.25);">Running</span>
+                        </div>
+                        <p class="text-white-50 mb-0 small" id="n8n-val-url-subtitle"><i class="ti ti-link me-1"></i>` + (instanceUrl !== "#" ? instanceUrl : "n8n Automation Engine") + `</p>
+                    </div>
+                </div>
+                <div>
+                    <a href="` + instanceUrl + `" target="_blank" class="btn btn-n8n-accent" style="background: linear-gradient(135deg, #CC0000 0%, #990000 100%) !important; color: #fff !important; border-radius: 12px; font-weight: 700; padding: 0.7rem 1.6rem; text-decoration: none;">
+                        <i class="ti ti-external-link me-2"></i> Launch n8n Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid rgba(204,0,0,0.1) !important;">
+                        <h5 class="fw-bold mb-3 text-dark"><i class="ti ti-activity text-danger me-2"></i> Resource Monitor</h5>
+                        <p class="text-muted small">Live server metrics are active.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid rgba(204,0,0,0.1) !important;">
+                        <h5 class="fw-bold mb-3 text-dark"><i class="ti ti-server-2 text-danger me-2"></i> Instance Config</h5>
+                        <p class="text-muted small">Access your n8n workflow manager via the launch button above.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+    });
+    </script>
+    ';
 });
 
