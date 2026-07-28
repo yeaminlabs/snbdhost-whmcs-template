@@ -127,7 +127,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i class="ti ti-lifebuoy"></i>
                     <span class="snbd-nav-text">Tickets</span>
                 </a>
-                <a href="{$WEB_ROOT}/knowledgebase.php" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}" aria-label="Knowledge Base">
+                <a href="https://snbdhost.com/kb" target="_blank" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}" aria-label="Knowledge Base">
                     <i class="ti ti-book"></i>
                     <span class="snbd-nav-text">Knowledge Base</span>
                 </a>
@@ -184,7 +184,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'supporttickets' || $filename eq 'knowledgebase' || $filename eq 'serverstatus'}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">Support <i class="ti ti-chevron-down"></i></a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/supporttickets.php"><i class="ti ti-lifebuoy me-2"></i>Tickets</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/knowledgebase.php"><i class="ti ti-book me-2"></i>Knowledge Base</a></li>
+                            <li><a class="dropdown-item" href="https://snbdhost.com/kb" target="_blank"><i class="ti ti-book me-2"></i>Knowledge Base</a></li>
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/serverstatus.php"><i class="ti ti-activity me-2"></i>Network Status</a></li>
                         </ul>
                     </div>
