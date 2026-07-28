@@ -321,7 +321,7 @@
                             <span class="text-white-50 small" style="font-size: 0.78rem;"><i class="fas fa-video me-1"></i>Free Video Masterclass Guide</span>
                         </div>
                         <h4 class="fw-bold text-white mb-1" style="font-size: 1.25rem;">{$n8nDashboardPromoTitle|default:'SNBD Host n8n Free Video Masterclass Guide'}</h4>
-                        <p class="text-white-50 mb-0 small" style="font-size: 0.88rem; line-height: 1.5;">{$n8nDashboardPromoDesc|default:'Learn how to build n8n workflow automation, webhooks, API integrations & AI agents with our free step-by-step video guide.'}</p>
+                        <p class="text-white-50 mb-0 small" style="font-size: 0.88rem; line-height: 1.5;">{$n8nDashboardPromoDesc|default:'আমাদের ফ্রি স্টেপ-বাই-স্টেপ ভিডিও গাইডের মাধ্যমে শিখুন n8n ওয়ার্কফ্লো অটোমেশন, ওয়েবহুক, এপিআই ইন্টিগ্রেশন এবং এআই এজেন্ট।'}</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">

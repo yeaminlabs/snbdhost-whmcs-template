@@ -95,7 +95,7 @@ function snbdhost_manager_config()
                 'Type'         => 'textarea',
                 'Rows'         => '2',
                 'Cols'         => '80',
-                'Default'      => 'Learn n8n workflow automation, webhooks, API integrations & AI agents with our free step-by-step video guide.',
+                'Default'      => 'আমাদের ফ্রি স্টেপ-বাই-স্টেপ ভিডিও গাইডের মাধ্যমে শিখুন n8n ওয়ার্কফ্লো অটোমেশন, ওয়েবহুক, এপিআই ইন্টিগ্রেশন এবং এআই এজেন্ট।',
                 'Description'  => 'Sub-description text for the promotion segment.',
             ],
             'n8n_dash_promo_url' => [

@@ -119,7 +119,7 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
     $hasN8nProduct = false;
     $promoEnabled = true;
     $promoTitle = 'SNBD Host n8n Free Video Masterclass Guide';
-    $promoDesc = 'Learn n8n workflow automation, webhooks, API integrations & AI agents with our free step-by-step video guide.';
+    $promoDesc = 'আমাদের ফ্রি স্টেপ-বাই-স্টেপ ভিডিও গাইডের মাধ্যমে শিখুন n8n ওয়ার্কফ্লো অটোমেশন, ওয়েবহুক, এপিআই ইন্টিগ্রেশন এবং এআই এজেন্ট।';
     $promoUrl = 'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla';
     $promoBtnText = 'Watch Masterclass Guide';
     $promoVersion = 'v1';
