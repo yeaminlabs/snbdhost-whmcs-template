@@ -606,6 +606,32 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             return;
         }
 
+        // Fetch n8n Masterclass Promo Config
+        $promoEnabled = true;
+        $promoUrl = 'https://snbdhost.com/learn';
+        $promoTitle = 'বাংলায় n8n ফ্রি মাস্টারক্লাস! (Free n8n Masterclass)';
+        $promoImage = '';
+
+        try {
+            $settingsRows = Capsule::table('tbladdonmodules')
+                ->where('module', 'snbdhost_manager')
+                ->whereIn('setting', ['n8n_promo_enabled', 'n8n_promo_url', 'n8n_promo_title', 'n8n_promo_image'])
+                ->get();
+            foreach ($settingsRows as $row) {
+                if ($row->setting === 'n8n_promo_enabled' && ($row->value === 'off' || strtolower($row->value) === 'no')) {
+                    $promoEnabled = false;
+                } elseif ($row->setting === 'n8n_promo_url' && !empty($row->value)) {
+                    $promoUrl = $row->value;
+                } elseif ($row->setting === 'n8n_promo_title' && !empty($row->value)) {
+                    $promoTitle = $row->value;
+                } elseif ($row->setting === 'n8n_promo_image' && !empty($row->value)) {
+                    $promoImage = $row->value;
+                }
+            }
+        } catch (\Exception $e) {
+            // Use defaults if settings table is inaccessible
+        }
+
         // Instead of parsing via fragile PHP regex, we output the original HTML in a hidden container
         // and use a robust Javascript approach to parse and populate the beautiful new UI.
         
@@ -633,6 +659,141 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
                 font-size: 1.15rem;
                 font-weight: 700;
                 color: #111;
+                margin-bottom: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .n8n-masterclass-banner {
+                background: linear-gradient(135deg, #1e0505 0%, #3a0808 50%, #200404 100%);
+                border: 1px solid rgba(255, 68, 68, 0.3);
+                border-radius: 16px;
+                padding: 1.25rem 1.5rem;
+                margin-bottom: 1.5rem;
+                color: #ffffff;
+                box-shadow: 0 10px 30px rgba(204, 0, 0, 0.15);
+                position: relative;
+                overflow: hidden;
+            }
+            .n8n-masterclass-banner::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -10%;
+                width: 250px;
+                height: 250px;
+                background: radial-gradient(circle, rgba(204,0,0,0.25) 0%, rgba(0,0,0,0) 70%);
+                pointer-events: none;
+            }
+            .n8n-modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(0, 0, 0, 0.65);
+                backdrop-filter: blur(6px);
+                z-index: 99999;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            .n8n-modal-card {
+                background: #ffffff;
+                border-radius: 20px;
+                max-width: 580px;
+                width: 100%;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+                position: relative;
+                animation: n8nPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            @keyframes n8nPopIn {
+                from { opacity: 0; transform: scale(0.9) translateY(20px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            .n8n-modal-header {
+                background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
+                padding: 1.5rem;
+                color: #ffffff;
+                position: relative;
+            }
+            .n8n-modal-close {
+                position: absolute;
+                top: 15px; right: 18px;
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                width: 32px; height: 32px;
+                border-radius: 50%;
+                font-size: 1.2rem;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .n8n-modal-close:hover { background: rgba(255, 255, 255, 0.4); }
+        </style>
+        
+        <div class="n8n-modern-dashboard" id="n8n-modern-dashboard">
+            ' . ($promoEnabled ? '
+            <div class="n8n-masterclass-banner d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="background: rgba(255,255,255,0.1); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="ti ti-school" style="font-size: 1.8rem; color: #ff6666;"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge" style="background: #CC0000; color: white; font-size: 0.7rem; letter-spacing: 0.5px;">100% FREE</span>
+                            <span class="text-white-50 small" style="font-size: 0.75rem;"><i class="ti ti-language me-1"></i>বাংলায় কোর্স</span>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-white" style="font-size: 1.05rem;">' . htmlspecialchars($promoTitle) . '</h5>
+                        <p class="mb-0 text-white-50 small" style="font-size: 0.82rem;">n8n Workflow Automation, API Integration & AI Agent তৈরি শিখুন ফ্রিতে।</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="openN8nMasterclassModal()"><i class="ti ti-info-circle me-1"></i> বিস্তারিত</button>
+                    <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-sm text-white fw-bold px-4 py-2" style="background: #CC0000; border-radius: 10px; box-shadow: 0 4px 15px rgba(204,0,0,0.4); border: none;">
+                        ক্লাসে জয়েন করুন <i class="ti ti-arrow-up-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="n8n-modal-overlay" id="n8nMasterclassModal">
+                <div class="n8n-modal-card">
+                    <div class="n8n-modal-header">
+                        <button class="n8n-modal-close" onclick="closeN8nMasterclassModal()">&times;</button>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/N8n-logo-new.svg" style="height: 1.4rem; filter: brightness(0) invert(1);" alt="n8n">
+                            <span class="badge" style="background: rgba(255,255,255,0.25); color: white; font-size: 0.75rem;">বাংলা ফ্রি মাস্টারক্লাস</span>
+                        </div>
+                        <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem;">' . htmlspecialchars($promoTitle) . '</h4>
+                        <p class="mb-0 text-white-50 small">SNBD HOST এর শিক্ষার্থীদের জন্য সম্পূর্ণ ফ্রি n8n টিউটোরিয়াল ও মাস্টারক্লাস!</p>
+                    </div>
+                    <div class="p-4" style="background: #ffffff;">
+                        ' . (!empty($promoImage) ? '<div class="mb-3 text-center"><img src="' . htmlspecialchars($promoImage) . '" class="img-fluid rounded-3 border" style="max-height: 200px; width: 100%; object-fit: cover;" alt="n8n Course Banner"></div>' : '') . '
+                        <div class="mb-3 p-3 rounded-3" style="background: #FFF5F5; border: 1px solid #FFE0E0;">
+                            <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem;"><i class="ti ti-sparkles text-danger me-1"></i> এই মাস্টারক্লাসে আপনি কী কী শিখবেন:</h6>
+                            <ul class="mb-0 text-secondary small ps-3" style="line-height: 1.7; font-size: 0.85rem;">
+                                <li>⚡ <strong>Automate Everything:</strong> কোনো কোডিং ছাড়াই n8n দিয়ে পাওয়ারফুল ওয়ার্কফ্লো অটোমেশন তৈরি।</li>
+                                <li>🔗 <strong>Webhooks & APIs:</strong> Facebook, WhatsApp, Telegram, Google Sheets ও CRM এর সাথে n8n কানেক্ট করা।</li>
+                                <li>🤖 <strong>AI Agent Integration:</strong> n8n-এ OpenAI / Gemini যুক্ত করে অটোমেটিক AI Agent তৈরি।</li>
+                                <li>🇧🇩 <strong>১০০% বাংলায় সহজ ব্যাখ্যা:</strong> নতুনদের জন্য স্টেপ-বাই-স্টেপ প্র্যাকটিক্যাল গাইড।</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex align-items-center justify-content-between gap-2 pt-2 flex-wrap">
+                            <button type="button" class="btn btn-link text-muted p-0 text-decoration-none small" id="n8n-dismiss-masterclass-btn" style="font-size: 0.78rem;">
+                                <i class="ti ti-eye-off me-1"></i> পরবর্তীতে আর দেখাবেন না (Don\'t show again)
+                            </button>
+                            <div class="d-flex gap-2 ms-auto">
+                                <button type="button" class="btn btn-light btn-sm px-3 border fw-semibold" onclick="closeN8nMasterclassModal()">পরে দেখবো</button>
+                                <a href="' . htmlspecialchars($promoUrl) . '" target="_blank" class="btn btn-danger btn-sm px-4 fw-bold text-white shadow-sm" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 8px; border: none;">
+                                    <i class="ti ti-rocket me-1"></i> ফ্রী মাস্টারক্লাস শুরু করুন (snbdhost.com/learn)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ' : '') . '
                 margin-bottom: 1.25rem;
                 display: flex;
                 align-items: center;
@@ -1011,12 +1172,37 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
             document.getElementById("n8n-btn-changepw").addEventListener("click", resetPasswordHandler);
             document.getElementById("n8n-btn-autologin").addEventListener("click", autoLoginHandler);
 
-            // Bind the main top "GO TO N8N" button
-            var whmcsN8nBtn = document.getElementById("n8nMainBtn");
-            if (whmcsN8nBtn) {
-                whmcsN8nBtn.addEventListener("click", autoLoginHandler);
-                var whmcsN8nBtnContainer = document.getElementById("n8nButtonContainer");
-                if (whmcsN8nBtnContainer) whmcsN8nBtnContainer.style.display = "block";
+            // ── 6. n8n Masterclass Promo Modal Handlers ───────────────────────
+            window.openN8nMasterclassModal = function() {
+                var modal = document.getElementById("n8nMasterclassModal");
+                if (modal) modal.style.display = "flex";
+            };
+            window.closeN8nMasterclassModal = function() {
+                var modal = document.getElementById("n8nMasterclassModal");
+                if (modal) modal.style.display = "none";
+            };
+
+            var modalEl = document.getElementById("n8nMasterclassModal");
+            if (modalEl) {
+                modalEl.addEventListener("click", function(e) {
+                    if (e.target === modalEl) {
+                        window.closeN8nMasterclassModal();
+                    }
+                });
+                // Auto open popup if not dismissed
+                if (!localStorage.getItem("snbd_n8n_masterclass_dismissed")) {
+                    setTimeout(function() {
+                        modalEl.style.display = "flex";
+                    }, 600);
+                }
+            }
+
+            var dismissBtn = document.getElementById("n8n-dismiss-masterclass-btn");
+            if (dismissBtn) {
+                dismissBtn.addEventListener("click", function() {
+                    localStorage.setItem("snbd_n8n_masterclass_dismissed", "true");
+                    window.closeN8nMasterclassModal();
+                });
             }
         });
         </script>';
