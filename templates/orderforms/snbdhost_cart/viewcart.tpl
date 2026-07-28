@@ -5,9 +5,11 @@
 {else}
 
     <script>
+        {literal}
         // Define state tab index value
         var statesTab = 10;
         var stateNotRequired = true;
+        {/literal}
     </script>
     {include file="orderforms/snbdhost_cart/common.tpl"}
     <script type="text/javascript" src="{$BASE_PATH_JS}/StatesDropdown.js"></script>
@@ -247,7 +249,7 @@
                                                 {else}
                                                     <span name="{$domain.domain}Price">{$domain.price}</span>
                                                     <div class="dropdown">
-                                                        <button class="btn btn-default btn-default btn-xs dropdown-toggle" type="button" id="{$domain.domain}Pricing" name="{$domain.domain}Pricing" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <button class="btn btn-default btn-default btn-xs dropdown-toggle" type="button" id="{$domain.domain}Pricing" name="{$domain.domain}Pricing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             {$domain.regperiod} {$domain.yearsLanguage}
                                                             <span class="caret"></span>
                                                         </button>
@@ -452,13 +454,13 @@
                         <div class="view-cart-tabs">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" class="nav-item active">
-                                    <a href="#applyPromo" class="nav-link active" aria-controls="applyPromo" role="tab" data-toggle="tab"{if $template == 'twenty-one'} aria-selected="true"{else} aria-expanded="true"{/if}>
+                                    <a href="#applyPromo" class="nav-link active" aria-controls="applyPromo" role="tab" data-bs-toggle="tab"{if $template == 'twenty-one'} aria-selected="true"{else} aria-expanded="true"{/if}>
                                         {$LANG.orderForm.applyPromoCode}
                                     </a>
                                 </li>
                                 {if $taxenabled && !$loggedin}
                                     <li role="presentation" class="nav-item">
-                                        <a href="#calcTaxes" class="nav-link" aria-controls="calcTaxes" role="tab" data-toggle="tab"{if $template == 'twenty-one'} aria-selected="false"{else} aria-expanded="false"{/if}>
+                                        <a href="#calcTaxes" class="nav-link" aria-controls="calcTaxes" role="tab" data-bs-toggle="tab"{if $template == 'twenty-one'} aria-selected="false"{else} aria-expanded="false"{/if}>
                                             {$LANG.orderForm.estimateTaxes}
                                         </a>
                                     </li>
@@ -669,3 +671,76 @@
     </div>
     {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
 {/if}
+
+<script>
+{literal}
+document.addEventListener("DOMContentLoaded", function() {
+    var qtyDivs = document.querySelectorAll('.item-qty');
+    qtyDivs.forEach(function(div) {
+        var input = div.querySelector('input[type="number"]');
+        if (input && !input.classList.contains('qty-decorated')) {
+            input.classList.add('qty-decorated', 'qty-input');
+            
+            var group = document.createElement('div');
+            group.className = 'input-group input-group-sm quantity-control-group';
+            group.style.maxWidth = '120px';
+            group.style.margin = '0 auto';
+            
+            var btnDec = document.createElement('button');
+            btnDec.className = 'btn btn-outline-danger btn-qty-dec';
+            btnDec.type = 'button';
+            btnDec.innerHTML = '<i class="ti ti-minus" style="font-size: 0.8rem; font-weight: bold;"></i>';
+            btnDec.style.padding = '0.35rem 0.65rem';
+            
+            var btnInc = document.createElement('button');
+            btnInc.className = 'btn btn-outline-success btn-qty-inc';
+            btnInc.type = 'button';
+            btnInc.innerHTML = '<i class="ti ti-plus" style="font-size: 0.8rem; font-weight: bold;"></i>';
+            btnInc.style.padding = '0.35rem 0.65rem';
+            
+            input.style.textAlign = 'center';
+            input.style.borderLeft = 'none';
+            input.style.borderRight = 'none';
+            input.style.padding = '0.35rem 0.5rem';
+            input.style.fontSize = '0.85rem';
+            input.style.fontWeight = '700';
+            
+            input.parentNode.insertBefore(group, input);
+            group.appendChild(btnDec);
+            group.appendChild(input);
+            group.appendChild(btnInc);
+            
+            // Hide any default update buttons next to inputs
+            var sibSubmit = div.querySelector('button[type="submit"]');
+            if (sibSubmit) {
+                sibSubmit.style.display = 'none';
+            }
+            
+            btnDec.addEventListener('click', function(e) {
+                e.preventDefault();
+                var min = parseInt(input.getAttribute('min')) || 0;
+                var val = parseInt(input.value) || 0;
+                if (val > min) {
+                    input.value = val - 1;
+                    input.dispatchEvent(new Event('change'));
+                    if (input.form) input.form.submit();
+                }
+            });
+            
+            btnInc.addEventListener('click', function(e) {
+                e.preventDefault();
+                var val = parseInt(input.value) || 0;
+                input.value = val + 1;
+                input.dispatchEvent(new Event('change'));
+                if (input.form) input.form.submit();
+            });
+            
+            input.addEventListener('change', function() {
+                if (input.form) input.form.submit();
+            });
+        }
+    });
+});
+{/literal}
+</script>
+

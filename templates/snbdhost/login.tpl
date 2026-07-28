@@ -10,11 +10,28 @@
     --snbd-surface:     #ffffff;
     --snbd-text-1:      #1a1a1a;
     --snbd-text-2:      #555555;
-    --snbd-text-muted:  #999999;
+    --snbd-text-muted:  #757575;
     --snbd-border:      #e0e0e0;
     --snbd-border-sub:  #eeeeee;
     --snbd-font:        'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
+
+/* Dark Mode Overrides */
+html[data-theme="dark"] {
+    --snbd-red:         #ff4d4f;
+    --snbd-red-hover:   #ff7875;
+    --snbd-red-light:   rgba(255,77,79,0.15);
+    --snbd-red-border:  rgba(255,77,79,0.30);
+    --snbd-bg-body:     #0a0506;
+    --snbd-surface:     #110b0c;
+    --snbd-text-1:      #ffffff;
+    --snbd-text-2:      #f0e6e7;
+    --snbd-text-muted:  #c2b2b4;
+    --snbd-border:      #3a2729;
+    --snbd-border-sub:  #2b1c1d;
+}
+
+
 
 /* ── Auth page reset ── */
 .auth-page {
@@ -249,13 +266,16 @@
 
 /* Tabs */
 .auth-clean-tabs {
-    display: inline-flex;
+    display: flex;
+    width: 100%;
     background: #f0f0f0;
     border-radius: 50rem;
     padding: 0.25rem;
     margin-bottom: 1.75rem;
 }
 .auth-clean-tab {
+    flex: 1;
+    text-align: center;
     padding: 0.5rem 1.2rem;
     font-weight: 600;
     font-size: 0.85rem;
@@ -479,7 +499,9 @@
 
         <!-- Logo -->
         <div class="login-logo-wrap">
-            <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" />
+            <a href="https://snbdhost.com">
+                <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" />
+            </a>
         </div>
 
         <div class="login-brand">
@@ -542,18 +564,25 @@
             </div>
 
             <!-- Error Messages -->
-            {if $turnstileError}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$turnstileError}
+            {if $incorrect || $invalid || $smarty.get.incorrect}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; animation: shakeAlert 0.4s ease;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{lang key='loginincorrect'}</span>
                 </div>
-            {/if}
-            {if $incorrect}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$LANG.loginincorrect}
+            {elseif $errorMessage}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{$errorMessage}</span>
                 </div>
-            {elseif $invalid}
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i> {$LANG.logininvalid}
+            {elseif $errormessage}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{$errormessage}</span>
+                </div>
+            {elseif $turnstileError}
+                <div class="auth-alert mb-3" style="background: rgba(224, 80, 82, 0.15); border: 1px solid rgba(224, 80, 82, 0.3); color: var(--brand-primary, #E05052); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ti ti-alert-circle font-size-18"></i>
+                    <span>{$turnstileError}</span>
                 </div>
             {/if}
 

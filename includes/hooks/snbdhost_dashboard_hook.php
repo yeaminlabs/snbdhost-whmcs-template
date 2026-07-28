@@ -2,8 +2,9 @@
 /**
  * SNBD Host Dashboard Hook
  * Provides $invoices, $services, and $loyalty_data for the clientareahome.tpl dashboard template.
+ * Exposes active product groups and their products for custom referral link generation.
  *
- * INSTALLATION: Copy this file to your WHMCS: /includes/hooks/snbdhost_dashboard_hook.php
+ * INSTALLATION: Placed automatically in WHMCS /includes/hooks/
  */
 
 if (!defined("WHMCS")) {
@@ -11,6 +12,24 @@ if (!defined("WHMCS")) {
 }
 
 use WHMCS\Database\Capsule;
+
+if (!function_exists('snbd_format_currency')) {
+    function snbd_format_currency($amount, $prefix = '$', $suffix = ' USD') {
+        $val = (float)$amount;
+        $isNegative = $val < 0;
+        $formattedNum = number_format(abs($val), 2);
+        
+        $suffixStr = '';
+        if (!empty($suffix)) {
+            $trimmed = trim($suffix);
+            if ($trimmed !== '') {
+                $suffixStr = ' ' . $trimmed;
+            }
+        }
+        
+        return ($isNegative ? '-' : '') . $prefix . $formattedNum . $suffixStr;
+    }
+}
 
 add_hook('ClientAreaPageHome', 1, function($vars) {
 
@@ -46,11 +65,12 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
             ->get();
 
         foreach ($rows as $row) {
+            $rawNum = $row->invoicenum ? ltrim(trim($row->invoicenum), '#') : $row->id;
             $invoices[] = [
                 'id'          => $row->id,
-                'invoicenum'  => $row->invoicenum ?: '#' . $row->id,
+                'invoicenum'  => $rawNum,
                 'datecreated' => date('M j, Y', strtotime($row->date)),
-                'total'       => $prefix . number_format((float)$row->total, 2) . $suffix,
+                'total'       => snbd_format_currency($row->total, $prefix, $suffix),
                 'status'      => ucfirst(strtolower($row->status)),
             ];
         }
@@ -85,7 +105,7 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
                 'status'      => ucfirst(strtolower($p->status)),
                 'nextduedate' => ($p->nextduedate && $p->nextduedate !== '0000-00-00')
                                   ? date('M j, Y', strtotime($p->nextduedate)) : '—',
-                'amount'      => $prefix . number_format((float)$p->amount, 2) . $suffix,
+                'amount'      => snbd_format_currency($p->amount, $prefix, $suffix),
                 'billingcycle'=> $p->billingcycle,
             ];
         }
@@ -119,9 +139,73 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
         }
     } catch (\Throwable $e) { }
 
+    // ------ Open Support Tickets ------
+    $openTickets = [];
+    try {
+        $rows = Capsule::table('tbltickets')
+            ->where('userid', $userid)
+            ->whereNotIn('status', ['Closed', 'Answered'])
+            ->orderBy('lastreply', 'desc')
+            ->limit(5)
+            ->get();
+
+        foreach ($rows as $row) {
+            $openTickets[] = [
+                'id'         => $row->id,
+                'tid'        => $row->tid,
+                'title'      => $row->title,
+                'status'     => $row->status,
+                'c'          => $row->c,
+                'lastreply'  => date('M j, Y', strtotime($row->lastreply)),
+            ];
+        }
+    } catch (\Throwable $e) { }
+
     return [
         'invoices'     => $invoices,
         'services'     => $services,
         'loyalty_data' => $loyalty,
+        'open_tickets' => $openTickets,
+    ];
+});
+
+/**
+ * ClientAreaPageAffiliates Hook
+ * Exposes active product groups and their products for custom referral link generation.
+ */
+add_hook('ClientAreaPageAffiliates', 1, function($vars) {
+    $productGroups = [];
+    try {
+        $groups = Capsule::table('tblproductgroups')
+            ->where('hidden', 0)
+            ->orderBy('order', 'asc')
+            ->get();
+            
+        foreach ($groups as $group) {
+            $products = Capsule::table('tblproducts')
+                ->where('gid', $group->id)
+                ->where('hidden', 0)
+                ->orderBy('order', 'asc')
+                ->select('id', 'name')
+                ->get();
+                
+            $productList = [];
+            foreach ($products as $product) {
+                $productList[] = [
+                    'id'   => $product->id,
+                    'name' => $product->name,
+                ];
+            }
+            
+            $productGroups[] = [
+                'id'       => $group->id,
+                'name'     => $group->name,
+                'products' => $productList,
+            ];
+        }
+    } catch (\Throwable $e) {}
+    
+    return [
+        'affiliateProductGroups' => $productGroups,
     ];
 });

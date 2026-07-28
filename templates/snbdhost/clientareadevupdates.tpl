@@ -110,7 +110,7 @@
     color: #111; letter-spacing: -0.03em;
 }
 .version-date {
-    font-size: 0.8rem; font-weight: 600; color: #aaa;
+    font-size: 0.8rem; font-weight: 600; color: #757575;
     margin-top: 0.15rem;
 }
 .version-badge {
@@ -134,7 +134,7 @@
 .change-group:last-child { margin-bottom: 0; }
 .change-group-label {
     font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1px; color: #bbb; margin-bottom: 0.6rem;
+    letter-spacing: 1px; color: #757575; margin-bottom: 0.6rem;
     display: flex; align-items: center; gap: 0.45rem;
 }
 .change-group-label::after {
@@ -197,7 +197,7 @@
 
 /* ── Footer note ── */
 .updates-footer-note {
-    text-align: center; font-size: 0.78rem; color: #bbb; font-weight: 500;
+    text-align: center; font-size: 0.78rem; color: #757575; font-weight: 500;
     padding: 1.5rem 0 0.5rem;
     border-top: 1px solid #f0f0f0;
     margin-top: 1rem;

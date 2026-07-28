@@ -42,7 +42,7 @@ html, body { background: #f4f5f7 !important; }
 }
 .pr-sub {
     font-size: .9rem;
-    color: #888;
+    color: #757575;
     text-align: center;
     margin-bottom: 1.75rem;
     line-height: 1.5;

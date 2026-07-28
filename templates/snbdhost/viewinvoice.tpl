@@ -109,7 +109,7 @@
     gap: 0.5rem;
     flex-wrap: wrap;
 }
-.inv-pm-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #999; }
+.inv-pm-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #757575; }
 .inv-pm-row select,
 .inv-pm-row .form-select {
     padding: 0.4rem 0.85rem;
@@ -144,7 +144,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #aaa;
+    color: #757575;
     margin-bottom: 0.45rem;
 }
 .inv-addr-name { font-weight: 700; font-size: 0.9375rem; color: #111; margin-bottom: 0.2rem; }
@@ -157,7 +157,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #aaa;
+    color: #757575;
     margin-bottom: 0.75rem;
 }
 .inv-table {
@@ -169,7 +169,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #999;
+    color: #757575;
     padding: 0.5rem 0.75rem;
     border-bottom: 2px solid #BA1114;
 }
@@ -276,7 +276,7 @@
 .inv-btn-print:hover { border-color: #BA1114; color: #BA1114; background: rgba(186,17,20,0.04); }
 .inv-btn-back {
     font-size: 0.8125rem;
-    color: #aaa;
+    color: #757575;
     text-decoration: none;
     transition: color 0.15s;
     display: inline-flex;
