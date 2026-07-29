@@ -250,8 +250,28 @@
             var wrap = document.getElementById("moduleClientAreaWrap");
             if (!wrap) return;
             
+            var pageText = (document.body ? document.body.innerText : "").toLowerCase();
+            var pageUrl = window.location.href.toLowerCase();
             var html = wrap.innerHTML;
-            if (html.indexOf("n8n") === -1 && html.indexOf("dockern8n") === -1 && html.indexOf("Go to n8n") === -1) {
+
+            // Immediately abort for OpenClaw or non-n8n products
+            if (pageUrl.indexOf("openclaw") !== -1 || pageText.indexOf("openclaw") !== -1 || html.toLowerCase().indexOf("openclaw") !== -1) {
+                return;
+            }
+
+            if (pageUrl.indexOf("hermes") !== -1 || pageText.indexOf("hermes") !== -1 || html.toLowerCase().indexOf("hermes") !== -1) {
+                return;
+            }
+
+            // Strict check for n8n dockern8n module / dashboard signatures
+            var isStrictN8n = (
+                html.indexOf("dockern8n") !== -1 ||
+                html.indexOf("dockern8n/ajax.php") !== -1 ||
+                html.indexOf("n8n-modern-dashboard") !== -1 ||
+                (html.indexOf("n8n") !== -1 && (html.indexOf("Workflow") !== -1 || html.indexOf("v2.31") !== -1))
+            );
+
+            if (!isStrictN8n) {
                 return;
             }
             

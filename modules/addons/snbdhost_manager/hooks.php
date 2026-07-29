@@ -635,10 +635,52 @@ add_hook('TicketOpenValidation', 1, function($vars) {
 });
 
 /**
- * ─────────────────────────────────────────────────────────────────────────────
- * N8N MODULE CLIENT AREA REDESIGN
- * ─────────────────────────────────────────────────────────────────────────────
+ * Helper to strictly identify n8n products and exclude non-n8n products (e.g., OpenClaw, HermesAgent)
  */
+function isSnbdhostN8nProduct($productName = '', $moduleName = '', $domain = '', $html = '') {
+    $product = strtolower((string)$productName);
+    $module = strtolower((string)$moduleName);
+    $dom = strtolower((string)$domain);
+    $rawHtml = (string)$html;
+
+    // Explicitly exclude OpenClaw or other non-n8n AI products
+    if (
+        strpos($product, 'openclaw') !== false ||
+        strpos($module, 'openclaw') !== false ||
+        strpos($dom, 'openclaw') !== false
+    ) {
+        return false;
+    }
+
+    if (
+        strpos($product, 'hermes') !== false ||
+        strpos($module, 'hermes') !== false ||
+        strpos($dom, 'hermes') !== false
+    ) {
+        return false;
+    }
+
+    // Must be dockern8n server module OR product name containing n8n
+    if ($module === 'dockern8n' || strpos($module, 'n8n') !== false) {
+        return true;
+    }
+
+    if (strpos($product, 'n8n') !== false) {
+        return true;
+    }
+
+    // Strict HTML check for dockern8n module signature (NOT generic substring 'n8n')
+    if (
+        stripos($rawHtml, 'dockern8n/ajax.php') !== false ||
+        stripos($rawHtml, 'id="dockern8n"') !== false ||
+        stripos($rawHtml, 'class="dockern8n"') !== false
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 function renderSnbdhostN8nDashboardHtml($html) {
     if (empty($html) || strpos($html, 'n8n-modern-dashboard') !== false) {
         return $html;
@@ -1162,8 +1204,10 @@ function renderSnbdhostN8nDashboardHtml($html) {
 add_hook('ClientAreaProductDetailsOutput', 1, function($service) {
     $html = $service['html'] ?? '';
     $moduleName = strtolower($service['modulename'] ?? '');
+    $productName = strtolower($service['product'] ?? $service['productname'] ?? '');
+    $domain = strtolower($service['domain'] ?? '');
     
-    if (strpos($moduleName, 'n8n') !== false || stripos($html, 'n8n') !== false || stripos($html, 'dockern8n') !== false) {
+    if (isSnbdhostN8nProduct($productName, $moduleName, $domain, $html)) {
         return renderSnbdhostN8nDashboardHtml($html);
     }
 });
@@ -1175,13 +1219,9 @@ add_hook('ClientAreaPageProductDetails', 1, function($vars) {
     $htmlContent = ($vars['tplOverviewTabOutput'] ?? '') . ($vars['moduleclientarea'] ?? '');
     $productName = strtolower($vars['product'] ?? '');
     $moduleName = strtolower($vars['modulename'] ?? $vars['module'] ?? '');
+    $domain = strtolower($vars['domain'] ?? '');
     
-    if (
-        strpos($productName, 'n8n') !== false || 
-        strpos($moduleName, 'n8n') !== false || 
-        stripos($htmlContent, 'n8n') !== false || 
-        stripos($htmlContent, 'dockern8n') !== false
-    ) {
+    if (isSnbdhostN8nProduct($productName, $moduleName, $domain, $htmlContent)) {
         if (!empty($vars['tplOverviewTabOutput']) && strpos($vars['tplOverviewTabOutput'], 'n8n-modern-dashboard') === false) {
             $new = renderSnbdhostN8nDashboardHtml($vars['tplOverviewTabOutput']);
             return ['tplOverviewTabOutput' => $new];
@@ -1200,6 +1240,14 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     if (empty($vars['filename']) || $vars['filename'] !== 'clientareaproductdetails') {
         return;
     }
+
+    $productName = strtolower($vars['product'] ?? '');
+    $moduleName = strtolower($vars['modulename'] ?? $vars['module'] ?? '');
+    $domain = strtolower($vars['domain'] ?? '');
+
+    if (!isSnbdhostN8nProduct($productName, $moduleName, $domain)) {
+        return;
+    }
     
     return '
     <script>
@@ -1210,8 +1258,26 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         var moduleWrap = document.getElementById("moduleClientAreaWrap") || document.querySelector(".module-clientarea-wrap");
         if (!moduleWrap) return;
         
-        var hasN8n = moduleWrap.innerText.indexOf("n8n") !== -1 || moduleWrap.innerHTML.indexOf("dockern8n") !== -1 || moduleWrap.querySelector("a[href*=\'n8n\']");
-        if (!hasN8n) return;
+        var pageText = (document.body ? document.body.innerText : "").toLowerCase();
+        var pageUrl = window.location.href.toLowerCase();
+        var wrapHtml = moduleWrap.innerHTML;
+
+        if (pageUrl.indexOf("openclaw") !== -1 || pageText.indexOf("openclaw") !== -1 || wrapHtml.toLowerCase().indexOf("openclaw") !== -1) {
+            return;
+        }
+
+        if (pageUrl.indexOf("hermes") !== -1 || pageText.indexOf("hermes") !== -1 || wrapHtml.toLowerCase().indexOf("hermes") !== -1) {
+            return;
+        }
+
+        var isStrictN8n = (
+            wrapHtml.indexOf("dockern8n") !== -1 ||
+            wrapHtml.indexOf("dockern8n/ajax.php") !== -1 ||
+            wrapHtml.indexOf("n8n-modern-dashboard") !== -1 ||
+            (wrapHtml.indexOf("n8n") !== -1 && (wrapHtml.indexOf("Workflow") !== -1 || wrapHtml.indexOf("v2.31") !== -1))
+        );
+
+        if (!isStrictN8n) return;
         
         // Wrap original in hidden div
         var origHtml = moduleWrap.innerHTML;
