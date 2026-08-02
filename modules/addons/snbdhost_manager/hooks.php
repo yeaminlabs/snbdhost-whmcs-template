@@ -567,7 +567,19 @@ add_hook('init', 1, function() {
     }
     
     // C. Intercept Password Reset submissions (POST pwreset.php with action=reset)
-    if ($scriptName === 'pwreset.php' && $requestMethod === 'POST' && ($_POST['action'] ?? '') === 'reset') {
+    // Only the initial "request reset link" step renders the Turnstile widget
+    // (it posts "email" and nothing else). Later steps reuse action=reset but
+    // never show the widget: the security-question step posts "answer" and the
+    // set-new-password step posts "newpw"/"key". Both must be excluded here or
+    // every reset attempt gets falsely blocked before it can complete.
+    if (
+        $scriptName === 'pwreset.php'
+        && $requestMethod === 'POST'
+        && ($_POST['action'] ?? '') === 'reset'
+        && isset($_POST['email'])
+        && !isset($_POST['newpw'])
+        && !isset($_POST['answer'])
+    ) {
         $token = $_POST['cf-turnstile-response'] ?? '';
         if (!verifySnbdhostTurnstileToken($token, $settings['secret_key'])) {
             $_SESSION['turnstile_error'] = 'Turnstile verification failed. Please try again.';
