@@ -126,7 +126,7 @@
 
         <div class="pwreset-title">{$LANG.pwreset}</div>
         <div class="pwreset-sub">
-            {if $action eq "pwreset"}
+            {if $key || $action eq "pwreset"}
                 {$LANG.pwresetenterpassword}
             {elseif $securityquestion}
                 {$LANG.pwresetsecurityquestionrequired|default:"Please answer your security question below."}
@@ -164,7 +164,7 @@
                     {$LANG.pwresetsubmit}
                 </button>
             </form>
-        {elseif $action eq "pwreset" || $step eq "3"}
+        {elseif $key || $action eq "pwreset" || $step eq "3"}
             <!-- Set New Password Stage -->
             <form method="post" action="{$WEB_ROOT}/pwreset.php">
                 <input type="hidden" name="key" value="{$key}" />

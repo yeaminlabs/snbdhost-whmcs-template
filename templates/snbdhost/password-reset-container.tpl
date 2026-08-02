@@ -278,7 +278,7 @@ html, body { background: #f4f5f7 !important; }
     {/if}
     <a href="{$WEB_ROOT}/login.php" class="pr-link"><i class="fas fa-arrow-left me-1"></i> {$LANG.login}</a>
 
-{elseif $innerTemplate == 'password-reset-validation'}
+{elseif $innerTemplate == 'password-reset-validation' || (!$innerTemplate && $key)}
 
     <!-- Step 2: Set new password -->
     <div class="pr-icon-wrap">
