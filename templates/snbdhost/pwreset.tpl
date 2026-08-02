@@ -1,4 +1,4 @@
-<!-- ====== PASSWORD RESET PAGE ====== -->
+<!-- ====== PASSWORD RESET PAGE (legacy pwreset.php flow) ====== -->
 <style>{literal}
 .pwreset-wrap {
     min-height: 100vh;
@@ -49,7 +49,9 @@
     font-size: 0.9rem;
     color: var(--text-secondary, #666666);
     margin-bottom: 1.75rem;
+    line-height: 1.5;
 }
+.pwreset-sub strong { color: var(--text-primary, #111111); }
 .pwreset-input {
     background: var(--bg-elevated, #f8f8f8) !important;
     border: 1.5px solid var(--border-color, #e5e5e5) !important;
@@ -85,6 +87,26 @@
     background: var(--brand-hover, #E87072);
     color: var(--text-on-brand, #ffffff);
 }
+.pwreset-btn-outline {
+    display: block;
+    width: 100%;
+    background: transparent;
+    color: var(--text-secondary, #666666);
+    border: 1.5px solid var(--border-color, #e0e0e0);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 0.6rem;
+    transition: border-color 0.2s, color 0.2s;
+}
+.pwreset-btn-outline:hover {
+    border-color: var(--brand-primary, #E05052);
+    color: var(--brand-primary, #E05052);
+}
 .pwreset-back {
     display: block;
     text-align: center;
@@ -112,6 +134,50 @@
     font-size: 0.9rem;
     margin-bottom: 1.25rem;
 }
+.pwreset-icon-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    margin: 0 auto 1rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #12b76a, #047a45);
+    color: #fff;
+    font-size: 1.4rem;
+    box-shadow: 0 8px 20px rgba(18,183,106,.25);
+}
+.pwreset-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #aaa;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin: 1.5rem 0;
+}
+.pwreset-divider::before, .pwreset-divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--border-color, #ececec);
+}
+.pwreset-divider span { padding: 0 .85rem; }
+.pwreset-google-box {
+    background: var(--bg-elevated, #f9f9fb);
+    border: 1px solid var(--border-color, #ececec);
+    border-radius: 12px;
+    padding: 1.1rem 1rem 1.3rem;
+    text-align: center;
+    margin-top: .25rem;
+}
+.pwreset-google-box p {
+    font-size: .82rem;
+    color: var(--text-secondary, #777);
+    line-height: 1.5;
+    margin: 0 0 .9rem;
+}
+.pwreset-google-box p i { color: #2563eb; margin-right: .3rem; }
 {/literal}</style>
 
 <div class="pwreset-wrap">
@@ -124,16 +190,18 @@
             </div>
         </a>
 
+        {if !$success}
         <div class="pwreset-title">{$LANG.pwreset}</div>
         <div class="pwreset-sub">
             {if $key || $action eq "pwreset"}
-                {$LANG.pwresetenterpassword}
+                Your link checks out. Choose a new password below to finish resetting your account.
             {elseif $securityquestion}
                 {$LANG.pwresetsecurityquestionrequired|default:"Please answer your security question below."}
             {else}
-                {$LANG.pwresetemailneeded}
+                Enter the email address on your account and we'll send a confirmation link to reset your password.
             {/if}
         </div>
+        {/if}
 
         {if $errormessage}
             <div class="pwreset-alert-err">
@@ -142,12 +210,47 @@
         {/if}
 
         {if $success}
+            <div class="pwreset-icon-circle"><i class="ti ti-mail-opened"></i></div>
+            <div class="pwreset-title">Check Your Email</div>
+            <div class="pwreset-sub">
+                We've sent a confirmation link to<br>
+                <strong>{$email|default:$smarty.post.email}</strong>.<br>
+                Open it and click the button inside to set a new password.
+            </div>
             <div class="pwreset-alert-ok">
                 <i class="ti ti-circle-check me-2"></i>{$LANG.pwresetvalidationsent}
             </div>
             <a href="{$WEB_ROOT}/login.php" class="pwreset-btn text-center d-block text-decoration-none mt-3">
                 <i class="ti ti-login me-1"></i> {$LANG.loginbutton|default:"Return to Login"}
             </a>
+
+            {if $googleClientId}
+            <div class="pwreset-divider"><span>or skip the wait</span></div>
+            <div class="pwreset-google-box">
+                <p><i class="fab fa-google"></i>Sign in instantly with Google — no email link, no password to remember.</p>
+                <div class="snbd-google-signin-wrapper">
+                    <div id="g_id_onload"
+                         data-client_id="{$googleClientId}"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="onGoogleSignIn"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="center">
+                    </div>
+                    <div id="snbdGoogleSignInLoading" style="display:none; width:100%; text-align:center; margin-top:.75rem; color:var(--text-secondary,#999); font-size:.85rem;">
+                        <i class="fas fa-circle-notch fa-spin me-2"></i>Authenticating securely...
+                    </div>
+                    <div id="snbdGoogleSignInError" style="display:none; width:100%; margin-top:.75rem;" class="pwreset-alert-err text-start"></div>
+                </div>
+            </div>
+            {/if}
         {elseif $securityquestion}
             <!-- Security Question Stage -->
             <form method="post" action="{$WEB_ROOT}/pwreset.php">
@@ -186,6 +289,34 @@
                     {$LANG.pwresetsubmit}
                 </button>
             </form>
+
+            {if $googleClientId}
+            <div class="pwreset-divider"><span>or skip this step</span></div>
+            <div class="pwreset-google-box">
+                <p><i class="fab fa-google"></i>Don't want to set a new password? Sign in instantly with Google instead.</p>
+                <div class="snbd-google-signin-wrapper">
+                    <div id="g_id_onload"
+                         data-client_id="{$googleClientId}"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="onGoogleSignIn"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="center">
+                    </div>
+                    <div id="snbdGoogleSignInLoading" style="display:none; width:100%; text-align:center; margin-top:.75rem; color:var(--text-secondary,#999); font-size:.85rem;">
+                        <i class="fas fa-circle-notch fa-spin me-2"></i>Authenticating securely...
+                    </div>
+                    <div id="snbdGoogleSignInError" style="display:none; width:100%; margin-top:.75rem;" class="pwreset-alert-err text-start"></div>
+                </div>
+            </div>
+            {/if}
         {else}
             <!-- Request Reset Link Stage -->
             <form method="post" action="{$WEB_ROOT}/pwreset.php" novalidate>
@@ -206,6 +337,34 @@
                     {$LANG.pwresetsubmit}
                 </button>
             </form>
+
+            {if $googleClientId}
+            <div class="pwreset-divider"><span>or forget passwords for good</span></div>
+            <div class="pwreset-google-box">
+                <p><i class="fab fa-google"></i>Link your Google account and sign in with one tap — no password to reset ever again.</p>
+                <div class="snbd-google-signin-wrapper">
+                    <div id="g_id_onload"
+                         data-client_id="{$googleClientId}"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="onGoogleSignIn"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="center">
+                    </div>
+                    <div id="snbdGoogleSignInLoading" style="display:none; width:100%; text-align:center; margin-top:.75rem; color:var(--text-secondary,#999); font-size:.85rem;">
+                        <i class="fas fa-circle-notch fa-spin me-2"></i>Authenticating securely...
+                    </div>
+                    <div id="snbdGoogleSignInError" style="display:none; width:100%; margin-top:.75rem;" class="pwreset-alert-err text-start"></div>
+                </div>
+            </div>
+            {/if}
         {/if}
 
         <a href="{$WEB_ROOT}/login.php" class="pwreset-back">

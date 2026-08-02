@@ -57,7 +57,10 @@ add_hook('ClientAreaPage', 1, function($vars) {
         exit;
     }
 
-    if (in_array($vars['templatefile'], ['login', 'clientregister'])) {
+    $isPasswordResetPage = in_array($vars['templatefile'], ['login', 'clientregister', 'pwreset'])
+        || strpos($vars['templatefile'] ?? '', 'password-reset') !== false;
+
+    if ($isPasswordResetPage) {
         $setting = Capsule::table('tbladdonmodules')
             ->where('module', 'snbdhost_manager')
             ->where('setting', 'google_client_id')

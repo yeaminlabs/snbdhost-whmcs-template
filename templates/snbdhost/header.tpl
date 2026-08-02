@@ -57,7 +57,7 @@
     
     {$headoutput}
     
-    {if $templatefile == 'login' || $templatefile == 'clientregister'}
+    {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$smarty.now}"></script>
     {/if}
