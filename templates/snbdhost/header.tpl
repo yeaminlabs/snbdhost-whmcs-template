@@ -141,6 +141,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i class="ti ti-settings"></i>
                     <span class="snbd-nav-text">My Details</span>
                 </a>
+                <a href="{$WEB_ROOT}/clientarea.php?action=creditcard" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'creditcard'}active{/if}" aria-label="Payment Methods">
+                    <i class="ti ti-credit-card"></i>
+                    <span class="snbd-nav-text">Payment Methods</span>
+                </a>
                 <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}" aria-label="Emails">
                     <i class="ti ti-mail"></i>
                     <span class="snbd-nav-text">Emails</span>
@@ -269,6 +273,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=details"><i class="ti ti-settings me-2"></i>My Details</a></li>
+                            <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=creditcard"><i class="ti ti-credit-card me-2"></i>Payment Methods</a></li>
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=emails"><i class="ti ti-mail me-2"></i>Email History</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{$WEB_ROOT}/logout.php"><i class="ti ti-logout me-2"></i>Logout</a></li>
