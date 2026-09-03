@@ -18,30 +18,6 @@
     background-color: #ffffff !important;
     color: var(--brand-primary) !important;
 }
-
-/* Dark mode styling overrides for products page */
-html[data-theme="dark"] .service-card,
-html[data-theme="dark"] .list-group-item {
-    background-color: var(--bg-surface) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-primary) !important;
-}
-html[data-theme="dark"] .list-group-item-action:hover {
-    background-color: var(--bg-elevated) !important;
-    color: var(--text-primary) !important;
-}
-html[data-theme="dark"] .service-card .text-dark,
-html[data-theme="dark"] .service-card h3 {
-    color: var(--text-primary) !important;
-}
-html[data-theme="dark"] .service-card .text-secondary {
-    color: var(--text-secondary) !important;
-}
-html[data-theme="dark"] .list-group-item-action.active {
-    background-color: var(--brand-primary) !important;
-    border-color: var(--brand-primary) !important;
-    color: #ffffff !important;
-}
 </style>
 
 <div id="order-standard_cart">

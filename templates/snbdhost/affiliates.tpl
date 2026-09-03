@@ -317,26 +317,6 @@
         font-size: 0.8rem !important;
         font-weight: 600 !important;
     }
-
-    /* Dark Mode variables and helper overrides */
-    html[data-theme="dark"] .aff-hero-container {
-        box-shadow: none;
-        background: linear-gradient(135deg, #991b1b 0%, #450a0a 100%);
-    }
-    html[data-theme="dark"] .aff-card,
-    html[data-theme="dark"] .aff-kpi-card,
-    html[data-theme="dark"] .aff-table-container {
-        background-color: var(--bg-surface) !important;
-        border-color: var(--border-color) !important;
-    }
-    html[data-theme="dark"] .aff-table-rates td {
-        border-bottom-color: var(--border-subtle) !important;
-    }
-    html[data-theme="dark"] .form-select {
-        background-color: var(--bg-input) !important;
-        border-color: var(--border-color) !important;
-        color: var(--text-primary) !important;
-    }
     </style>
 
     <div class="aff-wrap mt-3">

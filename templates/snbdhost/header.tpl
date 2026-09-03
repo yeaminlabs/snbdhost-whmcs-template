@@ -15,19 +15,6 @@
             saved = '{/literal}{lang key="markdown.saved"}{literal}',
             saving = '{/literal}{lang key="markdown.saving"}{literal}',
             whmcsBaseUrl = "{/literal}{$WEB_ROOT}{literal}";
-            
-        // Check and apply saved theme preference instantly to prevent flash
-        (function() {
-            var savedTheme = localStorage.getItem('snbd-theme');
-            if (savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else if (savedTheme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-            }
-        })();
         {/literal}
     </script>
 
@@ -233,23 +220,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <i class="ti ti-bell"></i>
                     </button>
 
-                    <button id="theme-toggle-btn" class="topbar-icon-btn ms-2" aria-label="Toggle Color Theme" title="Toggle Light/Dark Mode">
-                        <i class="ti ti-sun d-none-theme-dark"></i>
-                        <i class="ti ti-moon d-none-theme-light"></i>
-                    </button>
                     <script>
                     {literal}
                     document.addEventListener("DOMContentLoaded", function() {
-                        var btn = document.getElementById('theme-toggle-btn');
-                        if (btn) {
-                            btn.addEventListener('click', function() {
-                                var current = document.documentElement.getAttribute('data-theme') || 'light';
-                                var target = current === 'dark' ? 'light' : 'dark';
-                                document.documentElement.setAttribute('data-theme', target);
-                                localStorage.setItem('snbd-theme', target);
-                            });
-                        }
-
                         var topbar = document.getElementById('snbd-topbar');
                         if (topbar) {
                             function handleScroll() {
