@@ -196,11 +196,21 @@ function snbdhost_manager_output($vars)
     // --- Theme / module update ---
     if ($action === 'update_theme') {
         require_once __DIR__ . '/lib/Updater.php';
-        $updater = new \SNBDHostManager\Updater($githubRepo, $githubToken);
+        require_once __DIR__ . '/lib/DeployState.php';
+        $updater     = new \SNBDHostManager\Updater($githubRepo, $githubToken);
+        $deployState = new \SNBDHostManager\DeployState();
+
+        $deployBranch = trim($_REQUEST['branch'] ?? 'main') ?: 'main';
+        if ($deployBranch === '__custom__') {
+            $deployBranch = trim($_REQUEST['custom_branch'] ?? '') ?: 'main';
+        }
+
         try {
-            $updater->updateTheme($updateType);
+            $commitBeforeDeploy = $updater->getBranchCommit($deployBranch);
+            $updater->updateTheme($updateType, $deployBranch);
+            $deployState->recordDeploy($updateType, $deployBranch, $commitBeforeDeploy['sha'] ?? null);
             $targetName = $updateType === 'theme' ? 'Theme' : ($updateType === 'module' ? 'Manager Module' : 'Theme and Module');
-            $message = snbdmgr_alert('success', '<i class="fas fa-check-circle me-2"></i><strong>Updated!</strong> ' . $targetName . ' successfully updated to the latest version.');
+            $message = snbdmgr_alert('success', '<i class="fas fa-check-circle me-2"></i><strong>Deployed!</strong> ' . $targetName . ' updated from the <code>' . htmlspecialchars($deployBranch) . '</code> branch.');
         } catch (\Exception $e) {
             $message = snbdmgr_alert('danger', '<i class="fas fa-times-circle me-2"></i><strong>Error:</strong> ' . $e->getMessage());
         }
@@ -355,6 +365,69 @@ function snbdhost_manager_output($vars)
 
     $managedModules = $moduleManager->loadModules();
 
+    // ----------------------------------------------------------------
+    //  Branch status — which branch is deployed vs. which has the
+    //  newest commit, cached briefly to stay under GitHub's rate limit.
+    // ----------------------------------------------------------------
+    require_once __DIR__ . '/lib/Updater.php';
+    require_once __DIR__ . '/lib/DeployState.php';
+    $deployState  = new \SNBDHostManager\DeployState();
+    $deployedInfo = $deployState->load();
+    $activeThemeBranch = $deployedInfo['theme']['branch'] ?? null;
+
+    $branchCandidates = array_values(array_unique(array_filter(array_merge(
+        ['main', 'dev'],
+        [$activeThemeBranch]
+    ))));
+
+    $branchCacheFile = __DIR__ . '/branch_cache.json';
+    $branchCacheTtl  = 180; // seconds
+    $branchCache     = [];
+    if (file_exists($branchCacheFile)) {
+        $decoded = json_decode(file_get_contents($branchCacheFile), true);
+        if (is_array($decoded)) $branchCache = $decoded;
+    }
+
+    $refreshBranches = isset($_GET['refresh_branches']);
+    $repoConfigured  = !empty($githubRepo) && $githubRepo !== 'username/repo';
+    $branchStatus    = [];
+
+    if ($repoConfigured) {
+        $updaterForInfo = new \SNBDHostManager\Updater($githubRepo, $githubToken);
+        $cacheDirty     = false;
+
+        foreach ($branchCandidates as $branchName) {
+            $cached = $branchCache[$branchName] ?? null;
+            $isFresh = $cached && (time() - ($cached['fetched_at'] ?? 0)) < $branchCacheTtl;
+
+            if ($isFresh && !$refreshBranches) {
+                $branchStatus[$branchName] = $cached['data'];
+                continue;
+            }
+
+            $info = $updaterForInfo->getBranchCommit($branchName);
+            $branchCache[$branchName] = ['fetched_at' => time(), 'data' => $info];
+            $branchStatus[$branchName] = $info;
+            $cacheDirty = true;
+        }
+
+        if ($cacheDirty) {
+            @file_put_contents($branchCacheFile, json_encode($branchCache, JSON_PRETTY_PRINT));
+        }
+    }
+
+    // Which candidate branch has the most recent commit?
+    $latestBranch = null;
+    $latestDate   = null;
+    foreach ($branchStatus as $bName => $bInfo) {
+        if (empty($bInfo['date'])) continue;
+        $ts = strtotime($bInfo['date']);
+        if ($latestDate === null || $ts > $latestDate) {
+            $latestDate   = $ts;
+            $latestBranch = $bName;
+        }
+    }
+
     // Determine active tab from GET param (preserve after post-redirect)
     $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'overview';
     $validTabs = ['overview', 'modules', 'notifications', 'banner', 'uptimerobot'];
@@ -365,20 +438,92 @@ function snbdhost_manager_output($vars)
     // ----------------------------------------------------------------
     echo $message;
     ?>
-    <div style="margin-bottom: 20px;">
-        <h2 style="margin: 0 0 5px 0;">SNBDHost Theme Manager</h2>
-        <p style="color: #666; margin: 0;">WHMCS Portal Theme & Module Control Center</p>
+    <style>
+        .snbdmgr-header{margin-bottom:20px;}
+        .snbdmgr-header h2{margin:0 0 5px 0;}
+        .snbdmgr-header p{color:#666;margin:0;}
+        .snbdmgr-card{background:#fff;border:1px solid #e2e2e2;border-radius:8px;margin-bottom:20px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+        .snbdmgr-card h3{margin-top:0;border-bottom:1px solid #eee;padding-bottom:10px;font-size:16px;}
+        .snbdmgr-branch-grid{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0 18px;}
+        .snbdmgr-branch-card{flex:1 1 220px;min-width:220px;border:1px solid #e2e2e2;border-radius:8px;padding:14px 16px;background:#fafafa;position:relative;}
+        .snbdmgr-branch-card .bname{font-weight:700;font-size:14px;font-family:monospace;display:flex;align-items:center;gap:8px;}
+        .snbdmgr-branch-card .commit-msg{font-size:12.5px;color:#333;margin:8px 0 4px;line-height:1.4;}
+        .snbdmgr-branch-card .commit-meta{font-size:11.5px;color:#888;}
+        .snbdmgr-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.03em;padding:2px 7px;border-radius:100px;text-transform:uppercase;}
+        .snbdmgr-badge-active{background:#e6f4ea;color:#1e7e34;}
+        .snbdmgr-badge-latest{background:#fff4e0;color:#b26a00;}
+        .snbdmgr-badge-unknown{background:#f1f1f1;color:#888;}
+        .snbdmgr-deploy-form{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:4px;border-top:1px solid #eee;}
+        .snbdmgr-deploy-form select, .snbdmgr-deploy-form input[type=text]{padding:6px 8px;border:1px solid #ccc;border-radius:4px;}
+        .snbdmgr-refresh-link{font-size:12px;color:#666;text-decoration:none;float:right;}
+    </style>
+
+    <div class="snbdmgr-header">
+        <h2>SNBDHost Theme Manager</h2>
+        <p>WHMCS Portal Theme & Module Control Center</p>
     </div>
 
     <!-- Theme Updates Section -->
-    <div style="background: #fff; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 20px; padding: 15px;">
-        <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Theme & Manager Updates</h3>
-        <p>Pull the latest version of the SNBDHost portal theme or manager module from GitHub.</p>
-        <div style="display: flex; gap: 10px;">
-            <a href="<?= $modulelink ?>&action=update_theme&type=theme" onclick="return confirm('Update Theme files now?')" class="btn btn-primary">Update Theme</a>
-            <a href="<?= $modulelink ?>&action=update_theme&type=module" onclick="return confirm('Update the Manager Module now?')" class="btn btn-default">Update Module</a>
-            <a href="<?= $modulelink ?>&action=update_theme&type=all" onclick="return confirm('Update Theme AND Manager Module together?')" class="btn btn-success">Update All</a>
+    <div class="snbdmgr-card">
+        <h3>
+            Theme & Manager Updates
+            <a class="snbdmgr-refresh-link" href="<?= $modulelink ?>&refresh_branches=1&tab=<?= htmlspecialchars($activeTab) ?>">↻ Refresh branch status</a>
+        </h3>
+        <p>Choose which branch to deploy from GitHub, and see at a glance which branch is live vs. which has the newest commits.</p>
+
+        <?php if (!$repoConfigured): ?>
+            <p style="color:#b26a00;">Set a GitHub Repository above to see branch status.</p>
+        <?php else: ?>
+        <div class="snbdmgr-branch-grid">
+            <?php foreach ($branchCandidates as $bName):
+                $info = $branchStatus[$bName] ?? null;
+                $isActiveTheme  = $activeThemeBranch === $bName;
+                $isLatest       = $latestBranch === $bName;
+            ?>
+                <div class="snbdmgr-branch-card">
+                    <div class="bname">
+                        <?= htmlspecialchars($bName) ?>
+                        <?php if ($isActiveTheme): ?><span class="snbdmgr-badge snbdmgr-badge-active">Active</span><?php endif; ?>
+                        <?php if ($isLatest): ?><span class="snbdmgr-badge snbdmgr-badge-latest">Latest push</span><?php endif; ?>
+                    </div>
+                    <?php if ($info): ?>
+                        <div class="commit-msg"><?= htmlspecialchars($info['message'] ?: '(no commit message)') ?></div>
+                        <div class="commit-meta">
+                            <code><?= htmlspecialchars($info['short']) ?></code> · <?= htmlspecialchars($info['author']) ?> · <?= snbdmgr_relative_time($info['date']) ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="commit-meta"><span class="snbdmgr-badge snbdmgr-badge-unknown">Unavailable</span> could not fetch commit info for this branch.</div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
+        <?php endif; ?>
+
+        <form method="get" action="<?= $modulelink ?>" class="snbdmgr-deploy-form" onsubmit="return snbdmgrConfirmDeploy(this)">
+            <input type="hidden" name="module" value="snbdhost_manager">
+            <input type="hidden" name="action" value="update_theme">
+            <label for="snbdmgr_branch" style="font-size:13px;font-weight:600;">Deploy from:</label>
+            <select name="branch" id="snbdmgr_branch" onchange="document.getElementById('snbdmgr_custom_branch').style.display = (this.value === '__custom__') ? 'inline-block' : 'none';">
+                <?php foreach (array_unique(array_merge(['main', 'dev'], $branchCandidates)) as $bOpt): ?>
+                    <option value="<?= htmlspecialchars($bOpt) ?>" <?= ($bOpt === ($activeThemeBranch ?: 'main')) ? 'selected' : '' ?>><?= htmlspecialchars($bOpt) ?><?= ($bOpt === $latestBranch) ? ' (latest)' : '' ?></option>
+                <?php endforeach; ?>
+                <option value="__custom__">Custom branch…</option>
+            </select>
+            <input type="text" id="snbdmgr_custom_branch" name="custom_branch" placeholder="branch name" style="display:none;width:140px;">
+
+            <button type="submit" name="type" value="theme" class="btn btn-primary">Deploy Theme</button>
+            <button type="submit" name="type" value="module" class="btn btn-default">Deploy Module</button>
+            <button type="submit" name="type" value="all" class="btn btn-success">Deploy All</button>
+        </form>
+        <script>
+        function snbdmgrConfirmDeploy(form) {
+            var branchSel = form.querySelector('#snbdmgr_branch').value;
+            if (branchSel === '__custom__') {
+                branchSel = form.querySelector('#snbdmgr_custom_branch').value || '(unspecified)';
+            }
+            return confirm('Deploy from the "' + branchSel + '" branch now? This overwrites live files.');
+        }
+        </script>
     </div>
 
     <!-- Managed Modules Section -->
@@ -530,6 +675,19 @@ function snbdhost_manager_output($vars)
         ?>
     </div>
     <?php
+}
+
+function snbdmgr_relative_time(?string $isoDate): string
+{
+    if (empty($isoDate)) return 'unknown';
+    $ts = strtotime($isoDate);
+    if (!$ts) return 'unknown';
+    $diff = time() - $ts;
+    if ($diff < 60) return 'just now';
+    if ($diff < 3600) return floor($diff / 60) . 'm ago';
+    if ($diff < 86400) return floor($diff / 3600) . 'h ago';
+    if ($diff < 2592000) return floor($diff / 86400) . 'd ago';
+    return date('M j, Y', $ts);
 }
 
 function snbdmgr_alert(string $type, string $html): string

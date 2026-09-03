@@ -15,23 +15,20 @@ class Updater
         $this->downloadPath = sys_get_temp_dir() . '/snbdhost_theme_update.zip';
     }
 
-    public function updateTheme($type = 'all')
+    public function updateTheme($type = 'all', $branch = 'main')
     {
         if (empty($this->githubRepo) || $this->githubRepo === 'username/repo') {
             throw new \Exception("GitHub repository is not configured correctly.");
         }
 
-        // 1. Fetch latest release from GitHub
-        $releaseUrl = $this->apiBase . $this->githubRepo . '/releases/latest';
-        
-        $downloadUrl = '';
-        try {
-            $releaseData = $this->makeRequest($releaseUrl);
-            $downloadUrl = $releaseData['zipball_url'] ?? '';
-        } catch (\Exception $e) {
-            // Fallback: Download from main branch if releases endpoint fails (e.g. 404 Not Found)
-            $downloadUrl = "https://github.com/{$this->githubRepo}/archive/refs/heads/main.zip";
+        $branch = trim($branch) ?: 'main';
+        if (!preg_match('/^[A-Za-z0-9._\/-]+$/', $branch)) {
+            throw new \Exception("Invalid branch name: {$branch}");
         }
+
+        // Download directly from the selected branch via the API zipball endpoint
+        // (works for public and private/token-authenticated repos alike).
+        $downloadUrl = $this->apiBase . $this->githubRepo . '/zipball/' . rawurlencode($branch);
 
         if (empty($downloadUrl)) {
             throw new \Exception("Could not determine the download URL for the theme update.");
@@ -56,6 +53,43 @@ class Updater
         }
 
         return true;
+    }
+
+    /**
+     * Fetches the latest commit on a given branch, for display purposes
+     * (branch selector "last updated" info, latest-vs-active comparison).
+     * Returns null on any failure instead of throwing, since this is
+     * best-effort informational data.
+     */
+    public function getBranchCommit($branch)
+    {
+        if (empty($this->githubRepo) || $this->githubRepo === 'username/repo') {
+            return null;
+        }
+        $branch = trim($branch) ?: 'main';
+        if (!preg_match('/^[A-Za-z0-9._\/-]+$/', $branch)) {
+            return null;
+        }
+
+        try {
+            $url  = $this->apiBase . $this->githubRepo . '/commits/' . rawurlencode($branch);
+            $data = $this->makeRequest($url);
+            if (empty($data['sha'])) {
+                return null;
+            }
+            $commit = $data['commit'] ?? [];
+            return [
+                'branch'  => $branch,
+                'sha'     => $data['sha'],
+                'short'   => substr($data['sha'], 0, 7),
+                'message' => trim(strtok($commit['message'] ?? '', "\n")),
+                'author'  => $commit['author']['name'] ?? ($data['author']['login'] ?? 'unknown'),
+                'date'    => $commit['author']['date'] ?? null,
+                'url'     => $data['html_url'] ?? '',
+            ];
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     private function makeRequest($url, $isDownload = false)
