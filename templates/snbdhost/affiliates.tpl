@@ -1,16 +1,10 @@
-<!-- ====== AFFILIATES DASHBOARD — SNBD HOST BLUEPRINT DESIGN ====== -->
+<!-- ====== AFFILIATES — SNBD HOST REDESIGN ====== -->
 {if $inactive}
     {include file="$template/includes/alert.tpl" type="danger" msg="{lang key='affiliatesdisabled'}" textcenter=true}
 {else}
     {include file="$template/includes/flashmessage.tpl"}
-    {if $withdrawrequestsent}
-        <div class="alert alert-success d-flex align-items-center gap-2 mb-4" style="border-radius: 12px; font-weight: 500;">
-            <i class="fas fa-check-circle text-success" style="font-size: 1.15rem;"></i>
-            {lang key='affiliateswithdrawalrequestsuccessful'}
-        </div>
-    {/if}
 
-    <!-- Raw stats variables for JS validation -->
+    <!-- Hidden raw values for JS -->
     <input type="hidden" id="rawPending"   value="{$pendingcommissions}">
     <input type="hidden" id="rawAvailable" value="{$balance}">
     <input type="hidden" id="rawWithdrawn" value="{$withdrawn}">
@@ -18,573 +12,854 @@
     <input type="hidden" id="valSignups"   value="{$signups}">
 
     <style>
-    /* ── SNBD HOST Affiliates Stylesheet ── */
-    .aff-wrap {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 0 3rem;
-        font-family: var(--font-sans, 'Inter', sans-serif);
-    }
-    
-    /* ── Hero Header ── */
-    .aff-hero-container {
+    /* ─── Base Wrapper ─── */
+    .aff2 { max-width: 1160px; margin: 0 auto; padding: 0 0 4rem; }
+
+    /* ─── Page Title Row ─── */
+    .aff2-title-row {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
-        background: linear-gradient(135deg, #BA1114 0%, #8a0c0e 100%);
-        border-radius: 16px;
-        padding: 2.5rem;
         margin-bottom: 2rem;
-        color: #ffffff;
-        gap: 2rem;
-        box-shadow: 0 4px 20px rgba(186, 17, 20, 0.15);
+        gap: 1rem;
+        flex-wrap: wrap;
     }
-    .aff-hero-left {
-        flex: 1;
-    }
-    .aff-hero-title {
-        font-size: 2.2rem;
-        font-weight: 800;
-        line-height: 1.2;
-        margin-bottom: 0.75rem;
-    }
-    .aff-hero-sub {
-        font-size: 1.05rem;
-        color: rgba(255, 255, 255, 0.9);
+    .aff2-page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        color: #111;
+        line-height: 1;
         margin: 0;
     }
-    .aff-hero-right {
+    .aff2-page-sub {
+        font-size: 0.9rem;
+        color: #777;
+        margin: 0.35rem 0 0;
+        font-weight: 500;
+    }
+
+    /* ─── Payout Banner ─── */
+    .aff2-payout-banner {
+        background: linear-gradient(135deg, #CC0000 0%, #8B0000 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: #fff;
         display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-end;
-    }
-    .aff-hero-stats-bar {
-        display: flex;
-        gap: 0.75rem;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 0.75rem 1.25rem;
-        border-radius: 12px;
-        backdrop-filter: blur(10px);
-    }
-    .aff-hero-stat-pill {
-        display: flex;
-        flex-direction: column;
-    }
-    .aff-hero-stat-pill:first-child {
-        border-right: 1px solid rgba(255, 255, 255, 0.2);
-        padding-right: 1rem;
-    }
-    .aff-hero-stat-pill:last-child {
-        padding-left: 0.5rem;
-    }
-    .aff-hero-stat-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: rgba(255, 255, 255, 0.75);
-        font-weight: 600;
-    }
-    .aff-hero-stat-val {
-        font-size: 1.25rem;
-        font-weight: 800;
-    }
-    
-    /* ── Cards & Action Zones ── */
-    .aff-card {
-        background: var(--bg-surface, #ffffff);
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 16px;
-        padding: 1.75rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-    }
-    .aff-card-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--text-primary, #1a1a1a);
-        margin-bottom: 0.5rem;
-    }
-    .aff-card-sub {
-        font-size: 0.85rem;
-        color: var(--text-muted, #757575);
-        margin-bottom: 1.25rem;
-    }
-    .aff-link-box {
-        display: flex;
-        gap: 0.5rem;
-        background: var(--bg-input, #f8f9fa);
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 10px;
-        padding: 0.4rem;
         align-items: center;
+        gap: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
     }
-    .aff-link-box-input {
-        flex: 1;
-        border: none;
-        background: transparent;
-        font-size: 0.9rem;
-        color: var(--text-primary, #1a1a1a);
-        padding: 0.5rem;
-        outline: none;
+    .aff2-payout-banner::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 220px; height: 220px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
     }
-    .aff-btn {
-        background: var(--brand-primary, #BA1114);
-        color: #ffffff;
-        border: none;
-        font-weight: 600;
+    .aff2-payout-banner::after {
+        content: '';
+        position: absolute;
+        bottom: -80px; right: 100px;
+        width: 160px; height: 160px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+    .aff2-banner-badge {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 50rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0.3rem 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.75rem;
+    }
+    .aff2-banner-headline {
+        font-size: 1.65rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin: 0 0 0.4rem;
+    }
+    .aff2-banner-copy {
         font-size: 0.9rem;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
+        color: rgba(255,255,255,0.8);
+        margin: 0;
+    }
+    .aff2-banner-divider {
+        width: 1px;
+        background: rgba(255,255,255,0.2);
+        align-self: stretch;
+        flex-shrink: 0;
+    }
+    .aff2-banner-stat-group {
+        display: flex;
+        gap: 2rem;
+        flex-shrink: 0;
+    }
+    .aff2-banner-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .aff2-banner-stat-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(255,255,255,0.65);
+        font-weight: 700;
+    }
+    .aff2-banner-stat-val {
+        font-size: 1.5rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1;
+    }
+    .aff2-banner-actions {
+        margin-left: auto;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    .aff2-btn-payout {
+        background: #fff;
+        color: #CC0000;
+        border: none;
+        font-weight: 700;
+        font-size: 0.88rem;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
         cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: background 0.2s;
     }
-    .aff-btn:hover {
-        background: var(--brand-hover, #9E0D10);
-        color: #ffffff;
+    .aff2-btn-payout:hover { background: #f5f5f5; transform: translateY(-1px); }
+    .aff2-btn-payout.disabled {
+        background: rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.6);
+        cursor: default;
+        border: 1px dashed rgba(255,255,255,0.3);
     }
-    
-    /* ── Performance Dashboard Grid ── */
-    .aff-grid-3 {
+    .aff2-btn-payout.disabled:hover { transform: none; }
+    .aff2-payout-hint {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.55);
+        text-align: center;
+    }
+
+    /* ─── Stat Card Grid ─── */
+    .aff2-stats-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 1rem;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
-    .aff-kpi-card {
-        background: var(--bg-surface, #ffffff);
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 14px;
+    .aff2-stat {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 16px;
         padding: 1.25rem 1.5rem;
         display: flex;
         flex-direction: column;
-        position: relative;
+        gap: 0.75rem;
+        transition: all 0.2s;
     }
-    .aff-kpi-label {
-        font-size: 0.75rem;
+    .aff2-stat:hover {
+        border-color: #ddd;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        transform: translateY(-2px);
+    }
+    .aff2-stat-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem;
+    }
+    .aff2-stat-icon.red   { background: #FFF0F0; color: #CC0000; }
+    .aff2-stat-icon.green { background: #F0FFF4; color: #1a7a3c; }
+    .aff2-stat-icon.blue  { background: #EFF6FF; color: #1d4ed8; }
+    .aff2-stat-icon.amber { background: #FFFBEB; color: #b45309; }
+    .aff2-stat-icon.purple{ background: #F5F3FF; color: #6d28d9; }
+    .aff2-stat-icon.gray  { background: #F5F5F5; color: #555; }
+    .aff2-stat-label {
+        font-size: 0.72rem;
         text-transform: uppercase;
+        letter-spacing: 0.6px;
         font-weight: 700;
-        letter-spacing: 0.5px;
-        color: var(--text-muted, #757575);
-        margin-bottom: 0.35rem;
+        color: #999;
     }
-    .aff-kpi-val {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-primary, #1a1a1a);
-        line-height: 1.2;
+    .aff2-stat-val {
+        font-size: 1.65rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        color: #111;
+        line-height: 1;
     }
-    
-    /* ── 2-Column Info Section ── */
-    .aff-split-2 {
+    .aff2-stat-val.red { color: #CC0000; }
+
+    /* ─── Two-Column Main Grid ─── */
+    .aff2-main-grid {
         display: grid;
-        grid-template-columns: 1.2fr 1fr;
+        grid-template-columns: 1.05fr 0.95fr;
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
-    .aff-step-list {
+
+    /* ─── Card Shell ─── */
+    .aff2-card {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 18px;
+        overflow: hidden;
+    }
+    .aff2-card-head {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
         display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
+        align-items: center;
+        gap: 0.75rem;
     }
-    .aff-step-item {
-        display: flex;
-        gap: 1rem;
+    .aff2-card-head-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: #FFF0F0;
+        color: #CC0000;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem;
+        flex-shrink: 0;
     }
-    .aff-step-num {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--brand-primary, #BA1114);
-        line-height: 1;
-    }
-    .aff-step-content h4 {
+    .aff2-card-head-title {
         font-size: 0.95rem;
         font-weight: 700;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary, #1a1a1a);
+        color: #111;
+        margin: 0;
     }
-    .aff-step-content p {
+    .aff2-card-head-sub {
+        font-size: 0.8rem;
+        color: #999;
+        margin: 0;
+    }
+    .aff2-card-body { padding: 1.5rem; }
+
+    /* ─── Referral Link Input ─── */
+    .aff2-link-wrap {
+        display: flex;
+        background: #f8f8f8;
+        border: 1.5px solid #e8e8e8;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+    .aff2-link-wrap:focus-within { border-color: #CC0000; }
+    .aff2-link-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 0.875rem;
+        color: #333;
+        padding: 0.75rem 1rem;
+        outline: none;
+        min-width: 0;
+    }
+    .aff2-copy-btn {
+        background: #CC0000;
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        font-size: 0.82rem;
+        padding: 0.75rem 1.15rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+        transition: background 0.2s;
+        flex-shrink: 0;
+    }
+    .aff2-copy-btn:hover { background: #AA0000; }
+    .aff2-copy-btn.copied { background: #1a7a3c; }
+
+    /* ─── Generator Selects ─── */
+    .aff2-gen-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .aff2-select-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.35rem;
+        display: block;
+    }
+
+    /* ─── Steps ─── */
+    .aff2-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    .aff2-step {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        position: relative;
+    }
+    .aff2-step:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 18px;
+        top: 52px;
+        bottom: 0;
+        width: 2px;
+        background: #f0f0f0;
+    }
+    .aff2-step-icon-wrap {
+        flex-shrink: 0;
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        border: 2px solid #CC0000;
+        display: flex; align-items: center; justify-content: center;
+        color: #CC0000;
         font-size: 0.85rem;
-        color: var(--text-muted, #757575);
+        background: #fff;
+        position: relative;
+        z-index: 1;
+    }
+    .aff2-step-body h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #111;
+        margin: 0 0 0.2rem;
+    }
+    .aff2-step-body p {
+        font-size: 0.82rem;
+        color: #888;
         margin: 0;
         line-height: 1.5;
     }
-    .aff-table-rates {
-        width: 100%;
-        font-size: 0.85rem;
-        border-collapse: collapse;
+
+    /* ─── Commission Rates ─── */
+    .aff2-rate-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .aff2-rate-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid #f5f5f5;
     }
-    .aff-table-rates th {
-        font-weight: 700;
-        color: var(--text-muted, #757575);
-        border-bottom: 1px solid var(--border-color, #e0e0e0);
-        padding-bottom: 0.5rem;
+    .aff2-rate-item:last-child { border-bottom: none; }
+    .aff2-rate-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #333;
     }
-    .aff-table-rates td {
-        padding: 0.65rem 0;
-        border-bottom: 1px solid var(--border-subtle, #eeeeee);
-        color: var(--text-secondary, #555555);
+    .aff2-rate-right { display: flex; align-items: center; gap: 0.6rem; }
+    .aff2-rate-badge {
+        font-size: 0.78rem;
+        font-weight: 800;
+        border-radius: 6px;
+        padding: 0.25rem 0.6rem;
     }
-    
-    /* ── Activity Table & Zero State ── */
-    .aff-table-container {
-        background: var(--bg-surface, #ffffff);
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 14px;
+    .aff2-rate-badge.high   { background: #FFF0F0; color: #CC0000; }
+    .aff2-rate-badge.mid    { background: #FFF7ED; color: #c2410c; }
+    .aff2-rate-badge.low    { background: #FFFBEB; color: #b45309; }
+    .aff2-rate-badge.zero   { background: #F5F5F5; color: #888; }
+    .aff2-rate-type {
+        font-size: 0.72rem;
+        color: #aaa;
+        font-weight: 600;
+    }
+
+    /* ─── History Table ─── */
+    .aff2-table-card {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 18px;
         overflow: hidden;
         margin-bottom: 2rem;
     }
-    .aff-table-header {
+    .aff2-table-head {
         padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--border-color, #e0e0e0);
-        font-weight: 700;
-        font-size: 1.05rem;
-        color: var(--text-primary, #1a1a1a);
-    }
-    .aff-dt-top {
+        border-bottom: 1px solid #f0f0f0;
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-subtle, #eeeeee);
-        font-size: 0.85rem;
     }
-    .aff-dt-foot {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 1.5rem;
-        border-top: 1px solid var(--border-subtle, #eeeeee);
-        font-size: 0.85rem;
-    }
-    .dataTables_wrapper input {
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 6px;
-        padding: 0.25rem 0.5rem;
-        background: var(--bg-input, #ffffff);
-        color: var(--text-primary, #1a1a1a);
-        outline: none;
-    }
-    .aff-empty-state {
-        padding: 3rem 2rem;
-        text-align: center;
-    }
-    .aff-empty-icon {
-        font-size: 2.5rem;
-        color: var(--text-muted, #757575);
-        margin-bottom: 1rem;
-    }
-    .aff-empty-title {
-        font-size: 1.1rem;
+    .aff2-table-title {
+        font-size: 0.95rem;
         font-weight: 700;
-        color: var(--text-primary, #1a1a1a);
-        margin-bottom: 0.25rem;
-    }
-    .aff-empty-sub {
-        font-size: 0.85rem;
-        color: var(--text-muted, #757575);
+        color: #111;
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
     }
-    
-    /* ── Responsive Reflow ── */
-    @media (max-width: 900px) {
-        .aff-hero-container {
+    .aff2-empty {
+        padding: 4rem 2rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .aff2-empty-icon {
+        width: 64px; height: 64px;
+        border-radius: 50%;
+        background: #FFF0F0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        color: #CC0000;
+    }
+    .aff2-empty h3 { font-size: 1.05rem; font-weight: 700; color: #111; margin: 0; }
+    .aff2-empty p { font-size: 0.85rem; color: #999; margin: 0; max-width: 360px; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1000px) {
+        .aff2-stats-grid { grid-template-columns: repeat(3, 1fr); }
+        .aff2-main-grid  { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+        .aff2-payout-banner {
             flex-direction: column;
             align-items: flex-start;
-            padding: 2rem;
+            gap: 1.5rem;
         }
-        .aff-hero-right {
-            align-items: flex-start;
-            width: 100%;
-        }
-        .aff-hero-stats-bar {
-            width: 100%;
-            justify-content: space-between;
-        }
-        .aff-grid-3 {
-            grid-template-columns: 1fr;
-        }
-        .aff-split-2 {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
+        .aff2-banner-divider { display: none; }
+        .aff2-banner-actions { margin-left: 0; width: 100%; }
+        .aff2-btn-payout { width: 100%; justify-content: center; }
+        .aff2-stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .aff2-gen-row { grid-template-columns: 1fr; }
     }
-    
-    /* ── Tooltip Style override ── */
-    .tooltip-inner {
-        font-size: 0.8rem !important;
-        font-weight: 600 !important;
+    @media (max-width: 480px) {
+        .aff2-stats-grid { grid-template-columns: 1fr 1fr; }
+        .aff2-banner-stat-group { gap: 1.5rem; }
+    }
+
+    /* ─── DataTable overrides ─── */
+    .aff2-table-card .dataTables_wrapper .dataTables_filter input {
+        border: 1.5px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        outline: none;
+        background: #f8f8f8;
+    }
+    .aff2-table-card .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #CC0000;
+    }
+    .aff2-table-card .dataTables_wrapper { padding: 0; }
+    .aff2-table-card .dataTables_wrapper .dataTables_length select {
+        border: 1.5px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.85rem;
+        background: #f8f8f8;
+    }
+    .aff2-dt-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f5f5f5;
+        gap: 1rem;
+    }
+    .aff2-dt-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f5f5f5;
+        font-size: 0.82rem;
+        color: #888;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
     </style>
 
-    <div class="aff-wrap mt-3">
+    {if $withdrawrequestsent}
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-4" style="border-radius: 12px; font-weight: 600;">
+        <i class="fas fa-check-circle"></i>
+        Withdrawal request sent! We'll process it shortly.
+    </div>
+    {/if}
 
-        <!-- 1. Hero Header (Value Prop + Live Earnings) -->
-        <div class="aff-hero-container">
-            <div class="aff-hero-left">
-                <h1 class="aff-hero-title">Earn up to 20% Recurring Commission with SNBD HOST</h1>
-                <p class="aff-hero-sub">Share your referral link and earn on every hosting, VPS, or reseller order. No cap, no limit.</p>
+    <div class="aff2 mt-2">
+
+        <!-- ── Page Title ── -->
+        <div class="aff2-title-row">
+            <div>
+                <h1 class="aff2-page-title">Affiliate Program</h1>
+                <p class="aff2-page-sub">Earn up to 20% recurring commission on every referral — no cap, no expiry.</p>
             </div>
-            <div class="aff-hero-right">
-                <div class="aff-hero-stats-bar">
-                    <div class="aff-hero-stat-pill">
-                        <span class="aff-hero-stat-label">Available Balance</span>
-                        <span class="aff-hero-stat-val">{$balance}</span>
-                    </div>
-                    <div class="aff-hero-stat-pill">
-                        <span class="aff-hero-stat-label">Pending Balance</span>
-                        <span class="aff-hero-stat-val">{$pendingcommissions}</span>
-                    </div>
+        </div>
+
+        <!-- ── Payout Banner ── -->
+        <div class="aff2-payout-banner">
+            <div>
+                <div class="aff2-banner-badge">
+                    <i class="fas fa-star"></i> Active
                 </div>
+                <h2 class="aff2-banner-headline">Your Earnings Dashboard</h2>
+                <p class="aff2-banner-copy">Refer customers to SNBD HOST and earn on every renewed payment.</p>
+            </div>
+
+            <div class="aff2-banner-divider"></div>
+
+            <div class="aff2-banner-stat-group">
+                <div class="aff2-banner-stat">
+                    <span class="aff2-banner-stat-label">Available</span>
+                    <span class="aff2-banner-stat-val">{$balance}</span>
+                </div>
+                <div class="aff2-banner-stat">
+                    <span class="aff2-banner-stat-label">Pending</span>
+                    <span class="aff2-banner-stat-val">{$pendingcommissions}</span>
+                </div>
+                <div class="aff2-banner-stat">
+                    <span class="aff2-banner-stat-label">Withdrawn</span>
+                    <span class="aff2-banner-stat-val">{$withdrawn}</span>
+                </div>
+            </div>
+
+            <div class="aff2-banner-actions">
                 {if !$withdrawrequestsent && $withdrawlevel}
-                    <form method="POST" action="{$smarty.server.PHP_SELF}" class="m-0 p-0">
+                    <form method="POST" action="{$smarty.server.PHP_SELF}" class="m-0">
                         <input type="hidden" name="action" value="withdrawrequest">
-                        <button type="submit" class="btn btn-light fw-bold px-4 py-2" style="border-radius: 8px; font-size: 0.9rem;">
-                            Request Payout
+                        <button type="submit" class="aff2-btn-payout">
+                            <i class="fas fa-paper-plane"></i> Request Payout
                         </button>
                     </form>
                 {else}
-                    <button type="button" class="btn btn-light fw-bold px-4 py-2 disabled" data-bs-toggle="tooltip" data-bs-placement="top" title="Min. withdrawal ৳500 BDT" style="border-radius: 8px; font-size: 0.9rem; opacity: 0.65;">
-                        Request Payout
+                    <button type="button" class="aff2-btn-payout disabled" data-bs-toggle="tooltip" title="Minimum ৳500 BDT required to withdraw">
+                        <i class="fas fa-lock"></i> Request Payout
                     </button>
+                    <span class="aff2-payout-hint">Min. ৳500 BDT to withdraw</span>
                 {/if}
             </div>
         </div>
 
-        <!-- 2. Primary Action Zone: Referral Link Generator -->
-        <div class="aff-card">
-            <div class="aff-card-title"><i class="fas fa-link text-danger me-2"></i>Your Default Referral Link</div>
-            <div class="aff-card-sub">Share this link to track referrals automatically</div>
-            <div class="aff-link-box mb-4">
-                <input type="text" class="aff-link-box-input" id="referralLinkInput" readonly value="{$referrallink}">
-                <button class="aff-btn" type="button" onclick="copyReferralLink()" id="copyBtn">
-                    <i class="fas fa-copy"></i> Copy Link
-                </button>
-            </div>
-
-            <div style="border-top: 1px solid var(--border-subtle, #eeeeee); padding-top: 1.5rem;">
-                <div class="aff-card-title"><i class="fas fa-route text-danger me-2"></i>Custom Deep-Link Generator</div>
-                <p class="text-muted small mb-3">Direct your audience to a specific product for higher conversion.</p>
-                
-                <div class="row g-2 mb-3">
-                    <div class="col-sm-6">
-                        <label class="form-label small fw-semibold text-muted">Select Product Group</label>
-                        <select class="form-select" id="genProductGroup">
-                            <option value="">-- All Product Groups --</option>
-                            {foreach $affiliateProductGroups as $pg}
-                                <option value="{$pg.id}">{$pg.name}</option>
-                            {/foreach}
-                        </select>
-                    </div>
-                    <div class="col-sm-6">
-                        <label class="form-label small fw-semibold text-muted">Select Product</label>
-                        <select class="form-select" id="genProduct" disabled>
-                            <option value="">-- Select Group First --</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="aff-link-box" style="border-style: dashed; background-color: transparent;">
-                    <input type="text" class="aff-link-box-input" id="customReferralLinkOutput" readonly value="{$referrallink}">
-                    <button class="aff-btn" type="button" onclick="generateAndCopy()" id="copyCustomBtn">
-                        <i class="fas fa-bolt"></i> Generate & Copy
-                    </button>
+        <!-- ── Stat Cards ── -->
+        <div class="aff2-stats-grid">
+            <div class="aff2-stat">
+                <div class="aff2-stat-icon blue"><i class="fas fa-mouse-pointer"></i></div>
+                <div>
+                    <div class="aff2-stat-label">Total Clicks</div>
+                    <div class="aff2-stat-val">{$visitors}</div>
                 </div>
             </div>
-        </div>
-
-        <!-- 3. Performance Dashboard (Grid) -->
-        <div class="mb-4">
-            <div class="small text-muted fw-bold mb-2 uppercase" style="letter-spacing: 0.5px;">Traffic & Conversion Metrics</div>
-            <div class="aff-grid-3">
-                <div class="aff-kpi-card">
-                    <span class="aff-kpi-label">Total Clicks</span>
-                    <span class="aff-kpi-val">{$visitors}</span>
+            <div class="aff2-stat">
+                <div class="aff2-stat-icon green"><i class="fas fa-user-plus"></i></div>
+                <div>
+                    <div class="aff2-stat-label">Signups</div>
+                    <div class="aff2-stat-val">{$signups}</div>
                 </div>
-                <div class="aff-kpi-card">
-                    <span class="aff-kpi-label">Signups</span>
-                    <span class="aff-kpi-val">{$signups}</span>
+            </div>
+            <div class="aff2-stat">
+                <div class="aff2-stat-icon purple"><i class="fas fa-percent"></i></div>
+                <div>
+                    <div class="aff2-stat-label">Conversion</div>
+                    <div class="aff2-stat-val">{$conversionrate}%</div>
                 </div>
-                <div class="aff-kpi-card">
-                    <span class="aff-kpi-label">Conversion Rate</span>
-                    <span class="aff-kpi-val">{$conversionrate}%</span>
+            </div>
+            <div class="aff2-stat">
+                <div class="aff2-stat-icon amber"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="aff2-stat-label">Maturing</div>
+                    <div class="aff2-stat-val">{$pendingcommissions}</div>
+                </div>
+            </div>
+            <div class="aff2-stat">
+                <div class="aff2-stat-icon red"><i class="fas fa-wallet"></i></div>
+                <div>
+                    <div class="aff2-stat-label">Available</div>
+                    <div class="aff2-stat-val red">{$balance}</div>
+                </div>
+            </div>
+            <div class="aff2-stat">
+                <div class="aff2-stat-icon gray"><i class="fas fa-check-double"></i></div>
+                <div>
+                    <div class="aff2-stat-label">Total Paid Out</div>
+                    <div class="aff2-stat-val">{$withdrawn}</div>
                 </div>
             </div>
         </div>
 
-        <div class="mb-4">
-            <div class="small text-muted fw-bold mb-2 uppercase" style="letter-spacing: 0.5px;">Financial Summary</div>
-            <div class="aff-grid-3">
-                <div class="aff-kpi-card">
-                    <span class="aff-kpi-label">Pending Maturation</span>
-                    <span class="aff-kpi-val">{$pendingcommissions}</span>
-                </div>
-                <div class="aff-kpi-card">
-                    <span class="aff-kpi-label">Available for Payout</span>
-                    <span class="aff-kpi-val" style="color: var(--brand-primary, #BA1114);">{$balance}</span>
-                </div>
-                <div class="aff-kpi-card">
-                    <span class="aff-kpi-label">Total Withdrawn</span>
-                    <span class="aff-kpi-val">{$withdrawn}</span>
-                </div>
-            </div>
-        </div>
+        <!-- ── Main 2-Column Grid ── -->
+        <div class="aff2-main-grid">
 
-        <!-- 4. How It Works & Commission Breakdown (2-Column) -->
-        <div class="aff-split-2 mt-4">
-            <div class="aff-card m-0">
-                <div class="aff-card-title mb-4">How It Works</div>
-                <div class="aff-step-list">
-                    <div class="aff-step-item">
-                        <span class="aff-step-num">1</span>
-                        <div class="aff-step-content">
-                            <h4>Share Link</h4>
-                            <p>Distribute via blog, YouTube, social channels, or direct message.</p>
+            <!-- Left: Links -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+                <!-- Default Referral Link -->
+                <div class="aff2-card">
+                    <div class="aff2-card-head">
+                        <div class="aff2-card-head-icon"><i class="fas fa-link"></i></div>
+                        <div>
+                            <p class="aff2-card-head-title">Your Referral Link</p>
+                            <p class="aff2-card-head-sub">Share this link to track signups automatically</p>
                         </div>
                     </div>
-                    <div class="aff-step-item">
-                        <span class="aff-step-num">2</span>
-                        <div class="aff-step-content">
-                            <h4>Client Orders</h4>
-                            <p>Automatic tracking captures commissions as soon as your referrals sign up.</p>
+                    <div class="aff2-card-body">
+                        <div class="aff2-link-wrap">
+                            <input type="text" class="aff2-link-input" id="referralLinkInput" readonly value="{$referrallink}">
+                            <button class="aff2-copy-btn" type="button" onclick="copyAffLink('referralLinkInput','copyBtn')" id="copyBtn">
+                                <i class="fas fa-copy"></i> Copy Link
+                            </button>
                         </div>
-                    </div>
-                    <div class="aff-step-item">
-                        <span class="aff-step-num">3</span>
-                        <div class="aff-step-content">
-                            <h4>Get Paid</h4>
-                            <p>Withdraw your funds directly to bKash or Bank once you hit the ৳500 BDT limit.</p>
+
+                        <!-- Social share quick-links -->
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={$referrallink|urlencode}" target="_blank" rel="noopener"
+                               class="btn btn-sm" style="background:#1877F2;color:#fff;border-radius:8px;font-size:0.8rem;font-weight:600;padding:0.4rem 0.9rem;">
+                                <i class="fab fa-facebook-f me-1"></i> Facebook
+                            </a>
+                            <a href="https://wa.me/?text={$referrallink|urlencode}" target="_blank" rel="noopener"
+                               class="btn btn-sm" style="background:#25D366;color:#fff;border-radius:8px;font-size:0.8rem;font-weight:600;padding:0.4rem 0.9rem;">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </a>
+                            <a href="https://t.me/share/url?url={$referrallink|urlencode}" target="_blank" rel="noopener"
+                               class="btn btn-sm" style="background:#229ED9;color:#fff;border-radius:8px;font-size:0.8rem;font-weight:600;padding:0.4rem 0.9rem;">
+                                <i class="fab fa-telegram-plane me-1"></i> Telegram
+                            </a>
                         </div>
                     </div>
                 </div>
+
+                <!-- Deep Link Generator -->
+                <div class="aff2-card">
+                    <div class="aff2-card-head">
+                        <div class="aff2-card-head-icon"><i class="fas fa-bolt"></i></div>
+                        <div>
+                            <p class="aff2-card-head-title">Deep-Link Generator</p>
+                            <p class="aff2-card-head-sub">Direct your audience to a specific product for higher conversion</p>
+                        </div>
+                    </div>
+                    <div class="aff2-card-body">
+                        <div class="aff2-gen-row">
+                            <div>
+                                <label class="aff2-select-label">Product Group</label>
+                                <select class="form-select form-select-sm" id="genProductGroup" style="border-radius:8px;border:1.5px solid #e8e8e8;background:#f8f8f8;">
+                                    <option value="">— All Groups —</option>
+                                    {foreach $affiliateProductGroups as $pg}
+                                        <option value="{$pg.id}">{$pg.name}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="aff2-select-label">Product</label>
+                                <select class="form-select form-select-sm" id="genProduct" disabled style="border-radius:8px;border:1.5px solid #e8e8e8;background:#f8f8f8;">
+                                    <option value="">— Select Group First —</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="aff2-link-wrap" style="border-style: dashed; background: transparent;">
+                            <input type="text" class="aff2-link-input" id="customReferralLinkOutput" readonly value="{$referrallink}">
+                            <button class="aff2-copy-btn" type="button" onclick="generateAndCopy()" id="copyCustomBtn">
+                                <i class="fas fa-bolt"></i> Generate & Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="aff-card m-0">
-                <div class="aff-card-title mb-4">Commission Structure</div>
-                <table class="aff-table-rates">
-                    <thead>
-                        <tr>
-                            <th align="left">Product Group</th>
-                            <th align="center" style="text-align: center;">Rate</th>
-                            <th align="left">Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Shared Hosting</td>
-                            <td align="center" style="text-align: center; font-weight: 700; color: var(--brand-primary, #BA1114);">20%</td>
-                            <td>Recurring</td>
-                        </tr>
-                        <tr>
-                            <td>Reseller Hosting</td>
-                            <td align="center" style="text-align: center; font-weight: 700; color: var(--brand-primary, #BA1114);">20%</td>
-                            <td>Recurring</td>
-                        </tr>
-                        <tr>
-                            <td>n8n & Managed Hosting</td>
-                            <td align="center" style="text-align: center; font-weight: 700; color: var(--brand-primary, #BA1114);">15%</td>
-                            <td>Recurring</td>
-                        </tr>
-                        <tr>
-                            <td>VPS Hosting</td>
-                            <td align="center" style="text-align: center; font-weight: 700; color: var(--brand-primary, #BA1114);">10%</td>
-                            <td>Recurring</td>
-                        </tr>
-                        <tr>
-                            <td>Domain Registration</td>
-                            <td align="center" style="text-align: center; font-weight: 700;">0%</td>
-                            <td>Flat</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Right: How It Works + Rates -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+                <!-- How It Works -->
+                <div class="aff2-card">
+                    <div class="aff2-card-head">
+                        <div class="aff2-card-head-icon"><i class="fas fa-route"></i></div>
+                        <div>
+                            <p class="aff2-card-head-title">How It Works</p>
+                            <p class="aff2-card-head-sub">Three steps to earning commissions</p>
+                        </div>
+                    </div>
+                    <div class="aff2-card-body">
+                        <div class="aff2-steps">
+                            <div class="aff2-step">
+                                <div class="aff2-step-icon-wrap"><i class="fas fa-share-alt"></i></div>
+                                <div class="aff2-step-body">
+                                    <h4>Share Your Link</h4>
+                                    <p>Post on YouTube, Facebook, WhatsApp, or your blog. Any platform works.</p>
+                                </div>
+                            </div>
+                            <div class="aff2-step">
+                                <div class="aff2-step-icon-wrap"><i class="fas fa-shopping-cart"></i></div>
+                                <div class="aff2-step-body">
+                                    <h4>Referral Orders</h4>
+                                    <p>Tracking is automatic — commissions are captured the moment they sign up and pay.</p>
+                                </div>
+                            </div>
+                            <div class="aff2-step">
+                                <div class="aff2-step-icon-wrap"><i class="fas fa-money-bill-wave"></i></div>
+                                <div class="aff2-step-body">
+                                    <h4>Get Paid</h4>
+                                    <p>Withdraw to bKash or your bank once your available balance hits ৳500 BDT.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commission Rates -->
+                <div class="aff2-card">
+                    <div class="aff2-card-head">
+                        <div class="aff2-card-head-icon"><i class="fas fa-tags"></i></div>
+                        <div>
+                            <p class="aff2-card-head-title">Commission Rates</p>
+                            <p class="aff2-card-head-sub">All recurring — you earn every renewal cycle</p>
+                        </div>
+                    </div>
+                    <div class="aff2-card-body">
+                        <div class="aff2-rate-list">
+                            <div class="aff2-rate-item">
+                                <span class="aff2-rate-name"><i class="fas fa-server me-2 text-muted" style="font-size:0.8rem;"></i>Shared Hosting</span>
+                                <div class="aff2-rate-right">
+                                    <span class="aff2-rate-badge high">20%</span>
+                                    <span class="aff2-rate-type">Recurring</span>
+                                </div>
+                            </div>
+                            <div class="aff2-rate-item">
+                                <span class="aff2-rate-name"><i class="fas fa-database me-2 text-muted" style="font-size:0.8rem;"></i>Reseller Hosting</span>
+                                <div class="aff2-rate-right">
+                                    <span class="aff2-rate-badge high">20%</span>
+                                    <span class="aff2-rate-type">Recurring</span>
+                                </div>
+                            </div>
+                            <div class="aff2-rate-item">
+                                <span class="aff2-rate-name"><i class="fas fa-robot me-2 text-muted" style="font-size:0.8rem;"></i>n8n & Managed</span>
+                                <div class="aff2-rate-right">
+                                    <span class="aff2-rate-badge mid">15%</span>
+                                    <span class="aff2-rate-type">Recurring</span>
+                                </div>
+                            </div>
+                            <div class="aff2-rate-item">
+                                <span class="aff2-rate-name"><i class="fas fa-cloud me-2 text-muted" style="font-size:0.8rem;"></i>VPS Hosting</span>
+                                <div class="aff2-rate-right">
+                                    <span class="aff2-rate-badge low">10%</span>
+                                    <span class="aff2-rate-type">Recurring</span>
+                                </div>
+                            </div>
+                            <div class="aff2-rate-item">
+                                <span class="aff2-rate-name"><i class="fas fa-globe me-2 text-muted" style="font-size:0.8rem;"></i>Domain Registration</span>
+                                <div class="aff2-rate-right">
+                                    <span class="aff2-rate-badge zero">0%</span>
+                                    <span class="aff2-rate-type">Flat</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- 5. Activity Log & Referral History (Table) -->
-        <div class="aff-table-container">
-            <div class="aff-table-header">{lang key='affiliatesreferals'}</div>
-            
-            <div class="table-responsive">
-                <table id="tableAffiliatesList" class="table table-hover align-middle mb-0 w-100" style="display:none; font-size: 0.9rem;">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Signup Date</th>
-                            <th>Product/Service</th>
-                            <th>Order Value</th>
-                            <th>Commission</th>
-                            <th class="pe-4">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {foreach $referrals as $referral}
-                        <tr>
-                            <td class="ps-4 py-3">
-                                <span class="d-none">{$referral.datets}</span>
-                                <span>{$referral.date}</span>
-                            </td>
-                            <td class="py-3 fw-bold">{$referral.service}</td>
-                            <td data-order="{$referral.amountnum}" class="py-3">{$referral.amountdesc}</td>
-                            <td data-order="{$referral.commissionnum}" class="py-3 fw-bold" style="color: var(--brand-primary, #BA1114);">{$referral.commission}</td>
-                            <td class="pe-4 py-3">
-                                {if $referral.rawstatus|strtolower == 'pending'}
-                                    <span class="badge bg-warning text-dark">{$referral.status}</span>
-                                {elseif $referral.rawstatus|strtolower == 'active'}
-                                    <span class="badge bg-success">{$referral.status}</span>
-                                {elseif $referral.rawstatus|strtolower == 'cancelled' || $referral.rawstatus|strtolower == 'fraud'}
-                                    <span class="badge bg-danger">{$referral.status}</span>
-                                {else}
-                                    <span class="badge bg-secondary">{$referral.status}</span>
-                                {/if}
-                            </td>
-                        </tr>
-                    {/foreach}
-                    </tbody>
-                </table>
+        <!-- ── Referral History Table ── -->
+        <div class="aff2-table-card">
+            <div class="aff2-table-head">
+                <span class="aff2-table-title">
+                    <span style="width:28px;height:28px;background:#FFF0F0;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:#CC0000;font-size:0.75rem;"><i class="fas fa-users"></i></span>
+                    {lang key='affiliatesreferals'}
+                </span>
             </div>
 
-            {if !$referrals}
-                <div class="aff-empty-state">
-                    <div class="aff-empty-icon"><i class="fas fa-users"></i></div>
-                    <div class="aff-empty-title">No referrals recorded yet</div>
-                    <p class="aff-empty-sub text-muted">Grab your referral link above and share it on social media to generate your first commission!</p>
+            {if $referrals}
+                <div class="aff2-dt-controls" id="dtControlsTop"></div>
+                <div class="table-responsive">
+                    <table id="tableAffiliatesList" class="table table-hover align-middle mb-0 w-100" style="display:none; font-size:0.875rem;">
+                        <thead>
+                            <tr style="background:#fafafa;border-bottom:1.5px solid #f0f0f0;">
+                                <th class="ps-4 py-3 fw-700" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:#999;font-weight:700;">Date</th>
+                                <th class="py-3 fw-700" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:#999;font-weight:700;">Service</th>
+                                <th class="py-3 fw-700" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:#999;font-weight:700;">Order Value</th>
+                                <th class="py-3 fw-700" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:#999;font-weight:700;">Commission</th>
+                                <th class="pe-4 py-3 fw-700" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:#999;font-weight:700;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {foreach $referrals as $referral}
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <span class="d-none">{$referral.datets}</span>
+                                    <span style="color:#555;">{$referral.date}</span>
+                                </td>
+                                <td class="py-3 fw-semibold" style="color:#111;">{$referral.service}</td>
+                                <td data-order="{$referral.amountnum}" class="py-3" style="color:#555;">{$referral.amountdesc}</td>
+                                <td data-order="{$referral.commissionnum}" class="py-3" style="color:#CC0000;font-weight:700;">{$referral.commission}</td>
+                                <td class="pe-4 py-3">
+                                    {if $referral.rawstatus|strtolower == 'pending'}
+                                        <span class="badge" style="background:#FFF7ED;color:#c2410c;font-size:0.75rem;padding:0.3rem 0.65rem;border-radius:6px;font-weight:700;">{$referral.status}</span>
+                                    {elseif $referral.rawstatus|strtolower == 'active'}
+                                        <span class="badge" style="background:#F0FFF4;color:#1a7a3c;font-size:0.75rem;padding:0.3rem 0.65rem;border-radius:6px;font-weight:700;">{$referral.status}</span>
+                                    {elseif $referral.rawstatus|strtolower == 'cancelled' || $referral.rawstatus|strtolower == 'fraud'}
+                                        <span class="badge" style="background:#FFF0F0;color:#CC0000;font-size:0.75rem;padding:0.3rem 0.65rem;border-radius:6px;font-weight:700;">{$referral.status}</span>
+                                    {else}
+                                        <span class="badge" style="background:#F5F5F5;color:#777;font-size:0.75rem;padding:0.3rem 0.65rem;border-radius:6px;font-weight:700;">{$referral.status}</span>
+                                    {/if}
+                                </td>
+                            </tr>
+                        {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="aff2-dt-foot" id="dtControlsBottom">
+                    <div id="dtInfoEl"></div>
+                    <div id="dtPagEl"></div>
+                </div>
+            {else}
+                <div class="aff2-empty">
+                    <div class="aff2-empty-icon"><i class="fas fa-users"></i></div>
+                    <h3>No referrals yet</h3>
+                    <p>Copy your referral link and share it — your first commission will appear here as soon as someone signs up.</p>
                 </div>
             {/if}
 
-            <div class="text-center py-4" id="tableLoading">
-                <div class="spinner-border text-danger spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <div class="text-center py-4" id="tableLoading" {if !$referrals}style="display:none;"{/if}>
+                <div class="spinner-border spinner-border-sm text-danger" role="status">
+                    <span class="visually-hidden">Loading…</span>
                 </div>
             </div>
         </div>
 
-    </div>
+    </div><!-- /.aff2 -->
 
-    <!-- Script triggers -->
     <script>
     {literal}
     var affiliateProductGroupsData = {/literal}{$affiliateProductGroups|json_encode}{literal};
     var baseReferralLink = "{/literal}{$referrallink}{literal}";
 
     document.addEventListener("DOMContentLoaded", function() {
-        var groupSelect = document.getElementById('genProductGroup');
-        var productSelect = document.getElementById('genProduct');
-        var linkOutput = document.getElementById('customReferralLinkOutput');
 
-        // Initialize DataTable
+        // ── DataTable ──
         try {
-            var table = jQuery('#tableAffiliatesList').show().DataTable({
-                dom: '<"aff-dt-top"<"aff-dt-len"l><"aff-dt-search"f>>' +
-                     '<"aff-dt-body"rt>' +
-                     '<"aff-dt-foot"<"aff-dt-info"i><"aff-dt-pag"p>>',
+            jQuery('#tableAffiliatesList').show().DataTable({
+                dom: '<"aff2-dt-controls"<"ms-0"l><"ms-auto"f>>' +
+                     'rt' +
+                     '<"aff2-dt-foot"<"aff2-dt-info"i><"aff2-dt-pag"p>>',
                 language: {
                     search: "_INPUT_",
-                    searchPlaceholder: "Search referrals...",
+                    searchPlaceholder: "Search referrals…",
                     lengthMenu: "Show _MENU_",
-                    emptyTable: "No referrals recorded yet. Grab your referral link above!",
-                    info: "Showing _START_–_END_ of _TOTAL_ referrals",
-                    zeroRecords: "No referrals match your search"
+                    info: "_START_–_END_ of _TOTAL_ referrals",
+                    emptyTable: "No referrals yet.",
+                    zeroRecords: "No matches found."
                 }
             });
             jQuery('#tableLoading').hide();
@@ -593,131 +868,76 @@
             jQuery('#tableAffiliatesList').show();
         }
 
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        // ── Tooltips ──
+        [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).forEach(function(el) {
+            new bootstrap.Tooltip(el);
         });
 
-        // Group selector handles
-        if (groupSelect && productSelect && linkOutput) {
-            groupSelect.addEventListener('change', function() {
+        // ── Deep-link generator ──
+        var groupSel = document.getElementById('genProductGroup');
+        var prodSel  = document.getElementById('genProduct');
+        var linkOut  = document.getElementById('customReferralLinkOutput');
+
+        if (groupSel && prodSel && linkOut) {
+            groupSel.addEventListener('change', function() {
                 var gid = this.value;
-                productSelect.innerHTML = '<option value="">-- All Products in Group --</option>';
-                
-                if (!gid) {
-                    productSelect.disabled = true;
-                    updateCustomLink();
-                    return;
-                }
-                
-                var selectedGroup = affiliateProductGroupsData.find(function(g) {
-                    return g.id == gid;
-                });
-                
-                if (selectedGroup && selectedGroup.products && selectedGroup.products.length > 0) {
-                    selectedGroup.products.forEach(function(p) {
-                        var opt = document.createElement('option');
-                        opt.value = p.id;
-                        opt.textContent = p.name;
-                        productSelect.appendChild(opt);
+                prodSel.innerHTML = '<option value="">— All Products —</option>';
+                if (!gid) { prodSel.disabled = true; updateDeepLink(); return; }
+                var g = affiliateProductGroupsData.find(function(x){ return x.id == gid; });
+                if (g && g.products && g.products.length) {
+                    g.products.forEach(function(p) {
+                        var o = document.createElement('option');
+                        o.value = p.id; o.textContent = p.name;
+                        prodSel.appendChild(o);
                     });
-                    productSelect.disabled = false;
-                } else {
-                    productSelect.disabled = true;
-                }
-                updateCustomLink();
+                    prodSel.disabled = false;
+                } else { prodSel.disabled = true; }
+                updateDeepLink();
             });
-            
-            productSelect.addEventListener('change', updateCustomLink);
-            
-            function updateCustomLink() {
-                var gid = groupSelect.value;
-                var pid = productSelect.value;
-                var targetUrl = baseReferralLink;
-                
-                if (gid || pid) {
-                    var path = '';
-                    if (pid) {
-                        path = 'cart.php?a=add&pid=' + pid;
-                    } else if (gid) {
-                        path = 'cart.php?gid=' + gid;
-                    }
-                    var separator = baseReferralLink.indexOf('?') !== -1 ? '&' : '?';
-                    targetUrl += separator + 'url=' + encodeURIComponent(path);
-                }
-                linkOutput.value = targetUrl;
+            prodSel.addEventListener('change', updateDeepLink);
+        }
+
+        function updateDeepLink() {
+            if (!groupSel || !prodSel || !linkOut) return;
+            var gid = groupSel.value, pid = prodSel.value;
+            var url = baseReferralLink;
+            if (gid || pid) {
+                var path = pid ? 'cart.php?a=add&pid=' + pid : 'cart.php?gid=' + gid;
+                url += (baseReferralLink.indexOf('?') !== -1 ? '&' : '?') + 'url=' + encodeURIComponent(path);
             }
+            linkOut.value = url;
         }
     });
 
-    function copyReferralLink() {
-        var input = document.getElementById('referralLinkInput');
-        if (input) {
-            input.select();
-            input.setSelectionRange(0, 99999);
-            try {
-                document.execCommand('copy');
-                var btn = document.getElementById('copyBtn');
-                if (btn) {
-                    var originalText = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                    btn.style.background = '#2e7d32';
-                    btn.style.borderColor = '#2e7d32';
-                    setTimeout(function() {
-                        btn.innerHTML = originalText;
-                        btn.style.background = '';
-                        btn.style.borderColor = '';
-                    }, 2000);
-                }
-            } catch (e) {}
-        }
+    function copyAffLink(inputId, btnId) {
+        var inp = document.getElementById(inputId);
+        var btn = document.getElementById(btnId);
+        if (!inp) return;
+        inp.select(); inp.setSelectionRange(0, 99999);
+        try {
+            document.execCommand('copy');
+            if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+            }
+        } catch(e){}
     }
 
     function generateAndCopy() {
-        var groupSelect = document.getElementById('genProductGroup');
-        var productSelect = document.getElementById('genProduct');
-        var linkOutput = document.getElementById('customReferralLinkOutput');
-        
-        if (groupSelect && productSelect && linkOutput) {
-            var gid = groupSelect.value;
-            var pid = productSelect.value;
-            var targetUrl = baseReferralLink;
-            
-            if (gid || pid) {
-                var path = '';
-                if (pid) {
-                    path = 'cart.php?a=add&pid=' + pid;
-                } else if (gid) {
-                    path = 'cart.php?gid=' + gid;
-                }
-                var separator = baseReferralLink.indexOf('?') !== -1 ? '&' : '?';
-                targetUrl += separator + 'url=' + encodeURIComponent(path);
-            }
-            
-            linkOutput.value = targetUrl;
-            
-            // Perform Copy
-            linkOutput.select();
-            linkOutput.setSelectionRange(0, 99999);
-            try {
-                document.execCommand('copy');
-                var btn = document.getElementById('copyCustomBtn');
-                if (btn) {
-                    var originalText = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                    btn.style.background = '#2e7d32';
-                    btn.style.borderColor = '#2e7d32';
-                    btn.style.color = '#ffffff';
-                    setTimeout(function() {
-                        btn.innerHTML = originalText;
-                        btn.style.background = '';
-                        btn.style.borderColor = '';
-                        btn.style.color = '';
-                    }, 2000);
-                }
-            } catch (e) {}
+        var groupSel = document.getElementById('genProductGroup');
+        var prodSel  = document.getElementById('genProduct');
+        var linkOut  = document.getElementById('customReferralLinkOutput');
+        if (!groupSel || !prodSel || !linkOut) return;
+        var gid = groupSel.value, pid = prodSel.value;
+        var url = baseReferralLink;
+        if (gid || pid) {
+            var path = pid ? 'cart.php?a=add&pid=' + pid : 'cart.php?gid=' + gid;
+            url += (baseReferralLink.indexOf('?') !== -1 ? '&' : '?') + 'url=' + encodeURIComponent(path);
         }
+        linkOut.value = url;
+        copyAffLink('customReferralLinkOutput', 'copyCustomBtn');
     }
     {/literal}
     </script>
