@@ -143,22 +143,23 @@
 
     <div class="st1-dept-grid">
         {foreach from=$departments key=num item=department}
-            {* Assign icon based on dept name *}
+            {* Assign icon by exact department name match *}
+            {assign var="deptNameLower" value=$department.name|lower}
             {assign var="deptIcon" value="fa-envelope"}
-            {if $department.name|lower|strpos:'billing' !== false || $department.name|lower|strpos:'sales' !== false}
-                {assign var="deptIcon" value="fa-receipt"}
-            {elseif $department.name|lower|strpos:'hosting' !== false && $department.name|lower|strpos:'managed' === false}
-                {assign var="deptIcon" value="fa-server"}
-            {elseif $department.name|lower|strpos:'managed' !== false || $department.name|lower|strpos:'n8n' !== false || $department.name|lower|strpos:'automation' !== false}
-                {assign var="deptIcon" value="fa-robot"}
-            {elseif $department.name|lower|strpos:'domain' !== false}
-                {assign var="deptIcon" value="fa-globe"}
-            {elseif $department.name|lower|strpos:'vps' !== false || $department.name|lower|strpos:'cloud' !== false}
-                {assign var="deptIcon" value="fa-cloud"}
-            {elseif $department.name|lower|strpos:'abuse' !== false}
-                {assign var="deptIcon" value="fa-shield-alt"}
-            {elseif $department.name|lower|strpos:'general' !== false || $department.name|lower|strpos='enqui' !== false}
+            {if $deptNameLower == 'general enquiries' || $deptNameLower == 'general'}
                 {assign var="deptIcon" value="fa-comments"}
+            {elseif $deptNameLower == 'billing'}
+                {assign var="deptIcon" value="fa-receipt"}
+            {elseif $deptNameLower == 'hosting'}
+                {assign var="deptIcon" value="fa-server"}
+            {elseif $deptNameLower == 'managed hosting'}
+                {assign var="deptIcon" value="fa-robot"}
+            {elseif $deptNameLower == 'domain'}
+                {assign var="deptIcon" value="fa-globe"}
+            {elseif $deptNameLower == 'vps' || $deptNameLower == 'cloud vps'}
+                {assign var="deptIcon" value="fa-cloud"}
+            {elseif $deptNameLower == 'abuse'}
+                {assign var="deptIcon" value="fa-shield-alt"}
             {/if}
 
             <a href="{$smarty.server.PHP_SELF}?step=2&amp;deptid={$department.id}" class="st1-dept-card">
