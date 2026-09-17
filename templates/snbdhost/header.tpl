@@ -87,60 +87,125 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </a>
             </div>
             <nav class="snbd-nav-menu">
-                <div class="nav-section-label">Main</div>
-                <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}" aria-label="Dashboard">
-                    <i class="ti ti-layout-dashboard"></i>
-                    <span class="snbd-nav-text">Dashboard</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}" aria-label="Services">
-                    <i class="ti ti-server"></i>
-                    <span class="snbd-nav-text">Services</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}" aria-label="Domains">
-                    <i class="ti ti-world"></i>
-                    <span class="snbd-nav-text">Domains</span>
-                </a>
-                <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}" aria-label="Affiliates">
-                    <i class="ti ti-users"></i>
-                    <span class="snbd-nav-text">Affiliates</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}" aria-label="Billing">
-                    <i class="ti ti-credit-card"></i>
-                    <span class="snbd-nav-text">Billing</span>
-                </a>
- 
-                <div class="nav-section-label">Support</div>
-                <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}" aria-label="Tickets">
-                    <i class="ti ti-lifebuoy"></i>
-                    <span class="snbd-nav-text">Tickets</span>
-                </a>
-                <a href="https://snbdhost.com/kb" target="_blank" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}" aria-label="Knowledge Base">
-                    <i class="ti ti-book"></i>
-                    <span class="snbd-nav-text">Knowledge Base</span>
-                </a>
-                <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}" aria-label="Network Status">
-                    <i class="ti ti-activity"></i>
-                    <span class="snbd-nav-text">Network Status</span>
-                </a>
- 
-                <div class="nav-section-label">Account</div>
-                <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}" aria-label="My Details">
-                    <i class="ti ti-settings"></i>
-                    <span class="snbd-nav-text">My Details</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=creditcard" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'creditcard'}active{/if}" aria-label="Payment Methods">
-                    <i class="ti ti-credit-card"></i>
-                    <span class="snbd-nav-text">Payment Methods</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}" aria-label="Emails">
-                    <i class="ti ti-mail"></i>
-                    <span class="snbd-nav-text">Emails</span>
-                </a>
                 {if $loggedin}
-                <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item" aria-label="Logout">
-                    <i class="ti ti-logout"></i>
-                    <span class="snbd-nav-text">Logout</span>
-                </a>
+                    <div class="nav-section-label">Main</div>
+                    <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}" aria-label="Dashboard">
+                        <i class="ti ti-layout-dashboard"></i>
+                        <span class="snbd-nav-text">Dashboard</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails' || $action eq 'services')}active{/if}" aria-label="Services">
+                        <i class="ti ti-server"></i>
+                        <span class="snbd-nav-text">Services</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}" aria-label="Domains">
+                        <i class="ti ti-world"></i>
+                        <span class="snbd-nav-text">Domains</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register" class="snbd-nav-item ps-4 {if $filename eq 'cart' && $domain eq 'register'}active{/if}" style="font-size: 0.8rem;" aria-label="Register Domain">
+                        <i class="ti ti-plus" style="font-size: 0.85rem;"></i>
+                        <span class="snbd-nav-text">Register Domain</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer" class="snbd-nav-item ps-4 {if $filename eq 'cart' && $domain eq 'transfer'}active{/if}" style="font-size: 0.8rem;" aria-label="Transfer Domain">
+                        <i class="ti ti-arrows-left-right" style="font-size: 0.85rem;"></i>
+                        <span class="snbd-nav-text">Transfer Domain</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php?a=renew" class="snbd-nav-item ps-4 {if $filename eq 'cart' && $action eq 'renew'}active{/if}" style="font-size: 0.8rem;" aria-label="Renew Domains">
+                        <i class="ti ti-refresh" style="font-size: 0.85rem;"></i>
+                        <span class="snbd-nav-text">Renew Domains</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing" class="snbd-nav-item ps-4" style="font-size: 0.8rem;" aria-label="Domain Pricing">
+                        <i class="ti ti-tag" style="font-size: 0.85rem;"></i>
+                        <span class="snbd-nav-text">Domain Pricing</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}" aria-label="Affiliates">
+                        <i class="ti ti-users"></i>
+                        <span class="snbd-nav-text">Affiliates</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes')}active{/if}" aria-label="Billing">
+                        <i class="ti ti-credit-card"></i>
+                        <span class="snbd-nav-text">Billing</span>
+                    </a>
+     
+                    <div class="nav-section-label">Support</div>
+                    <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}" aria-label="Tickets">
+                        <i class="ti ti-lifebuoy"></i>
+                        <span class="snbd-nav-text">Tickets</span>
+                    </a>
+                    <a href="https://snbdhost.com/kb" target="_blank" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}" aria-label="Knowledge Base">
+                        <i class="ti ti-book"></i>
+                        <span class="snbd-nav-text">Knowledge Base</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}" aria-label="Network Status">
+                        <i class="ti ti-activity"></i>
+                        <span class="snbd-nav-text">Network Status</span>
+                    </a>
+     
+                    <div class="nav-section-label">Account</div>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}" aria-label="My Details">
+                        <i class="ti ti-settings"></i>
+                        <span class="snbd-nav-text">My Details</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=creditcard" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'creditcard'}active{/if}" aria-label="Payment Methods">
+                        <i class="ti ti-credit-card"></i>
+                        <span class="snbd-nav-text">Payment Methods</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}" aria-label="Emails">
+                        <i class="ti ti-mail"></i>
+                        <span class="snbd-nav-text">Emails</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item text-danger" aria-label="Logout">
+                        <i class="ti ti-logout"></i>
+                        <span class="snbd-nav-text">Logout</span>
+                    </a>
+                {else}
+                    <div class="nav-section-label">Explore</div>
+                    <a href="{$WEB_ROOT}/index.php" class="snbd-nav-item {if $filename eq 'index'}active{/if}" aria-label="Home">
+                        <i class="ti ti-home"></i>
+                        <span class="snbd-nav-text">Home</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php" class="snbd-nav-item {if $filename eq 'cart' && $domain eq ''}active{/if}" aria-label="Store & Services">
+                        <i class="ti ti-shopping-cart"></i>
+                        <span class="snbd-nav-text">Store &amp; Services</span>
+                    </a>
+                    <div class="nav-section-label">Domains</div>
+                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register" class="snbd-nav-item {if $filename eq 'cart' && $domain eq 'register'}active{/if}" aria-label="Register Domain">
+                        <i class="ti ti-world"></i>
+                        <span class="snbd-nav-text">Register Domain</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer" class="snbd-nav-item {if $filename eq 'cart' && $domain eq 'transfer'}active{/if}" aria-label="Transfer Domain">
+                        <i class="ti ti-arrows-left-right"></i>
+                        <span class="snbd-nav-text">Transfer Domain</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing" class="snbd-nav-item" aria-label="Domain Pricing">
+                        <i class="ti ti-tag"></i>
+                        <span class="snbd-nav-text">Domain Pricing</span>
+                    </a>
+                    <div class="nav-section-label">Support</div>
+                    <a href="https://snbdhost.com/kb" target="_blank" class="snbd-nav-item" aria-label="Knowledge Base">
+                        <i class="ti ti-book"></i>
+                        <span class="snbd-nav-text">Knowledge Base</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/submitticket.php" class="snbd-nav-item {if $filename eq 'submitticket'}active{/if}" aria-label="Submit Ticket">
+                        <i class="ti ti-lifebuoy"></i>
+                        <span class="snbd-nav-text">Submit Ticket</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}" aria-label="Network Status">
+                        <i class="ti ti-activity"></i>
+                        <span class="snbd-nav-text">Network Status</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}" aria-label="Affiliates">
+                        <i class="ti ti-users"></i>
+                        <span class="snbd-nav-text">Affiliates</span>
+                    </a>
+                    <div class="nav-section-label">Account</div>
+                    <a href="{$WEB_ROOT}/login.php" class="snbd-nav-item" aria-label="Login">
+                        <i class="ti ti-login"></i>
+                        <span class="snbd-nav-text">Login</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/register.php" class="snbd-nav-item" aria-label="Register">
+                        <i class="ti ti-user-plus"></i>
+                        <span class="snbd-nav-text">Register</span>
+                    </a>
                 {/if}
             </nav>
             {if $loggedin}
@@ -159,26 +224,76 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <header id="snbd-topbar">
                 <div class="topbar-left-wrap">
                     <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="ti ti-menu-2"></i></button>
-                    <a href="{$WEB_ROOT}/clientarea.php" class="topbar-logo-link">
+                    <a href="{if $loggedin}{$WEB_ROOT}/clientarea.php{else}{$WEB_ROOT}/index.php{/if}" class="topbar-logo-link">
                         <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="topbar-logo">
                     </a>
                 </div>
 
                 <nav class="topbar-nav d-none d-xl-flex">
-                    <a href="{$WEB_ROOT}/clientarea.php" class="topbar-nav-link {if $filename eq 'clientarea' && $action eq ''}active{/if}">Dashboard</a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=products" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails' || $action eq 'services')}active{/if}">Services</a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}">Domains</a>
-                    <a href="{$WEB_ROOT}/affiliates.php" class="topbar-nav-link {if $filename eq 'affiliates'}active{/if}">Affiliates</a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions')}active{/if}">Billing</a>
-                    
-                    <div class="topbar-nav-item dropdown">
-                        <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'supporttickets' || $filename eq 'knowledgebase' || $filename eq 'serverstatus'}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">Support <i class="ti ti-chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/supporttickets.php"><i class="ti ti-lifebuoy me-2"></i>Tickets</a></li>
-                            <li><a class="dropdown-item" href="https://snbdhost.com/kb" target="_blank"><i class="ti ti-book me-2"></i>Knowledge Base</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/serverstatus.php"><i class="ti ti-activity me-2"></i>Network Status</a></li>
-                        </ul>
-                    </div>
+                    {if $loggedin}
+                        <a href="{$WEB_ROOT}/clientarea.php" class="topbar-nav-link {if $filename eq 'clientarea' && $action eq ''}active{/if}">Dashboard</a>
+                        <a href="{$WEB_ROOT}/clientarea.php?action=products" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails' || $action eq 'services')}active{/if}">Services</a>
+                        
+                        <!-- Logged-in Domains Dropdown -->
+                        <div class="topbar-nav-item dropdown">
+                            <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Domains <i class="ti ti-chevron-down ms-1" style="font-size: 0.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/clientarea.php?action=domains"><i class="ti ti-world text-danger"></i> My Domains</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register"><i class="ti ti-plus text-secondary"></i> Register a Domain</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer"><i class="ti ti-arrows-left-right text-secondary"></i> Transfer a Domain</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=renew"><i class="ti ti-refresh text-secondary"></i> Renew Domains</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing"><i class="ti ti-tag text-secondary"></i> Domain Pricing</a></li>
+                            </ul>
+                        </div>
+
+                        <a href="{$WEB_ROOT}/affiliates.php" class="topbar-nav-link {if $filename eq 'affiliates'}active{/if}">Affiliates</a>
+                        <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions')}active{/if}">Billing</a>
+                        
+                        <div class="topbar-nav-item dropdown">
+                            <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'supporttickets' || $filename eq 'knowledgebase' || $filename eq 'serverstatus' || $filename eq 'submitticket'}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Support <i class="ti ti-chevron-down ms-1" style="font-size: 0.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/supporttickets.php"><i class="ti ti-lifebuoy text-danger"></i> Tickets</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="https://snbdhost.com/kb" target="_blank"><i class="ti ti-book text-secondary"></i> Knowledge Base</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/serverstatus.php"><i class="ti ti-activity text-secondary"></i> Network Status</a></li>
+                            </ul>
+                        </div>
+                    {else}
+                        <!-- Logged-Out Topbar Navigation -->
+                        <a href="{$WEB_ROOT}/index.php" class="topbar-nav-link {if $filename eq 'index'}active{/if}">Home</a>
+                        <a href="{$WEB_ROOT}/cart.php" class="topbar-nav-link {if $filename eq 'cart' && $domain eq ''}active{/if}">Store &amp; Services</a>
+
+                        <!-- Logged-out Domains Dropdown -->
+                        <div class="topbar-nav-item dropdown">
+                            <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'cart' && ($domain eq 'register' || $domain eq 'transfer')}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Domains <i class="ti ti-chevron-down ms-1" style="font-size: 0.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register"><i class="ti ti-plus text-danger"></i> Register a Domain</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer"><i class="ti ti-arrows-left-right text-secondary"></i> Transfer a Domain</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing"><i class="ti ti-tag text-secondary"></i> Domain Pricing</a></li>
+                            </ul>
+                        </div>
+
+                        <a href="{$WEB_ROOT}/affiliates.php" class="topbar-nav-link {if $filename eq 'affiliates'}active{/if}">Affiliates</a>
+                        <a href="{$WEB_ROOT}/serverstatus.php" class="topbar-nav-link {if $filename eq 'serverstatus'}active{/if}">Network Status</a>
+
+                        <div class="topbar-nav-item dropdown">
+                            <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'knowledgebase' || $filename eq 'submitticket'}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Support <i class="ti ti-chevron-down ms-1" style="font-size: 0.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="https://snbdhost.com/kb" target="_blank"><i class="ti ti-book text-secondary"></i> Knowledge Base</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{$WEB_ROOT}/submitticket.php"><i class="ti ti-lifebuoy text-danger"></i> Submit Ticket</a></li>
+                            </ul>
+                        </div>
+                    {/if}
                 </nav>
 
                 <div class="topbar-right">
@@ -253,7 +368,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </ul>
                     </div>
                     {else}
-                    <a href="{$WEB_ROOT}/login.php" class="btn btn-brand btn-topbar-dashboard ms-2">Login</a>
+                    <div class="d-flex align-items-center gap-2 ms-2">
+                        <a href="{$WEB_ROOT}/login.php" class="btn btn-outline-secondary btn-sm px-3 py-1.5 fw-semibold" style="border-radius: 8px;">Login</a>
+                        <a href="{$WEB_ROOT}/register.php" class="btn btn-brand btn-sm px-3 py-1.5 fw-semibold" style="border-radius: 8px;">Register</a>
+                    </div>
                     {/if}
                 </div>
             </header>

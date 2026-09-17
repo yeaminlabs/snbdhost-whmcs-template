@@ -120,7 +120,20 @@
         </p>
     </div>
     
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        {if $systemStatus eq "Active" || $status eq "Active"}
+            {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
+                <!-- Login to WHM SSO Button for Reseller Hosting -->
+                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-2 px-3 py-1.5 fw-bold" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #1a1a1a;">
+                    <i class="ti ti-server text-warning" style="font-size: 1.1rem;"></i> Login to WHM
+                </a>
+            {elseif $serverdata && ($serverdata.type eq "cpanel" || strpos($serverdata.type|lower, 'cpanel') !== false) || strpos($product|lower, 'hosting') !== false || strpos($groupname|lower, 'hosting') !== false || strpos($product|lower, 'shared') !== false || strpos($groupname|lower, 'shared') !== false || $modulename eq "cpanel"}
+                <!-- Login to cPanel SSO Button for Shared Hosting -->
+                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-2 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.3);">
+                    <i class="fab fa-cpanel" style="font-size: 1.35rem; line-height: 1;"></i> Login to cPanel
+                </a>
+            {/if}
+        {/if}
         {if $packagesupgrade}
             <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-brand-clean btn-sm d-inline-flex align-items-center gap-1" style="font-weight: 600;">
                 <i class="ti ti-arrow-up-circle"></i> Upgrade Plan
@@ -170,52 +183,122 @@
         
         <!-- Clean Service Overview Card for All Services -->
         <div class="card dash-card-clean border-0 mb-4" style="border-radius: 16px; background: var(--bg-surface, #ffffff); border: 1px solid rgba(204,0,0,0.12) !important; box-shadow: 0 6px 18px rgba(204,0,0,0.05);">
-            <div class="card-header py-3 px-4" style="background: linear-gradient(to right, rgba(204,0,0,0.02), transparent); border-bottom: 1px solid rgba(204,0,0,0.08);">
+            <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: linear-gradient(to right, rgba(204,0,0,0.02), transparent); border-bottom: 1px solid rgba(204,0,0,0.08);">
                 <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
                     <i class="ti ti-info-circle text-danger"></i> Service Overview
                 </span>
+                {if $status eq "Active"}
+                    {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
+                        <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold" style="border-radius: 6px; font-size: 0.8rem;">
+                            <i class="ti ti-server text-warning"></i> Access WHM
+                        </a>
+                    {else}
+                        <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold text-white" style="border-radius: 6px; font-size: 0.8rem; background: #ff6c2c;">
+                            <i class="fab fa-cpanel"></i> Access cPanel
+                        </a>
+                    {/if}
+                {/if}
             </div>
             <div class="card-body p-4">
                 <div class="row g-3 mb-3">
                     <div class="col-md-6 col-lg-4">
                         <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Registration Date</div>
-                            <div class="fw-bold text-dark mt-1">{$regdate}</div>
+                            <div class="fw-bold text-dark mt-1">{$regdate|default:"—"}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                         <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Recurring Amount</div>
-                            <div class="fw-bold text-danger mt-1">{$amount}</div>
+                            <div class="fw-bold text-danger mt-1">
+                                {if $amount && $amount neq "0.00" && $amount neq "$0.00" && $amount neq "0.00BDT"}
+                                    {$amount}
+                                {elseif $recurringamount}
+                                    {$recurringamount}
+                                {elseif $firstpaymentamount}
+                                    {$firstpaymentamount}
+                                {else}
+                                    {$amount|default:"—"}
+                                {/if}
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                         <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Billing Cycle</div>
-                            <div class="fw-bold text-dark mt-1">{$billingcycle}</div>
+                            <div class="fw-bold text-dark mt-1">{$billingcycle|default:"—"}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                         <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Next Due Date</div>
-                            <div class="fw-bold text-dark mt-1">{$nextduedate}</div>
+                            <div class="fw-bold text-dark mt-1">{$nextduedate|default:"—"}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                         <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                             <div class="small text-muted fw-semibold">Payment Method</div>
-                            <div class="fw-bold text-dark mt-1">{$paymentmethod}</div>
+                            <div class="fw-bold text-dark mt-1">{$paymentmethod|default:"—"}</div>
                         </div>
                     </div>
                     {if $domain}
                         <div class="col-md-6 col-lg-4">
                             <div class="p-3 rounded" style="background: #fffafa; border: 1px solid rgba(204,0,0,0.08);">
                                 <div class="small text-muted fw-semibold">Domain / Hostname</div>
-                                <div class="fw-bold text-dark mt-1 text-truncate">{$domain}</div>
+                                <div class="fw-bold text-dark mt-1 text-truncate">
+                                    <a href="http://{$domain}" target="_blank" class="text-dark text-decoration-none">{$domain} <i class="ti ti-external-link small text-muted"></i></a>
+                                </div>
                             </div>
                         </div>
                     {/if}
                 </div>
+
+                {if $status eq "Active"}
+                    {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
+                        <!-- Reseller Hosting Shortcuts -->
+                        <div class="p-3 rounded mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px; font-size: 0.72rem;">
+                                Reseller Management Shortcuts
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold" style="border-radius: 6px;">
+                                    <i class="ti ti-server text-warning"></i> Open WHM Panel
+                                </a>
+                                {if $serverip}
+                                    <a href="https://{$serverhostname|default:$serverip}:2087" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-3 py-1.5" style="border-radius: 6px;">
+                                        <i class="ti ti-external-link"></i> Direct WHM (:2087)
+                                    </a>
+                                {/if}
+                            </div>
+                        </div>
+                    {else}
+                        <!-- Shared Hosting Shortcuts -->
+                        <div class="p-3 rounded mb-3" style="background: #fff9f5; border: 1px solid rgba(255, 108, 44, 0.15);">
+                            <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px; font-size: 0.72rem;">
+                                Quick cPanel Shortcuts
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 6px; background: #ff6c2c;">
+                                    <i class="fab fa-cpanel"></i> cPanel Home
+                                </a>
+                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Filemanager" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
+                                    <i class="ti ti-folder text-warning"></i> File Manager
+                                </a>
+                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Email" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
+                                    <i class="ti ti-mail text-danger"></i> Email Accounts
+                                </a>
+                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Phpmyadmin" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
+                                    <i class="ti ti-database text-primary"></i> phpMyAdmin
+                                </a>
+                                {if $domain}
+                                    <a href="https://{$domain}:2083" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
+                                        <i class="ti ti-external-link"></i> Direct Login (:2083)
+                                    </a>
+                                {/if}
+                            </div>
+                        </div>
+                    {/if}
+                {/if}
                 
                 <div class="pt-3 d-flex gap-2 flex-wrap" style="border-top: 1px solid var(--border-color, #e0e0e0);">
                     {if $packagesupgrade}
@@ -384,3 +467,22 @@
         </div>
     {/if}
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Hide duplicate Billing Overview panel rendered by native server modules
+    const moduleWrap = document.getElementById('moduleClientAreaWrap');
+    if (moduleWrap) {
+        const panels = moduleWrap.querySelectorAll('.card, .panel, > div');
+        panels.forEach(function(panel) {
+            const headerElement = panel.querySelector('.card-header, .panel-heading, h2, h3, h4');
+            if (headerElement) {
+                const headerText = headerElement.innerText.trim().toLowerCase();
+                if (headerText.includes('billing overview') || headerText.includes('billing information')) {
+                    panel.style.display = 'none';
+                }
+            }
+        });
+    }
+});
+</script>
