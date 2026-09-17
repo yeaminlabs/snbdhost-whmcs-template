@@ -121,17 +121,29 @@
     </div>
     
     <div class="d-flex align-items-center gap-2 flex-wrap">
-        {if $systemStatus eq "Active" || $status eq "Active"}
+        {if ($systemStatus eq "Active" || $status eq "Active") && strpos($product|lower, 'n8n') === false && strpos($product|lower, 'openclaw') === false && strpos($groupname|lower, 'n8n') === false && strpos($groupname|lower, 'openclaw') === false}
             {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
-                <!-- Login to WHM SSO Button for Reseller Hosting -->
-                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-2 px-3 py-1.5 fw-bold" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #1a1a1a;">
-                    <i class="ti ti-server text-warning" style="font-size: 1.1rem;"></i> Login to WHM
-                </a>
-            {elseif $serverdata && ($serverdata.type eq "cpanel" || strpos($serverdata.type|lower, 'cpanel') !== false) || strpos($product|lower, 'hosting') !== false || strpos($groupname|lower, 'hosting') !== false || strpos($product|lower, 'shared') !== false || strpos($groupname|lower, 'shared') !== false || $modulename eq "cpanel"}
-                <!-- Login to cPanel SSO Button for Shared Hosting -->
-                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-2 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.3);">
-                    <i class="fab fa-cpanel" style="font-size: 1.35rem; line-height: 1;"></i> Login to cPanel
-                </a>
+                <!-- Login to WHM (Direct fallback + SSO) -->
+                {if $domain || $serverip || $serverhostname}
+                    <a href="https://{if $serverhostname}{$serverhostname}{elseif $serverip}{$serverip}{else}{$domain}{/if}:2087" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #1a1a1a;">
+                        <i class="ti ti-server text-warning" style="font-size: 1.1rem;"></i> Login to WHM
+                    </a>
+                {else}
+                    <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #1a1a1a;">
+                        <i class="ti ti-server text-warning" style="font-size: 1.1rem;"></i> Login to WHM (SSO)
+                    </a>
+                {/if}
+            {elseif $serverdata && ($serverdata.type eq "cpanel" || strpos($serverdata.type|lower, 'cpanel') !== false) || $modulename eq "cpanel" || strpos($product|lower, 'cpanel') !== false || strpos($groupname|lower, 'cpanel') !== false || strpos($groupname|lower, 'shared') !== false}
+                <!-- Login to cPanel (Direct fallback + SSO) -->
+                {if $domain || $serverip || $serverhostname}
+                    <a href="https://{if $domain}{$domain}{elseif $serverhostname}{$serverhostname}{else}{$serverip}{/if}:2083" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.3);">
+                        <i class="fab fa-cpanel" style="font-size: 1.35rem; line-height: 1;"></i> Login to cPanel
+                    </a>
+                {else}
+                    <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.3);">
+                        <i class="fab fa-cpanel" style="font-size: 1.35rem; line-height: 1;"></i> Login to cPanel (SSO)
+                    </a>
+                {/if}
             {/if}
         {/if}
         {if $packagesupgrade}
@@ -187,15 +199,29 @@
                 <span class="fw-bold d-flex align-items-center gap-2" style="font-size: 1.05rem;">
                     <i class="ti ti-info-circle text-danger"></i> Service Overview
                 </span>
-                {if $status eq "Active"}
+                {if ($status eq "Active") && strpos($product|lower, 'n8n') === false && strpos($product|lower, 'openclaw') === false && strpos($groupname|lower, 'n8n') === false && strpos($groupname|lower, 'openclaw') === false}
                     {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
-                        <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold" style="border-radius: 6px; font-size: 0.8rem;">
-                            <i class="ti ti-server text-warning"></i> Access WHM
-                        </a>
-                    {else}
-                        <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold text-white" style="border-radius: 6px; font-size: 0.8rem; background: #ff6c2c;">
-                            <i class="fab fa-cpanel"></i> Access cPanel
-                        </a>
+                        <div class="d-flex align-items-center gap-1.5">
+                            {if $domain || $serverip || $serverhostname}
+                                <a href="https://{if $serverhostname}{$serverhostname}{elseif $serverip}{$serverip}{else}{$domain}{/if}:2087" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold" style="border-radius: 6px; font-size: 0.8rem;">
+                                    <i class="ti ti-server text-warning"></i> Access WHM
+                                </a>
+                            {/if}
+                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1" style="border-radius: 6px; font-size: 0.78rem;" title="Single Sign-On">
+                                <i class="ti ti-login"></i> WHM SSO
+                            </a>
+                        </div>
+                    {elseif $serverdata && ($serverdata.type eq "cpanel" || strpos($serverdata.type|lower, 'cpanel') !== false) || $modulename eq "cpanel" || strpos($product|lower, 'cpanel') !== false || strpos($groupname|lower, 'cpanel') !== false || strpos($groupname|lower, 'shared') !== false}
+                        <div class="d-flex align-items-center gap-1.5">
+                            {if $domain || $serverip || $serverhostname}
+                                <a href="https://{if $domain}{$domain}{elseif $serverhostname}{$serverhostname}{else}{$serverip}{/if}:2083" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold text-white" style="border-radius: 6px; font-size: 0.8rem; background: #ff6c2c;">
+                                    <i class="fab fa-cpanel"></i> Access cPanel
+                                </a>
+                            {/if}
+                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1" style="border-radius: 6px; font-size: 0.78rem;" title="Single Sign-On">
+                                <i class="ti ti-login"></i> cPanel SSO
+                            </a>
+                        </div>
                     {/if}
                 {/if}
             </div>
@@ -252,53 +278,6 @@
                         </div>
                     {/if}
                 </div>
-
-                {if $status eq "Active"}
-                    {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
-                        <!-- Reseller Hosting Shortcuts -->
-                        <div class="p-3 rounded mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                            <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px; font-size: 0.72rem;">
-                                Reseller Management Shortcuts
-                            </div>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold" style="border-radius: 6px;">
-                                    <i class="ti ti-server text-warning"></i> Open WHM Panel
-                                </a>
-                                {if $serverip}
-                                    <a href="https://{$serverhostname|default:$serverip}:2087" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-3 py-1.5" style="border-radius: 6px;">
-                                        <i class="ti ti-external-link"></i> Direct WHM (:2087)
-                                    </a>
-                                {/if}
-                            </div>
-                        </div>
-                    {else}
-                        <!-- Shared Hosting Shortcuts -->
-                        <div class="p-3 rounded mb-3" style="background: #fff9f5; border: 1px solid rgba(255, 108, 44, 0.15);">
-                            <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px; font-size: 0.72rem;">
-                                Quick cPanel Shortcuts
-                            </div>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 6px; background: #ff6c2c;">
-                                    <i class="fab fa-cpanel"></i> cPanel Home
-                                </a>
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Filemanager" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
-                                    <i class="ti ti-folder text-warning"></i> File Manager
-                                </a>
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Email" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
-                                    <i class="ti ti-mail text-danger"></i> Email Accounts
-                                </a>
-                                <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1&amp;app=Phpmyadmin" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
-                                    <i class="ti ti-database text-primary"></i> phpMyAdmin
-                                </a>
-                                {if $domain}
-                                    <a href="https://{$domain}:2083" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1.5" style="border-radius: 6px;">
-                                        <i class="ti ti-external-link"></i> Direct Login (:2083)
-                                    </a>
-                                {/if}
-                            </div>
-                        </div>
-                    {/if}
-                {/if}
                 
                 <div class="pt-3 d-flex gap-2 flex-wrap" style="border-top: 1px solid var(--border-color, #e0e0e0);">
                     {if $packagesupgrade}
