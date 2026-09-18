@@ -100,26 +100,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <i class="ti ti-server"></i>
                         <span class="snbd-nav-text">Services</span>
                     </a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}" aria-label="Domains">
-                        <i class="ti ti-world"></i>
-                        <span class="snbd-nav-text">Domains</span>
-                    </a>
-                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register" class="snbd-nav-item ps-4 {if $filename eq 'cart' && $domain eq 'register'}active{/if}" style="font-size: 0.8rem;" aria-label="Register Domain">
-                        <i class="ti ti-plus" style="font-size: 0.85rem;"></i>
-                        <span class="snbd-nav-text">Register Domain</span>
-                    </a>
-                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer" class="snbd-nav-item ps-4 {if $filename eq 'cart' && $domain eq 'transfer'}active{/if}" style="font-size: 0.8rem;" aria-label="Transfer Domain">
-                        <i class="ti ti-arrows-left-right" style="font-size: 0.85rem;"></i>
-                        <span class="snbd-nav-text">Transfer Domain</span>
-                    </a>
-                    <a href="{$WEB_ROOT}/cart.php?a=renew" class="snbd-nav-item ps-4 {if $filename eq 'cart' && $action eq 'renew'}active{/if}" style="font-size: 0.8rem;" aria-label="Renew Domains">
-                        <i class="ti ti-refresh" style="font-size: 0.85rem;"></i>
-                        <span class="snbd-nav-text">Renew Domains</span>
-                    </a>
-                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing" class="snbd-nav-item ps-4" style="font-size: 0.8rem;" aria-label="Domain Pricing">
-                        <i class="ti ti-tag" style="font-size: 0.85rem;"></i>
-                        <span class="snbd-nav-text">Domain Pricing</span>
-                    </a>
+                    {* Collapsible Domains Group *}
+                    {assign var="isDomainActive" value=($filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')) || ($filename eq 'cart' && ($domain eq 'register' || $domain eq 'transfer' || $action eq 'renew'))}
+                    <div class="snbd-nav-group">
+                        <a href="#sidebarDomainsCollapse" class="snbd-nav-item d-flex justify-content-between align-items-center {if $isDomainActive}active{/if}" data-bs-toggle="collapse" role="button" aria-expanded="{if $isDomainActive}true{else}false{/if}" aria-controls="sidebarDomainsCollapse" aria-label="Domains">
+                            <span class="d-flex align-items-center gap-2">
+                                <i class="ti ti-world"></i>
+                                <span class="snbd-nav-text">Domains</span>
+                            </span>
+                            <i class="ti ti-chevron-down snbd-nav-collapse-icon me-2" style="font-size: 0.75rem;"></i>
+                        </a>
+                        <div class="collapse {if $isDomainActive}show{/if}" id="sidebarDomainsCollapse">
+                            <div class="snbd-nav-submenu">
+                                <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-subitem {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}">
+                                    <i class="ti ti-list"></i> My Domains
+                                </a>
+                                <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register" class="snbd-nav-subitem {if $filename eq 'cart' && $domain eq 'register'}active{/if}">
+                                    <i class="ti ti-plus"></i> Register Domain
+                                </a>
+                                <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer" class="snbd-nav-subitem {if $filename eq 'cart' && $domain eq 'transfer'}active{/if}">
+                                    <i class="ti ti-arrows-left-right"></i> Transfer Domain
+                                </a>
+                                <a href="{$WEB_ROOT}/cart.php?a=renew" class="snbd-nav-subitem {if $filename eq 'cart' && $action eq 'renew'}active{/if}">
+                                    <i class="ti ti-refresh"></i> Renew Domains
+                                </a>
+                                <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing" class="snbd-nav-subitem">
+                                    <i class="ti ti-tag"></i> Domain Pricing
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}" aria-label="Affiliates">
                         <i class="ti ti-users"></i>
                         <span class="snbd-nav-text">Affiliates</span>
@@ -170,19 +180,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <i class="ti ti-shopping-cart"></i>
                         <span class="snbd-nav-text">Store &amp; Services</span>
                     </a>
-                    <div class="nav-section-label">Domains</div>
-                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register" class="snbd-nav-item {if $filename eq 'cart' && $domain eq 'register'}active{/if}" aria-label="Register Domain">
-                        <i class="ti ti-world"></i>
-                        <span class="snbd-nav-text">Register Domain</span>
-                    </a>
-                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer" class="snbd-nav-item {if $filename eq 'cart' && $domain eq 'transfer'}active{/if}" aria-label="Transfer Domain">
-                        <i class="ti ti-arrows-left-right"></i>
-                        <span class="snbd-nav-text">Transfer Domain</span>
-                    </a>
-                    <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing" class="snbd-nav-item" aria-label="Domain Pricing">
-                        <i class="ti ti-tag"></i>
-                        <span class="snbd-nav-text">Domain Pricing</span>
-                    </a>
+                    {* Collapsible Domains Group (Guest) *}
+                    {assign var="isGuestDomainActive" value=($filename eq 'cart' && ($domain eq 'register' || $domain eq 'transfer'))}
+                    <div class="snbd-nav-group">
+                        <a href="#sidebarGuestDomainsCollapse" class="snbd-nav-item d-flex justify-content-between align-items-center {if $isGuestDomainActive}active{/if}" data-bs-toggle="collapse" role="button" aria-expanded="{if $isGuestDomainActive}true{else}false{/if}" aria-controls="sidebarGuestDomainsCollapse" aria-label="Domains">
+                            <span class="d-flex align-items-center gap-2">
+                                <i class="ti ti-world"></i>
+                                <span class="snbd-nav-text">Domains</span>
+                            </span>
+                            <i class="ti ti-chevron-down snbd-nav-collapse-icon me-2" style="font-size: 0.75rem;"></i>
+                        </a>
+                        <div class="collapse {if $isGuestDomainActive}show{/if}" id="sidebarGuestDomainsCollapse">
+                            <div class="snbd-nav-submenu">
+                                <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register" class="snbd-nav-subitem {if $filename eq 'cart' && $domain eq 'register'}active{/if}">
+                                    <i class="ti ti-plus"></i> Register Domain
+                                </a>
+                                <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=transfer" class="snbd-nav-subitem {if $filename eq 'cart' && $domain eq 'transfer'}active{/if}">
+                                    <i class="ti ti-arrows-left-right"></i> Transfer Domain
+                                </a>
+                                <a href="{$WEB_ROOT}/cart.php?a=add&amp;domain=register#pricing" class="snbd-nav-subitem">
+                                    <i class="ti ti-tag"></i> Domain Pricing
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="nav-section-label">Support</div>
                     <a href="https://snbdhost.com/kb" target="_blank" class="snbd-nav-item" aria-label="Knowledge Base">
                         <i class="ti ti-book"></i>
@@ -303,24 +324,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <!-- Search Bar (Compact) -->
                     <form class="topbar-search-compact d-none d-md-flex" action="{$WEB_ROOT}/knowledgebase.php" method="get" role="search">
                         <input type="hidden" name="action" value="knowledgebase">
-                        <div class="search-input-group">
+                        <div class="search-input-group position-relative d-flex align-items-center">
                             <i class="ti ti-search"></i>
-                            <input type="text" name="search" placeholder="Search..." aria-label="Search" autocomplete="off">
+                            <input type="text" name="search" id="topbarSearchInput" placeholder="Search..." aria-label="Search" autocomplete="off">
+                            <kbd class="topbar-search-kbd d-none d-lg-inline-block" style="position: absolute; right: 8px; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.06); color: #777; border: 1px solid rgba(0,0,0,0.1); pointer-events: none;">/</kbd>
                         </div>
                     </form>
 
-                    <!-- Currency selector -->
-                    {if !$loggedin && $currencies}
+                    <!-- Currency selector (Guest only) -->
+                    {if !$loggedin && $currencies && $currencies|@count > 1}
                     <div class="topbar-currency dropdown">
-                        <button class="btn btn-currency dropdown-toggle px-3 py-1" type="button" id="currencyMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            {$activeCurrency.prefix} {$activeCurrency.code}
+                        <button class="btn btn-currency dropdown-toggle" type="button" id="currencyMenu" data-bs-toggle="dropdown" aria-expanded="false" title="Change Currency">
+                            <i class="ti ti-coin"></i>
+                            <span class="d-none d-sm-inline">{$activeCurrency.code}</span>
+                            <i class="ti ti-chevron-down" style="font-size: 0.7rem; opacity: 0.7;"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="currencyMenu">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="currencyMenu">
+                            <li class="dropdown-header text-uppercase text-muted" style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; padding: 0.25rem 1rem;">Select Currency</li>
                             {foreach from=$currencies item=listcurr}
                                 <li>
                                     <form method="post" action="{$currentpagelinkback}" class="m-0 p-0">
                                         <input type="hidden" name="currency" value="{$listcurr.id}" />
-                                        <button type="submit" class="dropdown-item" style="cursor:pointer;">{$listcurr.prefix} {$listcurr.code}</button>
+                                        <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between gap-3 {if $listcurr.id eq $activeCurrency.id}active{/if}" style="cursor:pointer; font-size: 0.8125rem;">
+                                            <span>{$listcurr.prefix} {$listcurr.code}</span>
+                                            {if $listcurr.id eq $activeCurrency.id}<i class="ti ti-check text-danger" style="font-size: 0.75rem;"></i>{/if}
+                                        </button>
                                     </form>
                                 </li>
                             {/foreach}
@@ -329,8 +357,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     {/if}
 
                     {if $loggedin}
-                    <a href="{$WEB_ROOT}/cart.php" class="btn btn-brand btn-topbar-dashboard d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; margin-right: 0.5rem;">
-                        <i class="ti ti-plus" style="font-size: 0.9rem; vertical-align: middle;"></i> Order Service
+                    <a href="{$WEB_ROOT}/cart.php" class="btn btn-brand btn-topbar-dashboard d-none d-sm-inline-flex align-items-center gap-1.5" aria-label="Order Service">
+                        <i class="ti ti-plus" style="font-size: 0.9rem; vertical-align: middle;"></i>
+                        <span class="d-none d-md-inline">Order Service</span>
+                        <span class="d-inline d-md-none">Order</span>
                     </a>
                     {/if}
                     
@@ -358,20 +388,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </script>
 
                     {if $loggedin}
-                    <div class="topbar-user dropdown ms-2">
+                    <div class="topbar-user dropdown">
                         <button class="btn btn-brand dropdown-toggle px-3 py-1 text-white" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="ti ti-user-circle"></i> {$clientsdetails.firstname}
+                            <i class="ti ti-user-circle"></i> <span>{$clientsdetails.firstname}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=details"><i class="ti ti-settings me-2"></i>My Details</a></li>
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=creditcard"><i class="ti ti-credit-card me-2"></i>Payment Methods</a></li>
                             <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=emails"><i class="ti ti-mail me-2"></i>Email History</a></li>
+                            {if $currencies && $currencies|@count > 1}
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-header text-uppercase text-muted" style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; padding: 0.25rem 1rem;">Currency ({$activeCurrency.code})</li>
+                            {foreach from=$currencies item=listcurr}
+                                {if $listcurr.id neq $activeCurrency.id}
+                                <li>
+                                    <form method="post" action="{$currentpagelinkback}" class="m-0 p-0">
+                                        <input type="hidden" name="currency" value="{$listcurr.id}" />
+                                        <button type="submit" class="dropdown-item d-flex align-items-center gap-2" style="cursor:pointer; font-size: 0.8125rem;">
+                                            <i class="ti ti-coin text-secondary"></i> Switch to {$listcurr.prefix} {$listcurr.code}
+                                        </button>
+                                    </form>
+                                </li>
+                                {/if}
+                            {/foreach}
+                            {/if}
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{$WEB_ROOT}/logout.php"><i class="ti ti-logout me-2"></i>Logout</a></li>
                         </ul>
                     </div>
                     {else}
-                    <div class="d-flex align-items-center gap-2 ms-2">
+                    <div class="d-flex align-items-center gap-2">
                         <a href="{$WEB_ROOT}/login.php" class="btn btn-outline-secondary btn-sm px-3 py-1.5 fw-semibold" style="border-radius: 8px;">Login</a>
                         <a href="{$WEB_ROOT}/register.php" class="btn btn-brand btn-sm px-3 py-1.5 fw-semibold" style="border-radius: 8px;">Register</a>
                     </div>

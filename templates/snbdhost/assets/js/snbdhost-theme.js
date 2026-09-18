@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFormValidation();
   initCurrencyDecorator();
   initPasswordGenerator();
+  initKeyboardShortcuts();
 });
 
 /* ---- DOM Currency Decorator ($1.63USD -> $1.63 USD) ---- */
@@ -173,13 +174,13 @@ function initSidebarToggle() {
   if (!toggleBtn || !sidebar) return;
 
   function updateAriaState() {
-    const isMobile = window.innerWidth <= 768;
-    const isOpen = isMobile ? sidebar.classList.contains('mobile-open') : !sidebar.classList.contains('collapsed');
+    const isDrawer = window.innerWidth < 1200;
+    const isOpen = isDrawer ? sidebar.classList.contains('mobile-open') : !sidebar.classList.contains('collapsed');
     toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   }
 
   toggleBtn.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth < 1200) {
       sidebar.classList.toggle('mobile-open');
       backdrop?.classList.toggle('show');
     } else {
@@ -208,9 +209,9 @@ function initSidebarToggle() {
     updateAriaState();
   });
 
-  // Close sidebar clicking outside on mobile
+  // Close sidebar clicking outside on mobile & tablet drawer
   document.addEventListener('click', (e) => {
-    if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
+    if (window.innerWidth < 1200 && sidebar.classList.contains('mobile-open')) {
       if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
         sidebar.classList.remove('mobile-open');
         backdrop?.classList.remove('show');
@@ -301,5 +302,29 @@ function initParticles() {
       retina_detect: true
     });
   }
+}
+
+/* ---- Global Keyboard Shortcuts ('/' or Ctrl+K to search) ---- */
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    const activeEl = document.activeElement;
+    const isEditing = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+
+    if (!isEditing && e.key === '/') {
+      e.preventDefault();
+      const searchInput = document.getElementById('topbarSearchInput') || document.querySelector('input[name="search"]');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    } else if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      const searchInput = document.getElementById('topbarSearchInput') || document.querySelector('input[name="search"]');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    }
+  });
 }
 
