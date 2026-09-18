@@ -30,12 +30,27 @@ function initCurrencyDecorator() {
   fixText(document.body);
 
   if (window.MutationObserver) {
+    var debounceTimer = null;
+    var pendingNodes = new Set();
+
     var observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
         mutation.addedNodes.forEach(function(n) {
-          fixText(n);
+          if (n.nodeType === Node.ELEMENT_NODE || n.nodeType === Node.TEXT_NODE) {
+            pendingNodes.add(n);
+          }
         });
       });
+
+      if (!debounceTimer && pendingNodes.size > 0) {
+        debounceTimer = setTimeout(function() {
+          pendingNodes.forEach(function(node) {
+            fixText(node);
+          });
+          pendingNodes.clear();
+          debounceTimer = null;
+        }, 60);
+      }
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
@@ -140,17 +155,13 @@ function initPasswordGenerator() {
 window.addEventListener('load', () => {
   const loader = document.getElementById('snbd-loader');
   const progressBar = document.querySelector('.loader-progress-bar');
-  if (loader && progressBar) {
-    setTimeout(() => { progressBar.style.width = '100%'; }, 100);
-    setTimeout(() => {
-      loader.style.opacity = '0';
-      loader.style.pointerEvents = 'none';
-      setTimeout(() => loader.remove(), 400);
-    }, 900);
+  if (loader) {
+    if (progressBar) progressBar.style.width = '100%';
+    loader.style.opacity = '0';
+    loader.style.pointerEvents = 'none';
+    setTimeout(() => loader.remove(), 250);
   }
 });
-
-
 
 /* ---- Sidebar Toggle ---- */
 function initSidebarToggle() {
@@ -160,6 +171,12 @@ function initSidebarToggle() {
   const icon = toggleBtn?.querySelector('i');
 
   if (!toggleBtn || !sidebar) return;
+
+  function updateAriaState() {
+    const isMobile = window.innerWidth <= 768;
+    const isOpen = isMobile ? sidebar.classList.contains('mobile-open') : !sidebar.classList.contains('collapsed');
+    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
 
   toggleBtn.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
@@ -174,18 +191,21 @@ function initSidebarToggle() {
       icon.className = (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('collapsed'))
         ? 'ti ti-x' : 'ti ti-menu-2';
     }
+    updateAriaState();
   });
 
-  // Enforce correct icon on page load based on collapsed state
+  // Enforce correct icon and aria state on page load
   if (sidebar.classList.contains('collapsed') && icon) {
     icon.className = 'ti ti-x';
   }
+  updateAriaState();
 
   // Close mobile sidebar on backdrop click
   backdrop?.addEventListener('click', () => {
     sidebar.classList.remove('mobile-open');
     backdrop.classList.remove('show');
     if (icon) icon.className = 'ti ti-menu-2';
+    updateAriaState();
   });
 
   // Close sidebar clicking outside on mobile
@@ -195,6 +215,7 @@ function initSidebarToggle() {
         sidebar.classList.remove('mobile-open');
         backdrop?.classList.remove('show');
         if (icon) icon.className = 'ti ti-menu-2';
+        updateAriaState();
       }
     }
   });
@@ -209,9 +230,11 @@ function initFabMenu() {
   if (!fabContainer || !fabMain) return;
 
   fabMain.addEventListener('click', () => {
-    fabContainer.classList.toggle('active');
+    const isNowActive = fabContainer.classList.toggle('active');
     fabMain.classList.toggle('active');
-    if (fabContainer.classList.contains('active')) {
+    fabMain.setAttribute('aria-expanded', isNowActive ? 'true' : 'false');
+
+    if (isNowActive) {
       fabItems.forEach((item, i) => {
         setTimeout(() => {
           item.style.opacity = '1';
@@ -230,6 +253,7 @@ function initFabMenu() {
     if (fabContainer.classList.contains('active') && !fabContainer.contains(e.target)) {
       fabContainer.classList.remove('active');
       fabMain.classList.remove('active');
+      fabMain.setAttribute('aria-expanded', 'false');
       fabItems.forEach((item) => {
         item.style.opacity = '0';
         item.style.transform = 'translateY(20px) scale(0.8)';

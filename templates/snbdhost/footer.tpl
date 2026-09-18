@@ -9,11 +9,11 @@
 {if $templatefile != 'login' && $templatefile != 'clientregister' && $templatefile != 'pwreset' && strpos($templatefile|default:'', 'password-reset') === false}
     <!-- Floating Action Button -->
     <div id="fab-container" class="fab-container">
-        <button id="fab-main" class="fab-main"><i class="fas fa-plus"></i></button>
-        <div class="fab-menu">
-            <a href="submitticket.php" class="fab-item" data-tooltip="New Ticket"><i class="fas fa-envelope"></i></a>
-            <a href="clientarea.php?action=invoices" class="fab-item" data-tooltip="Pay Invoice"><i class="fas fa-file-invoice-dollar"></i></a>
-            <a href="cart.php" class="fab-item" data-tooltip="Order Service"><i class="fas fa-shopping-cart"></i></a>
+        <button id="fab-main" class="fab-main" aria-label="Quick Actions" aria-expanded="false" aria-haspopup="true"><i class="fas fa-plus"></i></button>
+        <div class="fab-menu" role="menu">
+            <a href="submitticket.php" class="fab-item" data-tooltip="New Ticket" aria-label="New Ticket" role="menuitem"><i class="fas fa-envelope"></i></a>
+            <a href="clientarea.php?action=invoices" class="fab-item" data-tooltip="Pay Invoice" aria-label="Pay Invoice" role="menuitem"><i class="fas fa-file-invoice-dollar"></i></a>
+            <a href="cart.php" class="fab-item" data-tooltip="Order Service" aria-label="Order Service" role="menuitem"><i class="fas fa-shopping-cart"></i></a>
         </div>
     </div>
 {/if}

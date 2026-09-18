@@ -37,7 +37,7 @@
     <link href="{$WEB_ROOT}/templates/{$template}/css/custom.css?v={$versionHash}" rel="stylesheet">
 
     <!-- Custom SNBD Host Theme (loaded AFTER parent to override) -->
-    <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbdhost-theme.css?v={$smarty.now}" rel="stylesheet">
+    <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbdhost-theme.css?v={$versionHash}" rel="stylesheet">
 
     <!-- Parent Theme JS (Moved from footer to provide jQuery to orderforms in body) -->
     <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
@@ -46,7 +46,7 @@
     
     {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$smarty.now}"></script>
+        <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$versionHash}"></script>
     {/if}
 
     <!-- Google Tag Manager -->
@@ -66,6 +66,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 {$headeroutput}
+
+<!-- Skip to main content accessibility landmark -->
+<a href="#snbd-main" class="visually-hidden-focusable btn btn-sm btn-brand position-absolute top-0 start-0 m-2" style="z-index: 9999;">Skip to main content</a>
 
 {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
     <div id="particles-js"></div>
@@ -223,7 +226,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <header id="snbd-topbar">
                 <div class="topbar-left-wrap">
-                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="ti ti-menu-2"></i></button>
+                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar" aria-expanded="false" aria-controls="snbd-sidebar"><i class="ti ti-menu-2"></i></button>
                     <a href="{if $loggedin}{$WEB_ROOT}/clientarea.php{else}{$WEB_ROOT}/index.php{/if}" class="topbar-logo-link">
                         <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="topbar-logo">
                     </a>
