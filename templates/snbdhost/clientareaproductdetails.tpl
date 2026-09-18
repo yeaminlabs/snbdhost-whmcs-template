@@ -120,32 +120,7 @@
         </p>
     </div>
     
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-        {if ($systemStatus eq "Active" || $status eq "Active") && strpos($product|lower, 'n8n') === false && strpos($product|lower, 'openclaw') === false && strpos($groupname|lower, 'n8n') === false && strpos($groupname|lower, 'openclaw') === false}
-            {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
-                <!-- Login to WHM (Direct fallback + SSO) -->
-                {if $domain || $serverip || $serverhostname}
-                    <a href="https://{if $serverhostname}{$serverhostname}{elseif $serverip}{$serverip}{else}{$domain}{/if}:2087" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #1a1a1a;">
-                        <i class="ti ti-server text-warning" style="font-size: 1.1rem;"></i> Login to WHM
-                    </a>
-                {else}
-                    <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #1a1a1a;">
-                        <i class="ti ti-server text-warning" style="font-size: 1.1rem;"></i> Login to WHM (SSO)
-                    </a>
-                {/if}
-            {elseif $serverdata && ($serverdata.type eq "cpanel" || strpos($serverdata.type|lower, 'cpanel') !== false) || $modulename eq "cpanel" || strpos($product|lower, 'cpanel') !== false || strpos($groupname|lower, 'cpanel') !== false || strpos($groupname|lower, 'shared') !== false}
-                <!-- Login to cPanel (Direct fallback + SSO) -->
-                {if $domain || $serverip || $serverhostname}
-                    <a href="https://{if $domain}{$domain}{elseif $serverhostname}{$serverhostname}{else}{$serverip}{/if}:2083" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.3);">
-                        <i class="fab fa-cpanel" style="font-size: 1.35rem; line-height: 1;"></i> Login to cPanel
-                    </a>
-                {else}
-                    <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.3);">
-                        <i class="fab fa-cpanel" style="font-size: 1.35rem; line-height: 1;"></i> Login to cPanel (SSO)
-                    </a>
-                {/if}
-            {/if}
-        {/if}
+    <div class="d-flex align-items-center gap-2">
         {if $packagesupgrade}
             <a href="upgrade.php?type=package&amp;id={$id}" class="btn btn-brand-clean btn-sm d-inline-flex align-items-center gap-1" style="font-weight: 600;">
                 <i class="ti ti-arrow-up-circle"></i> Upgrade Plan
@@ -201,27 +176,13 @@
                 </span>
                 {if ($status eq "Active") && strpos($product|lower, 'n8n') === false && strpos($product|lower, 'openclaw') === false && strpos($groupname|lower, 'n8n') === false && strpos($groupname|lower, 'openclaw') === false}
                     {if $type eq "reselleraccount" || $type eq "resellerhosting" || strpos($product|lower, 'reseller') !== false || strpos($groupname|lower, 'reseller') !== false}
-                        <div class="d-flex align-items-center gap-1.5">
-                            {if $domain || $serverip || $serverhostname}
-                                <a href="https://{if $serverhostname}{$serverhostname}{elseif $serverip}{$serverip}{else}{$domain}{/if}:2087" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold" style="border-radius: 6px; font-size: 0.8rem;">
-                                    <i class="ti ti-server text-warning"></i> Access WHM
-                                </a>
-                            {/if}
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1" style="border-radius: 6px; font-size: 0.78rem;" title="Single Sign-On">
-                                <i class="ti ti-login"></i> WHM SSO
-                            </a>
-                        </div>
+                        <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold" style="border-radius: 8px; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                            <i class="ti ti-server text-warning"></i> WHM Login
+                        </a>
                     {elseif $serverdata && ($serverdata.type eq "cpanel" || strpos($serverdata.type|lower, 'cpanel') !== false) || $modulename eq "cpanel" || strpos($product|lower, 'cpanel') !== false || strpos($groupname|lower, 'cpanel') !== false || strpos($groupname|lower, 'shared') !== false}
-                        <div class="d-flex align-items-center gap-1.5">
-                            {if $domain || $serverip || $serverhostname}
-                                <a href="https://{if $domain}{$domain}{elseif $serverhostname}{$serverhostname}{else}{$serverip}{/if}:2083" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold text-white" style="border-radius: 6px; font-size: 0.8rem; background: #ff6c2c;">
-                                    <i class="fab fa-cpanel"></i> Access cPanel
-                                </a>
-                            {/if}
-                            <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 px-2.5 py-1" style="border-radius: 6px; font-size: 0.78rem;" title="Single Sign-On">
-                                <i class="ti ti-login"></i> cPanel SSO
-                            </a>
-                        </div>
+                        <a href="clientarea.php?action=productdetails&amp;id={$id}&amp;dosinglesignon=1" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold text-white" style="border-radius: 8px; font-size: 0.85rem; background: linear-gradient(135deg, #ff6c2c 0%, #ff5211 100%); box-shadow: 0 2px 8px rgba(255, 108, 44, 0.25);">
+                            <i class="fab fa-cpanel" style="font-size: 1.2rem; line-height: 1;"></i> cPanel Login
+                        </a>
                     {/if}
                 {/if}
             </div>
