@@ -38,7 +38,8 @@ component layer — themed templates on the front end, PHP hooks on the back end
 <tr><td>🧭 Navigation</td><td>A single persistent left sidebar (collapsible rail on desktop, off-canvas + backdrop on mobile). The duplicate topbar nav is gone.</td></tr>
 <tr><td>🧱 Components</td><td>Cards, stats, tables, chips, buttons, forms, alerts, tabs, menus, modals and empty states are defined once and reused on every page</td></tr>
 <tr><td>📄 Page cleanup</td><td>Page-level <code>&lt;style&gt;</code> blocks and dozens of inline styles removed from every customised template; pages migrated to the shared components</td></tr>
-<tr><td>🌉 Legacy bridge</td><td><code>snbd-legacy.css</code> re-skins WHMCS pages that still render parent Twenty-One markup (knowledge base, account, contact, order form) so nothing looks like a second product</td></tr>
+<tr><td>📦 Page coverage</td><td>Account details, add funds, mass pay, quotes, email history, payment methods, knowledge base, announcements, contact, downloads and account security now have their own templates, so every link the sidebar, topbar and account menu offer lands on the same system</td></tr>
+<tr><td>🌉 Legacy bridge</td><td>Pages WHMCS ships that the theme has not rebuilt (store, user profile, upgrade flows) still render parent markup; <code>snbd-legacy.css</code> re-skins them. A new template opts in automatically — no list to edit</td></tr>
 <tr><td>⚙️ Bootstrap</td><td>Exactly one Bootstrap per page — Bootstrap 5 on rebuilt pages, parent Bootstrap 4 on legacy pages — ending the 4/5 class collision</td></tr>
 <tr><td>🛒 Cart</td><td>Order form tokens aliased to the shared system, one brand red, hard-coded hexes removed</td></tr>
 <tr><td>♿ Access</td><td>Skip link, <code>aria-current</code> navigation, labelled icon buttons, visible focus rings, 44px targets and reduced-motion support</td></tr>
@@ -138,6 +139,7 @@ All server-side logic lives in two hook files, both using WHMCS's `add_hook('Eve
 
 | Hook Point | Purpose |
 |---|---|
+| `ClientAreaPage` | Sets `$snbdCustomTemplate` by checking whether the page's `templatefile` exists in this theme. The header uses it to load one Bootstrap per page, so a page joins the SNBD design system by having a template file rather than by being listed anywhere. |
 | `ClientAreaPageHome` | Queries `tblinvoices`, `tblhosting`, `mod_loyaltymatrix_*`, and `tbltickets` directly via `Capsule` to build `$invoices` (last 5), `$services` (active/pending), `$loyalty_data` (tier + progress to next tier), and `$open_tickets` (last 5 unresolved) — all in the client's own currency format. |
 | `ClientAreaPageAffiliates` | Builds `$affiliateProductGroups`, a nested list of visible product groups and their products, used to power custom referral-link generation on the affiliates page. |
 
@@ -242,11 +244,22 @@ SNBDHOST Portal template/
     │   ├── 📄 clientareaproductdetails.tpl    Product details — n8n dashboard embed target
     │   ├── 📄 clientareainvoices.tpl          Invoice list — sortable table
     │   ├── 📄 viewinvoice.tpl                 Invoice detail — print-ready document inside the shell
+    │   ├── 📄 clientareaquotes.tpl            Quotes list · viewquote.tpl prints and accepts one
+    │   ├── 📄 clientareaemails.tpl            Email history · viewemail.tpl standalone popup
+    │   ├── 📄 masspay.tpl                     Pay several invoices in one payment
+    │   ├── 📄 clientareaaddfunds.tpl          Balance top-up with gateway picker
+    │   ├── 📄 clientareadetails.tpl           My details — contact, billing, preferences
+    │   ├── 📄 account-paymentmethods.tpl      Stored cards/bank accounts, set default, delete
+    │   ├── 📄 clientareasecurity.tpl          Single sign-on toggle
+    │   ├── 📄 knowledgebase.tpl               Knowledge base index · knowledgebasecat.tpl · knowledgebasearticle.tpl
+    │   ├── 📄 downloads.tpl                   Downloads index · downloadscat.tpl file list
+    │   ├── 📄 announcements.tpl               Service notices · viewannouncement.tpl detail
+    │   ├── 📄 contact.tpl                     Pre-sales contact form
     │   ├── 📄 supportticketslist.tpl          Support tickets list
     │   ├── 📄 viewticket.tpl                  Ticket thread — chat bubble UI
     │   │
     │   ├── ── Auth ───────────────────────
-    │   ├── 📄 login.tpl                       Login page with particles background
+    │   ├── 📄 login.tpl                       Login page — split panel with Google sign-in
     │   ├── 📄 clientregister.tpl              Registration page
     │   ├── 📄 pwreset.tpl                     Password reset page
     │   │

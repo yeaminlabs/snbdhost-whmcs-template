@@ -1,5 +1,4 @@
-{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
-{else}
+{if !$snbdAuthPage}
             </div><!-- .snbd-content -->
         </main>
     </div><!-- #snbd-wrapper -->
@@ -7,7 +6,7 @@
 
 {$footeroutput}
 
-{if $snbdLegacyPage}
+{if !$snbdCustomTemplate}
     <script src="{$BASE_PATH_JS|default:'/assets/js'}/bootstrap.min.js"></script>
 {else}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

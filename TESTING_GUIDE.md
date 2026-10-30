@@ -32,7 +32,9 @@ Verify the following items across different screen sizes (desktop, tablet, and m
 * [ ] **One accent colour**: Every primary action, active nav item, badge and link hover uses `#BA1114`. No `#CC0000`, orange or blue leftovers anywhere.
 * [ ] **Design tokens**: Change `--snbd-red` in `assets/css/snbd-system.css` and confirm buttons, chips, nav and tables all follow.
 * [ ] **No layout drift**: Cards, tables and forms share the same radii, spacing and borders on dashboard, services, invoices, tickets, auth and network status.
-* [ ] **Legacy bridge**: Open a page with no custom template (My Details, Add Funds, Knowledge Base, Contact). Its cards, buttons, tables and alerts should match the redesigned pages, not the stock Twenty-One look.
+* [ ] **Page coverage**: Open My Details, Add Funds, Mass Pay, Quotes, Email History, Payment Methods, Knowledge Base (index, category, article), Announcements (index, detail), Contact, Downloads (index, category) and Account Security. Each should render inside the shell with the shared cards, tables, chips and alerts — none should show stock Twenty-One widgets.
+* [ ] **Automatic opt-in**: Add a copy of any of those templates under `templates/snbdhost/` and reload; the page should switch to the design system on its own, without editing `header.tpl`.
+* [ ] **Legacy bridge**: Only pages the theme has not rebuilt (store, user profile, upgrade flows) should fall back to parent markup, still re-skinned by `snbd-legacy.css`.
 * [ ] **No Console Errors**: Open the browser console (`F12`) and verify that no Javascript exceptions occur (all custom scripts should compile properly within Smarty bounds).
 
 ### B. Client Area Dashboard Pages

@@ -50,7 +50,7 @@
                                data-fv-notempty-message="{$LANG.captcharequired}" />
                         <div class="input-group-append">
                             <span class="input-group-text" title="Refresh captcha" id="btnCaptchaRefresh" style="cursor:pointer;">
-                                <i class="fas fa-sync"></i>
+                                <i class="ti ti-refresh" aria-hidden="true"></i>
                             </span>
                         </div>
                     </div>

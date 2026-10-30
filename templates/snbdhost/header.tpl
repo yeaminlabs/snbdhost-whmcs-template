@@ -34,41 +34,35 @@
 
     {* Work out which stylesheets this page needs. *}
     {assign var="snbdAuthPage" value=false}
-    {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
+    {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset'}
         {assign var="snbdAuthPage" value=true}
+    {else}
+        {assign var="snbdTemplatePrefix" value=$templatefile|default:''|substr:0:9}
+        {if $snbdTemplatePrefix == 'password-'}
+            {assign var="snbdAuthPage" value=true}
+        {/if}
     {/if}
 
     {*
-       One Bootstrap per page. Pages rebuilt on the SNBD system load Bootstrap 5;
-       WHMCS pages that still render parent Twenty-One markup load the parent's
-       Bootstrap 4 stack plus snbd-legacy.css, which re-skins that markup.
+       One Bootstrap per page. $snbdCustomTemplate is set by the theme hook when
+       this page has its own template file, so a page is styled by the SNBD system
+       automatically and a page without one falls back to the parent's Bootstrap 4
+       stack plus snbd-legacy.css. Adding a template is all it takes to opt in.
     *}
-    {assign var="snbdLegacyPage" value=true}
-    {assign var="snbdOrderPage" value=false}
-    {if $filename == 'cart'}{assign var="snbdOrderPage" value=true}{/if}
-    {if $templatefile == 'affiliates' || $templatefile == 'clientareadevupdates' || $templatefile == 'clientareadomaindetails' || $templatefile == 'clientareadomains' || $templatefile == 'clientareahome' || $templatefile == 'clientareainvoices' || $templatefile == 'clientareaproductdetails' || $templatefile == 'clientareaproducts' || $templatefile == 'clientregister' || $templatefile == 'login' || $templatefile == 'migration' || $templatefile == 'pwreset' || $templatefile == 'serverstatus' || $templatefile == 'supportticketslist' || $templatefile == 'supportticketsubmit-stepone' || $templatefile == 'supportticketsubmit-steptwo' || $templatefile == 'viewinvoice' || $templatefile == 'viewticket' || strpos($templatefile|default:'', 'password-reset') !== false || $snbdOrderPage}
-        {assign var="snbdLegacyPage" value=false}
-    {/if}
-
-    {if $snbdLegacyPage}
-        {* Parent Twenty-One stylesheet: only for pages that still render parent markup
-           (knowledgebase, account details, contact, store). *}
+    {if !$snbdCustomTemplate}
+        {* Parent Twenty-One stylesheet: only for WHMCS pages the theme has not rebuilt. *}
         <link href="{$WEB_ROOT}/templates/{$template}/css/all.min.css?v={$versionHash}" rel="stylesheet">
         <link href="{$WEB_ROOT}/templates/{$template}/css/theme.css?v={$versionHash}" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {else}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    {/if}
-
-    {if $snbdLegacyPage || $snbdOrderPage}
-        {* Font Awesome is only needed by parent markup and the order form. *}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {/if}
 
     <!-- SNBD Host design system -->
     <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-system.css?v={$smarty.now}" rel="stylesheet">
     <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-shell.css?v={$smarty.now}" rel="stylesheet">
     <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-pages.css?v={$smarty.now}" rel="stylesheet">
-    {if $snbdLegacyPage}
+    {if !$snbdCustomTemplate}
         <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-legacy.css?v={$smarty.now}" rel="stylesheet">
     {/if}
 
