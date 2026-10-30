@@ -82,7 +82,7 @@
 <script>
     jQuery(document).ready(function () {
         var table = jQuery('#tableQuotesList').removeClass('d-none').DataTable({
-            columnDefs: [{orderable: false, targets: 5}],
+            columnDefs: [{literal}{orderable: false, targets: 5}{/literal}],
             order: []
         });
 

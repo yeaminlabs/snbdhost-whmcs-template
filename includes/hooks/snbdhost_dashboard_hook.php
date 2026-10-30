@@ -234,12 +234,18 @@ add_hook('ClientAreaPage', 1, function ($vars) {
  * theme ($snbdCustomTemplate). The header uses it to load one Bootstrap and the
  * matching stylesheets, so a page opts into the SNBD design system by existing
  * as a template file rather than by being named in a list.
+ *
+ * Also flags the login, registration and password pages ($snbdAuthPage) so the
+ * header and the footer agree on whether the shell was opened. Setting it here
+ * rather than with {assign} in header.tpl matters: Smarty {assign} only lives in
+ * the scope of the template that runs it, so the footer never saw the header's
+ * value and closed a shell that the auth pages had not opened.
  */
 add_hook('ClientAreaPage', 1, function ($vars) {
     $template = ltrim(str_replace(['..', '\\', "\0"], '', (string) ($vars['templatefile'] ?? '')), '/');
 
     if ($template === '') {
-        return ['snbdCustomTemplate' => false];
+        return ['snbdCustomTemplate' => false, 'snbdAuthPage' => false];
     }
 
     $theme = empty($vars['template']) ? 'snbdhost' : (string) $vars['template'];
@@ -247,6 +253,8 @@ add_hook('ClientAreaPage', 1, function ($vars) {
 
     return [
         'snbdCustomTemplate' => is_file($root . '/templates/' . $theme . '/' . $template . '.tpl'),
+        'snbdAuthPage' => in_array($template, ['login', 'clientregister', 'pwreset'], true)
+            || str_starts_with($template, 'password-'),
     ];
 });
 

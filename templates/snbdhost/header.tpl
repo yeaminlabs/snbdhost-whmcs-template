@@ -24,7 +24,15 @@
     </script>
 
     {* Apply the persisted sidebar rail state before first paint (desktop only). *}
-    <script>try{if(localStorage.getItem('snbd-sidebar-rail')==='1'&&window.innerWidth>=1200){document.documentElement.classList.add('snbd-rail');}}catch(e){}</script>
+    <script>
+        {literal}
+        try {
+            if (localStorage.getItem('snbd-sidebar-rail') === '1' && window.innerWidth >= 1200) {
+                document.documentElement.classList.add('snbd-rail');
+            }
+        } catch (e) {}
+        {/literal}
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,17 +40,10 @@
     <!-- Tabler icon set (pinned) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.50.0/dist/tabler-icons.min.css">
 
-    {* Work out which stylesheets this page needs. *}
-    {assign var="snbdAuthPage" value=false}
-    {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset'}
-        {assign var="snbdAuthPage" value=true}
-    {else}
-        {assign var="snbdTemplatePrefix" value=$templatefile|default:''|substr:0:9}
-        {if $snbdTemplatePrefix == 'password-'}
-            {assign var="snbdAuthPage" value=true}
-        {/if}
-    {/if}
-
+    {*
+       $snbdAuthPage comes from the ClientAreaPage hook so the footer, which is
+       rendered separately, closes the shell only when the header opened it.
+    *}
     {*
        One Bootstrap per page. $snbdCustomTemplate is set by the theme hook when
        this page has its own template file, so a page is styled by the SNBD system

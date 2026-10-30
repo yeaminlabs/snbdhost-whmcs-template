@@ -59,7 +59,7 @@
 <script>
     jQuery(document).ready(function () {
         var table = jQuery('#tableEmailsList').removeClass('d-none').DataTable({
-            columnDefs: [{orderable: false, targets: 2}],
+            columnDefs: [{literal}{orderable: false, targets: 2}{/literal}],
             order: []
         });
 
