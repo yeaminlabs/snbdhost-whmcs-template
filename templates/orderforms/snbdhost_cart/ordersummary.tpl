@@ -56,7 +56,7 @@
         </div>
     {/if}
 
-    <div class="total-due-today" style="margin-top: 1.5rem; background: var(--snbd-red, #d32f2f); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);">
+    <div class="total-due-today" style="margin-top: 1.5rem; background: var(--snbd-red, var(--brand)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);">
         <span class="amt" style="display: block; font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 0.25rem;">{$producttotals.pricing.totaltoday}</span>
         <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.9;">{$LANG.ordertotalduetoday}</span>
     </div>

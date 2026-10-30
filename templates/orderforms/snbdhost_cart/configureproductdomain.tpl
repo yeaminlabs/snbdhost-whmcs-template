@@ -140,7 +140,7 @@
     border-color: #fca5a5;
 }
 .cpd-tab-option input[type="radio"]:checked + .cpd-tab-inner .cpd-tab-icon {
-    background: linear-gradient(135deg, #d32f2f, #ef5350);
+    background: linear-gradient(135deg, var(--brand), #ef5350);
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(211,47,47,0.35);
 }
@@ -207,7 +207,7 @@
     cursor: pointer;
 }
 .domain-submit-btn {
-    background: linear-gradient(135deg, #d32f2f, #c62828);
+    background: linear-gradient(135deg, var(--brand), #c62828);
     color: #ffffff;
     border: none;
     border-radius: 10px;
@@ -359,9 +359,9 @@
     text-overflow: ellipsis !important;
 }
 .spotlight-tld .btn:hover {
-    background: #d32f2f !important;
+    background: var(--brand) !important;
     color: #fff !important;
-    border-color: #d32f2f !important;
+    border-color: var(--brand) !important;
 }
 .spotlight-tld-hot  { background: #ef4444 !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
 .spotlight-tld-sale { background: #f59e0b !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
@@ -397,7 +397,7 @@
 }
 .suggested-domains .extension {
     font-weight: 700;
-    color: #d32f2f;
+    color: var(--brand);
 }
 .suggested-domains .price {
     font-weight: 800;
@@ -420,7 +420,7 @@
     cursor: pointer;
 }
 .suggested-domains .btn:not(.domain-contact-support):hover {
-    background: #d32f2f;
+    background: var(--brand);
 }
 .suggested-domains .more-suggestions {
     padding: 0.75rem 1.25rem;
@@ -428,7 +428,7 @@
     border-top: 1px solid #f1f5f9 !important;
 }
 .suggested-domains .more-suggestions a {
-    color: #d32f2f;
+    color: var(--brand);
     font-weight: 700;
     font-size: 0.88rem;
 }
@@ -447,7 +447,7 @@
     text-align: center;
 }
 #btnDomainContinue {
-    background: linear-gradient(135deg, #d32f2f, #c62828) !important;
+    background: linear-gradient(135deg, var(--brand), #c62828) !important;
     color: #fff !important;
     border: none !important;
     border-radius: 99px !important;

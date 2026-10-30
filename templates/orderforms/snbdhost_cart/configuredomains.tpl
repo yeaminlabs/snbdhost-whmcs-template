@@ -275,7 +275,7 @@ var _localLang = {
     padding-top: 1rem;
 }
 .dc-continue-btn {
-    background: #d32f2f;
+    background: var(--brand);
     color: #fff;
     font-size: 1.05rem;
     font-weight: 700;

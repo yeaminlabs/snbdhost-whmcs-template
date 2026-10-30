@@ -1,4 +1,3 @@
-<!-- Dynamic Invoice Summary Stats -->
 {assign var="unpaidCount" value=0}
 {assign var="paidCount" value=0}
 {assign var="cancelledCount" value=0}
@@ -13,133 +12,139 @@
     {/if}
 {/foreach}
 
-<!-- Invoices Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-        <h1 class="dash-headline" style="font-size: 2.25rem; margin-bottom: 0.25rem;">My <span class="dash-headline-accent">Invoices.</span></h1>
-        <p class="text-secondary small mb-0">View, manage, and pay your pending or historical hosting invoices.</p>
+<div class="snbd-page-head">
+    <div class="snbd-page-head__text">
+        <h1 class="snbd-page-title">Invoices</h1>
+        <p class="snbd-page-sub">Review billing history, download invoices and settle anything outstanding.</p>
+    </div>
+    {if $unpaidCount > 0}
+    <div class="snbd-page-actions">
+        <a href="clientarea.php?action=masspay&all=true" class="snbd-btn snbd-btn--primary"><i class="ti ti-credit-card" aria-hidden="true"></i>Pay all unpaid</a>
+    </div>
+    {/if}
+</div>
+
+<div class="snbd-stats snbd-stats--three">
+    <div class="snbd-stat">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Unpaid invoices</span>
+            <span class="snbd-stat__value">{$unpaidCount}</span>
+            {if $unpaidCount > 0}
+                <span class="snbd-chip snbd-chip--warn"><span class="snbd-chip__dot" aria-hidden="true"></span>Needs attention</span>
+            {else}
+                <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>All settled</span>
+            {/if}
+        </span>
+        <span class="snbd-stat__icon snbd-stat__icon--warn"><i class="ti ti-alert-circle" aria-hidden="true"></i></span>
+    </div>
+    <div class="snbd-stat">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Paid invoices</span>
+            <span class="snbd-stat__value">{$paidCount}</span>
+            <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Cleared</span>
+        </span>
+        <span class="snbd-stat__icon snbd-stat__icon--ok"><i class="ti ti-circle-check" aria-hidden="true"></i></span>
+    </div>
+    <div class="snbd-stat">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Total records</span>
+            <span class="snbd-stat__value">{$invoices|@count}</span>
+            {if $cancelledCount > 0}
+                <span class="snbd-chip snbd-chip--neutral">{$cancelledCount} cancelled</span>
+            {else}
+                <span class="snbd-chip snbd-chip--neutral">All statuses</span>
+            {/if}
+        </span>
+        <span class="snbd-stat__icon"><i class="ti ti-file-text" aria-hidden="true"></i></span>
     </div>
 </div>
 
-<!-- Invoices Stats Grid -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #eeeeee !important;">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <div class="text-secondary small font-monospace text-uppercase" style="letter-spacing: 0.5px; font-weight: 700; font-size: 0.72rem;">Unpaid Invoices</div>
-                    <h3 class="fw-bold mt-1 mb-0" style="font-size: 1.85rem; color: #111111;">{$unpaidCount}</h3>
-                </div>
-                <div class="stat-card-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(220, 53, 69, 0.08); color: #dc3545; font-size: 1.25rem;">
-                    <i class="ti ti-alert-circle"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card border-0" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #eeeeee !important;">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <div class="text-secondary small font-monospace text-uppercase" style="letter-spacing: 0.5px; font-weight: 700; font-size: 0.72rem;">Paid Invoices</div>
-                    <h3 class="fw-bold mt-1 mb-0" style="font-size: 1.85rem; color: #111111;">{$paidCount}</h3>
-                </div>
-                <div class="stat-card-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(46, 125, 50, 0.08); color: #2e7d32; font-size: 1.25rem;">
-                    <i class="ti ti-circle-check"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card border-0" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #eeeeee !important;">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <div class="text-secondary small font-monospace text-uppercase" style="letter-spacing: 0.5px; font-weight: 700; font-size: 0.72rem;">Total Records</div>
-                    <h3 class="fw-bold mt-1 mb-0" style="font-size: 1.85rem; color: #111111;">{count($invoices)}</h3>
-                </div>
-                <div class="stat-card-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(186, 17, 20, 0.06); color: #BA1114; font-size: 1.25rem;">
-                    <i class="ti ti-file-text"></i>
-                </div>
-            </div>
-        </div>
+<div class="snbd-toolbar">
+    <div class="snbd-seg" role="group" aria-label="Filter invoices by status">
+        <button type="button" class="snbd-seg__item active" data-snbd-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="snbd-seg__item" data-snbd-filter="unpaid" aria-pressed="false">Unpaid</button>
+        <button type="button" class="snbd-seg__item" data-snbd-filter="paid" aria-pressed="false">Paid</button>
+        <button type="button" class="snbd-seg__item" data-snbd-filter="cancelled" aria-pressed="false">Cancelled</button>
     </div>
 </div>
 
-<!-- Invoices Table Card -->
-<div class="card border-0 mb-5" style="border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.02); overflow: hidden; border: 1px solid #eeeeee !important;">
-    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #eeeeee;">
-        <span class="fw-bold text-dark d-flex align-items-center gap-2" style="font-family: 'Plus Jakarta Sans', sans-serif;"><i class="ti ti-receipt" style="font-size: 1.2rem; color: var(--brand-primary);"></i> Invoice Records</span>
+<section class="snbd-card mb-5" aria-labelledby="invoice-records-title">
+    <div class="snbd-card__head">
+        <h2 class="snbd-card__title" id="invoice-records-title"><i class="ti ti-receipt" aria-hidden="true"></i>Invoice records</h2>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="border-collapse: collapse; border: none;">
-                <thead>
-                    <tr style="background: #fafafa; border-bottom: 1px solid #eeeeee;">
-                        <th class="py-3 px-4" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #777777; border-bottom: none;">Invoice #</th>
-                        <th class="py-3 px-4" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #777777; border-bottom: none;">Invoice Date</th>
-                        <th class="py-3 px-4" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #777777; border-bottom: none;">Due Date</th>
-                        <th class="py-3 px-4" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #777777; border-bottom: none;">Total</th>
-                        <th class="py-3 px-4" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #777777; border-bottom: none;">Status</th>
-                        <th class="py-3 px-4 text-end" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #777777; border-bottom: none;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {foreach key=num item=invoice from=$invoices}
-                    <tr onclick="window.location='viewinvoice.php?id={$invoice.id}'" style="cursor: pointer; transition: all 0.15s ease;">
-                        <td class="py-3 px-4">
-                            <span class="fw-bold text-danger">{if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if}</span>
-                        </td>
-                        <td class="py-3 px-4 text-secondary small">{$invoice.datecreated}</td>
-                        <td class="py-3 px-4 text-secondary small">{$invoice.datedue}</td>
-                        <td class="py-3 px-4 fw-bold text-dark">{$invoice.total}</td>
-                        <td class="py-3 px-4">
-                            {if $invoice.status eq "Paid"}
-                                <span class="badge-clean badge-clean-success">Paid</span>
-                            {elseif $invoice.status eq "Unpaid"}
-                                <span class="badge-clean badge-clean-danger">Unpaid</span>
-                            {elseif $invoice.status eq "Overdue"}
-                                <span class="badge-clean badge-clean-danger" style="background: rgba(220, 53, 69, 0.12) !important; color: #dc3545 !important;">Overdue</span>
-                            {elseif $invoice.status eq "Cancelled"}
-                                <span class="badge-clean badge-clean-secondary">Cancelled</span>
-                            {elseif $invoice.status eq "Refunded"}
-                                <span class="badge-clean badge-clean-info">Refunded</span>
-                            {elseif strtolower($invoice.status) eq "collections"}
-                                <span class="badge-clean badge-clean-secondary" style="background: rgba(108, 117, 125, 0.12) !important; color: #6c757d !important;">Collections</span>
-                            {else}
-                                <span class="badge-clean badge-clean-secondary">{$invoice.status}</span>
-                            {/if}
-                        </td>
-                        <td class="py-3 px-4 text-end" onclick="event.stopPropagation();">
-                            <a href="viewinvoice.php?id={$invoice.id}" class="topbar-icon-btn me-1" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;" title="View Invoice" aria-label="View Invoice {if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if}">
-                                <i class="ti ti-eye" style="font-size: 1.05rem;"></i>
-                            </a>
-                            {if $invoice.status eq "Unpaid"}
-                            <a href="viewinvoice.php?id={$invoice.id}" class="btn btn-brand-clean py-2 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; box-shadow: none !important; display: inline-flex; align-items: center; min-height: 44px;" title="Pay Now" aria-label="Pay Invoice {if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if}">
-                                <i class="ti ti-credit-card me-1"></i> Pay
-                            </a>
-                            {/if}
-                        </td>
-                    </tr>
-                    {foreachelse}
-                    <tr>
-                        <td colspan="6" class="py-5">
-                            <div class="text-center text-muted">
-                                <i class="ti ti-receipt d-block mb-3" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                                <p class="mb-0">No invoices found.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    {/foreach}
-                </tbody>
-            </table>
-        </div>
+    <div class="snbd-table-wrap" data-snbd-filter-target>
+        <table class="snbd-table">
+            <caption class="snbd-visually-hidden">All invoices on your account</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Invoice</th>
+                    <th scope="col">Issued</th>
+                    <th scope="col">Due</th>
+                    <th scope="col" class="snbd-table__num">Total</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="snbd-table__actions">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach key=num item=invoice from=$invoices}
+                <tr data-status="{$invoice.status|lower}">
+                    <td data-label="Invoice">
+                        <a href="viewinvoice.php?id={$invoice.id}" class="fw-semibold">#{$invoice.invoicenum|replace:"#":""}</a>
+                    </td>
+                    <td data-label="Issued" class="snbd-muted">{$invoice.datecreated}</td>
+                    <td data-label="Due" class="snbd-muted">{$invoice.datedue}</td>
+                    <td data-label="Total" class="snbd-table__num snbd-price fw-semibold">{$invoice.total}</td>
+                    <td data-label="Status">
+                        {if $invoice.status eq "Paid"}
+                            <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Paid</span>
+                        {elseif $invoice.status eq "Unpaid"}
+                            <span class="snbd-chip snbd-chip--warn"><span class="snbd-chip__dot" aria-hidden="true"></span>Unpaid</span>
+                        {elseif $invoice.status eq "Overdue"}
+                            <span class="snbd-chip snbd-chip--bad"><span class="snbd-chip__dot" aria-hidden="true"></span>Overdue</span>
+                        {elseif $invoice.status eq "Cancelled"}
+                            <span class="snbd-chip snbd-chip--neutral">Cancelled</span>
+                        {elseif $invoice.status eq "Refunded"}
+                            <span class="snbd-chip snbd-chip--info">Refunded</span>
+                        {else}
+                            <span class="snbd-chip snbd-chip--neutral">{$invoice.status}</span>
+                        {/if}
+                    </td>
+                    <td class="snbd-table__actions" data-label="Action">
+                        {if $invoice.status eq "Unpaid" || $invoice.status eq "Overdue"}
+                            <a href="viewinvoice.php?id={$invoice.id}" class="snbd-btn snbd-btn--sm snbd-btn--primary">Pay</a>
+                        {else}
+                            <a href="viewinvoice.php?id={$invoice.id}" class="snbd-btn snbd-btn--sm snbd-btn--secondary">View</a>
+                        {/if}
+                    </td>
+                </tr>
+                {foreachelse}
+                <tr>
+                    <td colspan="6">
+                        <div class="snbd-empty">
+                            <span class="snbd-empty__icon"><i class="ti ti-receipt" aria-hidden="true"></i></span>
+                            <p class="snbd-empty__title">No invoices yet</p>
+                            <p class="snbd-empty__text">Your invoices will appear here after your first order.</p>
+                            <a href="cart.php" class="snbd-btn snbd-btn--primary snbd-btn--sm">Browse services</a>
+                        </div>
+                    </td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
     </div>
-</div>
+</section>
 
 {if $prevpage || $nextpage}
-<div class="d-flex justify-content-between mt-4 mb-5">
-    <a href="?action=invoices&page={$prevpage}" class="btn btn-outline-custom px-4 py-2 {if !$prevpage}disabled{/if}"><i class="ti ti-arrow-left me-2"></i>Previous</a>
-    <a href="?action=invoices&page={$nextpage}" class="btn btn-outline-custom px-4 py-2 {if !$nextpage}disabled{/if}">Next<i class="ti ti-arrow-right ms-2"></i></a>
-</div>
+<nav class="snbd-pagination" aria-label="Invoice pages">
+    {if $prevpage}
+        <a href="?action=invoices&page={$prevpage}" class="snbd-btn snbd-btn--sm snbd-btn--secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i>Previous</a>
+    {else}
+        <span class="snbd-btn snbd-btn--sm snbd-btn--secondary disabled" aria-disabled="true"><i class="ti ti-arrow-left" aria-hidden="true"></i>Previous</span>
+    {/if}
+    {if $nextpage}
+        <a href="?action=invoices&page={$nextpage}" class="snbd-btn snbd-btn--sm snbd-btn--secondary">Next<i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+    {else}
+        <span class="snbd-btn snbd-btn--sm snbd-btn--secondary disabled" aria-disabled="true">Next<i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+    {/if}
+</nav>
 {/if}

@@ -42,14 +42,22 @@ jobs:
   Analysis:
     runs-on: ubuntu-latest
 
+    env:
+      # Generate a token on Sonarcloud.io and add it to the secrets of this repo
+      # with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret).
+      # Until that is done the analysis step is skipped rather than failing the
+      # required check, so unrelated pull requests stay mergeable.
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
     steps:
       - name: Analyze with SonarCloud
+        if: ${{ env.SONAR_TOKEN != '' }}
 
         # You can pin the exact commit or the version.
         # uses: SonarSource/sonarcloud-github-action@v2.2.0
         uses: SonarSource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         with:
           # Additional arguments for the SonarScanner CLI
           args:

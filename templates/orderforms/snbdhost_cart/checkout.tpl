@@ -61,7 +61,7 @@
 }
 .checkout-section-title i {
     font-size: 1.1rem;
-    color: #CC0000;
+    color: var(--brand);
 }
 
 /* ── Already Registered Banner ──────────────────────────────────── */
@@ -122,7 +122,7 @@
     padding-left: 2.25rem !important;
 }
 .form-group.prepend-icon:has(.field:focus) .field-icon {
-    color: #CC0000;
+    color: var(--brand);
 }
 
 /* ── Payment Methods Grid ───────────────────────────────────────── */
@@ -199,7 +199,7 @@
 }
 .summary-row.total strong {
     font-size: 1.6rem !important;
-    color: #CC0000 !important;
+    color: var(--brand) !important;
     font-weight: 800 !important;
     line-height: 1;
     letter-spacing: 0.5px;
@@ -241,9 +241,9 @@ textarea.field.form-control {
     resize: vertical !important;
 }
 textarea.field.form-control:focus {
-    border-color: #CC0000 !important;
+    border-color: var(--brand) !important;
     background: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(var(--brand-rgb), 0.1) !important;
 }
 
 /* ── Complete Order Button ──────────────────────────────────────── */
@@ -251,12 +251,12 @@ textarea.field.form-control:focus {
     width: 100%;
     height: 52px;
     border-radius: 10px;
-    background: #CC0000 !important;
+    background: var(--brand) !important;
     border: none !important;
     font-weight: 700;
     font-size: 1rem;
     color: #ffffff !important;
-    box-shadow: 0 4px 14px rgba(204, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(var(--brand-rgb), 0.2) !important;
     transition: all 0.2s ease !important;
     display: flex;
     align-items: center;
@@ -265,9 +265,9 @@ textarea.field.form-control:focus {
     margin-top: 1.5rem;
 }
 #btnCompleteOrder:hover:not(:disabled) {
-    background: #AA0000 !important;
+    background: var(--brand-hover) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.3) !important;
+    box-shadow: 0 6px 20px rgba(var(--brand-rgb), 0.3) !important;
 }
 
 /* ── TOS Checkbox ───────────────────────────────────────────────── */
@@ -305,12 +305,12 @@ textarea.field.form-control:focus {
     flex-shrink: 0;
 }
 .checkout-summary-card .checkbox-inline:hover .checkmark {
-    border-color: #CC0000;
-    background-color: rgba(204, 0, 0, 0.04);
+    border-color: var(--brand);
+    background-color: rgba(var(--brand-rgb), 0.04);
 }
 .checkout-summary-card .checkbox-inline input:checked ~ .checkmark {
-    background-color: #CC0000;
-    border-color: #CC0000;
+    background-color: var(--brand);
+    border-color: var(--brand);
 }
 .checkout-summary-card .checkbox-inline .checkmark:after {
     content: "";
@@ -329,7 +329,7 @@ textarea.field.form-control:focus {
     animation: checkPop 0.2s ease;
 }
 .checkout-summary-card .checkbox-inline a {
-    color: #CC0000 !important;
+    color: var(--brand) !important;
     text-decoration: underline !important;
 }
 

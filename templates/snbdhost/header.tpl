@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- SNBD HOST CUSTOM THEME -->
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#BA1114">
     <title>{$companyname} - {$pagetitle}</title>
 
     <script>
@@ -16,35 +16,69 @@
             saving = '{/literal}{lang key="markdown.saving"}{literal}',
             whmcsBaseUrl = "{/literal}{$WEB_ROOT}{literal}";
         {/literal}
+        {if $requiredVariables}
+            {foreach from=$requiredVariables key="variable" item="value"}
+                var {$variable} = "{$value}";
+            {/foreach}
+        {/if}
     </script>
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts Preconnect & Combined Load -->
+    {* Apply the persisted sidebar rail state before first paint (desktop only). *}
+    <script>try{if(localStorage.getItem('snbd-sidebar-rail')==='1'&&window.innerWidth>=1200){document.documentElement.classList.add('snbd-rail');}}catch(e){}</script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome (Asynchronous) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <!-- Tabler Icons CSS (Asynchronous) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tabler icon set (pinned) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.50.0/dist/tabler-icons.min.css">
 
-    <!-- Parent Twenty-One Theme CSS (required for cart/store/fallback pages) -->
-    <link href="{$WEB_ROOT}/templates/{$template}/css/all.min.css?v={$versionHash}" rel="stylesheet">
-    <link href="{$WEB_ROOT}/templates/{$template}/css/theme.css?v={$versionHash}" rel="stylesheet">
-    <link href="{$WEB_ROOT}/templates/{$template}/css/custom.css?v={$versionHash}" rel="stylesheet">
-
-    <!-- Custom SNBD Host Theme (loaded AFTER parent to override) -->
-    <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbdhost-theme.css?v={$smarty.now}" rel="stylesheet">
-
-    <!-- Parent Theme JS (Moved from footer to provide jQuery to orderforms in body) -->
-    <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
-    
-    {$headoutput}
-    
+    {* Work out which stylesheets this page needs. *}
+    {assign var="snbdAuthPage" value=false}
     {if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
+        {assign var="snbdAuthPage" value=true}
+    {/if}
+
+    {*
+       One Bootstrap per page. Pages rebuilt on the SNBD system load Bootstrap 5;
+       WHMCS pages that still render parent Twenty-One markup load the parent's
+       Bootstrap 4 stack plus snbd-legacy.css, which re-skins that markup.
+    *}
+    {assign var="snbdLegacyPage" value=true}
+    {assign var="snbdOrderPage" value=false}
+    {if $filename == 'cart'}{assign var="snbdOrderPage" value=true}{/if}
+    {if $templatefile == 'affiliates' || $templatefile == 'clientareadevupdates' || $templatefile == 'clientareadomaindetails' || $templatefile == 'clientareadomains' || $templatefile == 'clientareahome' || $templatefile == 'clientareainvoices' || $templatefile == 'clientareaproductdetails' || $templatefile == 'clientareaproducts' || $templatefile == 'clientregister' || $templatefile == 'login' || $templatefile == 'migration' || $templatefile == 'pwreset' || $templatefile == 'serverstatus' || $templatefile == 'supportticketslist' || $templatefile == 'supportticketsubmit-stepone' || $templatefile == 'supportticketsubmit-steptwo' || $templatefile == 'viewinvoice' || $templatefile == 'viewticket' || strpos($templatefile|default:'', 'password-reset') !== false || $snbdOrderPage}
+        {assign var="snbdLegacyPage" value=false}
+    {/if}
+
+    {if $snbdLegacyPage}
+        {* Parent Twenty-One stylesheet: only for pages that still render parent markup
+           (knowledgebase, account details, contact, store). *}
+        <link href="{$WEB_ROOT}/templates/{$template}/css/all.min.css?v={$versionHash}" rel="stylesheet">
+        <link href="{$WEB_ROOT}/templates/{$template}/css/theme.css?v={$versionHash}" rel="stylesheet">
+    {else}
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {/if}
+
+    {if $snbdLegacyPage || $snbdOrderPage}
+        {* Font Awesome is only needed by parent markup and the order form. *}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {/if}
+
+    <!-- SNBD Host design system -->
+    <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-system.css?v={$smarty.now}" rel="stylesheet">
+    <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-shell.css?v={$smarty.now}" rel="stylesheet">
+    <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-pages.css?v={$smarty.now}" rel="stylesheet">
+    {if $snbdLegacyPage}
+        <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-legacy.css?v={$smarty.now}" rel="stylesheet">
+    {/if}
+
+    {* Parent script bundle ships jQuery and the plugins inline page scripts use
+       (DataTables, tabs, gateway helpers). It must load before body markup. *}
+    <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
+
+    {$headoutput}
+
+    {if $snbdAuthPage}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$smarty.now}"></script>
     {/if}
@@ -59,7 +93,7 @@
     {/literal}
     <!-- End Google Tag Manager -->
 </head>
-<body data-phone-cc-input="{$phoneNumberInputStyle}">
+<body data-phone-cc-input="{$phoneNumberInputStyle}"{if $snbdAuthPage} class="snbd-auth-body"{/if}>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N675SJK"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -67,196 +101,219 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 {$headeroutput}
 
-{if $templatefile == 'login' || $templatefile == 'clientregister' || $templatefile == 'pwreset' || strpos($templatefile|default:'', 'password-reset') !== false}
-    <div id="particles-js"></div>
-    <div class="auth-page">
+{if $snbdAuthPage}
+
+    {* Authentication pages render their own split-panel layout. *}
+
 {else}
-    <!-- Mobile sidebar backdrop -->
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    {capture assign="snbdCrumb"}
+        {if $filename eq 'clientarea' && $action eq ''}Dashboard
+        {elseif $filename eq 'clientarea' && $action eq 'products'}Services
+        {elseif $filename eq 'clientarea' && $action eq 'productdetails'}Service
+        {elseif $filename eq 'clientarea' && $action eq 'domains'}Domains
+        {elseif $filename eq 'clientarea' && $action eq 'domaindetails'}Domain
+        {elseif $filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions')}Billing
+        {elseif $filename eq 'clientarea' && $action eq 'details'}My details
+        {elseif $filename eq 'clientarea' && $action eq 'creditcard'}Payment methods
+        {elseif $filename eq 'clientarea' && $action eq 'emails'}Email history
+        {elseif $filename eq 'clientarea' && $action eq 'addfunds'}Add funds
+        {elseif $filename eq 'clientarea' && $action eq 'masspay'}Pay invoices
+        {elseif $filename eq 'clientarea' && $action eq 'devupdates'}Developer updates
+        {elseif $filename eq 'clientarea'}Account
+        {elseif $filename eq 'viewinvoice'}Invoice
+        {elseif $filename eq 'supporttickets'}Tickets
+        {elseif $filename eq 'submitticket'}New ticket
+        {elseif $filename eq 'viewticket'}Ticket
+        {elseif $filename eq 'affiliates'}Affiliates
+        {elseif $filename eq 'serverstatus'}Network status
+        {elseif $filename eq 'knowledgebase'}Knowledge base
+        {elseif $filename eq 'announcements'}Announcements
+        {elseif $filename eq 'migration'}Migration
+        {elseif $filename eq 'cart' || $templatefile eq 'viewcart' || $templatefile eq 'checkout' || $templatefile eq 'complete' || $templatefile eq 'products' || $templatefile eq 'configureproduct' || $templatefile eq 'configuredomains' || $templatefile eq 'domainregister' || $templatefile eq 'domaintransfer' || $templatefile eq 'domainoptions'}Order
+        {else}{$pagetitle|truncate:38:''|default:'Client area'}
+        {/if}
+    {/capture}
+
+    <a class="snbd-skip-link" href="#snbd-content">Skip to content</a>
 
     <div id="snbd-wrapper">
-        <aside id="snbd-sidebar">
-            <script>
-                if (localStorage.getItem('snbd-sidebar-collapsed') === 'true' && window.innerWidth > 768) {
-                    document.getElementById('snbd-sidebar').classList.add('collapsed');
-                }
-            </script>
-            <div class="snbd-brand-logo-container">
-                <a href="{$WEB_ROOT}/clientarea.php" class="d-flex align-items-center text-decoration-none">
-                    <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="snbd-brand-logo">
+        <aside id="snbd-sidebar" aria-label="Main navigation">
+            <div class="snbd-brand">
+                <a href="{$WEB_ROOT}/clientarea.php" class="snbd-brand__link" aria-label="{$companyname} home">
+                    <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="snbd-brand__logo">
+                    <span class="snbd-brand__mark" aria-hidden="true">S</span>
                 </a>
+                <button type="button" class="snbd-rail-toggle" aria-controls="snbd-sidebar" aria-expanded="true" aria-label="Collapse sidebar">
+                    <i class="ti ti-layout-sidebar-left-collapse" aria-hidden="true"></i>
+                </button>
             </div>
-            <nav class="snbd-nav-menu">
-                <div class="nav-section-label">Main</div>
-                <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq ''}active{/if}" aria-label="Dashboard">
-                    <i class="ti ti-layout-dashboard"></i>
-                    <span class="snbd-nav-text">Dashboard</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'products'}active{/if}" aria-label="Services">
-                    <i class="ti ti-server"></i>
-                    <span class="snbd-nav-text">Services</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'domains'}active{/if}" aria-label="Domains">
-                    <i class="ti ti-world"></i>
-                    <span class="snbd-nav-text">Domains</span>
-                </a>
-                <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav-item {if $filename eq 'affiliates'}active{/if}" aria-label="Affiliates">
-                    <i class="ti ti-users"></i>
-                    <span class="snbd-nav-text">Affiliates</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'invoices'}active{/if}" aria-label="Billing">
-                    <i class="ti ti-credit-card"></i>
-                    <span class="snbd-nav-text">Billing</span>
-                </a>
- 
-                <div class="nav-section-label">Support</div>
-                <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav-item {if $filename eq 'supporttickets'}active{/if}" aria-label="Tickets">
-                    <i class="ti ti-lifebuoy"></i>
-                    <span class="snbd-nav-text">Tickets</span>
-                </a>
-                <a href="https://snbdhost.com/kb" target="_blank" class="snbd-nav-item {if $filename eq 'knowledgebase'}active{/if}" aria-label="Knowledge Base">
-                    <i class="ti ti-book"></i>
-                    <span class="snbd-nav-text">Knowledge Base</span>
-                </a>
-                <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav-item {if $filename eq 'serverstatus'}active{/if}" aria-label="Network Status">
-                    <i class="ti ti-activity"></i>
-                    <span class="snbd-nav-text">Network Status</span>
-                </a>
- 
-                <div class="nav-section-label">Account</div>
-                <a href="{$WEB_ROOT}/clientarea.php?action=details" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'details'}active{/if}" aria-label="My Details">
-                    <i class="ti ti-settings"></i>
-                    <span class="snbd-nav-text">My Details</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=creditcard" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'creditcard'}active{/if}" aria-label="Payment Methods">
-                    <i class="ti ti-credit-card"></i>
-                    <span class="snbd-nav-text">Payment Methods</span>
-                </a>
-                <a href="{$WEB_ROOT}/clientarea.php?action=emails" class="snbd-nav-item {if $filename eq 'clientarea' && $action eq 'emails'}active{/if}" aria-label="Emails">
-                    <i class="ti ti-mail"></i>
-                    <span class="snbd-nav-text">Emails</span>
-                </a>
-                {if $loggedin}
-                <a href="{$WEB_ROOT}/logout.php" class="snbd-nav-item" aria-label="Logout">
-                    <i class="ti ti-logout"></i>
-                    <span class="snbd-nav-text">Logout</span>
-                </a>
-                {/if}
-            </nav>
-            {if $loggedin}
-            <div class="snbd-user-profile">
-                <div class="user-avatar">{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:""}{else}U{/if}</div>
-                <div class="user-info">
-                    <span class="user-name">{$clientsdetails.firstname} {$clientsdetails.lastname}</span>
-                    <span class="user-email">{$clientsdetails.email}</span>
+
+            <nav class="snbd-nav" aria-label="Client area">
+                <div class="snbd-nav__group">
+                    <div class="snbd-nav__divider" aria-hidden="true"></div>
+                    <div class="snbd-nav__label">Manage</div>
+                    <a href="{$WEB_ROOT}/clientarea.php" class="snbd-nav__item {if $filename eq 'clientarea' && $action eq ''}active{/if}" data-label="Dashboard" {if $filename eq 'clientarea' && $action eq ''}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Dashboard</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=products" class="snbd-nav__item {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails')}active{/if}" data-label="Services" {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails')}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-server" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Services</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="snbd-nav__item {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}" data-label="Domains" {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-world" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Domains</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="snbd-nav__item {if ($filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions' || $action eq 'masspay')) || $filename eq 'viewinvoice'}active{/if}" data-label="Billing" {if ($filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions' || $action eq 'masspay')) || $filename eq 'viewinvoice'}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-receipt" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Billing</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/affiliates.php" class="snbd-nav__item {if $filename eq 'affiliates'}active{/if}" data-label="Affiliates" {if $filename eq 'affiliates'}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-users" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Affiliates</span>
+                    </a>
                 </div>
+
+                <div class="snbd-nav__group">
+                    <div class="snbd-nav__divider" aria-hidden="true"></div>
+                    <div class="snbd-nav__label">Support</div>
+                    <a href="{$WEB_ROOT}/supporttickets.php" class="snbd-nav__item {if $filename eq 'supporttickets' || $filename eq 'viewticket' || $filename eq 'submitticket'}active{/if}" data-label="Tickets" {if $filename eq 'supporttickets' || $filename eq 'viewticket' || $filename eq 'submitticket'}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-lifebuoy" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Tickets</span>
+                        {if $snbdNotifications && $snbdNotifications.openTickets > 0}
+                            <span class="snbd-nav__badge">{$snbdNotifications.openTickets}</span>
+                        {/if}
+                    </a>
+                    <a href="https://snbdhost.com/kb" target="_blank" rel="noopener" class="snbd-nav__item" data-label="Knowledge Base">
+                        <span class="snbd-nav__icon"><i class="ti ti-book" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Knowledge Base</span>
+                        <span class="snbd-visually-hidden">(opens in a new tab)</span>
+                    </a>
+                    <a href="{$WEB_ROOT}/serverstatus.php" class="snbd-nav__item {if $filename eq 'serverstatus'}active{/if}" data-label="Network Status" {if $filename eq 'serverstatus'}aria-current="page"{/if}>
+                        <span class="snbd-nav__icon"><i class="ti ti-activity" aria-hidden="true"></i></span>
+                        <span class="snbd-nav__label-text">Network Status</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="snbd-sidebar__foot">
+                {if $loggedin}
+                    <button type="button" class="snbd-user" data-snbd-popover="accountMenu" aria-expanded="false" aria-haspopup="true" aria-controls="accountMenu">
+                        <span class="snbd-avatar" aria-hidden="true">{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:''}{else}U{/if}</span>
+                        <span class="snbd-user__meta">
+                            <span class="snbd-user__name">{$clientsdetails.firstname} {$clientsdetails.lastname}</span>
+                            <span class="snbd-user__email">{$clientsdetails.email}</span>
+                        </span>
+                        <i class="ti ti-chevron-up snbd-user__chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="snbd-popover" id="accountMenu" role="menu" aria-label="Account">
+                        <ul class="snbd-menu">
+                            <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=details"><i class="ti ti-user" aria-hidden="true"></i>My details</a></li>
+                            <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=creditcard"><i class="ti ti-credit-card" aria-hidden="true"></i>Payment methods</a></li>
+                            <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=emails"><i class="ti ti-mail" aria-hidden="true"></i>Email history</a></li>
+                            <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=addfunds"><i class="ti ti-wallet" aria-hidden="true"></i>Add funds</a></li>
+                            <li><hr class="snbd-menu__divider"></li>
+                            <li><a class="snbd-menu__item snbd-menu__item--danger" role="menuitem" href="{$WEB_ROOT}/logout.php"><i class="ti ti-logout" aria-hidden="true"></i>Sign out</a></li>
+                        </ul>
+                    </div>
+                {else}
+                    <a href="{$WEB_ROOT}/login.php" class="snbd-user">
+                        <span class="snbd-avatar snbd-avatar--muted" aria-hidden="true"><i class="ti ti-user"></i></span>
+                        <span class="snbd-user__meta">
+                            <span class="snbd-user__name">Sign in</span>
+                            <span class="snbd-user__email">Access your account</span>
+                        </span>
+                        <i class="ti ti-arrow-right snbd-user__chevron" aria-hidden="true"></i>
+                    </a>
+                {/if}
             </div>
-            {/if}
         </aside>
 
-        <main id="snbd-main">
+        <div class="snbd-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
+        <main id="snbd-main">
             <header id="snbd-topbar">
-                <div class="topbar-left-wrap">
-                    <button id="sidebar-toggle-btn" class="toggle-sidebar-btn" aria-label="Toggle Sidebar"><i class="ti ti-menu-2"></i></button>
-                    <a href="{$WEB_ROOT}/clientarea.php" class="topbar-logo-link">
-                        <img src="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png" alt="{$companyname}" class="topbar-logo">
-                    </a>
+                <div class="snbd-topbar__left">
+                    <button type="button" class="snbd-icon-btn snbd-menu-btn" aria-label="Open navigation" aria-controls="snbd-sidebar" aria-expanded="false">
+                        <i class="ti ti-menu-2" aria-hidden="true"></i>
+                    </button>
+                    <nav class="snbd-crumbs" aria-label="Breadcrumb">
+                        <a href="{$WEB_ROOT}/clientarea.php">Client area</a>
+                        <span class="snbd-crumbs__sep" aria-hidden="true">/</span>
+                        <span class="snbd-crumbs__current">{$snbdCrumb|trim}</span>
+                    </nav>
                 </div>
 
-                <nav class="topbar-nav d-none d-xl-flex">
-                    <a href="{$WEB_ROOT}/clientarea.php" class="topbar-nav-link {if $filename eq 'clientarea' && $action eq ''}active{/if}">Dashboard</a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=products" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'products' || $action eq 'productdetails' || $action eq 'services')}active{/if}">Services</a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=domains" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'domains' || $action eq 'domaindetails')}active{/if}">Domains</a>
-                    <a href="{$WEB_ROOT}/affiliates.php" class="topbar-nav-link {if $filename eq 'affiliates'}active{/if}">Affiliates</a>
-                    <a href="{$WEB_ROOT}/clientarea.php?action=invoices" class="topbar-nav-link {if $filename eq 'clientarea' && ($action eq 'invoices' || $action eq 'quotes' || $action eq 'transactions')}active{/if}">Billing</a>
-                    
-                    <div class="topbar-nav-item dropdown">
-                        <a href="#" class="topbar-nav-link dropdown-toggle {if $filename eq 'supporttickets' || $filename eq 'knowledgebase' || $filename eq 'serverstatus'}active{/if}" data-bs-toggle="dropdown" aria-expanded="false">Support <i class="ti ti-chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/supporttickets.php"><i class="ti ti-lifebuoy me-2"></i>Tickets</a></li>
-                            <li><a class="dropdown-item" href="https://snbdhost.com/kb" target="_blank"><i class="ti ti-book me-2"></i>Knowledge Base</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/serverstatus.php"><i class="ti ti-activity me-2"></i>Network Status</a></li>
-                        </ul>
-                    </div>
-                </nav>
+                <form class="snbd-search" action="{$WEB_ROOT}/knowledgebase.php" method="get" role="search">
+                    <input type="hidden" name="action" value="search">
+                    <i class="ti ti-search snbd-search__icon" aria-hidden="true"></i>
+                    <input type="text" name="search" placeholder="Search guides and services" aria-label="Search the knowledge base" autocomplete="off" data-snbd-search>
+                    <kbd aria-hidden="true">/</kbd>
+                </form>
 
-                <div class="topbar-right">
-                    <!-- Search Bar (Compact) -->
-                    <form class="topbar-search-compact d-none d-md-flex" action="{$WEB_ROOT}/knowledgebase.php" method="get" role="search">
-                        <input type="hidden" name="action" value="knowledgebase">
-                        <div class="search-input-group">
-                            <i class="ti ti-search"></i>
-                            <input type="text" name="search" placeholder="Search..." aria-label="Search" autocomplete="off">
+                <div class="snbd-topbar__right">
+                    {if $loggedin}
+                        <a href="{$WEB_ROOT}/cart.php" class="snbd-btn snbd-btn--primary snbd-btn--sm snbd-order-btn">
+                            <i class="ti ti-plus" aria-hidden="true"></i><span>Order service</span>
+                        </a>
+                    {/if}
+
+                    {if $loggedin}
+                        <button type="button" class="snbd-icon-btn" data-snbd-popover="notifMenu" aria-expanded="false" aria-haspopup="true" aria-controls="notifMenu" aria-label="Notifications{if $snbdNotifications} ({$snbdNotifications.total} unread){/if}">
+                            <i class="ti ti-bell" aria-hidden="true"></i>
+                            {if $snbdNotifications && $snbdNotifications.total > 0}
+                                <span class="snbd-icon-btn__badge" aria-hidden="true">{$snbdNotifications.total}</span>
+                            {/if}
+                        </button>
+                        <div class="snbd-popover" id="notifMenu" aria-label="Notifications">
+                            <div class="snbd-popover__head">
+                                <span>Notifications</span>
+                                {if $snbdNotifications && $snbdNotifications.total > 0}
+                                    <span class="snbd-chip snbd-chip--warn">{$snbdNotifications.total} need attention</span>
+                                {/if}
+                            </div>
+                            <div class="snbd-popover__body">
+                                {if $snbdNotifications}
+                                    {foreach from=$snbdNotifications.items item=note}
+                                        <a class="snbd-notif-item snbd-notif-item--{$note.severity}" href="{$note.url}">
+                                            <span class="snbd-notif-item__icon"><i class="ti {$note.icon}" aria-hidden="true"></i></span>
+                                            <span>
+                                                <span class="snbd-notif-item__title">{$note.title}</span>
+                                                <span class="snbd-notif-item__meta">{$note.meta}</span>
+                                            </span>
+                                        </a>
+                                    {foreachelse}
+                                        <div class="snbd-notif-empty">You're all caught up.</div>
+                                    {/foreach}
+                                {else}
+                                    <div class="snbd-notif-empty">You're all caught up.</div>
+                                {/if}
+                            </div>
+                            <a class="snbd-popover__foot" href="{$WEB_ROOT}/clientarea.php?action=invoices">View billing overview</a>
                         </div>
-                    </form>
 
-                    <!-- Currency selector -->
-                    {if !$loggedin && $currencies}
-                    <div class="topbar-currency dropdown">
-                        <button class="btn btn-currency dropdown-toggle px-3 py-1" type="button" id="currencyMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            {$activeCurrency.prefix} {$activeCurrency.code}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="currencyMenu">
-                            {foreach from=$currencies item=listcurr}
-                                <li>
-                                    <form method="post" action="{$currentpagelinkback}" class="m-0 p-0">
-                                        <input type="hidden" name="currency" value="{$listcurr.id}" />
-                                        <button type="submit" class="dropdown-item" style="cursor:pointer;">{$listcurr.prefix} {$listcurr.code}</button>
-                                    </form>
-                                </li>
-                            {/foreach}
-                        </ul>
-                    </div>
-                    {/if}
-
-                    {if $loggedin}
-                    <a href="{$WEB_ROOT}/cart.php" class="btn btn-brand btn-topbar-dashboard d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; margin-right: 0.5rem;">
-                        <i class="ti ti-plus" style="font-size: 0.9rem; vertical-align: middle;"></i> Order Service
-                    </a>
-                    {/if}
-                    
-                    <button class="topbar-icon-btn position-relative d-none d-md-inline-flex" aria-label="Notifications">
-                        <i class="ti ti-bell"></i>
-                    </button>
-
-                    <script>
-                    {literal}
-                    document.addEventListener("DOMContentLoaded", function() {
-                        var topbar = document.getElementById('snbd-topbar');
-                        if (topbar) {
-                            function handleScroll() {
-                                if (window.scrollY > 38) {
-                                    topbar.style.top = '0px';
-                                } else {
-                                    topbar.style.top = '38px';
-                                }
-                            }
-                            window.addEventListener('scroll', handleScroll);
-                            handleScroll();
-                        }
-                    });
-                    {/literal}
-                    </script>
-
-                    {if $loggedin}
-                    <div class="topbar-user dropdown ms-2">
-                        <button class="btn btn-brand dropdown-toggle px-3 py-1 text-white" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="ti ti-user-circle"></i> {$clientsdetails.firstname}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=details"><i class="ti ti-settings me-2"></i>My Details</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=creditcard"><i class="ti ti-credit-card me-2"></i>Payment Methods</a></li>
-                            <li><a class="dropdown-item" href="{$WEB_ROOT}/clientarea.php?action=emails"><i class="ti ti-mail me-2"></i>Email History</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{$WEB_ROOT}/logout.php"><i class="ti ti-logout me-2"></i>Logout</a></li>
-                        </ul>
-                    </div>
+                        <div class="snbd-account">
+                            <button type="button" class="snbd-account__btn" data-snbd-popover="accountMenuTop" aria-expanded="false" aria-haspopup="true" aria-controls="accountMenuTop" aria-label="Account menu for {$clientsdetails.firstname}">
+                                <span class="snbd-avatar snbd-avatar--sm" aria-hidden="true">{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:''}{else}U{/if}</span>
+                                <span class="snbd-account__name">{$clientsdetails.firstname}</span>
+                                <i class="ti ti-chevron-down snbd-account__chevron" aria-hidden="true"></i>
+                            </button>
+                            <div class="snbd-popover" id="accountMenuTop" role="menu" aria-label="Account">
+                                <ul class="snbd-menu">
+                                    <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=details"><i class="ti ti-user" aria-hidden="true"></i>My details</a></li>
+                                    <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=creditcard"><i class="ti ti-credit-card" aria-hidden="true"></i>Payment methods</a></li>
+                                    <li><a class="snbd-menu__item" role="menuitem" href="{$WEB_ROOT}/clientarea.php?action=emails"><i class="ti ti-mail" aria-hidden="true"></i>Email history</a></li>
+                                    <li><hr class="snbd-menu__divider"></li>
+                                    <li><a class="snbd-menu__item snbd-menu__item--danger" role="menuitem" href="{$WEB_ROOT}/logout.php"><i class="ti ti-logout" aria-hidden="true"></i>Sign out</a></li>
+                                </ul>
+                            </div>
+                        </div>
                     {else}
-                    <a href="{$WEB_ROOT}/login.php" class="btn btn-brand btn-topbar-dashboard ms-2">Login</a>
+                        <a href="{$WEB_ROOT}/login.php" class="snbd-btn snbd-btn--primary snbd-btn--sm">Sign in</a>
                     {/if}
                 </div>
             </header>
 
-            <div class="snbd-content">
+            <div class="snbd-content" id="snbd-content">
 {/if}
