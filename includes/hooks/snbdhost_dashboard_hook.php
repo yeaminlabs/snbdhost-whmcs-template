@@ -229,6 +229,28 @@ add_hook('ClientAreaPage', 1, function ($vars) {
 });
 
 /**
+ * ClientAreaPage Hook
+ * Tells the shell whether the page being rendered has its own template in this
+ * theme ($snbdCustomTemplate). The header uses it to load one Bootstrap and the
+ * matching stylesheets, so a page opts into the SNBD design system by existing
+ * as a template file rather than by being named in a list.
+ */
+add_hook('ClientAreaPage', 1, function ($vars) {
+    $template = ltrim(str_replace(['..', '\\', "\0"], '', (string) ($vars['templatefile'] ?? '')), '/');
+
+    if ($template === '') {
+        return ['snbdCustomTemplate' => false];
+    }
+
+    $theme = empty($vars['template']) ? 'snbdhost' : (string) $vars['template'];
+    $root  = defined('ROOTDIR') ? ROOTDIR : dirname(__DIR__, 2);
+
+    return [
+        'snbdCustomTemplate' => is_file($root . '/templates/' . $theme . '/' . $template . '.tpl'),
+    ];
+});
+
+/**
  * ClientAreaPageAffiliates Hook
  * Exposes active product groups and their products for custom referral link generation.
  */

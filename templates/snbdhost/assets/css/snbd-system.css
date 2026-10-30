@@ -536,6 +536,31 @@ a.snbd-stat:hover {
 .snbd-table__actions { text-align: right; white-space: nowrap; }
 .snbd-table--compact thead th { padding: 8px var(--snbd-s4); }
 .snbd-table--compact tbody td { padding: 10px var(--snbd-s4); }
+.snbd-table__group th {
+  padding: 9px var(--snbd-s5);
+  background: var(--snbd-surface-3);
+  border-bottom: 1px solid var(--snbd-line);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--snbd-ink-700);
+  text-align: left;
+}
+.snbd-table tfoot th,
+.snbd-table tfoot td {
+  padding: 11px var(--snbd-s5);
+  background: var(--snbd-surface-2);
+  border-top: 1px solid var(--snbd-line);
+  font-size: 0.8125rem;
+}
+.snbd-table tfoot th { text-align: right; font-weight: 600; color: var(--snbd-ink-700); }
+.snbd-table__total th,
+.snbd-table__total td {
+  border-top: 1px solid var(--snbd-line-strong);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--snbd-ink-900);
+}
+.snbd-table__total td { color: var(--snbd-red); }
 
 /* -------------------------------------------------------------- 10. Forms */
 .snbd-form .form-control,
