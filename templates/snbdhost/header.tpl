@@ -43,7 +43,16 @@
     {*
        $snbdAuthPage comes from the ClientAreaPage hook so the footer, which is
        rendered separately, closes the shell only when the header opened it.
+       The fallback below covers a theme uploaded without the matching copy of
+       includes/hooks: without it the login page renders inside the client-area
+       shell and the Google button loses its script. It is assigned globally
+       because the footer reads it in a separate template scope.
     *}
+    {if !$snbdAuthPage && $templatefile && ($templatefile == 'login' || $templatefile == 'clientregister'
+        || $templatefile == 'pwreset' || $templatefile == 'two-factor-challenge'
+        || $templatefile|substr:0:15 == 'password-reset-')}
+        {assign scope="global" var="snbdAuthPage" value=true}
+    {/if}
     {*
        One Bootstrap per page. $snbdCustomTemplate is set by the theme hook when
        this page has its own template file, so a page is styled by the SNBD system
@@ -81,7 +90,13 @@
 
     {$headoutput}
 
-    {if $snbdAuthPage}
+    {*
+       Google Identity Services loads wherever a button can be shown, not only on
+       the auth pages: $googleClientId is the real condition, so a stale or
+       missing $snbdAuthPage can no longer leave the button markup without its
+       script. Pages without a client id pay nothing.
+    *}
+    {if $snbdAuthPage || $googleClientId}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script src="{$WEB_ROOT}/templates/{$template}/assets/js/google-signin.js?v={$smarty.now}"></script>
     {/if}
