@@ -10,67 +10,79 @@
   padding:0 0 40px 0;
   font-size:14px
 }
+/*
+  The cart's columns used to be floats with percentage widths, copied from the
+  parent's Bootstrap 3 stylesheet. Inside Bootstrap 5 a .row is a flex container,
+  so the floats were ignored while the widths still applied: the body kept a
+  fixed 75% whether or not the category sidebar was rendered, which left a dead
+  strip down the right of the review page and squeezed the order summary into
+  the middle of it. These are flex bases instead: the content column takes the
+  remaining space, the side columns take what they need, nothing is reserved for
+  markup that is not on the page.
+*/
+#order-standard_cart .row {
+  --bs-gutter-x: 0
+}
 #order-standard_cart .cart-sidebar {
-  float:left;
-  width:25%;
+  flex:0 0 280px;
+  max-width:280px;
   position:relative;
   min-height:1px;
   padding-right:15px;
   padding-left:15px
 }
 #order-standard_cart .cart-body {
-  float:right;
-  width:75%;
+  flex:1 1 0%;
+  min-width:0;
   position:relative;
   min-height:1px;
   padding-right:15px;
   padding-left:15px
 }
 #order-standard_cart .secondary-cart-body {
-  float:left;
-  width:65%;
+  flex:1 1 0%;
+  min-width:0;
   position:relative;
   min-height:1px;
   padding-right:15px;
-  padding-left:15px
+  padding-left:0
 }
 #order-standard_cart .secondary-cart-sidebar {
-  float:right;
-  width:35%;
+  flex:0 0 360px;
+  max-width:360px;
   position:relative;
   min-height:1px;
-  padding-right:15px;
-  padding-left:15px
+  padding-right:0;
+  padding-left:30px
+}
+/* A page with no category sidebar (review cart, checkout) uses the full row. */
+#order-standard_cart .cart-sidebar + .cart-body {
+  flex:1 1 0%
 }
 @media only screen and (max-width:1199px) {
   #order-standard_cart .cart-sidebar {
     display:none
   }
-  #order-standard_cart .cart-body {
-    width:100%;
-    float:none
-  }
-  #order-standard_cart .secondary-cart-body {
-    width:69%
-  }
   #order-standard_cart .secondary-cart-sidebar {
-    width:31%
+    flex:0 0 320px;
+    max-width:320px
   }
 }
 @media only screen and (max-width:991px) {
   #order-standard_cart .secondary-cart-body {
-    width:100%;
-    float:none
+    flex:1 1 100%;
+    padding-right:0
   }
   #order-standard_cart .secondary-cart-sidebar {
-    margin:0 auto;
-    width:300px;
-    float:none
+    flex:1 1 100%;
+    max-width:100%;
+    padding-left:0;
+    margin-top:24px
   }
 }
 @media only screen and (max-width:575px) {
   #order-standard_cart .secondary-cart-sidebar {
-    width:100%
+    flex:1 1 100%
   }
 }
 #order-standard_cart .field-container {

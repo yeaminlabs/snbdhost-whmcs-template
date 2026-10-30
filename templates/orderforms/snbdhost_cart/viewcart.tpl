@@ -240,7 +240,7 @@
                                                 {if $domain.idprotection}&nbsp;&raquo; {$LANG.domainidprotection}<br />{/if}
                                             </div>
                                             <div class="col-sm-4 item-price">
-                                                {if count($domain.pricing) == 1 || $domain.type == 'transfer'}
+                                                {if !is_array($domain.pricing) || count($domain.pricing) <= 1 || $domain.type == 'transfer'}
                                                     <span name="{$domain.domain}Price">{$domain.price}</span>
                                                     <span class="cycle">{$domain.regperiod} {$domain.yearsLanguage}</span>
                                                     <span class="renewal cycle">
