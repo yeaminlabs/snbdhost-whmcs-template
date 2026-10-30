@@ -70,6 +70,8 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
                 'id'          => $row->id,
                 'invoicenum'  => $rawNum,
                 'datecreated' => date('M j, Y', strtotime($row->date)),
+                'datedue'     => ($row->duedate && $row->duedate !== '0000-00-00')
+                                  ? date('M j, Y', strtotime($row->duedate)) : '—',
                 'total'       => snbd_format_currency($row->total, $prefix, $suffix),
                 'status'      => ucfirst(strtolower($row->status)),
             ];
@@ -166,6 +168,63 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
         'services'     => $services,
         'loyalty_data' => $loyalty,
         'open_tickets' => $openTickets,
+    ];
+});
+
+/**
+ * ClientAreaPage Hook
+ * Feeds the shell notification menu ($snbdNotifications) on every client area page:
+ * unpaid invoices and tickets that still need the client's attention.
+ */
+add_hook('ClientAreaPage', 1, function ($vars) {
+    if (empty($vars['clientsdetails']['userid'])) {
+        return [];
+    }
+
+    $userid = (int) $vars['clientsdetails']['userid'];
+    $items  = [];
+    $counts = ['unpaidInvoices' => 0, 'openTickets' => 0];
+
+    try {
+        $counts['unpaidInvoices'] = (int) Capsule::table('tblinvoices')
+            ->where('userid', $userid)
+            ->whereIn('status', ['Unpaid', 'Overdue', 'Payment Pending'])
+            ->count();
+
+        if ($counts['unpaidInvoices'] > 0) {
+            $items[] = [
+                'severity' => 'warn',
+                'icon'     => 'ti-receipt',
+                'title'    => $counts['unpaidInvoices'] . ' unpaid invoice' . ($counts['unpaidInvoices'] === 1 ? '' : 's'),
+                'meta'     => 'Review and settle your balance',
+                'url'      => 'clientarea.php?action=invoices',
+            ];
+        }
+    } catch (\Throwable $e) { }
+
+    try {
+        $counts['openTickets'] = (int) Capsule::table('tbltickets')
+            ->where('userid', $userid)
+            ->whereNotIn('status', ['Closed'])
+            ->count();
+
+        if ($counts['openTickets'] > 0) {
+            $items[] = [
+                'severity' => 'info',
+                'icon'     => 'ti-lifebuoy',
+                'title'    => $counts['openTickets'] . ' open ticket' . ($counts['openTickets'] === 1 ? '' : 's'),
+                'meta'     => 'Check the latest replies',
+                'url'      => 'supporttickets.php',
+            ];
+        }
+    } catch (\Throwable $e) { }
+
+    return [
+        'snbdNotifications' => [
+            'total'       => $counts['unpaidInvoices'] + $counts['openTickets'],
+            'openTickets' => $counts['openTickets'],
+            'items'       => $items,
+        ],
     ];
 });
 

@@ -4,15 +4,15 @@
 
 ### A fully custom, SaaS-grade WHMCS client area for [SNBD Host](https://snbdhost.com)
 
-<img src="https://img.shields.io/badge/WHMCS-8.x-e53935?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjZTUzOTM1Ii8+PHBhdGggZD0iTTcgN2gxMHYxMEg3eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==&logoColor=white" alt="WHMCS 8.x"/>
+<img src="https://img.shields.io/badge/WHMCS-8.x-BA1114?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjZTUzOTM1Ii8+PHBhdGggZD0iTTcgN2gxMHYxMEg3eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==&logoColor=white" alt="WHMCS 8.x"/>
 <img src="https://img.shields.io/badge/PHP-7.4%2B-777bb4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 7.4+"/>
 <img src="https://img.shields.io/badge/Bootstrap-5.3-7952b3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap 5.3"/>
-<img src="https://img.shields.io/badge/Version-2.0.0-BA1114?style=for-the-badge" alt="v2.0.0"/>
+<img src="https://img.shields.io/badge/Version-3.0.0-BA1114?style=for-the-badge" alt="v3.0.0"/>
 <img src="https://img.shields.io/badge/Status-Stable-2e7d32?style=for-the-badge" alt="Status: Stable"/>
 <img src="https://img.shields.io/badge/License-Proprietary-333333?style=for-the-badge" alt="License"/>
 
-Built with Bootstrap 5, Inter typography, and a bold **Red & White** brand system —
-themed templates on the front end, PHP hooks on the back end.
+One design system — a single red on neutral gray, a persistent left sidebar and a shared
+component layer — themed templates on the front end, PHP hooks on the back end.
 
 </div>
 
@@ -30,18 +30,19 @@ themed templates on the front end, PHP hooks on the back end.
 
 <br/>
 
-## 🚀 What's New in v2.0.0
+## 🚀 What's New in v3.0.0 — whole-application redesign
 
 <table>
 <tr><th align="left" width="200">Area</th><th align="left">Change</th></tr>
-<tr><td>🛒 Cart — Specificity</td><td>All cart styles now scoped under <code>#order-standard_cart</code> / <code>#order-snbdhost_cart</code> to fully override WHMCS defaults</td></tr>
-<tr><td>🛒 Cart — Checkout</td><td>Redesigned cart item rows, order summary sidebar, promo tabs, and payment gateway selector</td></tr>
-<tr><td>🛒 Cart — Complete Page</td><td>Premium animated order confirmation with hero checkmark icon, status grid, and CTA buttons</td></tr>
-<tr><td>🧾 Invoice Detail</td><td>Fixed broken standalone-HTML layout — now renders inside the portal shell with sidebar/topbar</td></tr>
-<tr><td>🧾 Invoice Detail UI</td><td>Premium invoice card, brand-red top border, address grid, styled line items, pay/print/back actions</td></tr>
-<tr><td>🎫 Support Tickets</td><td>Fully redesigned ticket list and chat-bubble ticket thread</td></tr>
-<tr><td>🤖 n8n Dashboard</td><td>Client-side transformer embeds a modern dashboard UI directly into n8n product pages, driven by admin-configurable hooks</td></tr>
-<tr><td>📦 Distribution</td><td><code>snbdhost-portal-theme1.zip</code> and <code>snbdhost_cart.zip</code> repackaged with all v2.0.0 changes</td></tr>
+<tr><td>🎨 Design system</td><td><code>snbd-system.css</code> replaces three competing palettes with one red (<code>#BA1114</code>) on a neutral ramp, one type scale and one radius scale</td></tr>
+<tr><td>🧭 Navigation</td><td>A single persistent left sidebar (collapsible rail on desktop, off-canvas + backdrop on mobile). The duplicate topbar nav is gone.</td></tr>
+<tr><td>🧱 Components</td><td>Cards, stats, tables, chips, buttons, forms, alerts, tabs, menus, modals and empty states are defined once and reused on every page</td></tr>
+<tr><td>📄 Page cleanup</td><td>Page-level <code>&lt;style&gt;</code> blocks and dozens of inline styles removed from every customised template; pages migrated to the shared components</td></tr>
+<tr><td>🌉 Legacy bridge</td><td><code>snbd-legacy.css</code> re-skins WHMCS pages that still render parent Twenty-One markup (knowledge base, account, contact, order form) so nothing looks like a second product</td></tr>
+<tr><td>⚙️ Bootstrap</td><td>Exactly one Bootstrap per page — Bootstrap 5 on rebuilt pages, parent Bootstrap 4 on legacy pages — ending the 4/5 class collision</td></tr>
+<tr><td>🛒 Cart</td><td>Order form tokens aliased to the shared system, one brand red, hard-coded hexes removed</td></tr>
+<tr><td>♿ Access</td><td>Skip link, <code>aria-current</code> navigation, labelled icon buttons, visible focus rings, 44px targets and reduced-motion support</td></tr>
+<tr><td>🧹 Dead code</td><td>Removed the phantom announcement offset, FAB, particles, loader, unused loyalty styles and 500 KB of unreferenced parent CSS/JS</td></tr>
 </table>
 
 <br/>
@@ -183,17 +184,17 @@ Hook files are auto-loaded by WHMCS on every request from `includes/hooks/` — 
 ## ✨ Features
 
 <table>
-<tr><td width="33%">🎨 <b>SaaS Dashboard UI</b><br/><sub>Two-panel layout — collapsible sidebar + sticky topbar</sub></td>
-<td width="33%">📊 <b>Stat Cards</b><br/><sub>Animated metric cards for services, invoices, balance & tickets</sub></td>
-<td width="33%">🏆 <b>Loyalty Matrix</b><br/><sub>Full-width tier card with animated progress bar</sub></td></tr>
-<tr><td>🧾 <b>Custom Invoice</b><br/><sub>Standalone branded invoice viewer with gateway selector</sub></td>
-<td>💳 <b>Gateway Switcher</b><br/><sub>Pill-style payment method toggle on invoice pages</sub></td>
+<tr><td width="33%">🎨 <b>One Design System</b><br/><sub>Persistent sidebar + sticky topbar, one red on neutral gray</sub></td>
+<td width="33%">📊 <b>Stat Cards</b><br/><sub>Metric cards for services, invoices, balance & tickets</sub></td>
+<td width="33%">🏆 <b>Loyalty Matrix</b><br/><sub>Full-width tier card with progress to the next tier</sub></td></tr>
+<tr><td>🧾 <b>Custom Invoice</b><br/><sub>Print-ready invoice document with gateway selector</sub></td>
+<td>💳 <b>Gateway Switcher</b><br/><sub>Payment method selector on invoice pages</sub></td>
 <td>🔍 <b>Working Search</b><br/><sub>Topbar search that queries the WHMCS Knowledge Base</sub></td></tr>
 <tr><td>🎫 <b>Ticket Chat UI</b><br/><sub>Chat-bubble ticket thread with avatar initials</sub></td>
-<td>⚡ <b>Quick Actions FAB</b><br/><sub>Floating action button with radial menu (ticket, invoice, order)</sub></td>
-<td>🔐 <b>Premium Auth Pages</b><br/><sub>Login, register & password reset with particle.js backgrounds</sub></td></tr>
-<tr><td>🛒 <b>Custom Order Cart</b><br/><sub>Fully themed shopping cart, red & white brand system</sub></td>
-<td>📱 <b>Fully Responsive</b><br/><sub>Mobile-first with sidebar drawer and adaptive layouts</sub></td>
+<td>⚡ <b>Command Shortcuts</b><br/><sub>Press <kbd>/</kbd> to search, <kbd>Esc</kbd> to close menus</sub></td>
+<td>🔐 <b>Auth Pages</b><br/><sub>Login, register & password reset on the shared system</sub></td></tr>
+<tr><td>🛒 <b>Custom Order Cart</b><br/><sub>Order form on the same tokens as the client area</sub></td>
+<td>📱 <b>Fully Responsive</b><br/><sub>Sidebar rail on desktop, off-canvas drawer on mobile</sub></td>
 <td>🤖 <b>n8n Dashboard</b><br/><sub>Auto-transforms n8n product pages into a modern client dashboard</sub></td></tr>
 <tr><td>🛡️ <b>Cloudflare Turnstile</b><br/><sub>Optional captcha across login, register, checkout & tickets</sub></td>
 <td>🔑 <b>Google Sign-In</b><br/><sub>OAuth login/register, client ID managed from the addon</sub></td>
@@ -232,15 +233,15 @@ SNBDHOST Portal template/
 └── 📁 templates/
     │
     ├── 📁 snbdhost/                           ═══ CLIENT AREA THEME ═══
-    │   ├── 📄 header.tpl                      HTML head, sidebar nav, topbar, search
-    │   ├── 📄 footer.tpl                      FAB button, loader, JS dependencies
+    │   ├── 📄 header.tpl                      HTML head, persistent sidebar, topbar, search
+    │   ├── 📄 footer.tpl                      Page close, JS dependencies
     │   │
     │   ├── ── Pages ──────────────────────
     │   ├── 📄 clientareahome.tpl              Dashboard (stats, loyalty, invoices, news)
     │   ├── 📄 clientareaproducts.tpl          My Services — card grid layout
     │   ├── 📄 clientareaproductdetails.tpl    Product details — n8n dashboard embed target
     │   ├── 📄 clientareainvoices.tpl          Invoice list — sortable table
-    │   ├── 📄 viewinvoice.tpl                 Invoice detail — standalone branded page
+    │   ├── 📄 viewinvoice.tpl                 Invoice detail — print-ready document inside the shell
     │   ├── 📄 supportticketslist.tpl          Support tickets list
     │   ├── 📄 viewticket.tpl                  Ticket thread — chat bubble UI
     │   │
@@ -251,8 +252,11 @@ SNBDHOST Portal template/
     │   │
     │   ├── ── Assets ─────────────────────
     │   ├── 📁 assets/
-    │   │   ├── 📁 css/snbdhost-theme.css       Master theme: layout, sidebar, cards, auth
-    │   │   └── 📁 js/snbdhost-theme.js         Sidebar toggle, FAB, particles, validation
+    │   │   ├── 📁 css/snbd-system.css         Design tokens, typography, shared components
+    │   │   ├── 📁 css/snbd-shell.css          Sidebar, topbar, rail mode, mobile off-canvas
+    │   │   ├── 📁 css/snbd-pages.css          Page layouts: dashboard → tickets → auth → status
+    │   │   ├── 📁 css/snbd-legacy.css         Bridge for WHMCS pages that use parent markup
+    │   │   └── 📁 js/snbd-shell.js            Sidebar, popovers, modals, copy, passwords, prices
     │   │
     │   ├── 📁 css/                            WHMCS core CSS overrides
     │   ├── 📁 js/                             WHMCS core JS
@@ -330,11 +334,11 @@ parent: twenty-one
 | Layer | Technology |
 |---|---|
 | **Framework** | WHMCS 8.x (Smarty Templates + Hooks API) |
-| **CSS Framework** | Bootstrap 5.3 (CDN) |
-| **Typography** | Inter (Google Fonts) |
-| **Icons** | Font Awesome 6.4 (CDN) |
-| **Animations** | Particle.js (auth pages), CSS keyframes |
-| **JavaScript** | Vanilla JS — no jQuery dependency for custom code |
+| **CSS Framework** | Bootstrap 5.3 on redesigned pages; parent Bootstrap 4 + `snbd-legacy.css` bridge on pages still using Twenty-One markup (one Bootstrap per page) |
+| **Typography** | Inter (body) + Plus Jakarta Sans (display) via Google Fonts |
+| **Icons** | Tabler Icons 3.x; Font Awesome only on legacy pages and the order form |
+| **Animations** | CSS transitions only — no particle, loader or FAB layers |
+| **JavaScript** | Vanilla JS for the shell; jQuery/WHMCS utilities for core pages |
 | **Server Logic** | PHP hooks + `WHMCS\Database\Capsule` query builder |
 | **Security** | Cloudflare Turnstile (optional captcha), Google OAuth 2.0 |
 
@@ -348,30 +352,42 @@ parent: twenty-one
 
 ### Brand Colors
 
-Defined as CSS custom properties in `snbdhost-theme.css` — change two variables and every component updates:
+One red, one neutral ramp, one radius scale — all defined in `assets/css/snbd-system.css`. Change these and every page, card and control follows:
 
 ```css
 :root {
-  --brand-primary: #e53935;      /* Main brand red */
-  --brand-hover: #c62828;        /* Darker hover state */
-  --brand-light: rgba(229, 57, 53, 0.06);  /* Tinted backgrounds */
+  --snbd-red: #BA1114;                 /* The only accent colour */
+  --snbd-red-hover: #9E0D10;
+  --snbd-red-soft: rgba(186, 17, 20, 0.06);
 
-  --bg-body: #f5f5f5;            /* Page background */
-  --bg-surface: #ffffff;         /* Card/panel backgrounds */
-  --text-primary: #1a1a1a;       /* Main text */
-  --text-secondary: #555555;     /* Secondary text */
+  --snbd-canvas: #F7F7F4;              /* Page background */
+  --snbd-surface: #FFFFFF;             /* Cards and panels */
+  --snbd-surface-2: #FAFAF8;           /* Subtle fills and table heads */
+  --snbd-line: #E7E4DE;                /* Hairline borders */
+
+  --snbd-ink-900: #14161A;             /* Primary text */
+  --snbd-ink-700: #3C4248;
+  --snbd-ink-500: #6B7278;             /* Secondary text */
 }
 ```
+
+Status colours (`--snbd-ok`, `--snbd-warn`, `--snbd-bad`, `--snbd-info`) are always paired with a dot or icon, never colour alone.
 
 ### Layout Dimensions
 
 ```css
 :root {
-  --sidebar-w: 260px;            /* Sidebar width (expanded) */
-  --sidebar-w-collapsed: 68px;   /* Sidebar width (collapsed) */
-  --topbar-h: 56px;              /* Top navigation bar height */
+  --snbd-sidebar-w: 264px;      /* Sidebar width (expanded) */
+  --snbd-sidebar-rail: 76px;    /* Sidebar width (collapsed rail, ≥1200px) */
+  --snbd-topbar-h: 60px;        /* Sticky topbar height */
 }
 ```
+
+The sidebar is the single navigation system: persistent on desktop (collapsible to a rail), off-canvas with a backdrop below 1024px. There is no second topbar nav.
+
+### Adding a new page
+
+Use the shared components instead of page CSS — `snbd-page-head`, `snbd-card`, `snbd-stats`, `snbd-table`, `snbd-chip`, `snbd-btn`, `snbd-form`. A page that still falls back to the parent theme is automatically bridged by `snbd-legacy.css`.
 
 <br/>
 

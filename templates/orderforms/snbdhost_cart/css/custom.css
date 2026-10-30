@@ -1,31 +1,30 @@
 /* ================================================================
    SNBD Host — Custom Order Form Stylesheet
-   Brand: Slate Blue (#0f172a) + Red (#e53935)
+   Aliases the order form onto the shared SNBD design tokens so the
+   cart cannot drift from the client area again.
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 /* ----------------------------------------------------------------
-   1. CSS Custom Properties
+   1. CSS Custom Properties (mapped to snbd-system.css tokens)
    ---------------------------------------------------------------- */
 :root {
-  --brand: #CC0000;
-  --brand-rgb: 204, 0, 0;
-  --brand-hover: #AA0000;
-  --brand-light: rgba(204, 0, 0, 0.04);
-  --brand-light-border: rgba(204, 0, 0, 0.12);
-  --surface: #ffffff;
-  --surface-alt: #F7F7F4;
-  --elevated: #fafafa;
-  --text-main: #111111;
-  --text-sec: #555555;
-  --text-dim: #999999;
-  --border: #eeeeee;
-  --border-sub: #f6f6f6;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.01);
-  --shadow-lg: 0 12px 30px rgba(0,0,0,0.06);
+  --brand: var(--snbd-red, #BA1114);
+  --brand-rgb: var(--snbd-red-rgb, 186, 17, 20);
+  --brand-hover: var(--snbd-red-hover, #9E0D10);
+  --brand-light: var(--snbd-red-soft, rgba(186, 17, 20, 0.06));
+  --brand-light-border: rgba(var(--brand-rgb), 0.16);
+  --surface: var(--snbd-surface, #ffffff);
+  --surface-alt: var(--snbd-canvas, #F7F7F4);
+  --elevated: var(--snbd-surface-2, #FAFAF8);
+  --text-main: var(--snbd-ink-900, #14161A);
+  --text-sec: var(--snbd-ink-700, #3C4248);
+  --text-dim: var(--snbd-ink-500, #6B7278);
+  --border: var(--snbd-line, #E7E4DE);
+  --border-sub: var(--snbd-surface-3, #F2F1ED);
+  --radius: var(--snbd-r-lg, 14px);
+  --radius-sm: var(--snbd-r-md, 10px);
+  --shadow: var(--snbd-e1, 0 1px 2px rgba(20, 22, 26, 0.04));
+  --shadow-lg: var(--snbd-e2, 0 8px 24px rgba(20, 22, 26, 0.06));
 }
 
 /* ----------------------------------------------------------------
@@ -33,7 +32,7 @@
    ---------------------------------------------------------------- */
 #order-standard_cart,
 #order-snbdhost_cart {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  font-family: var(--snbd-font-text, 'Inter', -apple-system, sans-serif);
   color: var(--text-main) !important;
   background: transparent !important;
   border-radius: 0;

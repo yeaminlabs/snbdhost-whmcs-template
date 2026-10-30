@@ -28,8 +28,11 @@ This guide provides step-by-step instructions on how to activate the custom **SN
 Verify the following items across different screen sizes (desktop, tablet, and mobile):
 
 ### A. General Layout & Styles
-* [ ] **Navigation & Menus**: Check header navigation links, responsive hamburger toggle menu, and footer layouts.
-* [ ] **Design Theme Tokens**: Verify that the primary brand red color (`#BA1114`) renders correctly on key actions, buttons, and badges.
+* [ ] **Single navigation**: On desktop the left sidebar is the only nav and the rail toggle collapses it to icons. Below 1024px the sidebar becomes an off-canvas drawer with a backdrop; the topbar hamburger is the only way in. No duplicate topbar nav links.
+* [ ] **One accent colour**: Every primary action, active nav item, badge and link hover uses `#BA1114`. No `#CC0000`, orange or blue leftovers anywhere.
+* [ ] **Design tokens**: Change `--snbd-red` in `assets/css/snbd-system.css` and confirm buttons, chips, nav and tables all follow.
+* [ ] **No layout drift**: Cards, tables and forms share the same radii, spacing and borders on dashboard, services, invoices, tickets, auth and network status.
+* [ ] **Legacy bridge**: Open a page with no custom template (My Details, Add Funds, Knowledge Base, Contact). Its cards, buttons, tables and alerts should match the redesigned pages, not the stock Twenty-One look.
 * [ ] **No Console Errors**: Open the browser console (`F12`) and verify that no Javascript exceptions occur (all custom scripts should compile properly within Smarty bounds).
 
 ### B. Client Area Dashboard Pages

@@ -1,775 +1,135 @@
-{include file="{$template}/header.tpl" title="Network Status"}
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SNBD HOST — NETWORK STATUS PAGE v2
-     UptimeRobot API v3 · Premium Animated Dashboard
-     ═══════════════════════════════════════════════════════════════ -->
-
-<style>
-/* Style override to collapse parent padding on this page */
-#snbd-main .snbd-content {
-  padding-top: 0.5rem !important;
-}
-
-.ns-page {
-  margin-top: 0;
-}
-@media (max-width: 768px) {
-  #snbd-main .snbd-content {
-    padding-top: 0.25rem !important;
-  }
-}
-
-/* Hero Banner — dark premium style */
-.ns-hero {
-  position: relative;
-  background: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #0d0d0d 100%);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 20px;
-  padding: 2.25rem 2.25rem 1.75rem;
-  overflow: hidden;
-  margin-bottom: 1.75rem;
-  color: #ffffff;
-}
-.ns-hero::before {
-  content: '';
-  position: absolute;
-  top: -60%; left: -40%;
-  width: 200%; height: 200%;
-  background: radial-gradient(circle at 25% 35%, rgba(186,17,20,0.12) 0%, transparent 55%),
-              radial-gradient(circle at 75% 65%, rgba(46,125,50,0.06) 0%, transparent 50%);
-  pointer-events: none;
-  animation: heroGradientDrift 12s ease-in-out infinite alternate;
-}
-@keyframes heroGradientDrift {
-  0%   { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(3%, -2%) scale(1.02); }
-}
-.ns-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(186,17,20,0.3), transparent);
-}
-
-.ns-hero-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 1;
-}
-.ns-hero-title {
-  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #ffffff;
-  margin: 0 0 0.25rem;
-  line-height: 1.2;
-}
-.ns-hero-subtitle {
-  font-size: 0.8125rem;
-  color: rgba(255,255,255,0.5);
-  font-weight: 500;
-  margin: 0;
-}
-.ns-refresh-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 50rem;
-  padding: 0.4rem 0.875rem;
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.5);
-  font-weight: 600;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-.ns-refresh-pill svg { transform: rotate(-90deg); }
-
-/* Status Orb */
-.ns-status-row {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  position: relative;
-  z-index: 1;
-  margin-bottom: 2rem;
-}
-.ns-orb {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; flex-shrink: 0;
-  transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
-}
-.ns-orb.loading { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
-.ns-orb.up { background: rgba(46,125,50,0.15); color: #66bb6a; animation: nsOrbPulseUp 3s ease-in-out infinite; }
-.ns-orb.down { background: rgba(198,40,40,0.2); color: #ef5350; animation: nsOrbPulseDown 1.5s ease-in-out infinite; }
-.ns-orb.warning { background: rgba(230,81,0,0.15); color: #ffb74d; animation: nsOrbPulseWarn 2s ease-in-out infinite; }
-@keyframes nsOrbPulseUp { 0%,100% { box-shadow: 0 0 0 0 rgba(46,125,50,0.3); } 50% { box-shadow: 0 0 0 18px rgba(46,125,50,0); } }
-@keyframes nsOrbPulseDown { 0%,100% { box-shadow: 0 0 0 0 rgba(198,40,40,0.4); } 50% { box-shadow: 0 0 0 20px rgba(198,40,40,0); } }
-@keyframes nsOrbPulseWarn { 0%,100% { box-shadow: 0 0 0 0 rgba(230,81,0,0.3); } 50% { box-shadow: 0 0 0 14px rgba(230,81,0,0); } }
-
-.ns-status-text h2 {
-  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 0.2rem;
-  letter-spacing: -0.01em;
-}
-.ns-status-text p {
-  font-size: 0.8125rem;
-  color: rgba(255,255,255,0.45);
-  margin: 0;
-  font-weight: 400;
-}
-
-/* Metric Cards inside hero */
-.ns-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  position: relative;
-  z-index: 1;
-}
-.ns-metric-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-  padding: 1.25rem 1rem;
-  text-align: center;
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.ns-metric-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.1);
-  transform: translateY(-2px);
-}
-.ns-metric-value {
-  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1;
-  margin-bottom: 0.3rem;
-  letter-spacing: -0.02em;
-}
-.ns-metric-value.up { color: #66bb6a; }
-.ns-metric-value.down { color: #ef5350; }
-.ns-metric-value.paused { color: rgba(255,255,255,0.3); }
-.ns-metric-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.35);
-}
-
-/* Uptime bar inside hero */
-.ns-uptime-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1.25rem;
-  position: relative;
-  z-index: 1;
-}
-.ns-uptime-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.4);
-}
-.ns-uptime-value {
-  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #66bb6a;
-}
-.ns-uptime-track {
-  position: relative;
-  height: 6px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50rem;
-  overflow: hidden;
-  margin-top: 0.5rem;
-  z-index: 1;
-}
-.ns-uptime-fill {
-  height: 100%;
-  border-radius: 50rem;
-  background: linear-gradient(90deg, #2e7d32, #66bb6a);
-  width: 0%;
-  transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
-  position: relative;
-}
-.ns-uptime-fill::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: 30px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25));
-  border-radius: 0 50rem 50rem 0;
-}
-
-/* Toolbar */
-.ns-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-.ns-search {
-  position: relative;
-}
-.ns-search input {
-  width: 280px;
-  padding: 0.625rem 1rem 0.625rem 2.5rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  transition: all 0.25s;
-  outline: none;
-  font-family: var(--font-sans);
-}
-.ns-search input:focus {
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.08);
-}
-.ns-search i {
-  position: absolute;
-  left: 0.875rem; top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  pointer-events: none;
-}
-.ns-toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.ns-monitor-count {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-.ns-filter-tabs {
-  display: inline-flex;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 4px;
-  gap: 2px;
-}
-.ns-filter-tab {
-  border: none;
-  background: transparent;
-  padding: 0.5rem 1.125rem;
-  border-radius: 10px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: var(--font-sans);
-}
-.ns-filter-tab:hover { color: var(--text-secondary); background: var(--bg-elevated); }
-.ns-filter-tab.active {
-  background: var(--brand-primary);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(var(--brand-primary-rgb), 0.25);
-}
-.ns-tab-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px; height: 18px;
-  padding: 0 5px;
-  border-radius: 50rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  margin-left: 5px;
-  transition: all 0.2s;
-  background: var(--border-subtle);
-  color: var(--text-muted);
-}
-.ns-filter-tab.active .ns-tab-badge {
-  background: rgba(255,255,255,0.25);
-  color: #ffffff;
-}
-
-/* Error Card */
-.ns-error-card {
-  background: var(--bg-surface);
-  border: 1px solid rgba(198,40,40,0.15);
-  border-radius: 16px;
-  padding: 3rem;
-  text-align: center;
-}
-.ns-error-card .error-icon {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  background: rgba(198,40,40,0.06);
-  color: #c62828;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Loading Skeleton */
-.ns-skeleton-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 1.5rem;
-  overflow: hidden;
-}
-.ns-skeleton-shimmer {
-  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-surface) 50%, var(--bg-elevated) 75%);
-  background-size: 200% 100%;
-  animation: nsShimmer 1.5s infinite;
-  border-radius: 6px;
-}
-@keyframes nsShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-/* Monitor Cards */
-.ns-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-.ns-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 1.15rem 1.25rem 1rem;
-  position: relative;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease, border-color 0.3s ease;
-}
-.ns-card.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.ns-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
-  border-color: var(--border-color);
-}
-.ns-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: transparent;
-  transition: background 0.3s;
-}
-.ns-card.up::before { background: linear-gradient(90deg, #2e7d32, #66bb6a); }
-.ns-card.down::before { background: linear-gradient(90deg, #c62828, #ef5350); }
-.ns-card.paused::before { background: linear-gradient(90deg, #999, #bbb); }
-
-.ns-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-}
-.ns-card-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  min-width: 0;
-}
-
-/* Status indicator */
-.ns-dot-wrap {
-  position: relative;
-  width: 36px; height: 36px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ns-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  position: relative;
-  z-index: 1;
-}
-.ns-dot.up { background: #2e7d32; }
-.ns-dot.down { background: #c62828; }
-.ns-dot.paused { background: #999; }
-.ns-dot-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  opacity: 0;
-}
-.ns-dot.up + .ns-dot-ring {
-  background: rgba(46,125,50,0.08);
-  animation: nsDotPing 2.5s ease-out infinite;
-}
-.ns-dot.down + .ns-dot-ring {
-  background: rgba(198,40,40,0.1);
-  animation: nsDotPing 1.5s ease-out infinite;
-}
-@keyframes nsDotPing {
-  0% { opacity: 0.6; transform: scale(0.5); }
-  100% { opacity: 0; transform: scale(1.3); }
-}
-
-.ns-card-name {
-  font-weight: 700;
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ns-card-url {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ns-card-tags {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.625rem;
-  flex-wrap: wrap;
-}
-.ns-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.75rem;
-  border-radius: 50rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-.ns-badge-success { background: rgba(46,125,50,0.08); color: #2e7d32; border: 1px solid rgba(46,125,50,0.15); }
-.ns-badge-danger { background: rgba(198,40,40,0.08); color: #c62828; border: 1px solid rgba(198,40,40,0.15); }
-.ns-badge-secondary { background: rgba(100,100,100,0.06); color: #777; border: 1px solid rgba(100,100,100,0.12); }
-.ns-badge-warning { background: rgba(230,81,0,0.08); color: #e65100; border: 1px solid rgba(230,81,0,0.15); }
-.ns-badge-info { background: rgba(186,17,20,0.06); color: var(--brand-primary); border: 1px solid rgba(186,17,20,0.12); }
-.ns-card-meta {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-/* Right side — uptime & sparkline */
-.ns-card-right {
-  text-align: right;
-  flex-shrink: 0;
-  min-width: 100px;
-}
-.ns-card-uptime {
-  font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
-  font-size: 1.375rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.ns-card-uptime-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-
-/* SVG Sparkline */
-.ns-sparkline {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 24px;
-  justify-content: flex-end;
-  margin-top: 0.5rem;
-}
-.ns-spark-bar {
-  width: 3.5px;
-  border-radius: 2px;
-  transition: height 0.4s ease, opacity 0.3s ease;
-}
-.ns-card.up .ns-spark-bar { background: #2e7d32; }
-.ns-card.down .ns-spark-bar { background: #c62828; }
-.ns-card.paused .ns-spark-bar { background: #999; }
-.ns-card:hover .ns-spark-bar { opacity: 1 !important; }
-
-.ns-card-response {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.375rem;
-  font-weight: 600;
-}
-.ns-card-response i { font-size: 0.7rem; }
-
-/* Mini progress bar */
-.ns-bar-track {
-  height: 4px;
-  background: var(--bg-elevated);
-  border-radius: 50rem;
-  overflow: hidden;
-  margin-top: 0.75rem;
-}
-.ns-bar-fill {
-  height: 100%;
-  border-radius: 50rem;
-  background: linear-gradient(90deg, #2e7d32, #66bb6a);
-  transition: width 1s cubic-bezier(0.4,0,0.2,1);
-}
-.ns-bar-fill.warn { background: linear-gradient(90deg, #e65100, #ffb74d); }
-.ns-bar-fill.crit { background: linear-gradient(90deg, #c62828, #ef5350); }
-
-.ns-bar-meta {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.375rem;
-}
-.ns-bar-meta span {
-  font-size: 0.625rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-/* Empty state */
-.ns-empty {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 3.5rem 2rem;
-  text-align: center;
-  grid-column: 1 / -1;
-}
-.ns-empty i {
-  font-size: 2rem;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
-/* Entrance animations */
-@keyframes nsFadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.ns-hero-top { animation: nsFadeUp 0.6s ease both; }
-.ns-status-row { animation: nsFadeUp 0.6s ease 0.1s both; }
-.ns-metrics { animation: nsFadeUp 0.6s ease 0.2s both; }
-.ns-uptime-row, .ns-uptime-track { animation: nsFadeUp 0.6s ease 0.3s both; }
-.ns-toolbar { animation: nsFadeUp 0.5s ease 0.35s both; }
-
-/* Stagger monitor cards */
-.ns-card:nth-child(1)  { transition-delay: 0.00s; }
-.ns-card:nth-child(2)  { transition-delay: 0.06s; }
-.ns-card:nth-child(3)  { transition-delay: 0.12s; }
-.ns-card:nth-child(4)  { transition-delay: 0.18s; }
-.ns-card:nth-child(5)  { transition-delay: 0.24s; }
-.ns-card:nth-child(6)  { transition-delay: 0.30s; }
-.ns-card:nth-child(7)  { transition-delay: 0.36s; }
-.ns-card:nth-child(8)  { transition-delay: 0.42s; }
-.ns-card:nth-child(9)  { transition-delay: 0.48s; }
-.ns-card:nth-child(10) { transition-delay: 0.54s; }
-.ns-card:nth-child(11) { transition-delay: 0.60s; }
-.ns-card:nth-child(12) { transition-delay: 0.66s; }
-
-/* Responsive */
-@media (max-width: 991px) {
-  .ns-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 768px) {
-  .ns-hero { padding: 1.5rem; border-radius: 16px; }
-  .ns-hero-title { font-size: 1.375rem; }
-  .ns-metrics { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
-  .ns-metric-value { font-size: 1.5rem; }
-  .ns-metric-card { padding: 1rem 0.625rem; }
-  .ns-search input { width: 100%; }
-  .ns-toolbar { flex-direction: column; align-items: stretch; }
-  .ns-toolbar-right { flex-wrap: wrap; justify-content: space-between; }
-  .ns-filter-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-}
-@media (max-width: 480px) {
-  .ns-hero-top { flex-direction: column; }
-  .ns-status-row { flex-direction: column; text-align: center; }
-  .ns-card-header { flex-direction: column; }
-  .ns-card-right { text-align: left; }
-  .ns-sparkline { justify-content: flex-start; }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .ns-hero::before { animation: none; }
-  .ns-card { opacity: 1; transform: none; transition-delay: 0s !important; }
-  .ns-orb { animation: none !important; }
-  .ns-dot-ring { animation: none !important; }
-  .ns-hero-top, .ns-status-row, .ns-metrics, .ns-uptime-row, .ns-uptime-track, .ns-toolbar {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-  .ns-bar-fill, .ns-uptime-fill { transition-duration: 0.01ms !important; }
-}
-</style>
+<div class="snbd-page-head">
+    <div class="snbd-page-head__text">
+        <p class="snbd-eyebrow">Live</p>
+        <h1 class="snbd-page-title">Network status</h1>
+        <p class="snbd-page-sub">Real-time health of our services and infrastructure, refreshed every minute.</p>
+    </div>
+    <div class="snbd-page-actions">
+        <button type="button" class="snbd-btn snbd-btn--secondary snbd-btn--sm" onclick="window.location.reload()">
+            <i class="ti ti-refresh" aria-hidden="true"></i>Refresh now
+        </button>
+    </div>
+</div>
 
 <div class="ns-page">
-  <!-- Hero Banner -->
-  <div class="ns-hero">
-    <div class="ns-hero-top">
-      <div>
-        <h1 class="ns-hero-title">Network Status</h1>
-        <p class="ns-hero-subtitle">Real-time service health & infrastructure monitoring</p>
-      </div>
-      <div class="ns-refresh-pill" id="refresh-timer" title="Auto-refresh in 60s">
-        <svg width="16" height="16" viewBox="0 0 16 16">
-          <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
-          <circle id="refresh-progress" cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"
-                  stroke-dasharray="37.7" stroke-dashoffset="37.7" stroke-linecap="round"/>
-        </svg>
-        <span id="last-checked">Checking&hellip;</span>
-      </div>
-    </div>
-
-    <div class="ns-status-row">
-      <div id="status-orb" class="ns-orb loading">
-        <i class="ti ti-loader-2 ti-spin"></i>
-      </div>
-      <div class="ns-status-text">
-        <h2 id="overall-title">Loading monitor status&hellip;</h2>
-        <p id="overall-subtitle">Please wait while we fetch the latest data.</p>
-      </div>
-    </div>
-
-    <div class="ns-metrics">
-      <div class="ns-metric-card">
-        <div id="metric-up" class="ns-metric-value up">&mdash;</div>
-        <div class="ns-metric-label">Up</div>
-      </div>
-      <div class="ns-metric-card">
-        <div id="metric-down" class="ns-metric-value down">&mdash;</div>
-        <div class="ns-metric-label">Down</div>
-      </div>
-      <div class="ns-metric-card">
-        <div id="metric-paused" class="ns-metric-value paused">&mdash;</div>
-        <div class="ns-metric-label">Paused</div>
-      </div>
-    </div>
-
-    <div class="ns-uptime-row">
-      <span class="ns-uptime-label">Avg. uptime (30d)</span>
-      <span id="avg-uptime-text" class="ns-uptime-value">&mdash;</span>
-    </div>
-    <div class="ns-uptime-track">
-      <div id="avg-uptime-bar" class="ns-uptime-fill" style="width:0%"></div>
-    </div>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="ns-toolbar">
-    <div class="ns-search">
-      <i class="ti ti-search"></i>
-      <input type="text" id="monitor-search" placeholder="Search monitors&hellip;" autocomplete="off">
-    </div>
-    <div class="ns-toolbar-right">
-      <div class="ns-monitor-count"><span id="monitor-count">0</span> monitors</div>
-      <div class="ns-filter-tabs" role="group" aria-label="Filter monitors">
-        <button type="button" class="ns-filter-tab active" data-status-filter="all">
-          All <span class="ns-tab-badge" id="badge-all">0</span>
-        </button>
-        <button type="button" class="ns-filter-tab" data-status-filter="up">
-          Up <span class="ns-tab-badge" id="badge-up">0</span>
-        </button>
-        <button type="button" class="ns-filter-tab" data-status-filter="down">
-          Down <span class="ns-tab-badge" id="badge-down">0</span>
-        </button>
-        <button type="button" class="ns-filter-tab" data-status-filter="paused">
-          Paused <span class="ns-tab-badge" id="badge-paused">0</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Error -->
-  <div id="status-error" class="ns-error-card d-none" role="alert">
-    <div class="error-icon"><i class="ti ti-alert-triangle"></i></div>
-    <h5 class="mb-2">Unable to load status data</h5>
-    <p class="text-muted mb-0" id="error-message">Something went wrong.</p>
-  </div>
-
-  <!-- Loading Skeleton -->
-  <div id="status-loading">
-    <div class="ns-grid">
-      <div class="ns-skeleton-card">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <div class="ns-skeleton-shimmer" style="width:36px;height:36px;border-radius:50%;"></div>
-          <div style="flex:1">
-            <div class="ns-skeleton-shimmer" style="width:60%;height:14px;margin-bottom:8px;"></div>
-            <div class="ns-skeleton-shimmer" style="width:40%;height:10px;"></div>
-          </div>
+    <section class="ns-hero" aria-labelledby="ns-overall-label">
+        <div class="ns-hero-top">
+            <div>
+                <p class="ns-hero-kicker">Service health</p>
+                <h2 class="ns-hero-title" id="ns-overall-label">All systems overview</h2>
+                <p class="ns-hero-subtitle">Monitored around the clock from multiple locations.</p>
+            </div>
+            <div class="ns-refresh-pill" id="refresh-timer" title="Auto-refreshes every 60 seconds">
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                    <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>
+                    <circle id="refresh-progress" cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2"
+                            stroke-dasharray="37.7" stroke-dashoffset="37.7" stroke-linecap="round"/>
+                </svg>
+                <span id="last-checked">Checking&hellip;</span>
+            </div>
         </div>
-        <div class="ns-skeleton-shimmer" style="width:100%;height:4px;border-radius:50rem;"></div>
-      </div>
-      <div class="ns-skeleton-card">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <div class="ns-skeleton-shimmer" style="width:36px;height:36px;border-radius:50%;"></div>
-          <div style="flex:1">
-            <div class="ns-skeleton-shimmer" style="width:55%;height:14px;margin-bottom:8px;"></div>
-            <div class="ns-skeleton-shimmer" style="width:35%;height:10px;"></div>
-          </div>
-        </div>
-        <div class="ns-skeleton-shimmer" style="width:100%;height:4px;border-radius:50rem;"></div>
-      </div>
-      <div class="ns-skeleton-card">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <div class="ns-skeleton-shimmer" style="width:36px;height:36px;border-radius:50%;"></div>
-          <div style="flex:1">
-            <div class="ns-skeleton-shimmer" style="width:65%;height:14px;margin-bottom:8px;"></div>
-            <div class="ns-skeleton-shimmer" style="width:42%;height:10px;"></div>
-          </div>
-        </div>
-        <div class="ns-skeleton-shimmer" style="width:100%;height:4px;border-radius:50rem;"></div>
-      </div>
-      <div class="ns-skeleton-card">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <div class="ns-skeleton-shimmer" style="width:36px;height:36px;border-radius:50%;"></div>
-          <div style="flex:1">
-            <div class="ns-skeleton-shimmer" style="width:50%;height:14px;margin-bottom:8px;"></div>
-            <div class="ns-skeleton-shimmer" style="width:38%;height:10px;"></div>
-          </div>
-        </div>
-        <div class="ns-skeleton-shimmer" style="width:100%;height:4px;border-radius:50rem;"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Monitor Grid -->
-  <div id="status-list" class="ns-grid d-none"></div>
+        <div class="ns-status-row">
+            <div id="status-orb" class="ns-orb loading">
+                <i class="ti ti-loader-2 ti-spin" aria-hidden="true"></i>
+            </div>
+            <div class="ns-status-text">
+                <h3 id="overall-title">Loading monitor status&hellip;</h3>
+                <p id="overall-subtitle">Please wait while we fetch the latest data.</p>
+            </div>
+        </div>
+
+        <div class="ns-metrics">
+            <div class="ns-metric-card">
+                <span id="metric-up" class="ns-metric-value up">&mdash;</span>
+                <span class="ns-metric-label">Up</span>
+            </div>
+            <div class="ns-metric-card">
+                <span id="metric-down" class="ns-metric-value down">&mdash;</span>
+                <span class="ns-metric-label">Down</span>
+            </div>
+            <div class="ns-metric-card">
+                <span id="metric-paused" class="ns-metric-value paused">&mdash;</span>
+                <span class="ns-metric-label">Paused</span>
+            </div>
+        </div>
+
+        <div class="ns-uptime-row">
+            <span class="ns-uptime-label">Average uptime (30 days)</span>
+            <span id="avg-uptime-text" class="ns-uptime-value">&mdash;</span>
+        </div>
+        <div class="ns-uptime-track">
+            <div id="avg-uptime-bar" class="ns-uptime-fill" style="width:0%"></div>
+        </div>
+    </section>
+
+    <div class="ns-toolbar">
+        <div class="ns-search">
+            <i class="ti ti-search" aria-hidden="true"></i>
+            <label class="snbd-visually-hidden" for="monitor-search">Search monitors</label>
+            <input type="text" id="monitor-search" placeholder="Search monitors" autocomplete="off">
+        </div>
+        <div class="ns-toolbar-right">
+            <span class="ns-monitor-count"><span id="monitor-count">0</span> monitors</span>
+            <div class="ns-filter-tabs snbd-seg" role="group" aria-label="Filter monitors">
+                <button type="button" class="ns-filter-tab snbd-seg__item active" data-status-filter="all" aria-pressed="true">
+                    All <span class="ns-tab-badge" id="badge-all">0</span>
+                </button>
+                <button type="button" class="ns-filter-tab snbd-seg__item" data-status-filter="up" aria-pressed="false">
+                    Up <span class="ns-tab-badge" id="badge-up">0</span>
+                </button>
+                <button type="button" class="ns-filter-tab snbd-seg__item" data-status-filter="down" aria-pressed="false">
+                    Down <span class="ns-tab-badge" id="badge-down">0</span>
+                </button>
+                <button type="button" class="ns-filter-tab snbd-seg__item" data-status-filter="paused" aria-pressed="false">
+                    Paused <span class="ns-tab-badge" id="badge-paused">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="status-error" class="snbd-alert snbd-alert--bad ns-error-card d-none" role="alert">
+        <i class="ti ti-alert-triangle snbd-alert__icon" aria-hidden="true"></i>
+        <div class="snbd-alert__body">
+            <p class="snbd-alert__title">Unable to load status data</p>
+            <p class="snbd-alert__text" id="error-message">Something went wrong.</p>
+        </div>
+    </div>
+
+    <div id="status-loading">
+        <div class="ns-grid">
+            <div class="ns-skeleton-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="snbd-skel ns-skel-avatar"></span>
+                    <span class="flex-grow-1"><span class="snbd-skel ns-skel-line"></span><span class="snbd-skel ns-skel-line ns-skel-line--short"></span></span>
+                </div>
+                <span class="snbd-skel ns-skel-bar"></span>
+            </div>
+            <div class="ns-skeleton-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="snbd-skel ns-skel-avatar"></span>
+                    <span class="flex-grow-1"><span class="snbd-skel ns-skel-line"></span><span class="snbd-skel ns-skel-line ns-skel-line--short"></span></span>
+                </div>
+                <span class="snbd-skel ns-skel-bar"></span>
+            </div>
+            <div class="ns-skeleton-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="snbd-skel ns-skel-avatar"></span>
+                    <span class="flex-grow-1"><span class="snbd-skel ns-skel-line"></span><span class="snbd-skel ns-skel-line ns-skel-line--short"></span></span>
+                </div>
+                <span class="snbd-skel ns-skel-bar"></span>
+            </div>
+            <div class="ns-skeleton-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="snbd-skel ns-skel-avatar"></span>
+                    <span class="flex-grow-1"><span class="snbd-skel ns-skel-line"></span><span class="snbd-skel ns-skel-line ns-skel-line--short"></span></span>
+                </div>
+                <span class="snbd-skel ns-skel-bar"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="status-list" class="ns-grid d-none"></div>
 </div>
 
 <script>
@@ -1004,7 +364,7 @@
                             '<div class="ns-dot ' + meta.dot + '"></div>' +
                             '<div class="ns-dot-ring"></div>' +
                         '</div>' +
-                        '<div style="min-width:0;">' +
+                        '<div class="ns-min">' +
                             '<div class="ns-card-name">' + name + '</div>' +
                             (url ? '<div class="ns-card-url">' + url + '</div>' : '') +
                             '<div class="ns-card-tags">' +
@@ -1108,5 +468,3 @@
 })();
 {/literal}
 </script>
-
-{include file="{$template}/footer.tpl"}

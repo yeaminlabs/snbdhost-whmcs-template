@@ -29,31 +29,31 @@
     height: auto !important;
 }
 .input-group-box input#inputDomain:focus {
-    border-color: #CC0000 !important;
+    border-color: var(--brand) !important;
     background: #ffffff !important;
-    box-shadow: 0 0 0 4px rgba(204, 0, 0, 0.12) !important;
+    box-shadow: 0 0 0 4px rgba(var(--brand-rgb), 0.12) !important;
     outline: none !important;
 }
 .input-group-box .btn-primary, .domain-check-availability {
-    background: #CC0000 !important;
-    border-color: #CC0000 !important;
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
     color: #ffffff !important;
     border-radius: 12px !important;
     padding: 0.85rem 2rem !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
     transition: all 0.2s ease !important;
-    box-shadow: 0 4px 14px rgba(204, 0, 0, 0.25) !important;
+    box-shadow: 0 4px 14px rgba(var(--brand-rgb), 0.25) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     height: auto !important;
 }
 .input-group-box .btn-primary:hover, .domain-check-availability:hover {
-    background: #aa0000 !important;
-    border-color: #aa0000 !important;
+    background: var(--brand-hover) !important;
+    border-color: var(--brand-hover) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.35) !important;
+    box-shadow: 0 6px 20px rgba(var(--brand-rgb), 0.35) !important;
 }
 
 /* Compact Textarea for AI search step */
@@ -86,8 +86,8 @@
 
 /* ── Add to Cart Buttons Red Brand Styling ── */
 .btn-add-to-cart {
-    background: #CC0000 !important;
-    border-color: #CC0000 !important;
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     border-radius: 10px !important;
@@ -95,8 +95,8 @@
     transition: all 0.2s ease !important;
 }
 .btn-add-to-cart:hover {
-    background: #aa0000 !important;
-    border-color: #aa0000 !important;
+    background: var(--brand-hover) !important;
+    border-color: var(--brand-hover) !important;
     color: #ffffff !important;
 }
 .btn-add-to-cart .added {

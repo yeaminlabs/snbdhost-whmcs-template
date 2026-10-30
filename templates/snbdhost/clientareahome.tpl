@@ -1,673 +1,369 @@
-<!-- ====== SCoped styles FOR DASHBOARD ====== -->
-<style>
-.dash-headline {
-    font-size: 2.75rem;
-    font-weight: 900;
-    color: #111111;
-    letter-spacing: -0.04em;
-    line-height: 1.1;
-    margin-bottom: 0.5rem;
-}
-.dash-headline-accent {
-    color: #CC0000;
-}
-.dash-subhead {
-    font-size: 1.05rem;
-    color: #555555;
-    font-weight: 500;
-    margin-bottom: 2rem;
-}
-.btn-brand-clean {
-    background: #CC0000 !important;
-    color: #ffffff !important;
-    border-radius: 50rem !important;
-    padding: 0.75rem 1.5rem !important;
-    font-size: 0.9rem !important;
-    font-weight: 700 !important;
-    border: none !important;
-    box-shadow: 0 4px 14px rgba(204, 0, 0, 0.2) !important;
-    transition: all 0.2s !important;
-    display: inline-flex;
-    align-items: center;
-}
-.btn-brand-clean:hover {
-    background: #AA0000 !important;
-    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.3) !important;
-    transform: translateY(-2px) !important;
-    color: #ffffff !important;
-}
-
-/* Stat Cards */
-.stat-card-clean {
-    background: #ffffff !important;
-    border: 1px solid #eeeeee !important;
-    border-radius: 16px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-.stat-card-clean:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.06) !important;
-    border-color: #dddddd !important;
-}
-.stat-card-clean .stat-value-clean {
-    font-size: 2.25rem !important;
-    font-weight: 800 !important;
-    color: #111111 !important;
-    letter-spacing: -0.03em !important;
-    line-height: 1 !important;
-}
-.stat-card-clean .stat-label-clean {
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    color: #888888 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    margin-bottom: 0.5rem !important;
-}
-.stat-card-clean .stat-icon-clean {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-}
-.stat-card-clean .badge-clean {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.35rem 0.85rem;
-    border-radius: 50rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-.badge-clean-success { background: rgba(46, 125, 50, 0.08) !important; color: #2e7d32 !important; border: 1px solid rgba(46, 125, 50, 0.15) !important; }
-.badge-clean-warning { background: rgba(230, 81, 0, 0.08) !important; color: #e65100 !important; border: 1px solid rgba(230, 81, 0, 0.15) !important; }
-.badge-clean-danger  { background: rgba(198, 40, 40, 0.08) !important; color: #c62828 !important; border: 1px solid rgba(198, 40, 40, 0.15) !important; }
-.badge-clean-info    { background: rgba(204, 0, 0, 0.08) !important; color: #CC0000 !important; border: 1px solid rgba(204, 0, 0, 0.15) !important; }
-
-/* Quick Actions */
-.btn-outline-clean {
-    background: #f5f5f5 !important;
-    border: 1px solid #f5f5f5 !important;
-    border-radius: 50rem !important;
-    padding: 0.6rem 1.25rem !important;
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    color: #555555 !important;
-    transition: all 0.2s !important;
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none !important;
-}
-.btn-outline-clean:hover {
-    background: #CC0000 !important;
-    border-color: #CC0000 !important;
-    color: #ffffff !important;
-    transform: translateY(-2px) !important;
-}
-.btn-outline-clean i {
-    color: #777777;
-    transition: color 0.2s;
-}
-.btn-outline-clean:hover i {
-    color: #ffffff !important;
-}
-
-/* Premium Loyalty Card */
-.loyalty-card-premium {
-    background: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #0d0d0d 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 20px !important;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
-    overflow: hidden;
-    position: relative;
-}
-.loyalty-card-premium::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(204, 0, 0, 0.1) 0%, transparent 70%);
-    pointer-events: none;
-}
-.loyalty-progress-container {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50rem;
-    overflow: hidden;
-}
-.loyalty-progress-fill-premium {
-    height: 100%;
-    background: linear-gradient(90deg, #CC0000, #ff5b5b);
-    border-radius: 50rem;
-    box-shadow: 0 0 10px rgba(204, 0, 0, 0.5);
-    animation: loyaltyFill 1.2s ease-out forwards;
-}
-@keyframes loyaltyFill {
-    from { width: 0; }
-}
-.btn-loyalty-premium {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border-radius: 12px !important;
-    padding: 0.75rem 1.25rem !important;
-    font-weight: 600 !important;
-    font-size: 0.8125rem !important;
-    transition: all 0.2s !important;
-    backdrop-filter: blur(5px);
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none !important;
-}
-.btn-loyalty-premium:hover {
-    background: #ffffff !important;
-    color: #111111 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Dashboard Cards & Tables */
-.dash-card-clean {
-    background: #ffffff !important;
-    border: 1px solid #eeeeee !important;
-    border-radius: 16px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.01) !important;
-    overflow: hidden;
-}
-.dash-card-clean .card-header {
-    background: #ffffff !important;
-    border-bottom: 1px solid #eeeeee !important;
-    padding: 1.25rem 1.5rem !important;
-    font-weight: 700 !important;
-    font-size: 0.95rem !important;
-    color: #111111 !important;
-}
-.table-clean {
-    margin-bottom: 0 !important;
-}
-.table-clean thead th {
-    background-color: #fafafa !important;
-    color: #666666 !important;
-    font-weight: 700 !important;
-    font-size: 0.75rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    border-bottom: 1px solid #eeeeee !important;
-    padding: 0.85rem 1.5rem !important;
-}
-.table-clean tbody td {
-    padding: 1.1rem 1.5rem !important;
-    border-bottom: 1px solid #f6f6f6 !important;
-    font-size: 0.85rem !important;
-    color: #333333 !important;
-    font-weight: 500 !important;
-}
-.table-clean tbody tr:last-child td {
-    border-bottom: none !important;
-}
-.table-clean tbody tr:hover td {
-    background-color: #fafafa !important;
-}
-.btn-outline-table {
-    background: transparent !important;
-    border: 1px solid #e0e0e0 !important;
-    color: #555555 !important;
-    border-radius: 50rem !important;
-    padding: 0.35rem 0.85rem !important;
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    transition: all 0.2s !important;
-    text-decoration: none !important;
-    display: inline-flex;
-    align-items: center;
-}
-.btn-outline-table:hover {
-    border-color: #CC0000 !important;
-    background-color: #fff5f5 !important;
-    color: #CC0000 !important;
-}
-
-/* Announcements */
-.announce-item-clean {
-    padding: 1rem 0 !important;
-    border-bottom: 1px solid #f6f6f6 !important;
-}
-.announce-item-clean:last-child {
-    border-bottom: none !important;
-    padding-bottom: 0 !important;
-}
-.announce-item-clean:first-child {
-    padding-top: 0 !important;
-}
-.announce-title-clean {
-    font-weight: 600 !important;
-    font-size: 0.9rem !important;
-    color: #222222 !important;
-    line-height: 1.4 !important;
-    transition: color 0.15s !important;
-    text-decoration: none !important;
-    display: block;
-    margin-bottom: 0.25rem !important;
-}
-.announce-title-clean:hover {
-    color: #CC0000 !important;
-}
-.announce-date-clean {
-    font-size: 0.75rem !important;
-    color: #888888 !important;
-    font-weight: 500 !important;
-}
-.empty-state-clean {
-    padding: 3rem 1.5rem !important;
-    text-align: center !important;
-}
-.empty-state-clean i {
-    font-size: 2.25rem !important;
-    color: #cccccc !important;
-    margin-bottom: 1rem !important;
-}
-.empty-state-clean p {
-    font-size: 0.875rem !important;
-    color: #888888 !important;
-    margin-bottom: 0 !important;
-}
-</style>
-
-
 {if !$clientsdetails.phonenumber || !$clientsdetails.address1 || $clientsdetails.phonenumber == '+00000000000' || $clientsdetails.address1 == 'Pending Completion'}
-<!-- Verification Notification -->
-<div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-radius: 14px; background-color: #fff8e1; border: 1px solid #ffe082; color: #8f6d00; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.15); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
-    <div style="font-size: 1.75rem; color: #ffb300; flex-shrink: 0;">
-        <i class="fas fa-exclamation-circle"></i>
+<div class="snbd-alert snbd-alert--warn" role="status">
+    <i class="ti ti-alert-circle snbd-alert__icon" aria-hidden="true"></i>
+    <div class="snbd-alert__body">
+        <p class="snbd-alert__title">Complete your profile</p>
+        <p class="snbd-alert__text">We need your address and phone number before you can place new orders. This is usually required after signing in with Google.</p>
     </div>
-    <div style="flex: 1;">
-        <h5 style="margin-bottom: 0.25rem; font-weight: 700; color: #8f6d00; font-size: 1rem;">Action Required: Complete Your Profile</h5>
-        <div style="font-size: 0.9rem; line-height: 1.5;">This is a verification process (often required after Google Sign-In). We just need a few details like your address and phone number before you can make purchases. <a href="clientarea.php?action=details" style="color: #d32f2f; font-weight: 700; text-decoration: none; border-bottom: 1px dashed #d32f2f; margin-left: 0.5rem;">Update Profile Now <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i></a></div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position: static; padding: 0; filter: opacity(0.5);"></button>
+    <a href="clientarea.php?action=details" class="snbd-btn snbd-btn--sm snbd-alert__action">Update profile</a>
 </div>
-
-
 {/if}
 
-<!-- Dashboard Header -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-        <h1 class="dash-headline">Welcome back, <span class="dash-headline-accent">{$clientsdetails.firstname}</span>.</h1>
-        <p class="dash-subhead">Here's an overview of your account.</p>
+<div class="snbd-page-head">
+    <div class="snbd-page-head__text">
+        <h1 class="snbd-page-title">Welcome back, {$clientsdetails.firstname}</h1>
+        <p class="snbd-page-sub">Here is an overview of your account and services.</p>
     </div>
-    <a href="cart.php" class="btn btn-brand-clean"><i class="fas fa-plus me-2"></i>Order New Service</a>
 </div>
 
 {if $showN8nDashboardPromo}
-<!-- n8n Video Masterclass Guide Promotion Segment -->
-<div id="n8n-dashboard-promo-segment" class="mb-4" style="display: none;">
-    <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #1e0505 0%, #3a0808 50%, #200404 100%); color: #ffffff; border: 1px solid rgba(255, 68, 68, 0.35) !important; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -40px; right: -40px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(204, 0, 0, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
-        <div class="card-body p-4 position-relative" style="z-index: 1;">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-3" style="max-width: 750px;">
-                    <div style="background: rgba(255, 255, 255, 0.12); width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.18);">
-                        <i class="fas fa-play-circle" style="font-size: 1.8rem; color: #ff6666;"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge" style="background: #CC0000; color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; border-radius: 6px;">EXCLUSIVE FOR N8N CLIENTS</span>
-                            <span class="text-white-50 small" style="font-size: 0.78rem;"><i class="fas fa-video me-1"></i>Free Video Masterclass Guide</span>
-                        </div>
-                        <h4 class="fw-bold text-white mb-1" style="font-size: 1.25rem;">{$n8nDashboardPromoTitle|default:'SNBD Host n8n Free Video Masterclass Guide'}</h4>
-                        <p class="text-white-50 mb-0 small" style="font-size: 0.88rem; line-height: 1.5;">{$n8nDashboardPromoDesc|default:'আমাদের ফ্রি স্টেপ-বাই-স্টেপ ভিডিও গাইডের মাধ্যমে শিখুন n8n ওয়ার্কফ্লো অটোমেশন, ওয়েবহুক, এপিআই ইন্টিগ্রেশন এবং এআই এজেন্ট।'}</p>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
-                    <a href="{$n8nDashboardPromoUrl|default:'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla'}" target="_blank" class="btn text-white fw-bold px-4 py-2.5 d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #CC0000 0%, #aa0000 100%); border-radius: 12px; box-shadow: 0 6px 20px rgba(204,0,0,0.4); border: none; font-size: 0.9rem; text-decoration: none;">
-                        <span>{$n8nDashboardPromoBtnText|default:'Watch Masterclass Guide'}</span>
-                        <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
-                    </a>
-                    <button type="button" id="n8n-dash-promo-close-btn" class="btn btn-sm text-white-50 p-2 text-decoration-none" title="Dismiss Segment" style="font-size: 1.2rem; line-height: 1; background: transparent; border: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+<div class="snbd-spotlight mb-4" data-snbd-dismissable data-snbd-dismiss-key="snbd_n8n_promo_{$n8nDashboardPromoVersion|default:'v1'}" id="n8n-dashboard-promo-segment">
+    <span class="snbd-spotlight__glow" aria-hidden="true"></span>
+    <div class="position-relative d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <span class="snbd-stat__icon"><i class="ti ti-player-play" aria-hidden="true"></i></span>
+            <div>
+                <span class="snbd-chip snbd-chip--brand mb-2">For n8n clients</span>
+                <h2 class="snbd-card__title text-white mb-1">{$n8nDashboardPromoTitle|default:'SNBD Host n8n video masterclass'}</h2>
+                <p class="mb-0 small snbd-muted">{$n8nDashboardPromoDesc|default:'Learn n8n workflows, webhooks, API integrations and AI agents with our free step-by-step video guide.'}</p>
             </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{$n8nDashboardPromoUrl|default:'https://snbdhost.com/learn/n8n-basic-to-advanced-in-bangla'}" target="_blank" rel="noopener" class="snbd-btn snbd-btn--primary snbd-btn--sm">
+                {$n8nDashboardPromoBtnText|default:'Watch the guide'}<i class="ti ti-arrow-right" aria-hidden="true"></i>
+            </a>
+            <button type="button" class="snbd-icon-btn" data-snbd-dismiss aria-label="Dismiss this promotion">
+                <i class="ti ti-x" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    var promoVersion = "{$n8nDashboardPromoVersion|default:'v1'}";
-    var storageKey = "snbd_n8n_dash_promo_dismissed_" + promoVersion;
-    var segment = document.getElementById("n8n-dashboard-promo-segment");
-    
-    if (segment && !localStorage.getItem(storageKey)) {
-        segment.style.display = "block";
-    }
-    
-    var closeBtn = document.getElementById("n8n-dash-promo-close-btn");
-    if (closeBtn) {
-        closeBtn.addEventListener("click", function() {
-            localStorage.setItem(storageKey, "true");
-            if (segment) segment.style.display = "none";
-        });
-    }
-});
-</script>
 {/if}
+
+<div class="snbd-stats">
+    <a class="snbd-stat" href="clientarea.php?action=products">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Active services</span>
+            <span class="snbd-stat__value">{$clientsstats.productsnumactive|default:0}</span>
+            <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Running</span>
+        </span>
+        <span class="snbd-stat__icon snbd-stat__icon--ok"><i class="ti ti-server" aria-hidden="true"></i></span>
+    </a>
+
+    <a class="snbd-stat" href="clientarea.php?action=invoices">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Open invoices</span>
+            <span class="snbd-stat__value">{$clientsstats.numunpaidinvoices|default:0}</span>
+            {if $clientsstats.numunpaidinvoices > 0}
+                <span class="snbd-chip snbd-chip--warn"><span class="snbd-chip__dot" aria-hidden="true"></span>Needs attention</span>
+            {else}
+                <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>All paid</span>
+            {/if}
+        </span>
+        <span class="snbd-stat__icon snbd-stat__icon--warn"><i class="ti ti-file-invoice" aria-hidden="true"></i></span>
+    </a>
+
+    <a class="snbd-stat" href="clientarea.php?action=invoices">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Unpaid balance</span>
+            <span class="snbd-stat__value snbd-price">{$clientsstats.dueinvoicesbalance|default:'$0.00'}</span>
+            {if $clientsstats.numunpaidinvoices > 0}
+                <span class="snbd-chip snbd-chip--bad"><span class="snbd-chip__dot" aria-hidden="true"></span>Payment due</span>
+            {else}
+                <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Settled</span>
+            {/if}
+        </span>
+        <span class="snbd-stat__icon snbd-stat__icon--bad"><i class="ti ti-wallet" aria-hidden="true"></i></span>
+    </a>
+
+    <a class="snbd-stat" href="supporttickets.php">
+        <span class="snbd-stat__main">
+            <span class="snbd-stat__label">Open tickets</span>
+            <span class="snbd-stat__value">{$clientsstats.numactivetickets|default:0}</span>
+            {if $clientsstats.numactivetickets > 0}
+                <span class="snbd-chip snbd-chip--info"><span class="snbd-chip__dot" aria-hidden="true"></span>Support open</span>
+            {else}
+                <span class="snbd-chip snbd-chip--neutral"><span class="snbd-chip__dot" aria-hidden="true"></span>No open tickets</span>
+            {/if}
+        </span>
+        <span class="snbd-stat__icon snbd-stat__icon--info"><i class="ti ti-lifebuoy" aria-hidden="true"></i></span>
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <section class="snbd-card h-100" aria-labelledby="dash-services-title">
+            <div class="snbd-card__head">
+                <h2 class="snbd-card__title" id="dash-services-title"><i class="ti ti-server" aria-hidden="true"></i>Your services</h2>
+                <a href="clientarea.php?action=products" class="snbd-btn snbd-btn--sm snbd-btn--secondary">View all</a>
+            </div>
+            {if $homepageproducts}
+            <div class="snbd-table-wrap">
+                <table class="snbd-table">
+                    <caption class="snbd-visually-hidden">Your active products and services</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Service</th>
+                            <th scope="col">Domain</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="snbd-table__actions">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach key=k item=product from=$homepageproducts}
+                        <tr>
+                            <td data-label="Service">
+                                <span class="d-block fw-semibold">{$product.name}</span>
+                            </td>
+                            <td data-label="Domain">
+                                {if $product.domain}
+                                    <span class="snbd-muted snbd-mono">{$product.domain}</span>
+                                {else}
+                                    <span class="snbd-faint">Not set</span>
+                                {/if}
+                            </td>
+                            <td data-label="Status">
+                                {if $product.status eq "Active"}
+                                    <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Active</span>
+                                {elseif $product.status eq "Pending"}
+                                    <span class="snbd-chip snbd-chip--warn"><span class="snbd-chip__dot" aria-hidden="true"></span>Pending</span>
+                                {elseif $product.status eq "Suspended"}
+                                    <span class="snbd-chip snbd-chip--bad"><span class="snbd-chip__dot" aria-hidden="true"></span>Suspended</span>
+                                {else}
+                                    <span class="snbd-chip snbd-chip--neutral">{$product.status}</span>
+                                {/if}
+                            </td>
+                            <td class="snbd-table__actions" data-label="Action">
+                                <a href="clientarea.php?action=productdetails&id={$product.id}" class="snbd-btn snbd-btn--sm snbd-btn--secondary">Manage</a>
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </div>
+            {else}
+            <div class="snbd-empty">
+                <span class="snbd-empty__icon"><i class="ti ti-server" aria-hidden="true"></i></span>
+                <p class="snbd-empty__title">No services yet</p>
+                <p class="snbd-empty__text">Your hosting, VPS and other services will appear here once you order.</p>
+                <a href="cart.php" class="snbd-btn snbd-btn--primary snbd-btn--sm">Browse services</a>
+            </div>
+            {/if}
+        </section>
+    </div>
+
+    <div class="col-xl-4">
+        <aside class="snbd-card snbd-card--rail h-100" aria-labelledby="dash-account-title">
+            <div class="snbd-card__head">
+                <h2 class="snbd-card__title" id="dash-account-title"><i class="ti ti-user-circle" aria-hidden="true"></i>Account</h2>
+            </div>
+            <div class="snbd-card__body">
+                <dl class="snbd-kv mb-4">
+                    <div class="snbd-kv__row">
+                        <dt class="snbd-kv__k">Active services</dt>
+                        <dd class="snbd-kv__v snbd-kv__v--num">{$clientsstats.productsnumactive|default:0}</dd>
+                    </div>
+                    <div class="snbd-kv__row">
+                        <dt class="snbd-kv__k">Unpaid invoices</dt>
+                        <dd class="snbd-kv__v snbd-kv__v--num">{$clientsstats.numunpaidinvoices|default:0}</dd>
+                    </div>
+                    <div class="snbd-kv__row">
+                        <dt class="snbd-kv__k">Amount due</dt>
+                        <dd class="snbd-kv__v snbd-kv__v--num snbd-price">{$clientsstats.dueinvoicesbalance|default:'$0.00'}</dd>
+                    </div>
+                    {if $loyalty_data && $loyalty_data.tier}
+                    <div class="snbd-kv__row">
+                        <dt class="snbd-kv__k">Loyalty tier</dt>
+                        <dd class="snbd-kv__v"><span class="snbd-chip snbd-chip--brand">{$loyalty_data.tier}{if $loyalty_data.discount} · {$loyalty_data.discount} off{/if}</span></dd>
+                    </div>
+                    {if $loyalty_data.next_tier}
+                    <div class="snbd-kv__row">
+                        <dt class="snbd-kv__k">Next tier</dt>
+                        <dd class="snbd-kv__v">{$loyalty_data.next_tier} · {$loyalty_data.next_discount}</dd>
+                    </div>
+                    {/if}
+                    {/if}
+                </dl>
+
+                <div class="snbd-eyebrow">Quick actions</div>
+                <div class="snbd-dash-actions">
+                    <a href="submitticket.php" class="snbd-dash-action"><i class="ti ti-message-plus" aria-hidden="true"></i><span>New ticket</span></a>
+                    <a href="clientarea.php?action=invoices" class="snbd-dash-action"><i class="ti ti-receipt" aria-hidden="true"></i><span>Invoices</span></a>
+                    <a href="clientarea.php?action=addfunds" class="snbd-dash-action"><i class="ti ti-wallet" aria-hidden="true"></i><span>Add funds</span></a>
+                    <a href="affiliates.php" class="snbd-dash-action"><i class="ti ti-users" aria-hidden="true"></i><span>Affiliates</span></a>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
 
 {if $open_tickets || $clientsstats.numunpaidinvoices > 0}
-<!-- Action Required Feed -->
-<div class="card dash-card-clean mb-4 border-danger-subtle" style="border-color: rgba(204, 0, 0, 0.25) !important; background: rgba(204, 0, 0, 0.01) !important; border-radius: 12px; box-shadow: 0 4px 20px rgba(204, 0, 0, 0.04);">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(204, 0, 0, 0.03) !important; border-bottom: 1px solid rgba(204, 0, 0, 0.08);">
-        <span class="text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Action Required</span>
+<section class="snbd-card mb-4" aria-labelledby="dash-action-title">
+    <div class="snbd-card__head">
+        <h2 class="snbd-card__title" id="dash-action-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Action required</h2>
     </div>
-    <div class="card-body p-0">
-        <ul class="list-group list-group-flush" style="border-radius: 0 0 12px 12px; overflow: hidden;">
-            <!-- Unpaid/Overdue Invoices -->
-            {foreach key=num item=invoice from=$invoices}
-                {if $invoice.status eq "Unpaid" || $invoice.status eq "Overdue"}
-                <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-transparent" style="border-bottom: 1px solid rgba(204, 0, 0, 0.05);">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="badge-clean badge-clean-danger d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border-radius: 8px; font-size: 1rem;"><i class="fas fa-file-invoice-dollar"></i></span>
-                        <div>
-                            <div class="fw-bold" style="color: #111111; font-size: 0.88rem;">Invoice {if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if} is Unpaid</div>
-                            <div class="text-secondary small mt-0.5">Due date: {$invoice.datedue} • Total: <span class="fw-semibold text-dark">{$invoice.total}</span></div>
-                        </div>
-                    </div>
-                    <a href="viewinvoice.php?id={$invoice.id}" class="btn btn-sm btn-brand-clean py-1.5 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; box-shadow: none !important; display: inline-flex; align-items: center; font-weight: 600;">Pay Invoice</a>
-                </li>
-                {/if}
-            {/foreach}
-            
-            <!-- Open Support Tickets -->
-            {foreach item=ticket from=$open_tickets}
-            <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-transparent" style="border-bottom: 1px solid rgba(204, 0, 0, 0.05);">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge-clean d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border-radius: 8px; font-size: 1rem; background: rgba(230, 81, 0, 0.08); color: #e65100; border: 1px solid rgba(230, 81, 0, 0.15);"><i class="fas fa-life-ring"></i></span>
-                    <div>
-                        <div class="fw-bold" style="color: #111111; font-size: 0.88rem;">Support Ticket #{$ticket.tid}: {$ticket.title}</div>
-                        <div class="text-secondary small mt-0.5">Last reply: {$ticket.lastreply} • Status: <span class="badge bg-warning text-dark px-2 py-1" style="font-size: 0.7rem; border-radius: 4px;">{$ticket.status}</span></div>
-                    </div>
-                </div>
-                <a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}" class="btn-outline-table py-1.5 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; font-weight: 600; display: inline-flex; align-items: center;">View Ticket</a>
-            </li>
-            {/foreach}
-        </ul>
+    <div class="snbd-table-wrap">
+        <table class="snbd-table">
+            <caption class="snbd-visually-hidden">Items that need your attention</caption>
+            <tbody>
+                {foreach key=num item=invoice from=$invoices}
+                    {if $invoice.status eq "Unpaid" || $invoice.status eq "Overdue"}
+                    <tr>
+                        <td data-label="Item">
+                            <span class="d-inline-flex align-items-center gap-2">
+                                <span class="snbd-stat__icon snbd-stat__icon--warn"><i class="ti ti-file-invoice" aria-hidden="true"></i></span>
+                                <span>
+                                    <span class="d-block fw-semibold">Invoice #{$invoice.invoicenum} is {$invoice.status|lower}</span>
+                                    <span class="snbd-caption">Due {$invoice.datedue} · <span class="snbd-price">{$invoice.total}</span></span>
+                                </span>
+                            </span>
+                        </td>
+                        <td class="snbd-table__actions" data-label="Action">
+                            <a href="viewinvoice.php?id={$invoice.id}" class="snbd-btn snbd-btn--sm snbd-btn--primary">Pay invoice</a>
+                        </td>
+                    </tr>
+                    {/if}
+                {/foreach}
+                {foreach item=ticket from=$open_tickets}
+                <tr>
+                    <td data-label="Item">
+                        <span class="d-inline-flex align-items-center gap-2">
+                            <span class="snbd-stat__icon snbd-stat__icon--info"><i class="ti ti-lifebuoy" aria-hidden="true"></i></span>
+                            <span>
+                                <span class="d-block fw-semibold">Ticket #{$ticket.tid}: {$ticket.title}</span>
+                                <span class="snbd-caption">Last reply {$ticket.lastreply} · {$ticket.status}</span>
+                            </span>
+                        </span>
+                    </td>
+                    <td class="snbd-table__actions" data-label="Action">
+                        <a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}" class="snbd-btn snbd-btn--sm snbd-btn--secondary">View ticket</a>
+                    </td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
     </div>
-</div>
+</section>
 {/if}
 
-<!-- Stat Cards -->
-<div class="row g-3 mb-5">
-    <div class="col-sm-6 col-xl-3">
-        <a href="clientarea.php?action=products" class="text-decoration-none">
-            <div class="card stat-card-clean h-100">
-                <div class="card-body d-flex justify-content-between align-items-start p-4">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div>
-                            <div class="stat-label-clean">Active Services</div>
-                            <div class="stat-value-clean mt-1">{$clientsstats.productsnumactive|default:0}</div>
-                        </div>
-                        <div class="mt-3">
-                            <span class="badge-clean badge-clean-success">Running</span>
-                        </div>
-                    </div>
-                    <div class="stat-icon-clean" style="background: rgba(46, 125, 50, 0.08); color: #2e7d32;"><i class="fas fa-cube"></i></div>
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <a href="clientarea.php?action=invoices" class="text-decoration-none">
-            <div class="card stat-card-clean h-100">
-                <div class="card-body d-flex justify-content-between align-items-start p-4">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div>
-                            <div class="stat-label-clean">Open Invoices</div>
-                            <div class="stat-value-clean mt-1">{$clientsstats.numunpaidinvoices|default:0}</div>
-                        </div>
-                        <div class="mt-3">
-                            {if $clientsstats.numunpaidinvoices > 0}
-                                <span class="badge-clean badge-clean-warning">Needs Attention</span>
-                            {else}
-                                <span class="badge-clean badge-clean-success">All Paid</span>
-                            {/if}
-                        </div>
-                    </div>
-                    <div class="stat-icon-clean" style="background: rgba(230, 81, 0, 0.08); color: #e65100;"><i class="fas fa-file-invoice-dollar"></i></div>
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <a href="clientarea.php?action=invoices" class="text-decoration-none">
-            <div class="card stat-card-clean h-100">
-                <div class="card-body d-flex justify-content-between align-items-start p-4">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div>
-                            <div class="stat-label-clean">Unpaid Balance</div>
-                            <div class="stat-value-clean mt-1" style="font-size:1.4rem !important; line-height:1.6 !important;">{$clientsstats.dueinvoicesbalance|default:"$0.00"}</div>
-                        </div>
-                        <div class="mt-3">
-                            {if $clientsstats.numunpaidinvoices > 0}
-                                <span class="badge-clean badge-clean-danger">Pending</span>
-                            {else}
-                                <span class="badge-clean badge-clean-success">Settled</span>
-                            {/if}
-                        </div>
-                    </div>
-                    <div class="stat-icon-clean" style="background: rgba(198, 40, 40, 0.08); color: #c62828;"><i class="fas fa-wallet"></i></div>
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <a href="supporttickets.php" class="text-decoration-none">
-            <div class="card stat-card-clean h-100">
-                <div class="card-body d-flex justify-content-between align-items-start p-4">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div>
-                            <div class="stat-label-clean">Open Tickets</div>
-                            <div class="stat-value-clean mt-1">{$clientsstats.numactivetickets|default:0}</div>
-                        </div>
-                        <div class="mt-3">
-                            {if $clientsstats.numactivetickets > 0}
-                                <span class="badge-clean badge-clean-info">Support Open</span>
-                            {else}
-                                <span class="badge-clean badge-clean-success">No Tickets</span>
-                            {/if}
-                        </div>
-                    </div>
-                    <div class="stat-icon-clean" style="background: rgba(204, 0, 0, 0.08); color: #CC0000;"><i class="fas fa-life-ring"></i></div>
-                </div>
-            </div>
-        </a>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="mb-5 d-flex gap-2 flex-wrap">
-    <a href="submitticket.php" class="btn-outline-clean"><i class="fas fa-headset me-2"></i>Open Ticket</a>
-    <a href="clientarea.php?action=invoices" class="btn-outline-clean"><i class="fas fa-receipt me-2"></i>View Invoices</a>
-    <a href="clientarea.php?action=products" class="btn-outline-clean"><i class="fas fa-server me-2"></i>My Services</a>
-    <a href="affiliates.php" class="btn-outline-clean"><i class="fas fa-users me-2"></i>Affiliates</a>
-    <a href="clientarea.php?action=addfunds" class="btn-outline-clean"><i class="fas fa-wallet me-2"></i>Add Funds</a>
-</div>
-
-
-<!-- WHMCS Addon Widgets -->
 {if $widgets}
-<div class="row g-3 mb-5">
+<div class="row g-4 mb-4">
     {foreach from=$widgets item=widget}
     {if $widget.content}
     <div class="col-md-6 col-xl-4">
-        <div class="card h-100 dash-card-clean">
-            <div class="card-header d-flex align-items-center gap-2">
-                <span class="fw-semibold d-flex align-items-center gap-2">
-                    {if $widget.icon}<i class="{$widget.icon}" style="color: #CC0000;"></i>{else}<i class="fas fa-th-large" style="color: #CC0000;"></i>{/if}
+        <section class="snbd-card h-100">
+            <div class="snbd-card__head">
+                <h2 class="snbd-card__title">
+                    {if $widget.icon}<i class="{$widget.icon}" aria-hidden="true"></i>{else}<i class="ti ti-layout-grid" aria-hidden="true"></i>{/if}
                     {$widget.title}
-                </span>
+                </h2>
             </div>
-            <div class="card-body">
+            <div class="snbd-card__body">
                 {$widget.content}
             </div>
-        </div>
+        </section>
     </div>
     {/if}
     {/foreach}
 </div>
 {/if}
 
-<!-- Active Products / Services -->
-{if $homepageproducts}
-<div class="card dash-card-clean mb-5">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-server me-2" style="color: #CC0000;"></i>Your Active Products &amp; Services</span>
-        <a href="clientarea.php?action=products" class="btn-outline-table">My Services</a>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover table-clean align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width:120px;">Status</th>
-                        <th>Product / Service</th>
-                        <th>Domain / Label</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {foreach key=k item=product from=$homepageproducts}
-                    <tr>
-                        <td>
-                            {if $product.status eq "Active"}
-                                <span class="badge-clean badge-clean-success">Active</span>
-                            {elseif $product.status eq "Pending"}
-                                <span class="badge-clean badge-clean-warning">Pending</span>
-                            {elseif $product.status eq "Suspended"}
-                                <span class="badge-clean badge-clean-danger">Suspended</span>
-                            {else}
-                                <span class="badge bg-secondary">{$product.status}</span>
-                            {/if}
-                        </td>
-                        <td class="fw-bold" style="color: #111111;">{$product.name}</td>
-                        <td class="text-secondary small">{$product.domain}</td>
-                        <td class="text-end">
-                            <a href="clientarea.php?action=productdetails&id={$product.id}" class="btn btn-brand-clean btn-sm text-decoration-none" style="font-weight: 600; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.85rem; display: inline-flex; align-items: center;">
-                                <i class="ti ti-settings me-1"></i>Manage Service
-                            </a>
-                        </td>
-                    </tr>
-                    {/foreach}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{/if}
-
-<!-- Recent Invoices + Announcements -->
 <div class="row g-4 mb-4">
-    <div class="col-lg-8">
-        <div class="card dash-card-clean h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-file-invoice me-2" style="color: #CC0000;"></i>Recent Invoices</span>
-                <div class="d-flex gap-2">
+    <div class="col-xl-8">
+        <section class="snbd-card h-100" aria-labelledby="dash-invoices-title">
+            <div class="snbd-card__head">
+                <h2 class="snbd-card__title" id="dash-invoices-title"><i class="ti ti-receipt" aria-hidden="true"></i>Recent invoices</h2>
+                <div class="snbd-card__actions">
                     {if $clientsstats.numunpaidinvoices > 0}
-                    <a href="clientarea.php?action=masspay&all=true" class="btn btn-sm btn-brand-clean py-1 px-3" style="font-size: 0.75rem !important; border-radius: 8px !important; box-shadow: none !important; display: inline-flex; align-items: center;"><i class="fas fa-credit-card me-1"></i>Pay All Unpaid ({$clientsstats.numunpaidinvoices})</a>
+                        <a href="clientarea.php?action=masspay&all=true" class="snbd-btn snbd-btn--sm snbd-btn--primary">Pay all unpaid</a>
                     {/if}
-                    <a href="clientarea.php?action=invoices" class="btn-outline-table">View All</a>
+                    <a href="clientarea.php?action=invoices" class="snbd-btn snbd-btn--sm snbd-btn--secondary">View all</a>
                 </div>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover table-clean align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Invoice #</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {foreach key=num item=invoice from=$invoices}
-                            <tr>
-                                <td class="fw-bold" style="color: #111111;">{if $invoice.invoicenum|strpos:'#' === 0}{$invoice.invoicenum}{else}#{$invoice.invoicenum}{/if}</td>
-                                <td class="text-secondary">{$invoice.datecreated}</td>
-                                <td class="fw-bold" style="color: #111111;">{$invoice.total}</td>
-                                <td>
-                                    {if $invoice.status eq "Paid"}
-                                        <span class="badge-clean badge-clean-success">Paid</span>
-                                    {elseif $invoice.status eq "Unpaid"}
-                                        <span class="badge-clean badge-clean-warning">Unpaid</span>
-                                    {elseif $invoice.status eq "Overdue"}
-                                        <span class="badge-clean badge-clean-danger">Overdue</span>
-                                    {else}
-                                        <span class="badge bg-secondary">{$invoice.status}</span>
-                                    {/if}
-                                </td>
-                                <td class="text-end">
-                                    <a href="viewinvoice.php?id={$invoice.id}" class="btn-outline-table">
-                                        <i class="fas fa-eye me-1"></i>View
-                                    </a>
-                                </td>
-                            </tr>
-                            {foreachelse}
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty-state-clean">
-                                        <i class="fas fa-file-invoice d-block"></i>
-                                        <p>No recent invoices found.</p>
-                                        <a href="clientarea.php?action=invoices" class="btn-outline-table mt-3">View All Invoices</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {/foreach}
-                        </tbody>
-                    </table>
-                </div>
+            {if $invoices}
+            <div class="snbd-table-wrap">
+                <table class="snbd-table">
+                    <caption class="snbd-visually-hidden">Your most recent invoices</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Invoice</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="snbd-table__num">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="snbd-table__actions">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach key=num item=invoice from=$invoices}
+                        <tr>
+                            <td data-label="Invoice" class="fw-semibold">#{$invoice.invoicenum}</td>
+                            <td data-label="Date" class="snbd-muted">{$invoice.datecreated}</td>
+                            <td data-label="Total" class="snbd-table__num snbd-price">{$invoice.total}</td>
+                            <td data-label="Status">
+                                {if $invoice.status eq "Paid"}
+                                    <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Paid</span>
+                                {elseif $invoice.status eq "Unpaid"}
+                                    <span class="snbd-chip snbd-chip--warn"><span class="snbd-chip__dot" aria-hidden="true"></span>Unpaid</span>
+                                {elseif $invoice.status eq "Overdue"}
+                                    <span class="snbd-chip snbd-chip--bad"><span class="snbd-chip__dot" aria-hidden="true"></span>Overdue</span>
+                                {else}
+                                    <span class="snbd-chip snbd-chip--neutral">{$invoice.status}</span>
+                                {/if}
+                            </td>
+                            <td class="snbd-table__actions" data-label="Action">
+                                <a href="viewinvoice.php?id={$invoice.id}" class="snbd-btn snbd-btn--sm snbd-btn--secondary">View</a>
+                            </td>
+                        </tr>
+                        {foreachelse}
+                        <tr>
+                            <td colspan="5">
+                                <div class="snbd-empty">
+                                    <span class="snbd-empty__icon"><i class="ti ti-receipt" aria-hidden="true"></i></span>
+                                    <p class="snbd-empty__title">No invoices yet</p>
+                                    <p class="snbd-empty__text">Invoices appear here as soon as you place an order.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
             </div>
-        </div>
+            {else}
+            <div class="snbd-empty">
+                <span class="snbd-empty__icon"><i class="ti ti-receipt" aria-hidden="true"></i></span>
+                <p class="snbd-empty__title">No invoices yet</p>
+                <p class="snbd-empty__text">Invoices appear here as soon as you place an order.</p>
+            </div>
+            {/if}
+        </section>
     </div>
 
-    <div class="col-lg-4">
-        <div class="card dash-card-clean h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-newspaper me-2" style="color: #CC0000;"></i>Announcements</span>
-                <a href="announcements.php" class="btn-outline-table">View All</a>
+    <div class="col-xl-4">
+        <section class="snbd-card h-100" aria-labelledby="dash-announce-title">
+            <div class="snbd-card__head">
+                <h2 class="snbd-card__title" id="dash-announce-title"><i class="ti ti-news" aria-hidden="true"></i>Announcements</h2>
+                <a href="announcements.php" class="snbd-btn snbd-btn--sm snbd-btn--secondary">View all</a>
             </div>
-            <div class="card-body d-flex flex-column gap-3 p-4">
+            <div class="snbd-card__body">
                 {if $announcements}
+                    <div class="snbd-stack snbd-stack--sm">
                     {foreach key=num item=announcement from=$announcements}
-                    {if $num < 5}
-                    <div class="announce-item-clean">
-                        <a href="announcements.php?id={$announcement.id}" class="announce-title-clean">
-                            {$announcement.title}
+                        {if $num < 5}
+                        <a href="announcements.php?id={$announcement.id}" class="snbd-announce">
+                            <span class="snbd-announce__title">{$announcement.title}</span>
+                            <span class="snbd-announce__date"><i class="ti ti-calendar" aria-hidden="true"></i>{$announcement.date}</span>
                         </a>
-                        <div class="announce-date-clean">
-                            <i class="far fa-calendar-alt me-1"></i>{$announcement.date}
-                        </div>
-                    </div>
-                    {/if}
-                    {foreachelse}
-                    <div class="empty-state-clean">
-                        <i class="fas fa-newspaper d-block"></i>
-                        <p>No announcements at this time.</p>
-                    </div>
+                        {/if}
                     {/foreach}
+                    </div>
                 {else}
-                    <div class="empty-state-clean">
-                        <i class="fas fa-newspaper d-block"></i>
-                        <p>No announcements at this time.</p>
+                    <div class="snbd-empty">
+                        <span class="snbd-empty__icon"><i class="ti ti-news" aria-hidden="true"></i></span>
+                        <p class="snbd-empty__title">Nothing new</p>
+                        <p class="snbd-empty__text">Announcements and maintenance notices will show up here.</p>
                     </div>
                 {/if}
             </div>
-        </div>
+        </section>
     </div>
 </div>
