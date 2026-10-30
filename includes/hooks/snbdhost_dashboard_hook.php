@@ -253,7 +253,7 @@ add_hook('ClientAreaPage', 1, function ($vars) {
 
     return [
         'snbdCustomTemplate' => is_file($root . '/templates/' . $theme . '/' . $template . '.tpl'),
-        'snbdAuthPage' => in_array($template, ['login', 'clientregister', 'pwreset'], true)
+        'snbdAuthPage' => in_array($template, ['login', 'clientregister', 'pwreset', 'two-factor-challenge'], true)
             || str_starts_with($template, 'password-'),
     ];
 });

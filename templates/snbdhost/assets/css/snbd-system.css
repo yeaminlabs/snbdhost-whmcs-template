@@ -6,7 +6,7 @@
                 → snbd-shell.css → snbd-pages.css
 
    Rules:
-   - One accent: --snbd-red. Never hardcode #BA1114/#CC0000 in page styles.
+   - One accent: --snbd-red. Never hardcode the brand red in page styles.
    - Pill radius is reserved for chips and segmented filters.
    - Status is never communicated by colour alone (always dot/icon + label).
    ========================================================================== */
@@ -20,6 +20,8 @@
   --snbd-red-soft: rgba(186, 17, 20, 0.06);
   --snbd-red-soft-strong: rgba(186, 17, 20, 0.1);
   --snbd-red-ring: rgba(186, 17, 20, 0.18);
+  --snbd-red-200: #F4A3A0;  /* brand tint for text/icons on dark panels */
+  --snbd-red-300: #FF8B78;  /* brand tint for gradient ends on dark panels */
 
   /* Ink */
   --snbd-ink-900: #14161A;
@@ -40,8 +42,10 @@
   --snbd-ok-soft: rgba(46, 125, 50, 0.08);
   --snbd-warn: #9A4A00;
   --snbd-warn-soft: rgba(154, 74, 0, 0.08);
+  --snbd-warn-200: #F0B27A;  /* status tint on dark panels */
   --snbd-bad: #B3261E;
   --snbd-bad-soft: rgba(179, 38, 30, 0.08);
+  --snbd-bad-200: #FF9B95;  /* status tint on dark panels */
   --snbd-info: #33556B;
   --snbd-info-soft: rgba(51, 85, 107, 0.08);
 
@@ -86,6 +90,11 @@
   /* Motion */
   --snbd-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --snbd-fast: 160ms;
+}
+
+/* Responsive token overrides live with the tokens, not in the shell. */
+@media (max-width: 767px) {
+  :root { --snbd-topbar-h: 56px; --snbd-page-pad: 16px; }
 }
 
 /* ------------------------------------------------------------- 2. Base type */
@@ -155,6 +164,9 @@ code, kbd, pre, samp { font-family: var(--snbd-font-mono); font-size: 0.8125rem;
   overflow: hidden; clip: rect(0, 0, 0, 0);
   white-space: nowrap; border: 0;
 }
+
+/* WHMCS scripts (payment forms, modals) toggle this helper with jQuery show/hide. */
+.w-hidden { display: none; }
 
 .snbd-mono { font-family: var(--snbd-font-mono); font-size: 0.8125rem; }
 .snbd-num { font-variant-numeric: tabular-nums; }
@@ -884,9 +896,58 @@ textarea.form-control { min-height: 120px; }
   pointer-events: none;
 }
 
-/* Print baseline for invoice pages */
+/* ------------------------------------------------- 16. Responsive: components
+   Component behaviour at the small breakpoint belongs to the component, so it
+   stays next to the definitions above instead of in the shell or a page sheet. */
+@media (max-width: 1024px) {
+  .snbd-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+  .snbd-page-head { flex-direction: column; gap: var(--snbd-s3); }
+  .snbd-page-title { font-size: 1.5rem; }
+  .snbd-page-actions { width: 100%; }
+  .snbd-page-actions .snbd-btn { flex: 1 1 auto; }
+  .snbd-stats { grid-template-columns: 1fr; gap: var(--snbd-s3); }
+  .snbd-card__head { padding: var(--snbd-s3) var(--snbd-s4); }
+  .snbd-card__body { padding: var(--snbd-s4); }
+  .snbd-card--rail { position: static; }
+
+  .snbd-table thead { display: none; }
+  .snbd-table, .snbd-table tbody, .snbd-table tr, .snbd-table td { display: block; width: 100%; }
+  .snbd-table tbody tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--snbd-line);
+  }
+  .snbd-table tbody tr:last-child { border-bottom: 0; }
+  .snbd-table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--snbd-s3);
+    padding: 5px var(--snbd-s4);
+    border: 0;
+    text-align: right;
+  }
+  .snbd-table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--snbd-ink-400);
+    text-align: left;
+  }
+  .snbd-table__num { text-align: right; }
+  .snbd-table__actions { display: block; text-align: left; }
+  .snbd-table__actions::before { display: none; }
+  .snbd-table__actions .snbd-btn { width: 100%; }
+}
+
+/* Print baseline for components; the shell hides its own chrome when printed. */
 @media print {
-  .snbd-btn, .snbd-page-actions, #snbd-sidebar, #snbd-topbar, .snbd-no-print { display: none !important; }
+  .snbd-btn, .snbd-page-actions, .snbd-no-print { display: none !important; }
   body { background: #fff; }
-  .snbd-card { border-color: #ddd; box-shadow: none; }
+  .snbd-card { border-color: var(--snbd-line); box-shadow: none; }
 }

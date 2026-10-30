@@ -516,7 +516,6 @@ html.snbd-rail .snbd-nav__item:focus-visible::after { opacity: 1; transform: tra
   .snbd-search { display: none; }
   .snbd-topbar__right { flex: 0 0 auto; }
   .snbd-topbar__left { flex: 1 1 auto; }
-  .snbd-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1025px) {
@@ -528,54 +527,22 @@ html.snbd-rail .snbd-nav__item:focus-visible::after { opacity: 1; transform: tra
 }
 
 @media (max-width: 767px) {
-  :root { --snbd-topbar-h: 56px; --snbd-page-pad: 16px; }
   #snbd-topbar { padding: 0 var(--snbd-s3); }
   .snbd-content { padding: var(--snbd-s4); }
-  .snbd-page-head { flex-direction: column; gap: var(--snbd-s3); }
-  .snbd-page-title { font-size: 1.5rem; }
-  .snbd-page-actions { width: 100%; }
-  .snbd-page-actions .snbd-btn { flex: 1 1 auto; }
-  .snbd-stats { grid-template-columns: 1fr; gap: var(--snbd-s3); }
   .snbd-account__name { display: none; }
   .snbd-crumbs { display: none; }
   .snbd-topbar__left { flex: 0 0 auto; }
   .snbd-topbar__right { flex: 1 1 auto; }
   .snbd-search { display: none; }
   .snbd-order-btn { display: none; }
-  .snbd-card__head { padding: var(--snbd-s3) var(--snbd-s4); }
-  .snbd-card__body { padding: var(--snbd-s4); }
-  .snbd-table thead { display: none; }
-  .snbd-table, .snbd-table tbody, .snbd-table tr, .snbd-table td { display: block; width: 100%; }
-  .snbd-table tbody tr {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--snbd-line);
-  }
-  .snbd-table tbody tr:last-child { border-bottom: 0; }
-  .snbd-table tbody td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--snbd-s3);
-    padding: 5px var(--snbd-s4);
-    border: 0;
-    text-align: right;
-  }
-  .snbd-table tbody td::before {
-    content: attr(data-label);
-    flex: 0 0 auto;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--snbd-ink-400);
-    text-align: left;
-  }
-  .snbd-table__num { text-align: right; }
-  .snbd-table__actions { display: block; text-align: left; }
-  .snbd-table__actions::before { display: none; }
-  .snbd-table__actions .snbd-btn { width: 100%; }
   .snbd-popover { width: min(320px, calc(100vw - 24px)); right: -4px; }
-  .snbd-card--rail { position: static; }
+}
+
+/* Print: the shell chrome never belongs on paper. */
+@media print {
+  #snbd-sidebar, #snbd-topbar { display: none !important; }
+  #snbd-main { margin: 0 !important; }
+  .snbd-content { padding: 0 !important; }
 }
 
 @media (max-width: 420px) {

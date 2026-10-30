@@ -242,6 +242,15 @@
 .snbd-content .badge-secondary,
 .snbd-content .badge-default { color: var(--snbd-ink-500); background: var(--snbd-surface-3); }
 
+/* Parent utility colours, re-mapped so Bootstrap's own red never reaches the UI */
+.snbd-content .text-primary { color: var(--snbd-red) !important; }
+.snbd-content .text-danger { color: var(--snbd-bad) !important; }
+.snbd-content .text-success { color: var(--snbd-ok) !important; }
+.snbd-content .text-warning { color: var(--snbd-warn) !important; }
+.snbd-content .text-muted { color: var(--snbd-ink-500) !important; }
+.snbd-content .bg-primary { background-color: var(--snbd-red) !important; }
+.snbd-content .bg-danger { background-color: var(--snbd-bad) !important; }
+
 /* --------------------------------------------------------------- Navigation */
 .snbd-content .nav-tabs {
   gap: var(--snbd-s1);

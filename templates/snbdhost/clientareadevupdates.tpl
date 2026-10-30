@@ -41,7 +41,7 @@
     <div class="snbd-cl-list">
 
         <!-- v3.5 -->
-        <article class="snbd-card snbd-cl">
+        <article class="snbd-card">
             <div class="snbd-card__head">
                 <h2 class="snbd-card__title">Version 3.5 <span class="snbd-card__subtitle">May 2026</span></h2>
                 <span class="snbd-chip snbd-chip--brand">Latest release</span>
@@ -79,7 +79,7 @@
         </article>
 
         <!-- v3.4 -->
-        <article class="snbd-card snbd-cl">
+        <article class="snbd-card">
             <div class="snbd-card__head">
                 <h2 class="snbd-card__title">Version 3.4 <span class="snbd-card__subtitle">March 2026</span></h2>
                 <span class="snbd-chip snbd-chip--neutral">Stable</span>
@@ -113,7 +113,7 @@
         </article>
 
         <!-- v3.3 -->
-        <article class="snbd-card snbd-cl">
+        <article class="snbd-card">
             <div class="snbd-card__head">
                 <h2 class="snbd-card__title">Version 3.3 <span class="snbd-card__subtitle">January 2026</span></h2>
                 <span class="snbd-chip snbd-chip--neutral">Stable</span>
@@ -146,7 +146,7 @@
         </article>
 
         <!-- v3.2 -->
-        <article class="snbd-card snbd-cl">
+        <article class="snbd-card">
             <div class="snbd-card__head">
                 <h2 class="snbd-card__title">Version 3.2 <span class="snbd-card__subtitle">November 2025</span></h2>
                 <span class="snbd-chip snbd-chip--neutral">Legacy</span>
@@ -173,7 +173,7 @@
         </article>
 
         <!-- v3.1 -->
-        <article class="snbd-card snbd-cl">
+        <article class="snbd-card">
             <div class="snbd-card__head">
                 <h2 class="snbd-card__title">Version 3.1 <span class="snbd-card__subtitle">September 2025</span></h2>
                 <span class="snbd-chip snbd-chip--neutral">Legacy</span>
@@ -207,7 +207,7 @@
         </article>
 
         <!-- v3.0 -->
-        <article class="snbd-card snbd-cl">
+        <article class="snbd-card">
             <div class="snbd-card__head">
                 <h2 class="snbd-card__title">Version 3.0 <span class="snbd-card__subtitle">July 2025 — initial release</span></h2>
                 <span class="snbd-chip snbd-chip--neutral">Legacy</span>

@@ -23,7 +23,7 @@
 
 <div class="row g-4">
     <div class="col-xl-8">
-        <article class="snbd-card snbd-article" aria-labelledby="snbd-article-body">
+        <article class="snbd-card" aria-labelledby="snbd-article-body">
             <h2 class="snbd-visually-hidden" id="snbd-article-body">{$kbarticle.title}</h2>
             <div class="snbd-card__body snbd-article__body">
                 {$kbarticle.text}

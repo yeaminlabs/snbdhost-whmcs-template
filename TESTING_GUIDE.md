@@ -32,10 +32,11 @@ Verify the following items across different screen sizes (desktop, tablet, and m
 * [ ] **One accent colour**: Every primary action, active nav item, badge and link hover uses `#BA1114`. No `#CC0000`, orange or blue leftovers anywhere.
 * [ ] **Design tokens**: Change `--snbd-red` in `assets/css/snbd-system.css` and confirm buttons, chips, nav and tables all follow.
 * [ ] **No layout drift**: Cards, tables and forms share the same radii, spacing and borders on dashboard, services, invoices, tickets, auth and network status.
-* [ ] **Page coverage**: Open My Details, Add Funds, Mass Pay, Quotes, Email History, Payment Methods, Knowledge Base (index, category, article), Announcements (index, detail), Contact, Downloads (index, category) and Account Security. Each should render inside the shell with the shared cards, tables, chips and alerts — none should show stock Twenty-One widgets.
+* [ ] **Page coverage**: Open My Details, Add Funds, Mass Pay, Quotes, Email History, Payment Methods (list, add, edit), Account Users (list, permissions), Knowledge Base (index, category, article), Announcements (index, detail), Contact, Downloads (index, category), Account Security, Domain Contacts, Bulk Domain Management, Cancellation Request and the upgrade flow (choose, configure, summary). Each should render inside the shell with the shared cards, tables, chips and alerts — none should show stock Twenty-One widgets.
 * [ ] **Automatic opt-in**: Add a copy of any of those templates under `templates/snbdhost/` and reload; the page should switch to the design system on its own, without editing `header.tpl`.
-* [ ] **Legacy bridge**: Only pages the theme has not rebuilt (store, user profile, upgrade flows) should fall back to parent markup, still re-skinned by `snbd-legacy.css`.
+* [ ] **Legacy bridge**: Only pages the theme has not rebuilt (store, user profile, order history) should fall back to parent markup, still re-skinned by `snbd-legacy.css`.
 * [ ] **No Console Errors**: Open the browser console (`F12`) and verify that no Javascript exceptions occur (all custom scripts should compile properly within Smarty bounds).
+* [ ] **Lighter scripts**: On any rebuilt page, View Source → the only local scripts are `jquery-1.12.4.min.js` and `snbd-shell.js`; the parent `scripts.min.js` bundle and theme `whmcs.js` load only on pages that still use parent markup. If a third-party module widget on a rebuilt page stops working, that module needs jQuery plugins from the parent bundle — report the page and module rather than reverting the split.
 
 ### B. Client Area Dashboard Pages
 * [ ] **Dashboard Homepage (`clientarea.php`)**: Ensure that all custom cards, quick info stats, and latest ticket notifications display correctly.
@@ -50,6 +51,7 @@ Verify the following items across different screen sizes (desktop, tablet, and m
 * [ ] **Server Status (`serverstatus.php`)**: Ensure UptimeRobot API scripts load and display server response metrics dynamically.
 
 ### D. Order Form & Checkout Flow (`snbdhost_cart`)
+* [ ] **One stylesheet**: View source on any cart page; the only cart stylesheet is `css/custom.css` (structure + skin). No `all.min.css`, and every red on the page resolves to the brand token.
 * [ ] **Hosting Plans Selector (`cart.php`)**: Test clicking plan categories. Ensure nav-pills are easy to tap (`44px` height target).
 * [ ] **Domain Selection (`cart.php?a=add&pid=X`)**: Test register/transfer/own tabs and search box layouts.
 * [ ] **Addons & Cycles (`cart.php?a=confproduct`)**: Verify that the billing cycle dropdown, metrics details, and range sliders (ionRangeSlider) load properly.

@@ -67,9 +67,17 @@
         <link href="{$WEB_ROOT}/templates/{$template}/assets/css/snbd-legacy.css?v={$smarty.now}" rel="stylesheet">
     {/if}
 
-    {* Parent script bundle ships jQuery and the plugins inline page scripts use
-       (DataTables, tabs, gateway helpers). It must load before body markup. *}
-    <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
+    {*
+       Rebuilt pages run on Bootstrap 5 markup and vanilla JS, so the only script
+       they need is jQuery, for WHMCS's own inline page scripts and module output.
+       The parent bundle (jQuery + Bootstrap 4 + DataTables + editor and widget
+       libraries, ~670KB) is 97% unused there, so it stays on unbuilt pages only.
+    *}
+    {if $snbdCustomTemplate}
+        <script src="{$WEB_ROOT}/templates/{$template}/assets/js/jquery-1.12.4.min.js?v={$smarty.now}"></script>
+    {else}
+        <script src="{$WEB_ROOT}/templates/{$template}/js/scripts.min.js?v={$versionHash}"></script>
+    {/if}
 
     {$headoutput}
 

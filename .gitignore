@@ -6,3 +6,4 @@ node_modules/
 snbdhost_bugs.sh
 modules/addons/snbdhost_manager/deploy_state.json
 modules/addons/snbdhost_manager/branch_cache.json
+.preview/

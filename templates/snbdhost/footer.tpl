@@ -8,10 +8,12 @@
 
 {if !$snbdCustomTemplate}
     <script src="{$BASE_PATH_JS|default:'/assets/js'}/bootstrap.min.js"></script>
+    {* Parent theme glue: it calls lightbox and the Bootstrap 4 plugins from the
+       parent bundle, so it only ships to pages that still load that bundle. *}
+    <script src="{$WEB_ROOT}/templates/{$template}/js/whmcs.js?v={$versionHash}"></script>
 {else}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {/if}
-<script src="{$WEB_ROOT}/templates/{$template}/js/whmcs.js?v={$versionHash}"></script>
 <script src="{$WEB_ROOT}/templates/{$template}/assets/js/snbd-shell.js?v={$smarty.now}"></script>
 
 <!--Start of Tawk.to Script-->

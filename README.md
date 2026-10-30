@@ -38,8 +38,8 @@ component layer — themed templates on the front end, PHP hooks on the back end
 <tr><td>🧭 Navigation</td><td>A single persistent left sidebar (collapsible rail on desktop, off-canvas + backdrop on mobile). The duplicate topbar nav is gone.</td></tr>
 <tr><td>🧱 Components</td><td>Cards, stats, tables, chips, buttons, forms, alerts, tabs, menus, modals and empty states are defined once and reused on every page</td></tr>
 <tr><td>📄 Page cleanup</td><td>Page-level <code>&lt;style&gt;</code> blocks and dozens of inline styles removed from every customised template; pages migrated to the shared components</td></tr>
-<tr><td>📦 Page coverage</td><td>Account details, add funds, mass pay, quotes, email history, payment methods, knowledge base, announcements, contact, downloads and account security now have their own templates, so every link the sidebar, topbar and account menu offer lands on the same system</td></tr>
-<tr><td>🌉 Legacy bridge</td><td>Pages WHMCS ships that the theme has not rebuilt (store, user profile, upgrade flows) still render parent markup; <code>snbd-legacy.css</code> re-skins them. A new template opts in automatically — no list to edit</td></tr>
+<tr><td>📦 Page coverage</td><td>Account details, add funds, mass pay, quotes, email history, payment methods, knowledge base, announcements, contact, downloads, account security, account users, domain contacts, bulk domain management, cancellation requests, two-factor challenge and the upgrade flow now have their own templates, so every link the sidebar, topbar and account menu offer lands on the same system</td></tr>
+<tr><td>🌉 Legacy bridge</td><td>Pages WHMCS ships that the theme has not rebuilt (store, user profile, order history) still render parent markup; <code>snbd-legacy.css</code> re-skins them. A new template opts in automatically — no list to edit</td></tr>
 <tr><td>⚙️ Bootstrap</td><td>Exactly one Bootstrap per page — Bootstrap 5 on rebuilt pages, parent Bootstrap 4 on legacy pages — ending the 4/5 class collision</td></tr>
 <tr><td>🛒 Cart</td><td>Order form tokens aliased to the shared system, one brand red, hard-coded hexes removed</td></tr>
 <tr><td>♿ Access</td><td>Skip link, <code>aria-current</code> navigation, labelled icon buttons, visible focus rings, 44px targets and reduced-motion support</td></tr>
@@ -269,10 +269,11 @@ SNBDHOST Portal template/
     │   │   ├── 📁 css/snbd-shell.css          Sidebar, topbar, rail mode, mobile off-canvas
     │   │   ├── 📁 css/snbd-pages.css          Page layouts: dashboard → tickets → auth → status
     │   │   ├── 📁 css/snbd-legacy.css         Bridge for WHMCS pages that use parent markup
-    │   │   └── 📁 js/snbd-shell.js            Sidebar, popovers, modals, copy, passwords, prices
+    │   │   ├── 📁 js/snbd-shell.js            Sidebar, popovers, modals, copy, passwords, prices
+    │   │   └── 📁 js/jquery-1.12.4.min.js     Only script rebuilt pages load, for WHMCS inline code
     │   │
-    │   ├── 📁 css/                            WHMCS core CSS overrides
-    │   ├── 📁 js/                             WHMCS core JS
+    │   ├── 📁 css/                            WHMCS core CSS overrides (unrebuilt pages only)
+    │   ├── 📁 js/                             Parent bundle: jQuery, Bootstrap 4, DataTables (unrebuilt pages only)
     │   ├── 📁 images/ · 📁 img/                Theme images
     │   └── 📄 theme.yaml                      WHMCS theme config (fallback: twenty-one)
     │
@@ -281,7 +282,7 @@ SNBDHOST Portal template/
         │   ├── 📄 common.tpl · products.tpl · configureproduct.tpl · checkout.tpl
         │   ├── 📄 viewcart.tpl · complete.tpl · fraudcheck.tpl · error.tpl
         │   ├── 📄 domainregister.tpl · domaintransfer.tpl · domainoptions.tpl
-        │   ├── 📁 css/custom.css               Custom cart styles (Red & White)
+        │   ├── 📁 css/custom.css               The cart's only stylesheet: structure + skin, all colours from tokens
         │   ├── 📁 js/ · 📁 includes/
         │   └── 📄 theme.yaml                   Cart theme config
         │

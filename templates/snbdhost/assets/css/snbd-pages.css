@@ -412,7 +412,7 @@
   letter-spacing: -0.02em;
   color: #fff;
 }
-.snbd-auth__pitch h1 span { color: #F4A3A0; }
+.snbd-auth__pitch h1 span { color: var(--snbd-red-200); }
 .snbd-auth__pitch p { margin: 0 0 var(--snbd-s5); font-size: 0.875rem; line-height: 1.65; color: rgba(255, 255, 255, 0.62); }
 .snbd-auth__features { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .snbd-auth__features li {
@@ -422,7 +422,7 @@
   font-size: 0.8125rem;
   color: rgba(255, 255, 255, 0.78);
 }
-.snbd-auth__features i { color: #F4A3A0; font-size: 1rem; }
+.snbd-auth__features i { color: var(--snbd-red-200); font-size: 1rem; }
 .snbd-auth__stats {
   position: relative;
   z-index: 1;
@@ -643,7 +643,6 @@
   .snbd-stats--three { grid-template-columns: 1fr; }
   .snbd-service-card__meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .snbd-detail-grid { grid-template-columns: 1fr 1fr; gap: var(--snbd-s3); }
-  .snbd-page-title { font-size: 1.5rem; }
   .snbd-ticket__subject { font-size: 1.25rem; }
   .snbd-invoice__head { padding: var(--snbd-s4); }
   .snbd-invoice__identity { text-align: left; }
@@ -739,8 +738,8 @@
   color: rgba(255, 255, 255, 0.7);
 }
 .ns-orb.up { background: rgba(46, 125, 50, 0.22); color: #86D99F; }
-.ns-orb.warning { background: rgba(154, 74, 0, 0.28); color: #F0B27A; }
-.ns-orb.down { background: rgba(179, 38, 30, 0.3); color: #FF9B95; }
+.ns-orb.warning { background: rgba(154, 74, 0, 0.28); color: var(--snbd-warn-200); }
+.ns-orb.down { background: rgba(179, 38, 30, 0.3); color: var(--snbd-bad-200); }
 .ns-status-text h3 { margin: 0 0 2px; font-size: 1.0625rem; font-weight: 700; color: #fff; }
 .ns-status-text p { margin: 0; font-size: 0.75rem; color: rgba(255, 255, 255, 0.55); }
 .ns-metrics { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--snbd-s2); }
@@ -755,14 +754,14 @@
 }
 .ns-metric-value { font-family: var(--snbd-font-display); font-size: 1.375rem; font-weight: 700; line-height: 1.2; color: #fff; font-variant-numeric: tabular-nums; }
 .ns-metric-value.up { color: #86D99F; }
-.ns-metric-value.down { color: #FF9B95; }
+.ns-metric-value.down { color: var(--snbd-bad-200); }
 .ns-metric-value.paused { color: rgba(255, 255, 255, 0.55); }
 .ns-metric-label { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255, 255, 255, 0.45); }
 .ns-uptime-row { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--snbd-s3); margin: var(--snbd-s4) 0 7px; }
 .ns-uptime-label { font-size: 0.6875rem; font-weight: 500; color: rgba(255, 255, 255, 0.55); }
 .ns-uptime-value { font-size: 0.75rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
 .ns-uptime-track { position: relative; z-index: 1; height: 5px; overflow: hidden; background: rgba(255, 255, 255, 0.12); border-radius: var(--snbd-r-pill); }
-.ns-uptime-fill { height: 100%; background: linear-gradient(90deg, var(--snbd-red), #FF8B78); border-radius: inherit; transition: width 600ms var(--snbd-ease); }
+.ns-uptime-fill { height: 100%; background: linear-gradient(90deg, var(--snbd-red), var(--snbd-red-300)); border-radius: inherit; transition: width 600ms var(--snbd-ease); }
 
 .ns-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--snbd-s3); margin: var(--snbd-s5) 0 var(--snbd-s4); }
 .ns-search { position: relative; display: flex; align-items: center; width: 280px; max-width: 100%; }
@@ -1181,16 +1180,6 @@
 .snbd-pay { margin-top: var(--snbd-s3); }
 .snbd-pay .btn,
 .snbd-pay .snbd-btn { width: 100%; }
-
-.snbd-no-print { }
-
-@media print {
-  .snbd-sidebar, #snbd-sidebar, #snbd-topbar, .snbd-no-print, .snbd-page-actions { display: none !important; }
-  #snbd-main { margin: 0 !important; }
-  .snbd-content { padding: 0 !important; }
-  .snbd-card { border: 0; box-shadow: none; }
-  body { background: #fff; }
-}
 
 /* ============================================================================
    Responsive
