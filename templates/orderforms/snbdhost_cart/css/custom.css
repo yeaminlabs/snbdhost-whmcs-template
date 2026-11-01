@@ -4062,3 +4062,181 @@ a:hover { color: var(--brand-hover); }
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   16. Cart corrections found on the deployed pages
+   --------------------------------------------------------------------------
+   Three faults only became visible once the store was actually served inside
+   the client-area shell: the portal already spends 272px on its own sidebar, so
+   the cart is laid out in a narrower column than the design was drawn for, and
+   the pieces WHMCS builds at runtime (the validation box, the price lines of the
+   summary) are not the pieces the templates show. Each fix below is scoped to
+   the cart and stated at the strength the markup needs.
+   ========================================================================== */
+
+/* WHMCS reveals the validation box by removing this class, so it only has to
+   lose while the class is there. The design system's `.snbd-content .alert`
+   flex display outranked the earlier plain rule on the deployed page and left an
+   empty red "correct the following errors" strip above every product. */
+#order-standard_cart .w-hidden,
+#order-snbdhost_cart .w-hidden {
+  display: none !important;
+}
+
+/* WHMCS builds the summary's price lines with Bootstrap 3 float helpers
+   (`.pull-left` / `.pull-right`). Bootstrap 4 dropped them, so the plan name and
+   its price were printed next to each other with no gap. Lay the line out as a
+   flex row instead of relying on either framework. */
+#order-standard_cart .summary-container > div:not(.total-due-today),
+#order-standard_cart .summary-container .clearfix:not(.total-due-today),
+#order-snbdhost_cart .summary-container > div:not(.total-due-today),
+#order-snbdhost_cart .summary-container .clearfix:not(.total-due-today) {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--snbd-s3);
+  width: 100%;
+  padding: 6px 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+#order-standard_cart .summary-container .pull-left,
+#order-standard_cart .summary-container .pull-right,
+#order-snbdhost_cart .summary-container .pull-left,
+#order-snbdhost_cart .summary-container .pull-right {
+  float: none !important;
+  margin: 0;
+}
+#order-standard_cart .summary-container .pull-right,
+#order-snbdhost_cart .summary-container .pull-right {
+  text-align: right;
+  font-weight: 700;
+  color: var(--snbd-ink-900);
+  white-space: nowrap;
+}
+#order-standard_cart .summary-container .product-name,
+#order-snbdhost_cart .summary-container .product-name {
+  font-weight: 700;
+  color: var(--snbd-ink-900);
+}
+
+/* The product's description is admin HTML: usually a <ul> of features, sometimes
+   plain paragraphs. Left alone it inherited the parent theme's 2.2 line height
+   and per-item margins, which spread a dozen specs down half the page. */
+#order-standard_cart .product-info ul,
+#order-standard_cart .product-info ol,
+#order-snbdhost_cart .product-info ul,
+#order-snbdhost_cart .product-info ol {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+#order-standard_cart .product-info ul li,
+#order-standard_cart .product-info ol li,
+#order-snbdhost_cart .product-info ul li,
+#order-snbdhost_cart .product-info ol li {
+  position: relative;
+  margin: 0 !important;
+  padding: 8px 0 8px 26px !important;
+  border-bottom: 1px solid var(--snbd-line);
+  font-size: 0.8125rem !important;
+  line-height: 1.5 !important;
+  color: var(--snbd-ink-600) !important;
+}
+#order-standard_cart .product-info ul li:last-child,
+#order-standard_cart .product-info ol li:last-child,
+#order-snbdhost_cart .product-info ul li:last-child,
+#order-snbdhost_cart .product-info ol li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0 !important;
+}
+/* A tick per spec, drawn with a border so no icon font has to load. */
+#order-standard_cart .product-info ul li::before,
+#order-standard_cart .product-info ol li::before,
+#order-snbdhost_cart .product-info ul li::before,
+#order-snbdhost_cart .product-info ol li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 15px;
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid var(--snbd-red);
+  border-bottom: 2px solid var(--snbd-red);
+  transform: rotate(-45deg);
+}
+#order-standard_cart .product-info p,
+#order-snbdhost_cart .product-info p {
+  margin: 0 0 6px !important;
+  line-height: 1.55 !important;
+}
+
+/* Narrow the summary rail before it steals the form. Below 1200px of viewport
+   the form column had fallen under 520px, so the fields wrapped in pairs while
+   the summary kept a fixed 360px. */
+@media (max-width: 1199px) {
+  #order-standard_cart .secondary-cart-sidebar,
+  #order-snbdhost_cart .secondary-cart-sidebar {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    order: -1;
+    padding: 0 15px var(--snbd-s4) !important;
+  }
+  #order-standard_cart .secondary-cart-body,
+  #order-snbdhost_cart .secondary-cart-body {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    padding: 0 15px !important;
+  }
+}
+@media (min-width: 1200px) {
+  #order-standard_cart .secondary-cart-sidebar,
+  #order-snbdhost_cart .secondary-cart-sidebar {
+    flex: 0 0 320px !important;
+    max-width: 320px !important;
+    padding-left: var(--snbd-s5) !important;
+  }
+}
+
+/* Below the two-column breakpoint the category panel used to stack above the
+   plans at full height - thirteen rows of navigation before the first price.
+   It becomes a scrollable row of chips instead, above the catalogue. */
+@media (max-width: 1024px) {
+  #order-standard_cart .store__aside,
+  #order-snbdhost_cart .store__aside {
+    order: 1;
+  }
+  #order-standard_cart .store__main,
+  #order-snbdhost_cart .store__main {
+    order: 2;
+  }
+  #order-standard_cart .store-nav,
+  #order-snbdhost_cart .store-nav {
+    padding: var(--snbd-s2);
+  }
+  #order-standard_cart .store-nav__title,
+  #order-snbdhost_cart .store-nav__title {
+    padding: 0 var(--snbd-s2) var(--snbd-s2);
+  }
+  #order-standard_cart .store-nav__list,
+  #order-snbdhost_cart .store-nav__list {
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+  #order-standard_cart .store-nav__item,
+  #order-snbdhost_cart .store-nav__item {
+    flex: 0 0 auto;
+    padding: 7px var(--snbd-s3);
+    border: 1px solid var(--snbd-line);
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 0.7813rem;
+  }
+  #order-standard_cart .store-nav__item.is-active,
+  #order-snbdhost_cart .store-nav__item.is-active {
+    border-color: var(--snbd-red-line);
+  }
+}
