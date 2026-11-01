@@ -161,8 +161,36 @@
 .snbd-nav__divider { display: none; }
 
 .snbd-sidebar__foot {
+  position: relative;
   padding: 12px;
   border-top: 1px solid var(--snbd-line);
+}
+/*
+   The account menu in the footer inherits the shared popover, which opens
+   downward with `right: 0` and a fixed 320px width. In a 272px rail that pushes
+   most of the panel past the left edge of the window, where the shell clips it
+   and every item reads as "...details". Anchor it to the footer instead, open it
+   upward, and let the rail decide the width so it can never leave the panel.
+*/
+.snbd-sidebar__foot .snbd-popover {
+  top: auto;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  width: auto;
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+}
+/* The collapsed rail is 72px wide, so an in-panel menu would be unreadable.
+   Fixed positioning escapes the sidebar's `overflow: hidden` and opens the menu
+   beside the rail while the rail itself stays put. */
+html.snbd-rail .snbd-sidebar__foot .snbd-popover {
+  position: fixed;
+  top: auto;
+  right: auto;
+  left: calc(var(--snbd-sidebar-rail) + 10px);
+  bottom: 16px;
+  width: 248px;
 }
 .snbd-user {
   display: flex;
