@@ -3155,3 +3155,910 @@ a:hover { color: var(--brand-hover); }
   color: #fff !important;
 }
 
+
+/* ==========================================================================
+   15. Order form 2.0 — catalogue and configure
+   --------------------------------------------------------------------------
+   The cart renders inside the client-area shell, so it sits under
+   `.snbd-content` and inherits the SNBD design system tokens. Everything below
+   is scoped to `#order-standard_cart` (plus the legacy `#order-snbdhost_cart`
+   id the older markup used) and is written to survive being loaded on top of
+   either Bootstrap stack: the theme loads Bootstrap 5 on rebuilt pages and the
+   parent's Bootstrap 4 on the cart, so nothing here may depend on a framework's
+   own grid, float or `.row` behaviour.
+   ========================================================================== */
+
+/* Framework-independent hiding. The design system gives `.alert` a flex display
+   to style WHMCS's own flash messages, which outranks the cart's plain
+   `.w-hidden` and used to leave an empty "correct the following errors" box on
+   the configure page. Same specificity, later in the cascade, so this wins — and
+   it stays a plain rule, not `!important`, because the cart reveals these
+   elements with jQuery .show(), which writes an inline display. */
+.snbd-content .w-hidden,
+.snbd-content .hidden,
+#order-standard_cart .w-hidden,
+#order-snbdhost_cart .w-hidden {
+  display: none;
+}
+
+/* The cart's own text/heading scale, so the order flow reads like the rest of
+   the portal instead of the parent theme. */
+#order-standard_cart,
+#order-snbdhost_cart {
+  color: var(--snbd-ink-700);
+  font-family: var(--snbd-font-text);
+}
+#order-standard_cart h1,
+#order-standard_cart h2,
+#order-standard_cart h3,
+#order-standard_cart h4,
+#order-snbdhost_cart h1,
+#order-snbdhost_cart h2,
+#order-snbdhost_cart h3,
+#order-snbdhost_cart h4 {
+  font-family: var(--snbd-font-display);
+  letter-spacing: -0.015em;
+  color: var(--snbd-ink-900);
+}
+
+/* ------------------------------------------------------------------ Grids
+   Two-column flows are defined as grids on the container itself. A grid cannot
+   overlap its own tracks, so the content column can no longer drift under the
+   summary the way floats did when the parent stylesheet was present. */
+/* The parent stylesheet bleeds `.row` out by 15px on each side to cancel the
+   column gutters, which pushed the form 15px left of the page header right above
+   it. Only the structural rows are reset, so Bootstrap's own form grid keeps its
+   gutters. */
+#order-standard_cart > .row,
+#order-standard_cart .cart-body > .row,
+#order-standard_cart .cart-body form > .row,
+#order-snbdhost_cart > .row,
+#order-snbdhost_cart .cart-body > .row,
+#order-snbdhost_cart .cart-body form > .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#order-standard_cart .store,
+#order-snbdhost_cart .store {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  gap: var(--snbd-s6);
+  align-items: start;
+}
+#order-standard_cart .store__aside,
+#order-snbdhost_cart .store__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--snbd-s4);
+  position: sticky;
+  top: var(--snbd-s4);
+  min-width: 0;
+}
+#order-standard_cart .store__main,
+#order-snbdhost_cart .store__main {
+  min-width: 0;
+}
+@media (max-width: 1024px) {
+  #order-standard_cart .store,
+  #order-snbdhost_cart .store {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #order-standard_cart .store__aside,
+  #order-snbdhost_cart .store__aside {
+    position: static;
+  }
+}
+
+/* ------------------------------------------------------------------ Sidebar */
+#order-standard_cart .store-nav,
+#order-snbdhost_cart .store-nav {
+  background: var(--snbd-surface);
+  border: 1px solid var(--snbd-line);
+  border-radius: var(--snbd-r-lg);
+  padding: var(--snbd-s3);
+  box-shadow: 0 1px 2px rgba(20, 22, 26, 0.04);
+}
+#order-standard_cart .store-nav__title,
+#order-snbdhost_cart .store-nav__title {
+  display: flex;
+  align-items: center;
+  gap: var(--snbd-s2);
+  padding: var(--snbd-s2) var(--snbd-s3) var(--snbd-s3);
+  font-family: var(--snbd-font-display);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--snbd-ink-400);
+}
+#order-standard_cart .store-nav__list,
+#order-snbdhost_cart .store-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#order-standard_cart .store-nav__item,
+#order-snbdhost_cart .store-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--snbd-s2);
+  padding: 9px var(--snbd-s3);
+  border-radius: var(--snbd-r-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--snbd-ink-700);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+#order-standard_cart .store-nav__item:hover,
+#order-snbdhost_cart .store-nav__item:hover {
+  background: var(--snbd-surface-2);
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .store-nav__item.is-active,
+#order-snbdhost_cart .store-nav__item.is-active {
+  background: var(--snbd-red-soft);
+  color: var(--snbd-red);
+}
+#order-standard_cart .store-nav__item i,
+#order-snbdhost_cart .store-nav__item i {
+  font-size: 1rem;
+  color: var(--snbd-ink-400);
+  flex: 0 0 auto;
+}
+#order-standard_cart .store-nav__item.is-active i,
+#order-snbdhost_cart .store-nav__item.is-active i {
+  color: var(--snbd-red);
+}
+#order-standard_cart .store-nav__count,
+#order-snbdhost_cart .store-nav__count {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--snbd-ink-400);
+}
+
+/* ------------------------------------------------------------------ Hero */
+#order-standard_cart .store-hero,
+#order-snbdhost_cart .store-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--snbd-s5);
+  flex-wrap: wrap;
+  padding-bottom: var(--snbd-s4);
+  margin-bottom: var(--snbd-s5);
+  border-bottom: 1px solid var(--snbd-line);
+}
+#order-standard_cart .store-hero__eyebrow,
+#order-snbdhost_cart .store-hero__eyebrow {
+  display: block;
+  margin-bottom: var(--snbd-s2);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--snbd-red);
+}
+#order-standard_cart .store-hero__title,
+#order-snbdhost_cart .store-hero__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .store-hero__sub,
+#order-snbdhost_cart .store-hero__sub {
+  margin: var(--snbd-s2) 0 0;
+  max-width: 62ch;
+  font-size: 0.875rem;
+  color: var(--snbd-ink-500);
+}
+#order-standard_cart .store-hero__count,
+#order-snbdhost_cart .store-hero__count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--snbd-s2);
+  padding: 6px var(--snbd-s3);
+  border-radius: 999px;
+  background: var(--snbd-surface);
+  border: 1px solid var(--snbd-line);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--snbd-ink-500);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ Plans */
+#order-standard_cart .store-grid,
+#order-snbdhost_cart .store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  gap: var(--snbd-s4);
+  margin: 0;
+}
+#order-standard_cart .plan,
+#order-snbdhost_cart .plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--snbd-s5);
+  background: var(--snbd-surface);
+  border: 1px solid var(--snbd-line);
+  border-radius: var(--snbd-r-lg);
+  box-shadow: 0 1px 2px rgba(20, 22, 26, 0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+#order-standard_cart .plan:hover,
+#order-snbdhost_cart .plan:hover {
+  transform: translateY(-3px);
+  border-color: var(--snbd-line-strong);
+  box-shadow: 0 12px 28px rgba(20, 22, 26, 0.09);
+}
+#order-standard_cart .plan::before,
+#order-snbdhost_cart .plan::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  border-radius: var(--snbd-r-lg) var(--snbd-r-lg) 0 0;
+  background: linear-gradient(90deg, var(--snbd-red), var(--snbd-red-300));
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+#order-standard_cart .plan:hover::before,
+#order-snbdhost_cart .plan:hover::before {
+  opacity: 1;
+}
+#order-standard_cart .plan__head,
+#order-snbdhost_cart .plan__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--snbd-s3);
+  margin-bottom: var(--snbd-s3);
+}
+#order-standard_cart .plan__name,
+#order-snbdhost_cart .plan__name {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .plan__stock,
+#order-snbdhost_cart .plan__stock {
+  flex: 0 0 auto;
+  padding: 3px var(--snbd-s2);
+  border-radius: 999px;
+  background: var(--snbd-bad-soft);
+  color: var(--snbd-bad);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+#order-standard_cart .plan__lede,
+#order-snbdhost_cart .plan__lede {
+  margin: 0 0 var(--snbd-s4);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--snbd-ink-500);
+}
+#order-standard_cart .plan__specs,
+#order-snbdhost_cart .plan__specs {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0 0 var(--snbd-s5);
+  padding: 0;
+  list-style: none;
+}
+#order-standard_cart .plan__specs li,
+#order-snbdhost_cart .plan__specs li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--snbd-s2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--snbd-ink-500);
+}
+#order-standard_cart .plan__specs i,
+#order-snbdhost_cart .plan__specs i {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  font-size: 0.9375rem;
+  color: var(--snbd-ok);
+}
+#order-standard_cart .plan__specs strong,
+#order-snbdhost_cart .plan__specs strong {
+  font-weight: 700;
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .plan__foot,
+#order-snbdhost_cart .plan__foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--snbd-s4);
+  margin-top: auto;
+  padding-top: var(--snbd-s4);
+  border-top: 1px solid var(--snbd-line);
+}
+#order-standard_cart .plan__price,
+#order-snbdhost_cart .plan__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--snbd-s2);
+  flex-wrap: wrap;
+}
+#order-standard_cart .plan__amount,
+#order-snbdhost_cart .plan__amount {
+  font-family: var(--snbd-font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .plan__cycle,
+#order-snbdhost_cart .plan__cycle {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--snbd-ink-400);
+}
+#order-standard_cart .plan__note,
+#order-snbdhost_cart .plan__note {
+  font-size: 0.6875rem;
+  color: var(--snbd-ink-400);
+}
+#order-standard_cart .plan__cta,
+#order-snbdhost_cart .plan__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--snbd-s2);
+  width: 100%;
+  padding: 11px var(--snbd-s4);
+  border: 1px solid var(--snbd-red);
+  border-radius: var(--snbd-r-sm);
+  background: var(--snbd-red);
+  color: #fff;
+  font-family: var(--snbd-font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+#order-standard_cart .plan__cta:hover,
+#order-snbdhost_cart .plan__cta:hover {
+  background: var(--snbd-red-hover);
+  border-color: var(--snbd-red-hover);
+  color: #fff;
+  box-shadow: 0 6px 16px var(--snbd-red-ring);
+}
+
+/* ------------------------------------------------------------ Configure head */
+#order-standard_cart .cfg-head,
+#order-snbdhost_cart .cfg-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--snbd-s5);
+  flex-wrap: wrap;
+  padding-bottom: var(--snbd-s4);
+  margin-bottom: var(--snbd-s5);
+  border-bottom: 1px solid var(--snbd-line);
+}
+#order-standard_cart .cfg-head__eyebrow,
+#order-snbdhost_cart .cfg-head__eyebrow {
+  display: block;
+  margin-bottom: var(--snbd-s2);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--snbd-red);
+}
+#order-standard_cart .cfg-head__title,
+#order-snbdhost_cart .cfg-head__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  font-weight: 800;
+  line-height: 1.15;
+}
+#order-standard_cart .cfg-head__sub,
+#order-snbdhost_cart .cfg-head__sub {
+  margin: var(--snbd-s2) 0 0;
+  max-width: 62ch;
+  font-size: 0.875rem;
+  color: var(--snbd-ink-500);
+}
+
+/* Section headings inside the configure form. */
+#order-standard_cart .cfg-step,
+#order-snbdhost_cart .cfg-step {
+  display: flex;
+  align-items: center;
+  gap: var(--snbd-s3);
+  margin: var(--snbd-s6) 0 var(--snbd-s4);
+  font-family: var(--snbd-font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .cfg-step__num,
+#order-snbdhost_cart .cfg-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--snbd-red-soft);
+  color: var(--snbd-red);
+  font-size: 0.6875rem;
+  font-weight: 800;
+}
+#order-standard_cart .cfg-step:first-child,
+#order-snbdhost_cart .cfg-step:first-child {
+  margin-top: 0;
+}
+#order-standard_cart .cfg-step__num i,
+#order-snbdhost_cart .cfg-step__num i {
+  font-size: 14px;
+  line-height: 1;
+}
+#order-standard_cart .cfg-step__hint,
+#order-snbdhost_cart .cfg-step__hint {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--snbd-font-text);
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 500;
+  color: var(--snbd-ink-400);
+}
+
+/* Templates that still use WHMCS's own `sub-heading` markup (domain options,
+   linked accounts) get the same section heading, so the cart reads as one page. */
+#order-standard_cart .sub-heading,
+#order-snbdhost_cart .sub-heading {
+  margin: var(--snbd-s6) 0 var(--snbd-s4);
+  border: 0;
+  padding: 0;
+}
+#order-standard_cart .sub-heading span,
+#order-standard_cart .sub-heading .primary-bg-color,
+#order-snbdhost_cart .sub-heading span,
+#order-snbdhost_cart .sub-heading .primary-bg-color {
+  display: inline-block;
+  background: none !important;
+  padding: 0 !important;
+  color: var(--snbd-ink-900) !important;
+  font-family: var(--snbd-font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* The product being configured: a compact identity card. */
+#order-standard_cart .product-info,
+#order-snbdhost_cart .product-info {
+  background: var(--snbd-surface) !important;
+  border: 1px solid var(--snbd-line) !important;
+  border-left: 3px solid var(--snbd-red) !important;
+  border-radius: var(--snbd-r-lg) !important;
+  padding: var(--snbd-s5) !important;
+  margin-bottom: var(--snbd-s5) !important;
+}
+#order-standard_cart .product-info .product-title,
+#order-snbdhost_cart .product-info .product-title {
+  font-family: var(--snbd-font-display) !important;
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: var(--snbd-ink-900) !important;
+  margin-bottom: var(--snbd-s2) !important;
+}
+#order-standard_cart .product-info > p:last-child,
+#order-snbdhost_cart .product-info > p:last-child {
+  margin: 0 !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.6 !important;
+  color: var(--snbd-ink-500) !important;
+}
+
+/* --------------------------------------------------------- Billing cycle
+   The parent stylesheet's `.custom-select` collapsed the select to its
+   intrinsic width (~42px) once the cart was rendered outside the checkout form,
+   clipping every option label. Width is pinned here instead of inherited. */
+#order-standard_cart .cfg-cycle,
+#order-snbdhost_cart .cfg-cycle {
+  display: grid;
+  /* A `1fr auto` pair let the auto track collapse to the select's intrinsic
+     width, so the control rendered ~50px wide. Give the control a real track. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: var(--snbd-s3);
+  align-items: center;
+  padding: var(--snbd-s4) var(--snbd-s5);
+  background: var(--snbd-surface);
+  border: 1px solid var(--snbd-line);
+  border-radius: var(--snbd-r-lg);
+}
+#order-standard_cart .cfg-cycle__label,
+#order-snbdhost_cart .cfg-cycle__label {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--snbd-font-display);
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--snbd-ink-900);
+}
+#order-standard_cart .cfg-cycle__hint,
+#order-snbdhost_cart .cfg-cycle__hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--snbd-ink-400);
+}
+#order-standard_cart #inputBillingcycle,
+#order-snbdhost_cart #inputBillingcycle,
+#order-standard_cart select.cfg-select,
+#order-snbdhost_cart select.cfg-select {
+  width: 100% !important;
+  max-width: 320px;
+  height: 46px;
+  padding: 0 2.25rem 0 var(--snbd-s4) !important;
+  border: 1px solid var(--snbd-line-strong) !important;
+  border-radius: var(--snbd-r-sm) !important;
+  background-color: var(--snbd-surface) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7278' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right var(--snbd-s3) center !important;
+  font-family: var(--snbd-font-text) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--snbd-ink-900) !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  box-shadow: none !important;
+}
+#order-standard_cart #inputBillingcycle:focus,
+#order-snbdhost_cart #inputBillingcycle:focus {
+  border-color: var(--snbd-red) !important;
+  box-shadow: 0 0 0 3px var(--snbd-red-ring) !important;
+  outline: none !important;
+}
+
+/* ------------------------------------------------------------- Addons
+   Each addon becomes a selectable card: identity on the left, price on the
+   right, and the whole card wearing the selected state. */
+#order-standard_cart .addon-products,
+#order-snbdhost_cart .addon-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--snbd-s4);
+}
+#order-standard_cart .addon-products > [class*="col-"],
+#order-snbdhost_cart .addon-products > [class*="col-"] {
+  width: auto;
+  max-width: none;
+  padding: 0;
+  flex: 1 1 auto;
+}
+#order-standard_cart .panel-addon,
+#order-snbdhost_cart .panel-addon {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  background: var(--snbd-surface) !important;
+  border: 1px solid var(--snbd-line) !important;
+  border-radius: var(--snbd-r-lg) !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+#order-standard_cart .panel-addon:hover,
+#order-snbdhost_cart .panel-addon:hover {
+  border-color: var(--snbd-line-strong) !important;
+  box-shadow: 0 6px 18px rgba(20, 22, 26, 0.07) !important;
+}
+#order-standard_cart .panel-addon-selected,
+#order-snbdhost_cart .panel-addon-selected {
+  border-color: var(--snbd-red) !important;
+  background: var(--snbd-surface) !important;
+  box-shadow: 0 0 0 3px var(--snbd-red-soft) !important;
+}
+#order-standard_cart .panel-addon .panel-body,
+#order-standard_cart .panel-addon .card-body,
+#order-snbdhost_cart .panel-addon .panel-body,
+#order-snbdhost_cart .panel-addon .card-body {
+  flex: 1 1 auto !important;
+  padding: var(--snbd-s4) !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.55 !important;
+  color: var(--snbd-ink-500) !important;
+  /* The parent stylesheet centres addon copy; it reads as broken next to a
+     left-aligned checkbox and title. */
+  text-align: left !important;
+}
+#order-standard_cart .panel-addon .panel-body label,
+#order-snbdhost_cart .panel-addon .panel-body label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--snbd-s2);
+  margin-bottom: var(--snbd-s2);
+  font-family: var(--snbd-font-display);
+  font-size: 0.9375rem !important;
+  font-weight: 800 !important;
+  color: var(--snbd-ink-900) !important;
+  cursor: pointer;
+}
+#order-standard_cart .panel-addon .panel-body input[type="checkbox"],
+#order-snbdhost_cart .panel-addon .panel-body input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--snbd-red);
+}
+#order-standard_cart .panel-addon .panel-price,
+#order-snbdhost_cart .panel-addon .panel-price {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: var(--snbd-surface-2) !important;
+  border-top: 1px solid var(--snbd-line) !important;
+  padding: 10px var(--snbd-s4) !important;
+  font-family: var(--snbd-font-display) !important;
+  font-size: 0.875rem !important;
+  font-weight: 800 !important;
+  color: var(--snbd-ink-900) !important;
+}
+#order-standard_cart .panel-addon .panel-add,
+#order-snbdhost_cart .panel-addon .panel-add {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--snbd-s2) !important;
+  background: var(--snbd-surface) !important;
+  border-top: 1px solid var(--snbd-line) !important;
+  padding: 11px var(--snbd-s4) !important;
+  font-family: var(--snbd-font-display) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  color: var(--snbd-red) !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+#order-standard_cart .panel-addon .panel-add:hover,
+#order-snbdhost_cart .panel-addon .panel-add:hover {
+  background: var(--snbd-red-soft) !important;
+}
+#order-standard_cart .panel-addon-selected .panel-add,
+#order-snbdhost_cart .panel-addon-selected .panel-add {
+  background: var(--snbd-red) !important;
+  color: #fff !important;
+}
+
+/* ------------------------------------------------------- Order summary
+   One card, sticky beside the form, with the total as its anchor. */
+#order-standard_cart .order-summary,
+#order-snbdhost_cart .order-summary {
+  background: var(--snbd-surface) !important;
+  border: 1px solid var(--snbd-line) !important;
+  border-radius: var(--snbd-r-lg) !important;
+  padding: var(--snbd-s5) !important;
+  box-shadow: 0 1px 2px rgba(20, 22, 26, 0.04) !important;
+}
+#order-standard_cart .order-summary h2,
+#order-standard_cart .order-summary .cart-summary__title,
+#order-snbdhost_cart .order-summary h2,
+#order-snbdhost_cart .order-summary .cart-summary__title {
+  margin: 0 0 var(--snbd-s4) !important;
+  padding-bottom: var(--snbd-s3) !important;
+  border-bottom: 1px solid var(--snbd-line) !important;
+  font-family: var(--snbd-font-display) !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--snbd-ink-900) !important;
+}
+#order-standard_cart .order-summary .product-name,
+#order-snbdhost_cart .order-summary .product-name {
+  font-family: var(--snbd-font-display) !important;
+  font-weight: 700 !important;
+  color: var(--snbd-ink-900) !important;
+}
+#order-standard_cart .order-summary .product-group,
+#order-snbdhost_cart .order-summary .product-group {
+  font-size: 0.75rem !important;
+  color: var(--snbd-ink-400) !important;
+}
+#order-standard_cart .order-summary .subtotal,
+#order-standard_cart .order-summary .bordered-totals > div,
+#order-standard_cart .order-summary .recurring-totals,
+#order-snbdhost_cart .order-summary .subtotal,
+#order-snbdhost_cart .order-summary .bordered-totals > div,
+#order-snbdhost_cart .order-summary .recurring-totals {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--snbd-s3);
+  padding: 7px 0;
+  font-size: 0.8125rem;
+  color: var(--snbd-ink-500);
+}
+#order-standard_cart .order-summary .total-due-today,
+#order-snbdhost_cart .order-summary .total-due-today {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--snbd-s4) 0 0;
+  padding: var(--snbd-s4) var(--snbd-s5);
+  border-radius: var(--snbd-r-md);
+  background: linear-gradient(135deg, #17181C 0%, #221114 60%, #1A1112 100%);
+  color: #fff;
+}
+#order-standard_cart .order-summary .total-due-today .amt,
+#order-snbdhost_cart .order-summary .total-due-today .amt {
+  font-family: var(--snbd-font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: #fff;
+}
+#order-standard_cart .order-summary .total-due-today > span:last-child,
+#order-snbdhost_cart .order-summary .total-due-today > span:last-child {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--snbd-red-200);
+}
+#order-standard_cart .order-summary .btn-checkout,
+#order-snbdhost_cart .order-summary .btn-checkout {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--snbd-s2) !important;
+  width: 100% !important;
+  margin-top: var(--snbd-s4) !important;
+  padding: 12px var(--snbd-s5) !important;
+  border: 0 !important;
+  border-radius: var(--snbd-r-sm) !important;
+  background: var(--snbd-red) !important;
+  color: #fff !important;
+  font-family: var(--snbd-font-display) !important;
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 14px var(--snbd-red-ring) !important;
+  transition: background 0.15s ease, transform 0.15s ease !important;
+}
+#order-standard_cart .order-summary .btn-checkout:hover,
+#order-snbdhost_cart .order-summary .btn-checkout:hover {
+  background: var(--snbd-red-hover) !important;
+  transform: translateY(-1px) !important;
+  color: #fff !important;
+}
+#order-standard_cart .order-summary .btn-checkout.disabled,
+#order-snbdhost_cart .order-summary .btn-checkout.disabled {
+  background: var(--snbd-ink-400) !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+#order-standard_cart .order-summary .btn-continue-shopping,
+#order-snbdhost_cart .order-summary .btn-continue-shopping {
+  display: block !important;
+  margin-top: var(--snbd-s3) !important;
+  color: var(--snbd-ink-500) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+#order-standard_cart .order-summary .btn-continue-shopping:hover,
+#order-snbdhost_cart .order-summary .btn-continue-shopping:hover {
+  color: var(--snbd-red) !important;
+}
+
+/* The loader is a spinner placeholder until the totals arrive. */
+#order-standard_cart .order-summary .loader,
+#order-snbdhost_cart .order-summary .loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  color: var(--snbd-ink-400);
+}
+/* The loader rule above outranks the shared `.w-hidden` helper by specificity,
+   so the collapsed state has to be restated here or the spinner shows on a
+   settled summary. Left without `!important`: the cart reveals it inline. */
+#order-standard_cart .order-summary .loader.w-hidden,
+#order-snbdhost_cart .order-summary .loader.w-hidden {
+  display: none;
+}
+
+/* Cart tabs live in section 10 above; they are deliberately not restyled here
+   so there is one owner for that markup. */
+
+/* --------------------------------------------------- Shared cart form bits */
+#order-standard_cart .field-container,
+#order-snbdhost_cart .field-container {
+  background: var(--snbd-surface) !important;
+  border: 1px solid var(--snbd-line) !important;
+  border-radius: var(--snbd-r-lg) !important;
+  padding: var(--snbd-s5) !important;
+  margin-bottom: var(--snbd-s5) !important;
+}
+#order-standard_cart label,
+#order-snbdhost_cart label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--snbd-ink-700);
+}
+#order-standard_cart .form-control,
+#order-snbdhost_cart .form-control {
+  min-height: 44px;
+  border: 1px solid var(--snbd-line-strong);
+  border-radius: var(--snbd-r-sm);
+  font-size: 0.875rem;
+  color: var(--snbd-ink-900);
+  background-color: var(--snbd-surface);
+  box-shadow: none;
+}
+#order-standard_cart .form-control:focus,
+#order-snbdhost_cart .form-control:focus {
+  border-color: var(--snbd-red);
+  box-shadow: 0 0 0 3px var(--snbd-red-ring);
+}
+#order-standard_cart .info-text-sm,
+#order-snbdhost_cart .info-text-sm {
+  display: flex;
+  align-items: center;
+  gap: var(--snbd-s3);
+  padding: var(--snbd-s4) var(--snbd-s5) !important;
+  background: var(--snbd-surface-2) !important;
+  border: 1px solid var(--snbd-line) !important;
+  border-radius: var(--snbd-r-lg) !important;
+  font-size: 0.8125rem !important;
+  color: var(--snbd-ink-500) !important;
+}
+#order-standard_cart .info-text-sm .alert-link,
+#order-snbdhost_cart .info-text-sm .alert-link {
+  color: var(--snbd-red) !important;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ Responsive */
+@media (max-width: 767px) {
+  #order-standard_cart .store-grid,
+  #order-snbdhost_cart .store-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #order-standard_cart .addon-products,
+  #order-snbdhost_cart .addon-products {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #order-standard_cart .cfg-cycle,
+  #order-snbdhost_cart .cfg-cycle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #order-standard_cart #inputBillingcycle,
+  #order-snbdhost_cart #inputBillingcycle {
+    max-width: none;
+  }
+  #order-standard_cart .store-hero,
+  #order-standard_cart .cfg-head,
+  #order-snbdhost_cart .store-hero,
+  #order-snbdhost_cart .cfg-head {
+    align-items: flex-start;
+  }
+}

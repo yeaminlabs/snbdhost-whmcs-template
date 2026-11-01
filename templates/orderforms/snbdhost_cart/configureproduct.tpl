@@ -16,9 +16,13 @@ var _localLang = {
     <div class="row">
         <div class="cart-body">
 
-            <div class="header-lined mb-4 border-0 pb-0">
-                <h1 class="dash-headline" style="font-size: 2rem;">{$LANG.orderconfigure}</h1>
-            </div>
+            <header class="cfg-head">
+                <div>
+                    <span class="cfg-head__eyebrow">Step 1 of 2</span>
+                    <h1 class="cfg-head__title">{$LANG.orderconfigure}</h1>
+                    <p class="cfg-head__sub">{$LANG.orderForm.configureDesiredOptions}</p>
+                </div>
+            </header>
 
             <form id="frmConfigureProduct">
                 <input type="hidden" name="configure" value="true" />
@@ -26,8 +30,6 @@ var _localLang = {
 
                 <div class="row">
                     <div class="secondary-cart-body">
-
-                        <p>{$LANG.orderForm.configureDesiredOptions}</p>
 
                         <div class="product-info">
                             <p class="product-title">{$productinfo.name}</p>
@@ -40,11 +42,12 @@ var _localLang = {
                         </div>
 
                         {if $pricing.type eq "recurring"}
-                            <div class="field-container">
-                                <div class="form-group">
-                                    <label for="inputBillingcycle">{$LANG.cartchoosecycle}</label>
-                                    <br>
-                                    <select name="billingcycle" id="inputBillingcycle" class="form-control select-inline custom-select" onchange="updateConfigurableOptions({$i}, this.value); return false">
+                            <div class="cfg-cycle">
+                                <div>
+                                    <label class="cfg-cycle__label" for="inputBillingcycle">{$LANG.cartchoosecycle}</label>
+                                    <span class="cfg-cycle__hint">Switch terms at any time. Longer cycles often cost less per month.</span>
+                                </div>
+                                <select name="billingcycle" id="inputBillingcycle" class="form-control select-inline custom-select cfg-select" onchange="updateConfigurableOptions({$i}, this.value); return false">
                                         {if $pricing.monthly}
                                             <option value="monthly"{if $billingcycle eq "monthly"} selected{/if}>
                                                 {$pricing.monthly}
@@ -75,14 +78,14 @@ var _localLang = {
                                                 {$pricing.triennially}
                                             </option>
                                         {/if}
-                                    </select>
-                                </div>
+                                </select>
                             </div>
                         {/if}
 
                         {if count($metrics) > 0}
-                            <div class="sub-heading">
-                                <span class="primary-bg-color">{$LANG.metrics.title}</span>
+                            <div class="cfg-step">
+                                <span class="cfg-step__num" aria-hidden="true"><i class="ti ti-chart-bar"></i></span>
+                                {$LANG.metrics.title}
                             </div>
 
                             <p>{$LANG.metrics.explanation}</p>
@@ -110,8 +113,9 @@ var _localLang = {
                         {/if}
 
                         {if $productinfo.type eq "server"}
-                            <div class="sub-heading">
-                                <span class="primary-bg-color">{$LANG.cartconfigserver}</span>
+                            <div class="cfg-step">
+                                <span class="cfg-step__num" aria-hidden="true"><i class="ti ti-server"></i></span>
+                                {$LANG.cartconfigserver}
                             </div>
 
                             <div class="field-container">
@@ -150,8 +154,9 @@ var _localLang = {
                         {/if}
 
                         {if $configurableoptions}
-                            <div class="sub-heading">
-                                <span class="primary-bg-color">{$LANG.orderconfigpackage}</span>
+                            <div class="cfg-step">
+                                <span class="cfg-step__num" aria-hidden="true"><i class="ti ti-adjustments"></i></span>
+                                {$LANG.orderconfigpackage}
                             </div>
                             <div class="product-configurable-options" id="productConfigurableOptions">
                                 <div class="row">
@@ -265,8 +270,12 @@ var _localLang = {
 
                         {if $customfields}
 
-                            <div class="sub-heading pb-1">
-                                <span class="primary-bg-color">{$LANG.orderadditionalrequiredinfo}<br><i><small>{lang key='orderForm.requiredField'}</small></i></span>
+                            <div class="cfg-step">
+                                <span class="cfg-step__num" aria-hidden="true"><i class="ti ti-forms"></i></span>
+                                <span>
+                                    {$LANG.orderadditionalrequiredinfo}
+                                    <span class="cfg-step__hint">{lang key='orderForm.requiredField'}</span>
+                                </span>
                             </div>
 
                             <div class="field-container">
@@ -288,8 +297,9 @@ var _localLang = {
                         {if $addons || count($addonsPromoOutput) > 0}
 
                             <div id="productAddonsContainer">
-                                <div class="sub-heading">
-                                    <span class="primary-bg-color">{$LANG.cartavailableaddons}</span>
+                                <div class="cfg-step">
+                                    <span class="cfg-step__num" aria-hidden="true"><i class="ti ti-plus"></i></span>
+                                    {$LANG.cartavailableaddons}
                                 </div>
 
                                 {foreach $addonsPromoOutput as $output}
@@ -336,7 +346,7 @@ var _localLang = {
                                 <div class="loader" id="orderSummaryLoader">
                                     <i class="ti ti-refresh fa-spin"></i>
                                 </div>
-                                <h2 class="font-size-30" style="font-family: 'Plus Jakarta Sans', sans-serif;">{$LANG.ordersummary}</h2>
+                                <h2 class="cart-summary__title">{$LANG.ordersummary}</h2>
                                 <div class="summary-container" id="producttotal"></div>
                             </div>
                             <div class="text-center mt-3">

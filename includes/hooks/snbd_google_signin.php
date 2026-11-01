@@ -35,3 +35,39 @@ add_hook('ClientAreaPage', 1, function ($vars) {
 
     return $clientId ? ['googleClientId' => $clientId] : [];
 });
+
+/**
+ * ClientAreaPage Hook — Google profile picture
+ *
+ * Sign-in with Google stores the account's picture against the client in
+ * mod_snbd_google_links, so the shell can show a real avatar instead of an
+ * initial. The URL is re-validated here rather than trusted from the database:
+ * it is rendered into an <img src>, so a stored value that is not an https URL
+ * is ignored instead of printed.
+ *
+ * Logged-out requests return immediately, so anonymous traffic pays nothing.
+ */
+add_hook('ClientAreaPage', 1, function ($vars) {
+    $clientId = (int) ($vars['clientsdetails']['id'] ?? 0);
+
+    if (empty($vars['loggedin']) || $clientId <= 0) {
+        return [];
+    }
+
+    try {
+        $picture = WHMCS\Database\Capsule::table('mod_snbd_google_links')
+            ->where('client_id', $clientId)
+            ->whereNotNull('picture')
+            ->orderBy('updated_at', 'desc')
+            ->value('picture');
+    } catch (\Exception $e) {
+        // No table or no picture column on installs that never used Google.
+        return [];
+    }
+
+    if (!$picture || !preg_match('#^https://[a-z0-9.-]+\.[a-z]{2,}/#i', $picture)) {
+        return [];
+    }
+
+    return ['snbdAvatarUrl' => $picture];
+});

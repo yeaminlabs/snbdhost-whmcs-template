@@ -199,6 +199,14 @@ if (!$client) {
     }
 }
 
+// The picture claim is optional and only ever used for the theme avatar, so a
+// value that is missing or not an https Google URL is stored as NULL rather
+// than rejected: an avatar is never a reason to fail a sign-in.
+$picture = isset($payload['picture']) ? trim((string) $payload['picture']) : '';
+if ($picture !== '' && !preg_match('#^https://[a-z0-9.-]+\.[a-z]{2,}/#i', $picture)) {
+    $picture = '';
+}
+
 // Upsert in mod_snbd_google_links
 try {
     if (!Capsule::schema()->hasTable('mod_snbd_google_links')) {
@@ -207,7 +215,13 @@ try {
             $table->integer('client_id')->default(0);
             $table->string('google_sub', 255)->unique();
             $table->string('email', 255);
+            $table->string('picture', 255)->nullable();
             $table->timestamps();
+        });
+    } elseif (!Capsule::schema()->hasColumn('mod_snbd_google_links', 'picture')) {
+        // Existing installs predate the avatar: add the column in place.
+        Capsule::schema()->table('mod_snbd_google_links', function ($table) {
+            $table->string('picture', 255)->nullable();
         });
     }
     
@@ -217,14 +231,15 @@ try {
             'client_id' => $client->id,
             'google_sub' => $googleSub,
             'email' => $email,
+            'picture' => $picture !== '' ? $picture : null,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
-    } else if ($existingLink->client_id != $client->id) {
-        // Update client_id if email was merged/changed
+    } else {
         Capsule::table('mod_snbd_google_links')->where('id', $existingLink->id)->update([
             'client_id' => $client->id,
             'email' => $email,
+            'picture' => $picture !== '' ? $picture : ($existingLink->picture ?? null),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
     }

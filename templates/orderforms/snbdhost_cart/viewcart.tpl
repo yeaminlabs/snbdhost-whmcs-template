@@ -530,7 +530,7 @@
                             <div class="loader w-hidden" id="orderSummaryLoader">
                                 <i class="ti ti-refresh fa-spin"></i>
                             </div>
-                            <h2 class="font-size-30" style="font-family: \'Plus Jakarta Sans\', sans-serif;">{$LANG.ordersummary}</h2>
+                            <h2 class="cart-summary__title">{$LANG.ordersummary}</h2>
                             <div class="summary-container">
 
                                 <div class="subtotal clearfix">
