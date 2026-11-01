@@ -218,7 +218,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="snbd-sidebar__foot">
                 {if $loggedin}
                     <button type="button" class="snbd-user" data-snbd-popover="accountMenu" aria-expanded="false" aria-haspopup="true" aria-controls="accountMenu">
-                        <span class="snbd-avatar{if $snbdAvatarUrl} snbd-avatar--img{/if}" aria-hidden="true">{if $snbdAvatarUrl}<img src="{$snbdAvatarUrl}" alt="" loading="lazy" referrerpolicy="no-referrer">{else}{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:''}{else}U{/if}{/if}</span>
+                        {* The initial stays underneath the photo: if the image fails to load it removes itself and the fallback is already there. *}
+                        <span class="snbd-avatar{if $snbdAvatarUrl} snbd-avatar--img{/if}" aria-hidden="true">{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:''}{else}U{/if}{if $snbdAvatarUrl}<img class="snbd-avatar__img" src="{$snbdAvatarUrl}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">{/if}</span>
                         <span class="snbd-user__meta">
                             <span class="snbd-user__name">{$clientsdetails.firstname} {$clientsdetails.lastname}</span>
                             <span class="snbd-user__email">{$clientsdetails.email}</span>
@@ -313,7 +314,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                         <div class="snbd-account">
                             <button type="button" class="snbd-account__btn" data-snbd-popover="accountMenuTop" aria-expanded="false" aria-haspopup="true" aria-controls="accountMenuTop" aria-label="Account menu for {$clientsdetails.firstname}">
-                                <span class="snbd-avatar snbd-avatar--sm{if $snbdAvatarUrl} snbd-avatar--img{/if}" aria-hidden="true">{if $snbdAvatarUrl}<img src="{$snbdAvatarUrl}" alt="" loading="lazy" referrerpolicy="no-referrer">{else}{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:''}{else}U{/if}{/if}</span>
+                                <span class="snbd-avatar snbd-avatar--sm{if $snbdAvatarUrl} snbd-avatar--img{/if}" aria-hidden="true">{if $clientsdetails.firstname}{$clientsdetails.firstname|truncate:1:''}{else}U{/if}{if $snbdAvatarUrl}<img class="snbd-avatar__img" src="{$snbdAvatarUrl}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">{/if}</span>
                                 <span class="snbd-account__name">{$clientsdetails.firstname}</span>
                                 <i class="ti ti-chevron-down snbd-account__chevron" aria-hidden="true"></i>
                             </button>

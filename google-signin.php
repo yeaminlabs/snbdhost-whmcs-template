@@ -199,15 +199,71 @@ if (!$client) {
     }
 }
 
-// The picture claim is optional and only ever used for the theme avatar, so a
-// value that is missing or not an https Google URL is stored as NULL rather
-// than rejected: an avatar is never a reason to fail a sign-in.
-$picture = isset($payload['picture']) ? trim((string) $payload['picture']) : '';
-if ($picture !== '' && !preg_match('#^https://[a-z0-9.-]+\.[a-z]{2,}/#i', $picture)) {
-    $picture = '';
+// ---------------------------------------------------------------------------
+// Google profile picture
+//
+// The picture claim only feeds the theme avatar, so a missing or unusable value
+// is never a reason to fail a sign-in. It is recorded twice: the URL in
+// mod_snbd_google_links, and a local copy under the theme. The local copy is
+// what the header renders, so the avatar keeps working after Google rotates or
+// expires its signed URL, and it needs no database read at all. Both writes are
+// best effort, but a failure is written to the admin activity log instead of
+// being swallowed, so a missing avatar can be diagnosed from the portal.
+// ---------------------------------------------------------------------------
+$picture = '';
+if (!empty($payload['picture'])) {
+    $candidate = trim((string) $payload['picture']);
+    if (preg_match('#^https://[a-z0-9.-]+\.[a-z]{2,}/#i', $candidate)) {
+        $picture = $candidate;
+    }
 }
 
-// Upsert in mod_snbd_google_links
+if ($picture !== '') {
+    snbd_store_avatar((int) $client->id, $picture);
+}
+
+function snbd_store_avatar(int $clientId, string $url): bool
+{
+    $dir = __DIR__ . '/templates/snbdhost/assets/avatars';
+
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+        return false;
+    }
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXFILESIZE => 524288,
+        CURLOPT_USERAGENT => 'SNBDHost-Avatar/1.0',
+    ]);
+    $body = curl_exec($ch);
+    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($status !== 200 || !is_string($body) || $body === '' || strlen($body) > 524288) {
+        return false;
+    }
+
+    $info = @getimagesizefromstring($body);
+    if (!$info || empty($info[2]) || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) {
+        return false;
+    }
+
+    $ext = $info[2] === IMAGETYPE_PNG ? 'png' : 'jpg';
+
+    // Leave exactly one file per client so the resolver never picks a stale one.
+    foreach (['jpg', 'png'] as $other) {
+        if ($other !== $ext && is_file($dir . '/c' . $clientId . '.' . $other)) {
+            @unlink($dir . '/c' . $clientId . '.' . $other);
+        }
+    }
+
+    return @file_put_contents($dir . '/c' . $clientId . '.' . $ext, $body) !== false;
+}
+
+// Record the link, and the picture URL when Google sent one.
 try {
     if (!Capsule::schema()->hasTable('mod_snbd_google_links')) {
         Capsule::schema()->create('mod_snbd_google_links', function ($table) {
@@ -224,27 +280,34 @@ try {
             $table->string('picture', 255)->nullable();
         });
     }
-    
-    $existingLink = Capsule::table('mod_snbd_google_links')->where('google_sub', $googleSub)->first();
-    if (!$existingLink) {
-        Capsule::table('mod_snbd_google_links')->insert([
-            'client_id' => $client->id,
-            'google_sub' => $googleSub,
-            'email' => $email,
-            'picture' => $picture !== '' ? $picture : null,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+
+    $link = [
+        'client_id' => $client->id,
+        'email' => $email,
+        'updated_at' => date('Y-m-d H:i:s'),
+    ];
+    if ($picture !== '') {
+        $link['picture'] = $picture;
+    }
+
+    $existing = Capsule::table('mod_snbd_google_links')->where('google_sub', $googleSub)->count() > 0;
+
+    if ($existing) {
+        // A returning user: this is the path that used to leave an old row
+        // without a picture, so it is updated just like a fresh link.
+        Capsule::table('mod_snbd_google_links')->where('google_sub', $googleSub)->update($link);
     } else {
-        Capsule::table('mod_snbd_google_links')->where('id', $existingLink->id)->update([
-            'client_id' => $client->id,
-            'email' => $email,
-            'picture' => $picture !== '' ? $picture : ($existingLink->picture ?? null),
-            'updated_at' => date('Y-m-d H:i:s')
+        Capsule::table('mod_snbd_google_links')->insert($link + [
+            'google_sub' => $googleSub,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
-} catch (\Exception $e) {
-    // Ignore schema errors if table creation fails for some reason
+} catch (\Throwable $e) {
+    // Sign-in must not fail over an avatar: record it and carry on.
+    try {
+        logActivity('SNBD Google sign-in: could not store the link or picture - ' . $e->getMessage());
+    } catch (\Throwable $ignored) {
+    }
 }
 
 // Generate SSO Token
