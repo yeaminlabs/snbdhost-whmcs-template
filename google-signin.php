@@ -219,7 +219,12 @@ if (!empty($payload['picture'])) {
 }
 
 if ($picture !== '') {
-    snbd_store_avatar((int) $client->id, $picture);
+    if (!snbd_store_avatar((int) $client->id, $picture)) {
+        try {
+            logActivity('SNBD Google sign-in: avatar download failed for client ' . (int) $client->id);
+        } catch (\\Throwable $ignored) {
+        }
+    }
 }
 
 function snbd_store_avatar(int $clientId, string $url): bool
