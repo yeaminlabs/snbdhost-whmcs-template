@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#BA1114">
+    <link rel="icon" type="image/webp" href="{$WEB_ROOT}/templates/{$template}/assets/favicon.webp">
+    <link rel="apple-touch-icon" href="{$WEB_ROOT}/templates/{$template}/assets/snbdhost-logo.png">
     <title>{$companyname} - {$pagetitle}</title>
 
     <script>
