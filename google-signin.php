@@ -222,7 +222,7 @@ if ($picture !== '') {
     if (!snbd_store_avatar((int) $client->id, $picture)) {
         try {
             logActivity('SNBD Google sign-in: avatar download failed for client ' . (int) $client->id);
-        } catch (\\Throwable $ignored) {
+        } catch (\Throwable $ignored) {
         }
     }
 }
