@@ -20,6 +20,16 @@ if (!defined("WHMCS")) {
 // ── Helper defined at file scope (not inside a closure) ──────────────────────
 if (!function_exists('snbd_get_page_meta')) {
     function snbd_get_page_meta(string $uri): array {
+        // View invoice: title must reflect the invoice, not the generic portal title.
+        if (stripos($uri, 'viewinvoice') !== false) {
+            preg_match('/[?&]id=(\d+)/', $uri, $m);
+            $id = $m[1] ?? '';
+            return [
+                'title'       => $id ? ('Invoice #' . $id . ' — SNBD HOST') : 'Invoice — SNBD HOST',
+                'description' => 'View and pay your SNBD HOST invoice.',
+            ];
+        }
+
         $map = [
             'submitticket.php?step=2' => [
                 'title'       => 'New Support Ticket — SNBD HOST Help Desk & Technical Support',

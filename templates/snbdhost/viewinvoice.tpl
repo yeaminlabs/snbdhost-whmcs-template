@@ -3,7 +3,7 @@
 <div class="snbd-page-head">
     <div class="snbd-page-head__text">
         <p class="snbd-eyebrow">Invoice</p>
-        <h1 class="snbd-page-title">{if $pagetitle}{$pagetitle}{else}Invoice #{$invoiceid}{/if}</h1>
+        <h1 class="snbd-page-title">Invoice #{$invoiceid}</h1>
         <p class="snbd-page-sub">Issued {$date} · Due {$datedue}</p>
     </div>
     <div class="snbd-page-actions">
@@ -34,7 +34,7 @@
                     <span class="snbd-invoice__company">{$companyname}</span>
                 </div>
                 <div class="snbd-invoice__identity">
-                    <h2 class="snbd-invoice__number" id="invoice-document-title">{$pagetitle|default:"Invoice #`$invoiceid`"}</h2>
+                    <h2 class="snbd-invoice__number" id="invoice-document-title">Invoice #{$invoiceid}</h2>
                     <dl class="snbd-invoice__dates">
                         <div><dt>{$LANG.invoicesdatecreated}</dt><dd>{$date}</dd></div>
                         <div><dt>{$LANG.invoicesdatedue}</dt><dd>{$datedue}</dd></div>
