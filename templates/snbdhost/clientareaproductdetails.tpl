@@ -47,11 +47,18 @@
         </div>
     </div>
     <div class="snbd-page-actions">
-        {if $packagesupgrade}
-            <a href="upgrade.php?type=package&amp;id={$id}" class="snbd-btn snbd-btn--primary"><i class="ti ti-arrow-up-circle" aria-hidden="true"></i>Upgrade plan</a>
-        {/if}
-        <a href="clientarea.php?action=products" class="snbd-btn snbd-btn--secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i>All services</a>
-    </div>
+            {if $status eq "Active"}
+            <form method="post" action="{$smarty.server.PHP_SELF}?action=productdetails&id={$id}" class="d-inline" id="frmServiceSso">
+                <input type="hidden" name="token" value="{$token}">
+                <input type="hidden" name="modop" value="singlesignon">
+                <button type="submit" class="snbd-btn snbd-btn--primary"><i class="ti ti-login" aria-hidden="true"></i>Login to panel</button>
+            </form>
+            {/if}
+            {if $packagesupgrade}
+                <a href="upgrade.php?type=package&amp;id={$id}" class="snbd-btn snbd-btn--secondary"><i class="ti ti-arrow-up-circle" aria-hidden="true"></i>Upgrade plan</a>
+            {/if}
+            <a href="clientarea.php?action=products" class="snbd-btn snbd-btn--secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i>All services</a>
+        </div>
 </div>
 
 <ul class="nav snbd-tabs" id="productDetailsTabs" role="tablist">
