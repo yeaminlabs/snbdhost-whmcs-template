@@ -360,8 +360,10 @@
           peer.setAttribute('aria-pressed', String(active));
         });
         if (!target) return;
-        $$('[data-status]', target).forEach(function (item) {
-          item.hidden = value !== 'all' && item.getAttribute('data-status') !== value;
+        $$('.snbd-filter-row', target).forEach(function (item) {
+          var chip = item.querySelector('.snbd-chip');
+          var status = chip ? chip.textContent.trim().toLowerCase().replace(/\s+/g, '-') : '';
+          item.hidden = value !== 'all' && status !== value;
         });
       });
     });

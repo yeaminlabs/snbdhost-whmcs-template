@@ -87,7 +87,7 @@
             </thead>
             <tbody>
                 {foreach key=num item=invoice from=$invoices}
-                <tr data-status="{$invoice.status|lower}">
+                <tr class="snbd-filter-row">
                     <td data-label="Invoice">
                         <a href="viewinvoice.php?id={$invoice.id}" class="fw-semibold">#{$invoice.invoicenum|replace:"#":""}</a>
                     </td>

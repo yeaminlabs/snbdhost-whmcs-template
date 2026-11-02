@@ -78,7 +78,7 @@
             </thead>
             <tbody>
                 {foreach item=ticket from=$tickets}
-                <tr data-status="{$ticket.status|lower}">
+                <tr class="snbd-filter-row">
                     <td data-label="Ticket" class="fw-semibold">#{$ticket.tid}</td>
                     <td data-label="Subject">
                         <a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}" class="d-inline-block snbd-truncate snbd-ticket-subject-link">{$ticket.subject}</a>

@@ -20,7 +20,7 @@
 
 <div class="row g-4 mb-5" data-snbd-filter-target>
     {foreach key=num item=service from=$services}
-    <div class="col-md-6 col-xxl-4" data-status="{$service.status|lower}">
+    <div class="col-md-6 col-xxl-4 snbd-filter-row">
         <article class="snbd-card snbd-service-card h-100">
             <div class="snbd-card__body d-flex flex-column">
                 <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
