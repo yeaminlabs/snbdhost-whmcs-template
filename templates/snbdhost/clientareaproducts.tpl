@@ -87,17 +87,30 @@ if (isset($_SESSION['uid']) && !empty($_SESSION['snbd_recent_services'])) {
 </div>
 
 {php}
-$tmp = $this->get_template_vars('services');
-if (is_array($tmp)) {
-    usort($tmp, function($a,$b){ return ($b['id'] <=> $a['id']); });
-    $this->assign('servicesSorted', $tmp);
+if (isset($_SESSION['uid']) && !empty($_SESSION['snbd_recent_services'])) {
+    $recentIds = array_map('intval', $_SESSION['snbd_recent_services']);
+    $all = isset($GLOBALS['snbdSvc']) ? $GLOBALS['snbdSvc'] : array();
+    $ordered = array();
+    foreach ($recentIds as $rid) {
+        if (isset($all[$rid])) {
+            $ordered[] = $all[$rid];
+        }
+    }
+    foreach ($all as $id => $svc) {
+        if (!in_array($id, $recentIds)) {
+            $ordered[] = $svc;
+        }
+    }
+    $GLOBALS['snbdOrderedServices'] = $ordered;
 } else {
-    $this->assign('servicesSorted', array());
+    $all = isset($GLOBALS['snbdSvc']) ? $GLOBALS['snbdSvc'] : array();
+    krsort($all);
+    $GLOBALS['snbdOrderedServices'] = array_values($all);
 }
 {/php}
 
 <div class="row g-4 mb-5" data-snbd-filter-target>
-    {foreach key=num item=service from=$servicesSorted}
+    {foreach key=num item=service from=$snbdOrderedServices}
     <div class="col-md-6 col-xxl-4 snbd-filter-row">
         <article class="snbd-card snbd-service-card h-100">
             <div class="snbd-card__body d-flex flex-column">
