@@ -86,6 +86,10 @@ if (isset($_SESSION['uid']) && !empty($_SESSION['snbd_recent_services'])) {
     <h2 class="snbd-section-title mb-0"><i class="ti ti-layout-grid" aria-hidden="true"></i> All services</h2>
 </div>
 
+{php}
+usort($GLOBALS['services'], function($a,$b){ return $b['id'] <=> $a['id']; });
+{/php}
+
 <div class="row g-4 mb-5" data-snbd-filter-target>
     {foreach key=num item=service from=$services}
     <div class="col-md-6 col-xxl-4 snbd-filter-row">
