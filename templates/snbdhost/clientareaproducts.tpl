@@ -87,11 +87,17 @@ if (isset($_SESSION['uid']) && !empty($_SESSION['snbd_recent_services'])) {
 </div>
 
 {php}
-usort($GLOBALS['services'], function($a,$b){ return $b['id'] <=> $a['id']; });
+$tmp = $this->get_template_vars('services');
+if (is_array($tmp)) {
+    usort($tmp, function($a,$b){ return ($b['id'] <=> $a['id']); });
+    $this->assign('servicesSorted', $tmp);
+} else {
+    $this->assign('servicesSorted', array());
+}
 {/php}
 
 <div class="row g-4 mb-5" data-snbd-filter-target>
-    {foreach key=num item=service from=$services}
+    {foreach key=num item=service from=$servicesSorted}
     <div class="col-md-6 col-xxl-4 snbd-filter-row">
         <article class="snbd-card snbd-service-card h-100">
             <div class="snbd-card__body d-flex flex-column">
