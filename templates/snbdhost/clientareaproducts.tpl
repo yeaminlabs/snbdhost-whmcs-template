@@ -101,16 +101,17 @@ if (isset($_SESSION['uid']) && !empty($_SESSION['snbd_recent_services'])) {
             $ordered[] = $svc;
         }
     }
-    $GLOBALS['snbdOrderedServices'] = $ordered;
+    $this->assign('services', $ordered);
 } else {
     $all = isset($GLOBALS['snbdSvc']) ? $GLOBALS['snbdSvc'] : array();
     krsort($all);
-    $GLOBALS['snbdOrderedServices'] = array_values($all);
+    $this->assign('services', array_values($all));
 }
 {/php}
 
 <div class="row g-4 mb-5" data-snbd-filter-target>
-    {foreach key=num item=service from=$snbdOrderedServices}
+    {foreach key=num item=service from=$services}
+    {php}$s = $this->get_template_vars('service'); if($s && isset($s['id'])) { $GLOBALS['snbdSvc'][$s['id']] = $s; }{/php}
     <div class="col-md-6 col-xxl-4 snbd-filter-row">
         <article class="snbd-card snbd-service-card h-100">
             <div class="snbd-card__body d-flex flex-column">
