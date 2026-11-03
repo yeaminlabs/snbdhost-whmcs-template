@@ -18,6 +18,74 @@
     <p class="snbd-caption mb-0">{$services|@count} service{if $services|@count != 1}s{/if} on this account</p>
 </div>
 
+{php}
+if (isset($_SESSION['uid']) && !empty($_SESSION['snbd_recent_services'])) {
+    $userid = $_SESSION['uid'];
+    $recentIds = array_map('intval', $_SESSION['snbd_recent_services']);
+    $recent = array();
+    foreach ($recentIds as $rid) {
+        if (isset($GLOBALS['servicesMap'][$rid])) {
+            $recent[] = $GLOBALS['servicesMap'][$rid];
+        }
+    }
+    if (!empty($recent)) {
+        $GLOBALS['snbdRecentServices'] = $recent;
+    }
+}
+{/php}
+
+{if $snbdRecentServices}
+<div class="mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="snbd-section-title mb-0"><i class="ti ti-clock-hour-4" aria-hidden="true"></i> Recently opened</h2>
+        <p class="snbd-caption mb-0">Continue where you left off</p>
+    </div>
+    <div class="row g-3">
+        {foreach item=service from=$snbdRecentServices}
+        <div class="col-md-6 col-xl-4">
+            <article class="snbd-card snbd-service-card h-100">
+                <div class="snbd-card__body d-flex flex-column">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <span class="snbd-stat__icon"><i class="ti ti-server" aria-hidden="true"></i></span>
+                            <div class="min-w-0">
+                                <h3 class="snbd-service-card__name snbd-truncate" title="{$service.product}">{$service.product}</h3>
+                                {if $service.domain}
+                                    <p class="snbd-service-card__domain snbd-truncate"><i class="ti ti-world" aria-hidden="true"></i>{$service.domain}</p>
+                                {else}
+                                    <p class="snbd-service-card__domain snbd-faint">No domain attached</p>
+                                {/if}
+                            </div>
+                        </div>
+                        {if $service.status eq "Active"}
+                            <span class="snbd-chip snbd-chip--ok"><span class="snbd-chip__dot" aria-hidden="true"></span>Active</span>
+                        {elseif $service.status eq "Pending"}
+                            <span class="snbd-chip snbd-chip--warn"><span class="snbd-chip__dot" aria-hidden="true"></span>Pending</span>
+                        {elseif $service.status eq "Suspended"}
+                            <span class="snbd-chip snbd-chip--bad"><span class="snbd-chip__dot" aria-hidden="true"></span>Suspended</span>
+                        {elseif $service.status eq "Terminated"}
+                            <span class="snbd-chip snbd-chip--neutral">Terminated</span>
+                        {else}
+                            <span class="snbd-chip snbd-chip--neutral">{$service.status}</span>
+                        {/if}
+                    </div>
+                    <div class="mt-auto pt-2">
+                        <a href="clientarea.php?action=productdetails&id={$service.id}" class="snbd-btn snbd-btn--primary snbd-btn--block">
+                            <i class="ti ti-arrow-right" aria-hidden="true"></i>Open
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+        {/foreach}
+    </div>
+</div>
+{/if}
+
+<div class="mb-3">
+    <h2 class="snbd-section-title mb-0"><i class="ti ti-layout-grid" aria-hidden="true"></i> All services</h2>
+</div>
+
 <div class="row g-4 mb-5" data-snbd-filter-target>
     {foreach key=num item=service from=$services}
     <div class="col-md-6 col-xxl-4 snbd-filter-row">
