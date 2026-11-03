@@ -48,12 +48,8 @@
     </div>
     <div class="snbd-page-actions">
             {if $status eq "Active"}
-            <form method="post" action="{$smarty.server.PHP_SELF}?action=productdetails&id={$id}" class="d-inline" id="frmServiceSso">
-                <input type="hidden" name="token" value="{$token}">
-                <input type="hidden" name="modop" value="singlesignon">
-                <button type="submit" class="snbd-btn snbd-btn--primary"><i class="ti ti-login" aria-hidden="true"></i>Login to panel</button>
-            </form>
-            {/if}
+                        <a href="clientarea.php?action=productdetails&id={$id}&dosinglesignon=1" class="snbd-btn snbd-btn--primary" target="_blank" rel="noopener"><i class="ti ti-login" aria-hidden="true"></i>Login to panel</a>
+                    {/if}
             {if $packagesupgrade}
                 <a href="upgrade.php?type=package&amp;id={$id}" class="snbd-btn snbd-btn--secondary"><i class="ti ti-arrow-up-circle" aria-hidden="true"></i>Upgrade plan</a>
             {/if}
