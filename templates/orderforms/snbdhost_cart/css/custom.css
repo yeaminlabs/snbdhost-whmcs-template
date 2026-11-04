@@ -3182,7 +3182,12 @@ a:hover { color: var(--brand-hover); }
 }
 
 /* The cart's own text/heading scale, so the order flow reads like the rest of
-   the portal instead of the parent theme. */
+   the portal instead of the parent theme.
+   NOTE: the broad !important rule below was removed — it prevented jQuery
+   .show()/.fadeIn() from ever overriding .w-hidden on results, suggestions and
+   pricing panels (inline style always lost to !important).
+   The alert-only rule above this comment preserves the original fix for the
+   empty validation strip on configure pages. */
 #order-standard_cart,
 #order-snbdhost_cart {
   color: var(--snbd-ink-700);
@@ -4078,8 +4083,16 @@ a:hover { color: var(--brand-hover); }
    lose while the class is there. The design system's `.snbd-content .alert`
    flex display outranked the earlier plain rule on the deployed page and left an
    empty red "correct the following errors" strip above every product. */
-#order-standard_cart .w-hidden,
-#order-snbdhost_cart .w-hidden {
+/* Force-hide only alert/validation elements whose flex display outranks the
+   plain .w-hidden rule above. jQuery .show()/.fadeIn() on result panels,
+   suggestions and the domain search div all need !important-free hiding so
+   their inline style can win. */
+#order-standard_cart .alert.w-hidden,
+#order-standard_cart #containerProductValidationErrors.w-hidden,
+#order-standard_cart #containerProductValidationErrors.hidden,
+#order-snbdhost_cart .alert.w-hidden,
+#order-snbdhost_cart #containerProductValidationErrors.w-hidden,
+#order-snbdhost_cart #containerProductValidationErrors.hidden {
   display: none !important;
 }
 
