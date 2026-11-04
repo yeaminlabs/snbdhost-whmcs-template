@@ -118,6 +118,19 @@ function hermesagent_ConfigOptions() {
  */
 function hermesagent_setup_database() {
     try {
+        if (!Capsule::schema()->hasTable('mod_hermesagent_onboarding')) {
+            Capsule::schema()->create('mod_hermesagent_onboarding', function ($table) {
+                $table->integer('serviceid')->unique();
+                $table->string('agent_name', 60)->nullable();
+                $table->string('use_case', 30)->nullable();
+                $table->string('tone', 30)->nullable();
+                $table->text('custom_instructions')->nullable();
+                $table->string('status', 20)->default('pending');
+                $table->timestamp('created_at')->nullable();
+                $table->timestamp('completed_at')->nullable();
+            });
+        }
+        
         if (!Capsule::schema()->hasTable('mod_hermesagent_instances')) {
             Capsule::schema()->create(
                 'mod_hermesagent_instances',
@@ -151,6 +164,23 @@ function hermesagent_setup_database() {
             if (!Capsule::schema()->hasColumn('mod_hermesagent_instances', 'host_port')) {
                 Capsule::schema()->table('mod_hermesagent_instances', function ($table) {
                     $table->integer('host_port')->default(0);
+                });
+            }
+            if (!Capsule::schema()->hasColumn('mod_hermesagent_instances', 'current_model')) {
+                // Model the instance is currently pinned to. CreateAccount writes this on
+                // every deploy, so the column has to exist even when the admin addon (which
+                // also declares it) has never been opened on this install.
+                Capsule::schema()->table('mod_hermesagent_instances', function ($table) {
+                    $table->string('current_model', 100)->nullable();
+                });
+            }
+            if (!Capsule::schema()->hasColumn('mod_hermesagent_instances', 'custom_env')) {
+                // JSON map of env vars the customer set via self-service "Manage LLM
+                // Providers" (Telegram/Discord/Slack tokens, custom API keys). CreateAccount
+                // re-applies these on every redeploy so they never get silently wiped when
+                // .env is rebuilt from WHMCS configurable options.
+                Capsule::schema()->table('mod_hermesagent_instances', function ($table) {
+                    $table->text('custom_env')->nullable();
                 });
             }
         }
@@ -218,12 +248,31 @@ function hermesagent_generate_random_password($length = 16) {
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Get LiteLLM gateway URL and master key from product config.
+ * Get LiteLLM gateway URL and master key.
+ *
+ * Prefers the actively-managed Brain (mod_hermesagent_brain_config, edited from
+ * the admin Brain Management panel) since that's the single source of truth
+ * CreateAccount itself uses to provision customer keys. Product Module Setting
+ * config options (configoption11-13) are only a fallback for installs that
+ * never set up Brain Management — without this, the two sources can silently
+ * disagree (e.g. an empty product field) and break usage tracking even though
+ * provisioning, which only reads the Brain, works fine.
  */
 function hermesagent_litellm_config($params) {
-    $url = hermesagent_resolve_param($params, 'configoption11', 'LiteLLM Gateway URL', 'https://ai-proxy.snbdhost.com');
-    $key = hermesagent_resolve_param($params, 'configoption12', 'LiteLLM Master Key', 'sk-snbdhost-master-key-2026');
-    $model = hermesagent_resolve_param($params, 'configoption13', 'Free Tier Default Model', 'zai.glm-5');
+    if (function_exists('hermesagent_get_active_brain')) {
+        $brain = hermesagent_get_active_brain();
+        if (!empty($brain['base_url']) && !empty($brain['api_key'])) {
+            return [
+                'url'   => rtrim(preg_replace('|/v1/?$|', '', rtrim($brain['base_url'], '/')), '/'),
+                'key'   => $brain['api_key'],
+                'model' => $brain['model_name'] ?? 'zai.glm-5',
+            ];
+        }
+    }
+
+    $url = hermesagent_resolve_param($params, 'configoption9', 'LiteLLM Gateway URL', 'https://ai-proxy.snbdhost.com');
+    $key = hermesagent_resolve_param($params, 'configoption10', 'LiteLLM Master Key', 'sk-snbdhost-master-key-2026');
+    $model = hermesagent_resolve_param($params, 'configoption11', 'Free Tier Default Model', 'zai.glm-5');
     
     return [
         'url'   => rtrim($url, '/'),
@@ -236,8 +285,10 @@ function hermesagent_litellm_config($params) {
  * Create a LiteLLM virtual API key for a customer.
  * Returns ['key_id' => ..., 'key_value' => ...] or throws.
  */
-function hermesagent_litellm_create_key($gatewayUrl, $masterKey, $serviceId, $model, $maxBudget = 5.0) {
+function hermesagent_litellm_create_key($gatewayUrl, $masterKey, $serviceId, $model, $maxBudget = 1.0) {
     $payload = json_encode([
+        'key_alias'     => 'hermes-' . $serviceId,
+        'user_id'       => 'hermes-' . $serviceId,
         'models'        => [$model],
         'max_budget'    => $maxBudget,
         'metadata'      => [
@@ -245,9 +296,9 @@ function hermesagent_litellm_create_key($gatewayUrl, $masterKey, $serviceId, $mo
             'created_by' => 'whmcs-hermesagent',
         ],
         'max_parallel_requests' => 10,
-        'tpm_limit'     => 100000,   // tokens per minute
-        'rpm_limit'     => 60,       // requests per minute
-        'duration'      => null,     // never expire (managed by lifecycle)
+        'tpm_limit'     => 100000,
+        'rpm_limit'     => 60,
+        'duration'      => null,
     ]);
 
     $ch = curl_init($gatewayUrl . '/key/generate');
@@ -276,12 +327,15 @@ function hermesagent_litellm_create_key($gatewayUrl, $masterKey, $serviceId, $mo
     }
 
     $data = json_decode($response, true);
-    if (!$data || empty($data['key']) || empty($data['key_id'])) {
+    if (!$data || empty($data['key'])) {
         throw new \Exception("LiteLLM /key/generate returned unexpected response: " . substr($response, 0, 500));
     }
 
+    // LiteLLM v1.93+ returns 'token' or 'token_id' instead of 'key_id'
+    $keyId = $data['key_id'] ?? $data['token_id'] ?? $data['token'] ?? '';
+
     return [
-        'key_id'    => $data['key_id'],
+        'key_id'    => $keyId,
         'key_value' => $data['key'],
     ];
 }
@@ -341,21 +395,127 @@ function hermesagent_litellm_delete_key($gatewayUrl, $masterKey, $keyId) {
 }
 
 /**
- * Resolves configuration parameters with case-insensitive checks against customer-defined 
+ * Fetch token usage and spend for a LiteLLM virtual key.
+ * Returns ['total_tokens' => int, 'spend' => float, 'model' => string] or null on failure.
+ */
+function hermesagent_litellm_get_usage($gatewayUrl, $masterKey, $keyValue) {
+    $ch = curl_init($gatewayUrl . '/key/info?key=' . urlencode($keyValue));
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $masterKey,
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $promptTokens = 0;
+    $completionTokens = 0;
+    $totalTokens = 0;
+    $spend = 0.0;
+    $model = '';
+
+    if ($httpCode === 200 && !empty($response)) {
+        $data = json_decode($response, true);
+        if ($data && isset($data['info'])) {
+            $info = $data['info'];
+            $totalTokens      = (int) ($info['total_tokens'] ?? 0);
+            $promptTokens     = (int) ($info['prompt_tokens'] ?? 0);
+            $completionTokens = (int) ($info['completion_tokens'] ?? 0);
+            $spend            = (float) ($info['spend'] ?? 0);
+            $model            = $info['models'][0] ?? '';
+        }
+    }
+
+    // /key/info does not reliably return per-key token counts on all LiteLLM
+    // versions (it's primarily budget/spend metadata) — fall back to summing
+    // /spend/logs for this key, which always carries prompt/completion tokens
+    // per request.
+    if ($totalTokens === 0 && $promptTokens === 0 && $completionTokens === 0) {
+        $ch2 = curl_init($gatewayUrl . '/spend/logs?api_key=' . urlencode($keyValue));
+        curl_setopt_array($ch2, [
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $masterKey,
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 8,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+        ]);
+        $logsResponse = curl_exec($ch2);
+        $logsHttpCode = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        curl_close($ch2);
+
+        if ($logsHttpCode === 200 && !empty($logsResponse)) {
+            $logs = json_decode($logsResponse, true);
+            if (is_array($logs)) {
+                foreach ($logs as $entry) {
+                    $promptTokens     += (int) ($entry['prompt_tokens'] ?? 0);
+                    $completionTokens += (int) ($entry['completion_tokens'] ?? 0);
+                    $spend            += (float) ($entry['spend'] ?? 0);
+                    if (empty($model)) $model = $entry['model'] ?? '';
+                }
+                $totalTokens = $promptTokens + $completionTokens;
+            }
+        }
+    }
+
+    if ($totalTokens === 0 && $promptTokens === 0 && $completionTokens === 0 && $httpCode !== 200) {
+        return null;
+    }
+
+    return [
+        'total_tokens'      => (int) $totalTokens,
+        'prompt_tokens'     => (int) $promptTokens,
+        'completion_tokens' => (int) $completionTokens,
+        'spend'             => (float) $spend,
+        'model'             => $model,
+    ];
+}
+
+/**
+ * Resolves configuration parameters with case-insensitive checks against customer-defined
  * Configurable Options and Custom Fields in WHMCS. Falls back to admin default settings.
  */
 function hermesagent_resolve_param($params, $configKey, $name, $defaultVal = '') {
     $sanitize = function($str) {
         return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $str));
     };
-    
+
+    // Configurable-option sub-options are stored as the literal string the admin
+    // typed, so a "value|Display Label" entry arrives whole (e.g.
+    // "free-tier|SNBD API (NO API NEEDED)"). Keep only the value half. Secrets and
+    // URLs are exempt — a token or password may legitimately contain a pipe.
+    $literalFields = ['bottoken', 'litellmmasterkey', 'litellmgatewayurl'];
+    $normalize = function($val) use ($name, $sanitize, $literalFields) {
+        if (!is_string($val) || strpos($val, '|') === false) {
+            return $val;
+        }
+        if (in_array($sanitize($name), $literalFields, true)) {
+            return $val;
+        }
+        return substr($val, 0, strpos($val, '|'));
+    };
+
     $search = $sanitize($name);
     
+    // A matching key whose value is blank must not win: WHMCS hands us every
+    // configurable option and custom field defined on the product, filled in or
+    // not, so returning '' here would shadow both the admin-set module setting
+    // and $defaultVal. Same reasoning as the !empty() check in step 3.
+    $blank = function($val) {
+        return $val === null || $val === '' || (is_string($val) && trim($val) === '');
+    };
+
     // 1. Search in Customer Configurable Options
     if (!empty($params['configoptions'])) {
         foreach ($params['configoptions'] as $key => $val) {
-            if ($sanitize($key) === $search) {
-                return $val;
+            if ($sanitize($key) === $search && !$blank($val)) {
+                return $normalize($val);
             }
         }
     }
@@ -363,17 +523,21 @@ function hermesagent_resolve_param($params, $configKey, $name, $defaultVal = '')
     // 2. Search in Customer Custom Fields
     if (!empty($params['customfields'])) {
         foreach ($params['customfields'] as $key => $val) {
-            if ($sanitize($key) === $search) {
-                return $val;
+            if ($sanitize($key) === $search && !$blank($val)) {
+                return $normalize($val);
             }
         }
     }
     
-    // 3. Fallback to Admin Module Config Options
-    if (isset($params[$configKey])) {
-        return $params[$configKey];
+    // 3. Fallback to Admin Module Config Options — WHMCS always populates
+    // configoptionN slots even when the admin left the field blank, so an
+    // isset() check here would return '' instead of falling through to a
+    // sane default. Use empty() so a blank product Module Setting behaves
+    // the same as an unset one.
+    if (!empty($params[$configKey])) {
+        return $normalize($params[$configKey]);
     }
-    
+
     return $defaultVal;
 }
 
@@ -455,6 +619,30 @@ function hermesagent_get_ssh_client($params, $timeout = 30) {
 }
 
 /**
+ * Get the currently active brain (AI endpoint) from the brain_config table.
+ * Falls back to hardcoded SNBD proxy defaults if the table doesn't exist yet.
+ */
+if (!function_exists('hermesagent_get_active_brain')) {
+    function hermesagent_get_active_brain() {
+        $defaults = [
+            'id'            => 0,
+            'display_name'  => 'SNBD Proxy (ZAI GLM-5)',
+            'provider_type' => 'proxy',
+            'base_url'      => 'https://ai-proxy.snbdhost.com/v1',
+            'model_name'    => 'zai.glm-5',
+            'api_key'       => 'sk-snbdhost-master-key-2026',
+            'is_active'     => 1,
+        ];
+        try {
+            $row = Capsule::table('mod_hermesagent_brain_config')->where('is_active', 1)->first();
+            return $row ? (array) $row : $defaults;
+        } catch (\Exception $e) {
+            return $defaults;
+        }
+    }
+}
+
+/**
  * Core Account Provisioning
  */
 function hermesagent_CreateAccount($params) {
@@ -462,24 +650,44 @@ function hermesagent_CreateAccount($params) {
     
     $serviceid = intval($params['serviceid']);
     
+    // -- Onboarding Gate --
+    $onb = Capsule::table('mod_hermesagent_onboarding')->where('serviceid', $serviceid)->first();
+    if (!$onb) {
+        Capsule::table('mod_hermesagent_onboarding')->insert([
+            'serviceid' => $serviceid, 'status' => 'pending', 'created_at' => date('Y-m-d H:i:s')
+        ]);
+        logModuleCall('hermesagent', 'CreateAccount_Deferred', $serviceid, 'Provisioning deferred — awaiting customer onboarding');
+        return 'success'; // WHMCS marks service Active; container not yet created
+    }
+    if ($onb->status === 'pending') {
+        return 'success'; // still waiting; idempotent re-entry guard
+    }
+    // -- End Gate --
+
     // Resolve values with customer custom inputs and configurable option overrides
     $llmProvider = 'free-tier'; // SNBD API is the only provider — always use proxy
     $providerApiKey = '';
     $customEndpointUrl = '';
-    $modelName = hermesagent_resolve_param($params, 'configoption4', 'Model', 'zai.glm-5');
-    $messagingPlatform = hermesagent_resolve_param($params, 'configoption5', 'Messaging Platform', 'None');
-    $messagingToken = hermesagent_resolve_param($params, 'configoption6', 'Bot Token', '');
-    $dashboardUsername = hermesagent_resolve_param($params, 'configoption7', 'Dashboard Username', 'admin');
-    $enableApiServer = hermesagent_resolve_param($params, 'configoption8', 'Enable OpenAI-Compatible API', 'no');
-    $resourceTier = hermesagent_resolve_param($params, 'configoption9', 'Resource Tier', 'Starter (1 vCPU / 1GB)');
-    $dockerImageTag = hermesagent_resolve_param($params, 'configoption10', 'Image Version', 'latest');
-    // Hardcode proxy — these are always the SNBD central proxy values
+    $modelName = hermesagent_resolve_param($params, 'configoption2', 'Model', 'zai.glm-5');
+    $messagingPlatform = hermesagent_resolve_param($params, 'configoption3', 'Messaging Platform', 'None');
+    $messagingToken = hermesagent_resolve_param($params, 'configoption4', 'Bot Token', '');
+    $dashboardUsername = hermesagent_resolve_param($params, 'configoption5', 'Dashboard Username', 'admin');
+    $enableApiServer = hermesagent_resolve_param($params, 'configoption6', 'Enable OpenAI-Compatible API', 'no');
+    $resourceTier = hermesagent_resolve_param($params, 'configoption7', 'Resource Tier', 'Starter (1 vCPU / 1GB)');
+    $dockerImageTag = hermesagent_resolve_param($params, 'configoption8', 'Image Version', 'latest');
+    // Pull active brain config — admin-controlled from the Brain Management panel
+    $brain         = hermesagent_get_active_brain();
+    $brainBaseUrl  = rtrim($brain['base_url'], '/');   // e.g. https://ai-proxy.snbdhost.com/v1
+    $brainApiKey   = $brain['api_key'] ?? 'sk-snbdhost-master-key-2026';
+    $brainModel    = $brain['model_name'] ?? 'zai.glm-5';
+    // LiteLLM management API URL (without /v1 suffix)
+    $litellmApiUrl = rtrim(preg_replace('|/v1/?$|', '', $brainBaseUrl), '/');
     $litellmCfg = [
-        'url'   => 'https://ai-proxy.snbdhost.com',
-        'key'   => 'sk-snbdhost-master-key-2026',
-        'model' => 'zai.glm-5',
+        'url'   => $litellmApiUrl,
+        'key'   => $brainApiKey,
+        'model' => $brainModel,
     ];
-    $litellmModel = $litellmCfg['model'];
+    $litellmModel = $brainModel;
     
     // Check if record exists
     $record = Capsule::table('mod_hermesagent_instances')->where('serviceid', $serviceid)->first();
@@ -527,9 +735,14 @@ function hermesagent_CreateAccount($params) {
         Capsule::table('mod_hermesagent_instances')->insert($insertData);
     }
     
-    // Upgrade existing records: always ensure a fresh LiteLLM key from the new proxy on redeploy
+    // Existing records: only generate a LiteLLM key if this instance genuinely
+    // doesn't have one yet (e.g. first key-gen attempt failed and this redeploy
+    // is retrying it). NEVER rotate an existing key on redeploy — the customer's
+    // token usage, budget, and rate limits are tracked against that exact key
+    // value, and regenerating it on every Force Redeploy / ChangePackage
+    // orphans all historical usage and resets tracking to zero silently.
     $isFreeTier = ($llmProvider === 'free-tier' || $llmProvider === 'bedrock');
-    if ($isFreeTier && $record && !empty($litellmCfg['key'])) {
+    if ($isFreeTier && $record && empty($record->litellm_key_id) && !empty($litellmCfg['key'])) {
         try {
             $ltKey = hermesagent_litellm_create_key($litellmCfg['url'], $litellmCfg['key'], $serviceid, $litellmModel);
             Capsule::table('mod_hermesagent_instances')
@@ -541,7 +754,7 @@ function hermesagent_CreateAccount($params) {
                 ]);
             $record->litellm_key_id = $ltKey['key_id'];
             $record->litellm_key_value = $ltKey['key_value'];
-            logModuleCall('hermesagent', 'Redeploy_LiteLLM_Key', $serviceid, "LiteLLM key created for existing record: {$ltKey['key_id']}");
+            logModuleCall('hermesagent', 'Redeploy_LiteLLM_Key', $serviceid, "LiteLLM key created for existing record (had none): {$ltKey['key_id']}");
         } catch (\Exception $e) {
             logModuleCall('hermesagent', 'Redeploy_LiteLLM_Key_Failed', $serviceid, $e->getMessage());
         }
@@ -599,14 +812,14 @@ function hermesagent_CreateAccount($params) {
             }
 
             if (!empty($litellmKey) && !empty($litellmCfg['url'])) {
-                $envLines[] = "OPENAI_API_BASE=" . $litellmCfg['url'] . "/v1";
-                $envLines[] = "OPENAI_BASE_URL=" . $litellmCfg['url'] . "/v1";
+                $envLines[] = "OPENAI_API_BASE=" . $brainBaseUrl;
+                $envLines[] = "OPENAI_BASE_URL=" . $brainBaseUrl;
                 $envLines[] = "OPENAI_API_KEY=" . $litellmKey;
             } else {
                 // Last resort fallback — master key so agent at least boots
-                $envLines[] = "OPENAI_API_BASE=" . ($litellmCfg['url'] ?? 'https://ai-proxy.snbdhost.com') . "/v1";
-                $envLines[] = "OPENAI_BASE_URL=" . ($litellmCfg['url'] ?? 'https://ai-proxy.snbdhost.com') . "/v1";
-                $envLines[] = "OPENAI_API_KEY=" . ($litellmCfg['key'] ?? '');
+                $envLines[] = "OPENAI_API_BASE=" . $brainBaseUrl;
+                $envLines[] = "OPENAI_BASE_URL=" . $brainBaseUrl;
+                $envLines[] = "OPENAI_API_KEY=" . $brainApiKey;
                 logModuleCall('hermesagent', 'CreateAccount_LiteLLM_Fallback_MasterKey', $serviceid, "Used master key as fallback for service $serviceid");
             }
         } elseif ($llmProvider === 'openrouter') {
@@ -642,7 +855,26 @@ function hermesagent_CreateAccount($params) {
                 $envLines[] = "SLACK_BOT_TOKEN=" . $messagingToken;
             }
         }
-        
+
+        // Re-apply any self-service overrides (Telegram/Discord/Slack tokens, custom
+        // API keys) saved by the "Manage LLM Providers" client-area page. Without this,
+        // every redeploy rebuilds .env purely from WHMCS configurable options and
+        // silently wipes anything the customer configured after checkout.
+        if ($record && !empty($record->custom_env)) {
+            $customEnvOverrides = json_decode($record->custom_env, true);
+            if (is_array($customEnvOverrides)) {
+                foreach ($customEnvOverrides as $ceKey => $ceVal) {
+                    $ceKey = preg_replace('/[^A-Z0-9_]/', '', strtoupper($ceKey));
+                    if ($ceKey === '') continue;
+                    // Drop any line already set for this key so the override wins outright
+                    $envLines = array_values(array_filter($envLines, function ($line) use ($ceKey) {
+                        return strpos($line, $ceKey . '=') !== 0;
+                    }));
+                    $envLines[] = "{$ceKey}=" . $ceVal;
+                }
+            }
+        }
+
         $envContent = implode("\n", $envLines) . "\n";
         
         // Hosting subdomain for self-hosted projects
@@ -653,7 +885,37 @@ function hermesagent_CreateAccount($params) {
         // A persistent HTTP server is pre-started on port 3000 serving /opt/data/.
         // Caddy on the host routes /artifacts/* on the dashboard domain to that server.
         $artifactsUrl = "https://{$serviceid}.{$hostname}/artifacts";
-        $systemPrompt = "# YOUR ENVIRONMENT\n"
+        
+        // Build Persona Preamble based on Onboarding
+        $personaPreamble = "";
+        $agentName = "Hermes"; // default
+        if (isset($onb) && $onb && $onb->status === 'completed') {
+            $agentName = $onb->agent_name ?: "Hermes";
+            $personaPreamble .= "Your name is {$agentName}.\n\n";
+            
+            if ($onb->use_case === 'coding') {
+                $personaPreamble .= "You are an expert coding assistant. Your goal is to write clean, maintainable, and bug-free code. Focus on best practices, performance, and architecture.\n";
+            } elseif ($onb->use_case === 'support') {
+                $personaPreamble .= "You are a dedicated customer support agent. Your goal is to help users resolve issues patiently, clearly, and effectively.\n";
+            } elseif ($onb->use_case === 'content') {
+                $personaPreamble .= "You are a creative content creator. Your goal is to produce engaging, high-quality content tailored to the audience.\n";
+            } elseif ($onb->use_case === 'automation') {
+                $personaPreamble .= "You are an automation and Ops specialist. Focus on streamlining workflows, writing scripts, and managing infrastructure efficiently.\n";
+            } else {
+                $personaPreamble .= "You are a versatile, general-purpose AI assistant. Your goal is to be universally helpful across a variety of tasks.\n";
+            }
+            
+            if ($onb->tone) {
+                $personaPreamble .= "Your tone should be {$onb->tone}.\n";
+            }
+            
+            if (!empty($onb->custom_instructions)) {
+                $personaPreamble .= "\nOwner's instructions:\n" . $onb->custom_instructions . "\n";
+            }
+            $personaPreamble .= "\n---\n\n";
+        }
+
+        $systemPrompt = $personaPreamble . "# YOUR ENVIRONMENT\n"
             . "You are Hermes, an AI agent running on a REAL dedicated server — not a sandbox. "
             . "You have your own isolated space with persistent storage and a live public URL.\n\n"
             . "# HOSTING FILES PUBLICLY\n"
@@ -663,11 +925,26 @@ function hermesagent_CreateAccount($params) {
             . "1. Write it to /opt/data/artifacts/ using write_file (e.g. /opt/data/artifacts/index.html)\n"
             . "2. Tell the user the live URL: {$artifactsUrl}/index.html\n\n"
             . "You can confirm it is live: terminal(command=\"curl -s http://localhost:3000/artifacts/ | head -5\")\n\n"
+            . "# HANDLING ZIP / ARCHIVE / BINARY FILES\n"
+            . "The 'unzip' binary is NOT installed and you cannot apt/apk install anything. "
+            . "NEVER attempt to install packages. Instead extract archives with Python, which is always available:\n"
+            . "  terminal(command=\"python3 -m zipfile -e /opt/data/upload.zip /opt/data/artifacts/\")\n"
+            . "For tar archives: terminal(command=\"python3 -c \\\"import tarfile; tarfile.open('/opt/data/upload.tar.gz').extractall('/opt/data/artifacts/')\\\"\")\n"
+            . "- NEVER read_file, cat, or print the raw contents of a .zip/.tar/.gz/image/binary file — this dumps "
+            . "garbled binary data into your own context, burning huge amounts of tokens on every subsequent turn "
+            . "of the conversation. Only ever list archive contents with 'python3 -m zipfile -l file.zip' if you "
+            . "need to inspect them, never print the raw bytes.\n"
+            . "- If a task isn't working after 2-3 different approaches, STOP and tell the user what's blocking you "
+            . "instead of continuing to retry — repeated retries with growing tool output compound token usage fast.\n\n"
             . "# STRICT RULES\n"
             . "- NEVER say you cannot host — you CAN, the URL above is publicly accessible right now\n"
             . "- NEVER start any web server — one is already running on port 3000\n"
             . "- NEVER use any port other than 3000\n"
             . "- NEVER use docker commands — no socket available\n"
+            . "- NEVER suggest ngrok, SSH port forwarding, localhost servers, VSCode Live Server, or asking the "
+            . "user to run anything on their own machine — you already have a real public URL, use it\n"
+            . "- NEVER say a system dependency is missing and stop — work around it with Python (zipfile, tarfile, "
+            . "http.server modules are all built in and require no install)\n"
             . "- ALWAYS write hosted files to /opt/data/artifacts/\n\n"
             . "# YOUR TOOLS\n"
             . "terminal (run shell commands), write_file, read_file, search_files, and more. "
@@ -691,7 +968,6 @@ model:
   provider: custom
   base_url: "{$proxyBaseUrl}"
   api_key: "{$proxyApiKey}"
-system_prompt: "{$systemPrompt}"
 dashboard:
   show_token_analytics: true
 tool_loop_guardrails:
@@ -701,7 +977,7 @@ tool_loop_guardrails:
     exact_failure: 5
     idempotent_no_progress: 5
 terminal:
-  backend: docker
+  backend: local
 YAML;
         } elseif ($llmProvider === 'custom') {
             $yamlContent = <<<YAML
@@ -710,7 +986,6 @@ model_list:
   - model_name: "{$modelName}"
     litellm_params:
       model: "bedrock/{$modelName}"
-system_prompt: "{$systemPrompt}"
 dashboard:
   show_token_analytics: true
 tool_loop_guardrails:
@@ -720,12 +995,11 @@ tool_loop_guardrails:
     exact_failure: 5
     idempotent_no_progress: 5
 terminal:
-  backend: docker
+  backend: local
 YAML;
         } else {
             $yamlContent = <<<YAML
 model: "{$llmProvider}/{$modelName}"
-system_prompt: "{$systemPrompt}"
 dashboard:
   show_token_analytics: true
 tool_loop_guardrails:
@@ -735,7 +1009,7 @@ tool_loop_guardrails:
     exact_failure: 5
     idempotent_no_progress: 5
 terminal:
-  backend: docker
+  backend: local
 YAML;
         }
 
@@ -1003,15 +1277,6 @@ HTML;
         
         $setupCmds .= "sleep 5\n"; // wait for container filesystem and hermes init to settle
 
-        // Pre-start the public HTTP server on port 3000 serving /opt/data/.
-        // Caddy on the host routes /artifacts/* on the dashboard domain to this server.
-        // The model just writes files to /opt/data/artifacts/ — no server management needed.
-        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'mkdir -p /opt/data/artifacts'\n";
-        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'pkill -f \"http.server\" 2>/dev/null || true'\n";
-        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'nohup python3 -m http.server 3000 --directory /opt/data > /tmp/srv.log 2>&1 &'\n";
-        $setupCmds .= "sleep 2\n";
-        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'curl -sf http://localhost:3000 > /dev/null && echo \"HTTP:3000 OK\" || echo \"HTTP:3000 FAILED\"'\n";
-
         // Patch config.yaml via Python to inject system_prompt and terminal backend.
         // Hermes expands the initial config.yaml on first boot and may drop fields we wrote —
         // this step runs AFTER the container is up to ensure the values survive the expansion.
@@ -1026,25 +1291,48 @@ HTML;
         $setupCmds .= "except Exception:\n";
         $setupCmds .= "    cfg = {}\n";
         $setupCmds .= "cfg['system_prompt'] = {'replace': '{$escapedSystemPrompt}'}\n";
+        $escapedBrainUrl   = addslashes($brainBaseUrl);
+        // Use the per-container virtual key so LiteLLM tracks usage per service
+        $escapedTrackingKey = addslashes(!empty($litellmKey) ? $litellmKey : $brainApiKey);
+        $escapedBrainModel = addslashes($brainModel);
         $setupCmds .= "if isinstance(cfg.get('model'), dict):\n";
-        $setupCmds .= "    cfg['model']['base_url'] = 'https://ai-proxy.snbdhost.com/v1'\n";
-        $setupCmds .= "    cfg['model']['api_key']  = 'sk-snbdhost-master-key-2026'\n";
+        $setupCmds .= "    cfg['model']['base_url'] = '{$escapedBrainUrl}'\n";
+        $setupCmds .= "    cfg['model']['api_key']  = '{$escapedTrackingKey}'\n";
         $setupCmds .= "    cfg['model']['provider'] = 'custom'\n";
-        $setupCmds .= "    cfg['model']['default']  = 'zai.glm-5'\n";
+        $setupCmds .= "    cfg['model']['default']  = '{$escapedBrainModel}'\n";
         $setupCmds .= "cfg['terminal'] = {'backend': 'local', 'timeout': 180, 'cwd': '/opt/data'}\n";
         $setupCmds .= "with open(cfg_path, 'w') as f:\n";
         $setupCmds .= "    yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)\n";
         $setupCmds .= "print('config patched')\n";
         $setupCmds .= "PYEOF\n";
 
-        $setupCmds .= "docker exec \"hermes-{$serviceid}\" sh -c \"sed -i 's/<title>Hermes Agent - Dashboard<\\/title>/<title>{$dashboardUsername} Hermes Agent<\\/title>/g' /opt/hermes/hermes_cli/web_dist/index.html\"\n";
+        // Hermes loads config.yaml at boot and does not hot-reload it, so the
+        // patched terminal backend ('local') must be picked up via restart —
+        // otherwise the container keeps running with whatever backend was
+        // baked into the config.yaml written before `docker run`.
+        $setupCmds .= "docker restart \"hermes-{$serviceid}\" >/dev/null\n";
+        $setupCmds .= "sleep 3\n";
+
+        // Public HTTP server on port 3000 serving /opt/data/ — Caddy routes /artifacts/*
+        // here. This has to come AFTER the restart above: it is a `docker exec` process,
+        // not a supervised service, so restarting the container kills it and /artifacts/*
+        // would 502 while the dashboard looked perfectly healthy.
+        // -d (detached) is also required — with a plain `... &` the shell exits and the
+        // exec session is torn down with its process group before the server serves
+        // anything.
+        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'mkdir -p /opt/data/artifacts'\n";
+        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'pkill -f \"http.server\" 2>/dev/null || true'\n";
+        $setupCmds .= "docker exec -d hermes-{$serviceid} sh -c 'python3 -m http.server 3000 --directory /opt/data > /tmp/srv.log 2>&1'\n";
+        $setupCmds .= "sleep 2\n";
+        $setupCmds .= "docker exec hermes-{$serviceid} sh -c 'curl -sf http://localhost:3000 > /dev/null && echo \"HTTP:3000 OK\" || echo \"HTTP:3000 FAILED\"'\n";
+
+        $setupCmds .= "docker exec \"hermes-{$serviceid}\" sh -c \"sed -i 's/<title>Hermes Agent - Dashboard<\\/title>/<title>{$agentName} — Powered by SNBD Host<\\/title>/g' /opt/hermes/hermes_cli/web_dist/index.html\"\n";
         
         // Write branding to host first to avoid escaping issues, then pipe to container
         $setupCmds .= "cat << 'BRANDING_EOF' > \"{$dataDir}/branding.html\"\n{$brandingHtml}\nBRANDING_EOF\n";
         $setupCmds .= "docker exec -i \"hermes-{$serviceid}\" sh -c \"cat >> /opt/hermes/hermes_cli/web_dist/index.html\" < \"{$dataDir}/branding.html\"\n";
         
-        // Caddy config: dashboard domain gets /artifacts/* path routed to the file server,
-        // {id}.hermes.deltadns.xyz serves the dashboard; /artifacts/* routes to file server.
+        // {id}.hermes.deltadns.xyz is the primary domain: /artifacts/* → file server, rest → dashboard.
         $artifactsUrl = "https://{$serviceid}.{$hostname}/artifacts";
         $caddyConfig = <<<CADDY
 {$serviceid}.{$hostname} {
@@ -1104,7 +1392,11 @@ CADDY;
 
         Capsule::table('mod_hermesagent_instances')
             ->where('serviceid', $serviceid)
-            ->update(['status' => 'Active', 'updated_at' => date('Y-m-d H:i:s')]);
+            ->update([
+                'status'        => 'Active',
+                'current_model' => $brainModel,
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ]);
 
         return "success";
     } catch (\Exception $e) {
@@ -1136,7 +1428,7 @@ function hermesagent_SuspendAccount($params) {
         }
         
         $hostname = "hermes.deltadns.xyz";
-        $enableApiServer = hermesagent_resolve_param($params, 'configoption8', 'Enable OpenAI-Compatible API', 'no');
+        $enableApiServer = hermesagent_resolve_param($params, 'configoption6', 'Enable OpenAI-Compatible API', 'no');
         $apiEnabledVal = ($enableApiServer === 'yes' || $enableApiServer === 'on' || $enableApiServer === '1');
 
         $suspendedHtml = "<!DOCTYPE html><html><head><title>Account Suspended</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f9fafb;color:#111827;} .box{text-align:center;padding:40px;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);max-width:500px;} h1{color:#dc2626;margin-top:0;} p{color:#4b5563;line-height:1.5;}</style></head><body><div class=\"box\"><h1>Account Suspended</h1><p>Your Hermes Agent account has been suspended.</p><p>Please check your billing status or contact support to reactivate your service.</p></div></body></html>";
@@ -1203,7 +1495,7 @@ function hermesagent_UnsuspendAccount($params) {
         $hostPort = $record->host_port ?: (7300 + ($serviceid % 1000));
         $hostname = "hermes.deltadns.xyz";
 
-        $enableApiServer = hermesagent_resolve_param($params, 'configoption8', 'Enable OpenAI-Compatible API', 'no');
+        $enableApiServer = hermesagent_resolve_param($params, 'configoption6', 'Enable OpenAI-Compatible API', 'no');
         $apiEnabledVal = ($enableApiServer === 'yes' || $enableApiServer === 'on' || $enableApiServer === '1');
 
         $caddyConfig = <<<CADDY
@@ -1276,7 +1568,7 @@ function hermesagent_TerminateAccount($params) {
         $cmd .= "  rm -f \"/etc/caddy/conf.d/{$serviceid}.conf\"\n";
         $cmd .= "  systemctl reload caddy || caddy reload --config /etc/caddy/Caddyfile || true\n";
         $cmd .= "fi";
-        
+
         $result = $ssh->exec($cmd);
         logModuleCall('hermesagent', 'TerminateAccount', $cmd, $result);
         
@@ -1342,7 +1634,7 @@ function hermesagent_ChangePassword($params) {
  */
 function hermesagent_ChangePackage($params) {
     $serviceid = intval($params['serviceid']);
-    $resourceTier = hermesagent_resolve_param($params, 'configoption9', 'Resource Tier', 'Standard (2 vCPU / 2GB)');
+    $resourceTier = hermesagent_resolve_param($params, 'configoption7', 'Resource Tier', 'Standard (2 vCPU / 2GB)');
     
     $cpus = '2.0';
     $memory = '2g';
@@ -1373,7 +1665,10 @@ function hermesagent_ChangePackage($params) {
  */
 function hermesagent_ClientAreaCustomButtonArray() {
     return [
+        'Chat with Agent' => 'manage_chat',
         'Manage LLM Providers' => 'manage_llm',
+        'MCP Servers' => 'manage_mcp',
+        'Terminal' => 'manage_terminal',
         'Restart Agent' => 'restart',
         'View Logs' => 'viewlogs',
         'Regenerate Password' => 'regenpassword',
@@ -1495,8 +1790,8 @@ function hermesagent_killswitch($params) {
         // Hard wipe container and data directory
         $cmd = "docker rm -fv \"hermes-{$serviceid}\" 2>/dev/null || true && \\\n";
         $cmd .= "rm -rf \"/srv/hermes/{$serviceid}\" && \\\n";
-        $cmd .= "if [ -f \"/etc/caddy/conf.d/hermes-{$serviceid}.conf\" ]; then\n";
-        $cmd .= "  rm -f \"/etc/caddy/conf.d/hermes-{$serviceid}.conf\"\n";
+        $cmd .= "if [ -f \"/etc/caddy/conf.d/{$serviceid}.conf\" ]; then\n";
+        $cmd .= "  rm -f \"/etc/caddy/conf.d/{$serviceid}.conf\"\n";
         $cmd .= "  systemctl reload caddy || caddy reload --config /etc/caddy/Caddyfile || true\n";
         $cmd .= "fi";
         
@@ -1573,6 +1868,7 @@ function hermesagent_manage_llm($params) {
         'custom_key' => '',
         'telegram_token' => '',
         'discord_token' => '',
+        'slack_token' => '',
         'serviceid' => $serviceid,
         'success' => isset($_GET['success']) ? true : false,
         'error' => '',
@@ -1600,6 +1896,7 @@ function hermesagent_manage_llm($params) {
                     if ($key === 'OPENAI_API_BASE') $vars['custom_url'] = $val;
                     if ($key === 'TELEGRAM_BOT_TOKEN') $vars['telegram_token'] = $val;
                     if ($key === 'DISCORD_BOT_TOKEN') $vars['discord_token'] = $val;
+                    if ($key === 'SLACK_BOT_TOKEN') $vars['slack_token'] = $val;
                 }
             }
         }
@@ -1656,7 +1953,8 @@ function hermesagent_update_llm($params) {
     if (!empty($_POST['nous_key'])) $keysToUpdate['NOUS_PORTAL_API_KEY'] = trim($_POST['nous_key']);
     if (!empty($_POST['telegram_token'])) $keysToUpdate['TELEGRAM_BOT_TOKEN'] = trim($_POST['telegram_token']);
     if (!empty($_POST['discord_token'])) $keysToUpdate['DISCORD_BOT_TOKEN'] = trim($_POST['discord_token']);
-    
+    if (!empty($_POST['slack_token'])) $keysToUpdate['SLACK_BOT_TOKEN'] = trim($_POST['slack_token']);
+
     if (!empty($_POST['custom_url'])) {
         $keysToUpdate['OPENAI_API_BASE'] = trim($_POST['custom_url']);
         if (!empty($_POST['custom_key'])) {
@@ -1679,7 +1977,7 @@ function hermesagent_update_llm($params) {
         
         // 2. Update .env for each key
         // We will remove existing occurrences of these keys, then append them
-        $allPossibleKeys = ['OPENROUTER_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'NOUS_PORTAL_API_KEY', 'OPENAI_API_BASE', 'TELEGRAM_BOT_TOKEN', 'DISCORD_BOT_TOKEN'];
+        $allPossibleKeys = ['OPENROUTER_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'NOUS_PORTAL_API_KEY', 'OPENAI_API_BASE', 'TELEGRAM_BOT_TOKEN', 'DISCORD_BOT_TOKEN', 'SLACK_BOT_TOKEN'];
         foreach ($allPossibleKeys as $k) {
             $cmd .= "sed -i '/^{$k}=/d' \"{$dataDir}/.env\"\n";
         }
@@ -1688,13 +1986,33 @@ function hermesagent_update_llm($params) {
             $safeV = escapeshellarg($v);
             $cmd .= "echo \"{$k}={$safeV}\" >> \"{$dataDir}/.env\"\n";
         }
-        
+
         // 3. Restart container to apply
         $cmd .= "docker restart \"hermes-{$serviceid}\"\n";
-        
+
         $ssh->exec($cmd);
         logModuleCall('hermesagent', 'update_llm', $cmd, 'Success');
-        
+
+        // Persist these overrides so a future redeploy (Force Redeploy, ChangePackage,
+        // etc.) re-applies them instead of silently reverting to WHMCS configurable-option
+        // defaults and wiping out whatever the customer configured here.
+        if (!empty($keysToUpdate)) {
+            hermesagent_setup_database();
+            $existingRow = Capsule::table('mod_hermesagent_instances')->where('serviceid', $serviceid)->first();
+            $existingOverrides = [];
+            if ($existingRow && !empty($existingRow->custom_env)) {
+                $decoded = json_decode($existingRow->custom_env, true);
+                if (is_array($decoded)) $existingOverrides = $decoded;
+            }
+            $mergedOverrides = array_merge($existingOverrides, $keysToUpdate);
+            Capsule::table('mod_hermesagent_instances')
+                ->where('serviceid', $serviceid)
+                ->update([
+                    'custom_env' => json_encode($mergedOverrides),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+        }
+
         header("Location: clientarea.php?action=productdetails&id={$serviceid}&modop=custom&a=manage_llm&success=1");
         exit;
         
@@ -1704,6 +2022,79 @@ function hermesagent_update_llm($params) {
         header("Location: clientarea.php?action=productdetails&id={$serviceid}&modop=custom&a=manage_llm&error=1");
         exit;
     }
+}
+
+/**
+ * Custom action: Manage MCP Servers
+ */
+function hermesagent_manage_mcp($params) {
+    $serviceid = intval($params['serviceid']);
+
+    $installed = [];
+    $error = '';
+
+    try {
+        $ssh     = hermesagent_get_ssh_client($params, 10);
+        $dataDir = "/srv/hermes/{$serviceid}/data";
+
+        // Read installed MCP servers from config.yaml
+        $raw = $ssh->exec("cat \"{$dataDir}/config.yaml\" 2>/dev/null || echo ''");
+        if ($raw) {
+            // Parse mcp_servers section — look for keys under mcp_servers
+            if (preg_match('/^mcp_servers\s*:(.*?)(?=^\S|\z)/ms', $raw, $m)) {
+                preg_match_all('/^\s{2}(\w[\w\-]+)\s*:/m', $m[1], $keys);
+                $installed = $keys[1] ?? [];
+            }
+        }
+    } catch (\Exception $e) {
+        $error = $e->getMessage();
+    }
+
+    return [
+        'templatefile' => 'templates/manage_mcp',
+        'vars' => [
+            'serviceid'        => $serviceid,
+            'installed'        => $installed,
+            'error'            => $error,
+            'deployment_status'=> $params['status'],
+        ]
+    ];
+}
+
+function hermesagent_manage_chat($params) {
+    $serviceid = intval($params['serviceid']);
+    $hostname  = 'hermes.deltadns.xyz';
+    $chatUrl   = "https://{$serviceid}.{$hostname}/chat";
+
+    // Hand straight off to the agent's own dashboard chat. Rendering a chat UI
+    // inside WHMCS meant every visit paid for the whole clientarea page — Smarty,
+    // hooks, the client template — before a single message could be typed. The
+    // agent already ships a faster chat than anything worth rebuilding here, and
+    // its session cookie lasts 30 days, so the customer signs in once.
+    if (!headers_sent()) {
+        header('Location: ' . $chatUrl, true, 302);
+        exit;
+    }
+
+    return [
+        'templatefile' => 'templates/manage_chat',
+        'vars' => [
+            'serviceid'         => $serviceid,
+            'chat_url'          => $chatUrl,
+            'deployment_status' => $params['status'],
+        ]
+    ];
+}
+
+function hermesagent_manage_terminal($params) {
+    $serviceid = intval($params['serviceid']);
+    return [
+        'templatefile' => 'templates/manage_terminal',
+        'vars' => [
+            'serviceid'         => $serviceid,
+            'deployment_status' => $params['status'],
+        ]
+    ];
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1723,11 +2114,26 @@ function hermesagent_setup_domains_db() {
     }
 }
 
-function hermesagent_domain_write_caddy($ssh, $serviceId, $domain, $hostPort, $dashPort) {
+function hermesagent_domain_write_caddy($ssh, $serviceid, $domain, $hostPort, $dashPort) {
+    // The instance's own hostname is already served by {$serviceid}.conf, written at
+    // provision time. Writing it again under a second filename gives Caddy two blocks
+    // for one site, which makes the whole Caddyfile fail to adapt ("ambiguous site
+    // definition"). Caddy then keeps serving its last good in-memory config, so every
+    // vhost added afterwards silently never loads.
+    if (strcasecmp(trim($domain), $serviceid . '.hermes.deltadns.xyz') === 0) {
+        return;
+    }
     $conf = "{$domain} {\n    handle /artifacts/* {\n        reverse_proxy 127.0.0.1:{$hostPort}\n    }\n    handle {\n        reverse_proxy 127.0.0.1:{$dashPort}\n    }\n}\n";
     $file = '/etc/caddy/conf.d/' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $domain) . '.conf';
     $b64  = base64_encode($conf);
-    $ssh->exec("echo '" . $b64 . "' | base64 -d > " . escapeshellarg($file) . " && systemctl reload caddy 2>/dev/null || true");
+    // Validate before reloading, and roll the file back if the result is not adaptable,
+    // so one bad vhost cannot freeze Caddy on a stale config.
+    $esc = escapeshellarg($file);
+    $ssh->exec(
+        "echo '" . $b64 . "' | base64 -d > {$esc} && " .
+        "if caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null 2>&1; then " .
+        "systemctl reload caddy 2>/dev/null || true; else rm -f {$esc}; fi"
+    );
 }
 
 function hermesagent_domain_remove_caddy($ssh, $domain) {
@@ -1745,10 +2151,38 @@ function hermesagent_ClientArea($params) {
     
     $record = Capsule::table('mod_hermesagent_instances')->where('serviceid', $serviceid)->first();
     if (!$record) {
+        $onboarding = Capsule::table('mod_hermesagent_onboarding')->where('serviceid', $serviceid)->first();
+        
+        // If no onboarding record exists yet (e.g. CreateAccount wasn't triggered by WHMCS auto-setup), create it now.
+        if (!$onboarding) {
+            Capsule::table('mod_hermesagent_onboarding')->insert([
+                'serviceid' => $serviceid, 'status' => 'pending', 'created_at' => date('Y-m-d H:i:s')
+            ]);
+            $onboarding = Capsule::table('mod_hermesagent_onboarding')->where('serviceid', $serviceid)->first();
+        }
+
+        if ($onboarding) {
+            $onbStatus = is_array($onboarding) ? $onboarding['status'] : $onboarding->status;
+            if (in_array($onbStatus, ['pending', 'completed'])) {
+                // Load onboarding UI
+                return [
+                    'templatefile' => 'templates/onboarding',
+                    'vars' => [
+                        'serviceid' => $serviceid,
+                        'status' => $onbStatus,
+                        'agent_name' => is_array($onboarding) ? $onboarding['agent_name'] : $onboarding->agent_name,
+                        'use_case' => is_array($onboarding) ? $onboarding['use_case'] : $onboarding->use_case,
+                        'tone' => is_array($onboarding) ? $onboarding['tone'] : $onboarding->tone,
+                        'custom_instructions' => is_array($onboarding) ? $onboarding['custom_instructions'] : $onboarding->custom_instructions
+                    ]
+                ];
+            }
+        }
+
         return [
             'templatefile' => 'templates/clientarea',
             'vars' => [
-                'deployment_status' => 'Pending Provisioning',
+                'deployment_status' => 'Pending Provisioning (Onb Status: ' . ($onboarding ? $onboarding->status : 'NULL') . ')',
                 'dashboard_url' => '',
                 'api_url' => '',
                 'api_enabled' => false,
@@ -1776,7 +2210,7 @@ function hermesagent_ClientArea($params) {
         $apiUrl = "http://{$host}:{$record->api_port}/v1";
     }
     
-    $enableApiServer = hermesagent_resolve_param($params, 'configoption8', 'Enable OpenAI-Compatible API', 'no');
+    $enableApiServer = hermesagent_resolve_param($params, 'configoption6', 'Enable OpenAI-Compatible API', 'no');
     $apiEnabledVal = (strtolower($enableApiServer) === 'yes' || $enableApiServer === '1' || $enableApiServer === true || $enableApiServer === 'on');
     
     // Fetch live stats via SSH to pass to the template
@@ -1786,14 +2220,14 @@ function hermesagent_ClientArea($params) {
     $completionTokens = 0;
     
     if ($record->status === 'Active') {
+        // 1. Fetch CPU and Mem Usage via SSH — independent of the LiteLLM usage
+        // fetch below so an SSH timeout can't blank out the token counter too.
         try {
             // Use a short 3-second timeout for ClientArea to prevent WHMCS hanging if server is down
             $ssh = hermesagent_get_ssh_client($params, 3);
-            
-            // 1. Fetch CPU and Mem Usage
             $statsCmd = "docker stats \"hermes-{$serviceid}\" --no-stream --format \"{{.CPUPerc}}|{{.MemUsage}}\" 2>/dev/null";
             $statsOutput = trim($ssh->exec($statsCmd));
-            
+
             if (!empty($statsOutput)) {
                 $parts = explode('|', $statsOutput);
                 if (count($parts) >= 2) {
@@ -1801,50 +2235,26 @@ function hermesagent_ClientArea($params) {
                     $mem = trim($parts[1]);
                 }
             }
-            
-            // 2. Fetch Token Usage (Querying internal SQLite directly for Mistral/Voxtral)
-            $pyScript = "import sqlite3, glob\n"
-                      . "p=0; c=0\n"
-                      . "for db in glob.glob('/opt/data/*.db') + glob.glob('/opt/data/*.sqlite*'):\n"
-                      . "    try:\n"
-                      . "        conn = sqlite3.connect(db); cur = conn.cursor()\n"
-                      . "        cur.execute(\"SELECT name FROM sqlite_master WHERE type='table'\")\n"
-                      . "        for (t,) in cur.fetchall():\n"
-                      . "            try:\n"
-                      . "                cur.execute('SELECT * FROM ' + t + ' LIMIT 1')\n"
-                      . "                cols = [desc[0].lower() for desc in cur.description]\n"
-                      . "                if 'prompt_tokens' in cols and 'completion_tokens' in cols and 'model' in cols:\n"
-                      . "                    cur.execute('SELECT prompt_tokens, completion_tokens, model FROM ' + t)\n"
-                      . "                    for row in cur.fetchall():\n"
-                      . "                        m_name = str(row[2]).lower()\n"
-                      . "                        if 'mistral' in m_name or 'voxtral' in m_name:\n"
-                      . "                            p += int(row[0] or 0); c += int(row[1] or 0)\n"
-                      . "                elif 'input_tokens' in cols and 'output_tokens' in cols and 'model' in cols:\n"
-                      . "                    cur.execute('SELECT input_tokens, output_tokens, model FROM ' + t)\n"
-                      . "                    for row in cur.fetchall():\n"
-                      . "                        m_name = str(row[2]).lower()\n"
-                      . "                        if 'mistral' in m_name or 'voxtral' in m_name:\n"
-                      . "                            p += int(row[0] or 0); c += int(row[1] or 0)\n"
-                      . "            except: pass\n"
-                      . "    except: pass\n"
-                      . "print('PROMPT_TOKENS:' + str(p) + ' COMPLETION_TOKENS:' + str(c))";
-            
-            $b64Script = base64_encode($pyScript);
-            $logCmd = "docker exec \"hermes-{$serviceid}\" python3 -c \"import base64; exec(base64.b64decode('{$b64Script}').decode('utf-8'))\" 2>/dev/null";
-            $logOutput = $ssh->exec($logCmd);
-            
-            if (!empty($logOutput)) {
-                if (preg_match('/PROMPT_TOKENS:(\d+)/', $logOutput, $m)) {
-                    $promptTokens = intval($m[1]);
-                }
-                if (preg_match('/COMPLETION_TOKENS:(\d+)/', $logOutput, $m)) {
-                    $completionTokens = intval($m[1]);
-                }
-            }
         } catch (\Exception $e) {
             // Silently ignore SSH errors for stats so it doesn't break the client area
             $cpu = 'Error';
             $mem = 'Error';
+        }
+
+        // 2. Fetch Token Usage from LiteLLM (authoritative — tracks every token at proxy
+        // level) — HTTP call to the gateway, no SSH involved, so it must not be gated
+        // behind SSH success.
+        if (!empty($record->litellm_key_value)) {
+            try {
+                $ltCfg = hermesagent_litellm_config($params);
+                $usage = hermesagent_litellm_get_usage($ltCfg['url'], $ltCfg['key'], $record->litellm_key_value);
+                if ($usage) {
+                    $promptTokens     = $usage['prompt_tokens'];
+                    $completionTokens = $usage['completion_tokens'];
+                }
+            } catch (\Exception $e) {
+                logModuleCall('hermesagent', 'ClientArea_LiteLLM_Usage_Failed', $serviceid, $e->getMessage());
+            }
         }
     }
     
@@ -1855,23 +2265,32 @@ function hermesagent_ClientArea($params) {
     $tokenLimit = 10000000;
     $percentUsed = min(100, ($totalUsed / $tokenLimit) * 100);
 
-    // Domain management
-    $defaultDomain = $serviceid . '.hermes.deltadns.xyz';
-    $hasDefault = Capsule::table('mod_hermesagent_domains')
-        ->where('service_id', $serviceid)->where('domain', $defaultDomain)->exists();
-    if (!$hasDefault && $record->status === 'Active') {
+    // Enforce quota: block the LiteLLM key the moment 10M tokens is reached
+    if ($totalUsed >= $tokenLimit && !empty($record->litellm_key_id)) {
         try {
-            $sshD = hermesagent_get_ssh_client($params, 5);
-            hermesagent_domain_write_caddy($sshD, $serviceid, $defaultDomain, $record->host_port ?: (7300 + ($serviceid % 1000)), $record->dash_port);
+            $ltCfg = hermesagent_litellm_config($params);
+            hermesagent_litellm_update_key($ltCfg['url'], $ltCfg['key'], $record->litellm_key_id, false);
+            logModuleCall('hermesagent', 'QuotaEnforcement', $serviceid,
+                "Key blocked — {$totalUsed} tokens used (limit: {$tokenLimit})");
         } catch (\Exception $e) { /* non-fatal */ }
+    }
+
+    // Domain management
+    $serverIp    = '46.62.205.66';
+    $defaultDomain = $serviceid . '.hermes.deltadns.xyz';
+    if (!Capsule::table('mod_hermesagent_domains')->where('domain', $defaultDomain)->exists()) {
         Capsule::table('mod_hermesagent_domains')->insert([
             'service_id' => $serviceid, 'domain' => $defaultDomain,
             'type' => 'hermes', 'status' => 'active',
             'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s'),
         ]);
     }
-    $domains = Capsule::table('mod_hermesagent_domains')
+    $domainsRows = Capsule::table('mod_hermesagent_domains')
         ->where('service_id', $serviceid)->orderBy('created_at')->get();
+    $domains = [];
+    foreach ($domainsRows as $d) {
+        $domains[] = (array)$d;
+    }
 
     return [
         'templatefile' => 'templates/clientarea',
@@ -1897,7 +2316,7 @@ function hermesagent_ClientArea($params) {
             'percent_used' => $percentUsed,
             'domains' => $domains,
             'default_domain' => $defaultDomain,
-            'server_ip' => '46.62.205.66',
+            'server_ip' => $serverIp,
             'serviceid' => $serviceid,
         ]
     ];

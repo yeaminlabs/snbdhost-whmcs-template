@@ -401,8 +401,19 @@
                     <span class="status-dot"></span>
                     Running
                 </span>
+                {* Straight to the agent's own chat — going through the WHMCS
+                   modop URL would load a whole clientarea page just to redirect. *}
+                <a href="{if $dashboard_url}{$dashboard_url|rtrim:'/'}/chat{else}clientarea.php?action=productdetails&id={$serviceid}&modop=custom&a=manage_chat{/if}" target="_blank" rel="noopener" class="hermes-btn-primary" style="background:#1d4ed8;">
+                    <i class="fas fa-comment-dots"></i> Chat
+                </a>
                 <a href="clientarea.php?action=productdetails&id={$serviceid}&modop=custom&a=manage_llm" class="hermes-btn-primary">
                     <i class="fas fa-microchip"></i> Manage LLMs
+                </a>
+                <a href="clientarea.php?action=productdetails&id={$serviceid}&modop=custom&a=manage_mcp" class="hermes-btn-primary">
+                    <i class="fas fa-puzzle-piece"></i> MCP Servers
+                </a>
+                <a href="clientarea.php?action=productdetails&id={$serviceid}&modop=custom&a=manage_terminal" class="hermes-btn-primary">
+                    <i class="fas fa-terminal"></i> Terminal
                 </a>
             {elseif $deployment_status eq 'Suspended'}
                 <span class="status-badge status-suspended">
@@ -423,23 +434,34 @@
         </div>
     {/if}
 
-    <!-- Powered by Gemma -->
+    <!-- Powered by Mistral Ministral -->
     <div class="glass-card-green d-flex align-items-start gap-4">
-        <div class="display-5 text-success"><i class="fas fa-robot"></i></div>
+        <div class="flex-shrink-0 d-flex flex-column align-items-center gap-2" style="min-width:64px;">
+            <img src="https://docs.mistral.ai/assets/models/Ministral.svg" alt="Ministral" style="width:52px;height:52px;object-fit:contain;" onerror="this.style.display='none'">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Mistral_AI_logo_%282025%E2%80%93%29.svg/1280px-Mistral_AI_logo_%282025%E2%80%93%29.svg.png" alt="Mistral AI" style="width:72px;object-fit:contain;filter:brightness(0) saturate(100%) invert(40%) sepia(60%) saturate(500%) hue-rotate(100deg);" onerror="this.style.display='none'">
+        </div>
         <div>
-            <h4 class="fw-bold text-success mb-2 fs-5">Powered by Google Gemma</h4>
-            <p class="text-success text-opacity-75 mb-0" style="font-size: 14.5px;">
-                This agent is powered by <strong>Google Gemma</strong> technology. You are exclusively allowed to use the model <strong><code>bedrock_mantle/google.gemma-4-e2b</code></strong> for your agentic work. You are initially allowed to use up to <strong>10M tokens combined</strong>. Gemma 4 provides an immense capability for coding, problem-solving, and general reasoning. All you have to do is switch to the <strong><code>bedrock_mantle/google.gemma-4-e2b</code></strong> model in your settings and it will work instantly.
+            <h4 class="fw-bold text-success mb-1 fs-5">
+                Powered by Mistral — Ministral 3B &amp; 14B
+                <span class="badge bg-success text-white ms-2" style="font-size:11px;vertical-align:middle;">BEST AGENTIC AI</span>
+                <span class="badge bg-primary text-white ms-1" style="font-size:11px;vertical-align:middle;">OPEN SOURCE</span>
+                <span class="badge bg-warning text-dark ms-1" style="font-size:11px;vertical-align:middle;">FREE</span>
+            </h4>
+            <p class="text-success text-opacity-75 mb-1" style="font-size: 14.5px;">
+                Your agent runs on <strong>Mistral Ministral</strong> — the best open-source agentic AI ever built. Ministral was purpose-designed for tool use, multi-step reasoning, and autonomous task execution. Use the model <strong><code>mistral.ministral-3-14b-instruct</code></strong> for all your agentic work. It delivers elite performance at zero cost to you — fast, smart, and fully open.
             </p>
+            <a href="https://docs.mistral.ai/models/model-cards/ministral-3-14b-25-12" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success mt-1" style="font-size:12.5px;">
+                <i class="fas fa-book me-1"></i> Ministral Model Card — Official Docs
+            </a>
         </div>
     </div>
 
-    <!-- Free Gemma Quota -->
+    <!-- Free Mistral Quota -->
     <div class="card mb-4">
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="mb-0 fs-6 fw-bold text-dark d-flex align-items-center gap-2">
-                    <i class="fas fa-chart-pie text-success"></i> Free Gemma Quota
+                    <i class="fas fa-chart-pie text-success"></i> Free Mistral Quota
                 </h4>
                 <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-semibold">{$days_remaining} Access</span>
             </div>
@@ -607,7 +629,7 @@
             <div class="mt-4 p-3 bg-light rounded-3 text-center border">
                 <div class="mb-2" style="font-size: 14px;">
                     <span class="text-muted fw-semibold me-2">Model Filtered:</span>
-                    <code class="bg-success bg-opacity-10 text-success px-2 py-1 rounded fw-bold">bedrock_mantle/google.gemma-4-e2b</code>
+                    <code class="bg-success bg-opacity-10 text-success px-2 py-1 rounded fw-bold">mistral.ministral-3-14b-instruct</code>
                 </div>
                 <div style="font-size: 14px;">
                     <span class="text-muted fw-semibold">Input Tokens:</span> <span class="text-primary fw-bold">{$stat_prompt_tokens|number_format|default:0}</span> 
@@ -680,12 +702,16 @@
                 Copy and paste this HTML snippet into the <code class="bg-light px-1 rounded">&lt;body&gt;</code> of your website (WordPress, Shopify, etc.) to instantly add a floating AI customer support chat that connects directly to your Hermes Agent.
             </p>
             
+            <div class="alert alert-warning mb-4" style="font-size: 13.5px; border-left: 4px solid #ffc107; background-color: #fff3cd; color: #856404;">
+                <strong><i class="fas fa-exclamation-triangle"></i> Warning:</strong> This code exposes a LIVE API key hardcoded into the code itself to work. Please do not leave it online, a lot of ai calls might ban your account. Use this widget responsibly.
+            </div>
+            
             <div class="position-relative">
                 <textarea id="hermesWidgetCode" readonly class="form-control font-monospace bg-dark text-light border-0 shadow-inner p-4 rounded-4" style="height: 250px; font-size: 13px; resize: vertical;" onclick="this.select();">
 &lt;!-- Hermes Agent Live Chat Widget --&gt;
 &lt;script&gt;
 (function() {literal}{{/literal}
-    const API_URL = "{$api_url}/v1/chat/completions";
+    const API_URL = "{$api_url}/chat/completions";
     const API_KEY = "{$api_key}";
 {literal}
     const style = document.createElement('style');
@@ -767,14 +793,19 @@
             const res = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
-                body: JSON.stringify({ model: "hermes-default", messages: history, temperature: 0.7 })
+                body: JSON.stringify({ model: "mistral.ministral-3-14b-instruct", messages: history, temperature: 0.7 })
             });
+            if (!res.ok) {
+                const errData = await res.text();
+                throw new Error(`API Error ${res.status}: ${errData}`);
+            }
             const data = await res.json();
             const reply = data.choices[0].message.content;
             addMsg(reply, false);
             history.push({ role: "assistant", content: reply });
         } catch (e) {
-            addMsg("Sorry, I am having trouble connecting right now.", false);
+            console.error("Hermes Widget Error:", e);
+            addMsg("Error: " + e.message, false);
         }
         input.disabled = sendBtn.disabled = false;
         input.focus();
@@ -845,6 +876,125 @@
         </div>
     </div>
 
+    <!-- Domain Management -->
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span><i class="fas fa-globe me-2 text-primary"></i> Domain Management</span>
+            <button class="btn btn-sm btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addDomainModal">
+                <i class="fas fa-plus me-1"></i> Add Domain
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="domainsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Domain</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $domains as $dom}
+                        <tr id="domrow-{$dom.id}">
+                            <td class="ps-4 fw-semibold" style="font-family: monospace; font-size: 13px;">{$dom.domain}</td>
+                            <td>
+                                {if $dom.type === 'hermes'}
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">Hermes</span>
+                                {else}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">Custom</span>
+                                {/if}
+                            </td>
+                            <td>
+                                {if $dom.status === 'active'}
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"><i class="fas fa-circle me-1" style="font-size:8px;"></i>Active</span>
+                                {elseif $dom.status === 'pending'}
+                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3"><i class="fas fa-clock me-1" style="font-size:8px;"></i>Pending DNS</span>
+                                {else}
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Failed</span>
+                                {/if}
+                            </td>
+                            <td class="text-end pe-4">
+                                {if $dom.status === 'pending'}
+                                <button class="btn btn-xs btn-outline-warning btn-sm rounded-pill me-1" onclick="verifyDomain('{$dom.domain}', {$dom.id})">
+                                    <i class="fas fa-sync-alt me-1"></i> Verify DNS
+                                </button>
+                                {/if}
+                                {if $dom.domain !== $default_domain}
+                                <button class="btn btn-xs btn-outline-danger btn-sm rounded-pill" onclick="removeDomain({$dom.id}, '{$dom.domain}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {else}
+                                <span class="text-muted small">Default</span>
+                                {/if}
+                            </td>
+                        </tr>
+                        {/foreach}
+                        {if !$domains}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No domains found.</td></tr>
+                        {/if}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Domain Modal -->
+    <div class="modal fade" id="addDomainModal" tabindex="-1" aria-labelledby="addDomainModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="addDomainModalLabel"><i class="fas fa-globe me-2 text-primary"></i> Add a Domain</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-2">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Domain Type</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="domainType" id="typeHermes" value="hermes" checked onchange="toggleDomainTypeInfo()">
+                                <label class="form-check-label" for="typeHermes">Hermes Subdomain <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill">Instant</span></label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="domainType" id="typeCustom" value="custom" onchange="toggleDomainTypeInfo()">
+                                <label class="form-check-label" for="typeCustom">Custom Domain</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="hermesHint" class="alert alert-primary py-2 small mb-3">
+                        <i class="fas fa-bolt me-1"></i> Hermes subdomains are provisioned instantly — no DNS setup needed. Just enter a name like <strong>myapp.hermes.deltadns.xyz</strong>.
+                    </div>
+                    <div id="customHint" class="alert alert-warning py-2 small mb-3 d-none">
+                        <i class="fas fa-info-circle me-1"></i> You'll need to add an <strong>A record</strong> for your domain pointing to <strong>{$server_ip}</strong>, then click <em>Verify DNS</em> to activate it.
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Domain</label>
+                        <input type="text" class="form-control" id="newDomainInput" placeholder="e.g. myapp.hermes.deltadns.xyz">
+                        <div id="domainError" class="text-danger small mt-1 d-none"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-semibold" onclick="submitAddDomain()" id="addDomainBtn">
+                        <i class="fas fa-plus me-1"></i> Add Domain
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending DNS info panel (shown after adding custom domain) -->
+    <div id="pendingDnsPanel" class="alert alert-warning mb-4 d-none">
+        <h6 class="fw-bold"><i class="fas fa-exclamation-circle me-2"></i>DNS Setup Required</h6>
+        <p class="mb-1">To activate your custom domain, create the following DNS record:</p>
+        <table class="table table-sm mb-2" style="font-family: monospace; font-size: 13px;">
+            <tr><th>Type</th><th>Name</th><th>Value</th></tr>
+            <tr><td>A</td><td id="pendingDomainName">@</td><td>{$server_ip}</td></tr>
+        </table>
+        <p class="mb-0 small text-muted">Once DNS propagates, click <strong>Verify DNS</strong> next to the domain in the table above.</p>
+    </div>
+
     <!-- Danger Zone -->
     <div class="card border-danger border-opacity-50 bg-danger bg-opacity-10 mb-4">
         <div class="card-body p-4">
@@ -862,255 +1012,6 @@
         </div>
     </div>
 </div>
-
-<!-- Domain Management Card -->
-<div class="row mb-4 hermes-section">
-    <div class="col-12">
-        <div class="card" style="border-radius:16px;border:none;box-shadow:0 10px 30px rgba(0,0,0,0.04);">
-            <div class="card-header border-0 pb-0 pt-4 px-4 bg-transparent d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fas fa-globe" style="color:#CC0000"></i>
-                    <span style="font-weight:600;font-size:16px">Domain Management</span>
-                </div>
-                <button class="hermes-btn-primary" style="font-size:13px;padding:7px 16px" onclick="haOpenModal()">
-                    <i class="fas fa-plus"></i> Add Domain
-                </button>
-            </div>
-            <div class="card-body px-4 pb-4 pt-3">
-                <div id="ha-domain-list">
-                {if $domains}
-                    {foreach from=$domains item=d}
-                    <div class="d-flex align-items-center gap-2 py-2" id="ha-row-{$d->id}" style="border-bottom:1px solid rgba(0,0,0,.05)">
-                        <div style="flex:1;font-size:14px;font-weight:500;word-break:break-all">
-                            {if $d->status === 'active'}
-                                <a href="https://{$d->domain}" target="_blank" style="color:inherit;text-decoration:none">
-                                    <i class="fas fa-external-link-alt" style="font-size:11px;color:#CC0000"></i> {$d->domain}
-                                </a>
-                            {else}
-                                {$d->domain}
-                            {/if}
-                        </div>
-                        {if $d->domain === $default_domain}
-                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#e8e8e8;color:#555">DEFAULT</span>
-                        {/if}
-                        {if $d->type === 'custom'}
-                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#cce5ff;color:#004085">CUSTOM</span>
-                        {/if}
-                        {if $d->status === 'active'}
-                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#d4edda;color:#155724">Active</span>
-                        {else}
-                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff3cd;color:#856404">Pending DNS</span>
-                            <button class="btn btn-sm" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-size:12px;padding:3px 10px;border-radius:6px"
-                                    onclick="haVerify({$d->id}, '{$d->domain}', this)">
-                                Verify DNS
-                            </button>
-                        {/if}
-                        {if $d->domain !== $default_domain}
-                            <button class="btn btn-sm" style="background:#f8d7da;color:#721c24;border:none;font-size:12px;padding:3px 10px;border-radius:6px"
-                                    onclick="haRemove({$d->id}, '{$d->domain}', this)">
-                                Remove
-                            </button>
-                        {/if}
-                    </div>
-                    {/foreach}
-                {else}
-                    <p style="color:#999;font-size:13px;margin:0">No domains yet.</p>
-                {/if}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- DNS info box (shown after adding a pending custom domain) -->
-<div id="ha-dns-info" style="display:none" class="row mb-4 hermes-section">
-    <div class="col-12">
-        <div class="card" style="border-radius:16px;border:1px solid #ffc107;background:#fffdf0;box-shadow:none;">
-            <div class="card-body px-4 py-3">
-                <div style="font-weight:600;font-size:14px;margin-bottom:8px;color:#856404">
-                    <i class="fas fa-info-circle"></i> DNS Setup Required
-                </div>
-                <p style="font-size:13px;margin-bottom:10px;color:#555">
-                    Add this A record to your domain's DNS, then click <strong>Verify DNS</strong> on the row above.
-                </p>
-                <div style="background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;padding:14px;font-family:monospace;font-size:13px">
-                    <div class="d-flex gap-4 mb-1"><span style="color:#888;min-width:60px">Type</span><strong>A</strong></div>
-                    <div class="d-flex gap-4 mb-1"><span style="color:#888;min-width:60px">Name</span><strong id="ha-dns-name">@</strong></div>
-                    <div class="d-flex gap-4"><span style="color:#888;min-width:60px">Value</span><strong style="color:#CC0000">{$server_ip}</strong></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Domain Modal -->
-<div id="ha-add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:460px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-        <div style="font-size:16px;font-weight:700;margin-bottom:20px;color:#CC0000">
-            <i class="fas fa-globe"></i> Add Domain
-        </div>
-        <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid #eee" id="ha-tabs">
-            <button class="ha-tab active" onclick="haSwitchTab('hermes',this)"
-                    style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:#CC0000;border-bottom:2px solid #CC0000;margin-bottom:-2px">
-                Hermes Subdomain
-            </button>
-            <button class="ha-tab" onclick="haSwitchTab('custom',this)"
-                    style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">
-                Custom Domain
-            </button>
-        </div>
-        <div id="ha-tab-hermes">
-            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px;color:#555">Subdomain</label>
-            <div style="display:flex;align-items:center;border:1px solid #ddd;border-radius:6px;overflow:hidden">
-                <input type="text" id="ha-hermes-sub" placeholder="myapp" autocomplete="off"
-                       style="border:none;padding:8px 12px;font-size:14px;flex:1;outline:none;min-width:0">
-                <span style="padding:8px 10px;background:#f5f5f5;font-size:13px;color:#666;white-space:nowrap;border-left:1px solid #ddd">.hermes.deltadns.xyz</span>
-            </div>
-            <div style="font-size:11px;color:#999;margin-top:5px">Instantly active — no DNS setup needed.</div>
-        </div>
-        <div id="ha-tab-custom" style="display:none">
-            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px;color:#555">Your Domain</label>
-            <input type="text" class="form-control" id="ha-custom-domain" placeholder="app.yourdomain.com" autocomplete="off">
-            <div style="font-size:12px;color:#666;margin-top:6px">After adding, you'll get the A record to set. Activates once DNS propagates.</div>
-        </div>
-        <div id="ha-modal-alert" style="display:none;padding:10px 14px;border-radius:6px;font-size:13px;margin-top:10px"></div>
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
-            <button class="btn" style="border:1px solid #CC0000;color:#CC0000;border-radius:8px;padding:8px 18px;font-weight:500" onclick="haCloseModal()">Cancel</button>
-            <button class="hermes-btn-primary" id="ha-add-btn" onclick="haAddDomain()">Add Domain</button>
-        </div>
-    </div>
-</div>
-
-<script>
-(function() {
-    var SID      = {$serviceid|intval};
-    var AJAX_URL = 'modules/servers/hermesagent/ajax.php';
-    var activeTab = 'hermes';
-
-    window.haOpenModal = function() {
-        var m = document.getElementById('ha-add-modal');
-        m.style.display = 'flex';
-        document.getElementById('ha-hermes-sub').value = '';
-        document.getElementById('ha-custom-domain').value = '';
-        haModalAlert('', '');
-    };
-    window.haCloseModal = function() {
-        document.getElementById('ha-add-modal').style.display = 'none';
-    };
-    document.getElementById('ha-add-modal').addEventListener('click', function(e) {
-        if (e.target === this) haCloseModal();
-    });
-
-    window.haSwitchTab = function(tab, el) {
-        activeTab = tab;
-        document.querySelectorAll('.ha-tab').forEach(function(t) {
-            t.style.color = '#888';
-            t.style.borderBottomColor = 'transparent';
-        });
-        el.style.color = '#CC0000';
-        el.style.borderBottomColor = '#CC0000';
-        document.getElementById('ha-tab-hermes').style.display = tab === 'hermes' ? '' : 'none';
-        document.getElementById('ha-tab-custom').style.display  = tab === 'custom'  ? '' : 'none';
-        haModalAlert('', '');
-    };
-
-    function haModalAlert(type, msg) {
-        var el = document.getElementById('ha-modal-alert');
-        el.style.display = msg ? 'block' : 'none';
-        el.style.background = type === 'error' ? '#f8d7da' : '#d4edda';
-        el.style.color = type === 'error' ? '#721c24' : '#155724';
-        el.textContent = msg;
-    }
-
-    window.haAddDomain = function() {
-        var btn = document.getElementById('ha-add-btn');
-        var domain = '';
-        if (activeTab === 'hermes') {
-            var sub = document.getElementById('ha-hermes-sub').value.trim().toLowerCase();
-            if (!sub) { haModalAlert('error', 'Enter a subdomain name.'); return; }
-            if (!/^[a-z0-9][a-z0-9\-]*$/.test(sub)) { haModalAlert('error', 'Only lowercase letters, numbers, and hyphens.'); return; }
-            domain = sub + '.hermes.deltadns.xyz';
-        } else {
-            domain = document.getElementById('ha-custom-domain').value.trim().toLowerCase();
-            if (!domain) { haModalAlert('error', 'Enter a domain name.'); return; }
-        }
-        btn.disabled = true; btn.textContent = 'Adding…';
-        haPost({ action: 'add_domain', serviceId: SID, domain: domain, type: activeTab })
-        .then(function(d) {
-            if (!d.success) { haModalAlert('error', d.error || 'Failed'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Add Domain'; return; }
-            haCloseModal();
-            if (d.status === 'active') {
-                haAppendRow(0, d.domain, 'active', activeTab === 'custom' ? 'custom' : 'hermes');
-            } else {
-                haAppendRow(0, d.domain, 'pending', 'custom');
-                document.getElementById('ha-dns-name').textContent = d.domain;
-                document.getElementById('ha-dns-info').style.display = '';
-            }
-            btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Add Domain';
-        })
-        .catch(function() { haModalAlert('error', 'Request failed.'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Add Domain'; });
-    };
-
-    window.haVerify = function(id, domain, btn) {
-        btn.disabled = true; btn.textContent = 'Checking…';
-        haPost({ action: 'verify_domain', serviceId: SID, domain: domain })
-        .then(function(d) {
-            if (!d.success) { alert('DNS check: ' + (d.error || 'Failed')); btn.disabled = false; btn.textContent = 'Verify DNS'; return; }
-            var row = document.getElementById('ha-row-' + id);
-            if (row) {
-                var badge = row.querySelector('[style*="fff3cd"]');
-                if (badge) { badge.style.background = '#d4edda'; badge.style.color = '#155724'; badge.textContent = 'Active'; }
-                var nameEl = row.querySelector('div:first-child');
-                if (nameEl) nameEl.innerHTML = '<a href="https://' + domain + '" target="_blank" style="color:inherit;text-decoration:none"><i class="fas fa-external-link-alt" style="font-size:11px;color:#CC0000"></i> ' + domain + '</a>';
-                btn.remove();
-            }
-            document.getElementById('ha-dns-info').style.display = 'none';
-        })
-        .catch(function() { alert('Request failed.'); btn.disabled = false; btn.textContent = 'Verify DNS'; });
-    };
-
-    window.haRemove = function(id, domain, btn) {
-        if (!confirm('Remove ' + domain + '?\n\nCaddy config will be deleted and the domain will stop working immediately.')) return;
-        btn.disabled = true;
-        haPost({ action: 'remove_domain', serviceId: SID, domain_id: id })
-        .then(function(d) {
-            if (!d.success) { alert('Error: ' + (d.error || 'Unknown')); btn.disabled = false; return; }
-            var row = document.getElementById('ha-row-' + id);
-            if (row) row.remove();
-        })
-        .catch(function() { alert('Request failed.'); btn.disabled = false; });
-    };
-
-    function haAppendRow(id, domain, status, type) {
-        var list = document.getElementById('ha-domain-list');
-        var noMsg = list.querySelector('p');
-        if (noMsg) noMsg.remove();
-        var row = document.createElement('div');
-        row.className = 'd-flex align-items-center gap-2 py-2';
-        row.id = 'ha-row-' + id;
-        row.style.borderBottom = '1px solid rgba(0,0,0,.05)';
-        var nameHtml = status === 'active'
-            ? '<a href="https://' + domain + '" target="_blank" style="color:inherit;text-decoration:none"><i class="fas fa-external-link-alt" style="font-size:11px;color:#CC0000"></i> ' + domain + '</a>'
-            : domain;
-        var typeBadge = type === 'custom' ? '<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#cce5ff;color:#004085">CUSTOM</span>' : '';
-        var statusBadge = status === 'active'
-            ? '<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#d4edda;color:#155724">Active</span>'
-            : '<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff3cd;color:#856404">Pending DNS</span>';
-        var verifyBtn = status !== 'active'
-            ? '<button class="btn btn-sm" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-size:12px;padding:3px 10px;border-radius:6px" onclick="haVerify(' + id + ',\'' + domain + '\',this)">Verify DNS</button>'
-            : '';
-        var removeBtn = '<button class="btn btn-sm" style="background:#f8d7da;color:#721c24;border:none;font-size:12px;padding:3px 10px;border-radius:6px" onclick="haRemove(' + id + ',\'' + domain + '\',this)">Remove</button>';
-        row.innerHTML = '<div style="flex:1;font-size:14px;font-weight:500;word-break:break-all">' + nameHtml + '</div>' + typeBadge + statusBadge + verifyBtn + removeBtn;
-        list.appendChild(row);
-    }
-
-    function haPost(data) {
-        var fd = new FormData();
-        Object.keys(data).forEach(function(k) { fd.append(k, data[k]); });
-        return fetch(AJAX_URL, { method: 'POST', body: fd }).then(function(r) { return r.json(); });
-    }
-})();
-</script>
 
 <!-- Bootstrap 5 Toast Container for Clipboard Notifications -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
@@ -1194,14 +1095,105 @@
         }
     }
 
+    // ── Domain Management ──────────────────────────────────────────────────────
+
+    const AJAX_URL = 'modules/servers/hermesagent/ajax.php';
+    const SERVICE_ID = {$serviceid};
+
+    function toggleDomainTypeInfo() {
+        const isHermes = document.getElementById('typeHermes').checked;
+        document.getElementById('hermesHint').classList.toggle('d-none', !isHermes);
+        document.getElementById('customHint').classList.toggle('d-none', isHermes);
+    }
+
+    function submitAddDomain() {
+        const domain = document.getElementById('newDomainInput').value.trim();
+        const type   = document.querySelector('input[name="domainType"]:checked').value;
+        const errEl  = document.getElementById('domainError');
+        const btn    = document.getElementById('addDomainBtn');
+        errEl.classList.add('d-none');
+        if (!domain) { errEl.textContent = 'Please enter a domain.'; errEl.classList.remove('d-none'); return; }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Adding…';
+
+        fetch(AJAX_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ action: 'add_domain', serviceId: SERVICE_ID, domain, type })
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Domain';
+            if (!data.success) {
+                errEl.textContent = data.error || 'Unknown error';
+                errEl.classList.remove('d-none');
+                return;
+            }
+            // Close modal and reload to show new row
+            bootstrap.Modal.getInstance(document.getElementById('addDomainModal')).hide();
+            if (data.status === 'pending') {
+                document.getElementById('pendingDomainName').textContent = domain;
+                document.getElementById('pendingDnsPanel').classList.remove('d-none');
+            }
+            location.reload();
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Domain';
+            errEl.textContent = 'Request failed. Please try again.';
+            errEl.classList.remove('d-none');
+        });
+    }
+
+    function verifyDomain(domain, rowId) {
+        if (!confirm('Check DNS for ' + domain + '?')) return;
+        fetch(AJAX_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ action: 'verify_domain', serviceId: SERVICE_ID, domain })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Domain activated!', 'bg-success');
+                setTimeout(() => location.reload(), 800);
+            } else {
+                alert('Verification failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(() => alert('Request failed.'));
+    }
+
+    function removeDomain(domainId, domain) {
+        if (!confirm('Remove domain ' + domain + '? This will delete its Caddy config.')) return;
+        fetch(AJAX_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ action: 'remove_domain', serviceId: SERVICE_ID, domain_id: domainId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const row = document.getElementById('domrow-' + domainId);
+                if (row) row.remove();
+                showToast('Domain removed.', 'bg-secondary');
+            } else {
+                alert('Failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(() => alert('Request failed.'));
+    }
+
     // Modern SaaS Overhaul: Remove WHMCS Default Clutter more safely
     document.addEventListener("DOMContentLoaded", function() {
         const hermesWrapper = document.querySelector('.hermes-wrapper');
         
         // Find the main container tab content
-        const tabContent = (hermesWrapper && hermesWrapper.closest('.tab-pane')) || 
-                           (hermesWrapper && hermesWrapper.closest('.product-details')) || 
-                           (document.querySelector('#Primary_Sidebar') && document.querySelector('#Primary_Sidebar').parentElement) ||
+        const tabContent = hermesWrapper?.closest('.tab-pane') || 
+                           hermesWrapper?.closest('.product-details') || 
+                           document.querySelector('#Primary_Sidebar')?.parentElement ||
                            document.querySelector('.client-area-content');
         
         if (hermesWrapper && tabContent) {

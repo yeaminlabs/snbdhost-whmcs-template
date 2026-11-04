@@ -69,6 +69,54 @@ function hermesagent_activate() {
             );
         }
 
+        // Onboarding tracking table
+        if (!Capsule::schema()->hasTable('mod_hermesagent_onboarding')) {
+            Capsule::schema()->create('mod_hermesagent_onboarding', function ($table) {
+                $table->integer('serviceid')->unique();
+                $table->string('agent_name', 60)->nullable();
+                $table->string('use_case', 30)->nullable();
+                $table->string('tone', 30)->nullable();
+                $table->text('custom_instructions')->nullable();
+                $table->string('status', 20)->default('pending');
+                $table->timestamp('created_at')->nullable();
+                $table->timestamp('completed_at')->nullable();
+            });
+        }
+
+        // Brain config table — stores admin-defined AI endpoint presets
+        if (!Capsule::schema()->hasTable('mod_hermesagent_brain_config')) {
+            Capsule::schema()->create('mod_hermesagent_brain_config', function ($table) {
+                $table->increments('id');
+                $table->string('display_name', 100);
+                $table->string('provider_type', 20)->default('proxy');
+                $table->string('base_url', 255);
+                $table->string('model_name', 100);
+                $table->text('api_key')->nullable();
+                $table->tinyInteger('is_active')->default(0);
+                $table->timestamps();
+            });
+            // Seed default entry
+            Capsule::table('mod_hermesagent_brain_config')->insert([
+                'display_name'  => 'SNBD Proxy (ZAI GLM-5)',
+                'provider_type' => 'proxy',
+                'base_url'      => 'https://ai-proxy.snbdhost.com/v1',
+                'model_name'    => 'zai.glm-5',
+                'api_key'       => 'sk-snbdhost-master-key-2026',
+                'is_active'     => 1,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        // Add current_model column to instances table if missing
+        if (Capsule::schema()->hasTable('mod_hermesagent_instances')) {
+            if (!Capsule::schema()->hasColumn('mod_hermesagent_instances', 'current_model')) {
+                Capsule::schema()->table('mod_hermesagent_instances', function ($table) {
+                    $table->string('current_model', 100)->nullable()->after('status');
+                });
+            }
+        }
+
         return [
             'status' => 'success',
             'description' => 'Hermes Agent Manager activated and database tables configured successfully.'
@@ -89,6 +137,65 @@ function hermesagent_deactivate() {
         'status' => 'success',
         'description' => 'Hermes Agent Manager deactivated.'
     ];
+}
+
+/**
+ * Get the currently active brain config. Falls back to SNBD proxy defaults.
+ */
+if (!function_exists('hermesagent_get_active_brain')) {
+    function hermesagent_get_active_brain() {
+        $defaults = [
+            'id'            => 0,
+            'display_name'  => 'SNBD Proxy (ZAI GLM-5)',
+            'provider_type' => 'proxy',
+            'base_url'      => 'https://ai-proxy.snbdhost.com/v1',
+            'model_name'    => 'zai.glm-5',
+            'api_key'       => 'sk-snbdhost-master-key-2026',
+            'is_active'     => 1,
+        ];
+        try {
+            $row = Capsule::table('mod_hermesagent_brain_config')->where('is_active', 1)->first();
+            return $row ? (array) $row : $defaults;
+        } catch (\Exception $e) {
+            return $defaults;
+        }
+    }
+}
+
+/**
+ * Open an SSH connection using phpseclib, given a WHMCS tblservers record.
+ */
+function hermesagent_addon_ssh_connect($server, $timeout = 60) {
+    $host     = $server->ipaddress ?: $server->hostname;
+    $port     = intval($server->port) ?: 22;
+    $username = $server->username;
+    $password = function_exists('decrypt') ? decrypt($server->password) : $server->password;
+    $accesshash = trim($server->accesshash ?? '');
+
+    if (class_exists('\phpseclib3\Net\SSH2')) {
+        $ssh = new \phpseclib3\Net\SSH2($host, $port);
+        $ssh->setTimeout($timeout);
+        if (!empty($accesshash)) {
+            try {
+                $key = \phpseclib3\Crypt\PublicKeyLoader::load($accesshash, $password ?: false);
+                if ($ssh->login($username, $key)) return $ssh;
+            } catch (\Exception $e) {}
+        }
+        if ($ssh->login($username, $password)) return $ssh;
+        throw new \Exception("SSH connection failed (phpseclib3) to $host");
+    }
+    if (class_exists('\phpseclib\Net\SSH2')) {
+        $ssh = new \phpseclib\Net\SSH2($host, $port);
+        $ssh->setTimeout($timeout);
+        if (!empty($accesshash) && class_exists('\phpseclib\Crypt\RSA')) {
+            $key = new \phpseclib\Crypt\RSA();
+            if (!empty($password)) $key->setPassword($password);
+            if ($key->loadKey($accesshash) && $ssh->login($username, $key)) return $ssh;
+        }
+        if ($ssh->login($username, $password)) return $ssh;
+        throw new \Exception("SSH connection failed (phpseclib2) to $host");
+    }
+    throw new \Exception("phpseclib not available");
 }
 
 /**
@@ -280,6 +387,243 @@ function hermesagent_output($vars) {
         // ignore
     }
 
+    // 0. Ensure brain_config table exists (safe to run on every page load)
+    try {
+        if (!Capsule::schema()->hasTable('mod_hermesagent_brain_config')) {
+            Capsule::schema()->create('mod_hermesagent_brain_config', function ($table) {
+                $table->increments('id');
+                $table->string('display_name', 100);
+                $table->string('provider_type', 20)->default('proxy');
+                $table->string('base_url', 255);
+                $table->string('model_name', 100);
+                $table->text('api_key')->nullable();
+                $table->tinyInteger('is_active')->default(0);
+                $table->timestamps();
+            });
+            Capsule::table('mod_hermesagent_brain_config')->insert([
+                'display_name'  => 'SNBD Proxy (ZAI GLM-5)',
+                'provider_type' => 'proxy',
+                'base_url'      => 'https://ai-proxy.snbdhost.com/v1',
+                'model_name'    => 'zai.glm-5',
+                'api_key'       => 'sk-snbdhost-master-key-2026',
+                'is_active'     => 1,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ]);
+        }
+        if (Capsule::schema()->hasTable('mod_hermesagent_instances') &&
+            !Capsule::schema()->hasColumn('mod_hermesagent_instances', 'current_model')) {
+            Capsule::schema()->table('mod_hermesagent_instances', function ($table) {
+                $table->string('current_model', 100)->nullable()->after('status');
+            });
+        }
+    } catch (\Exception $e) { /* already exists */ }
+
+    // 0a. Handle brain POST actions
+    $brainMessage = '';
+    
+    // Handle provision with defaults
+    if (isset($_POST['provision_default'])) {
+        $svcId = intval($_POST['provision_service_id']);
+        if ($svcId > 0) {
+            try {
+                Capsule::table('mod_hermesagent_onboarding')
+                    ->where('serviceid', $svcId)
+                    ->update(['status' => 'skipped', 'completed_at' => date('Y-m-d H:i:s')]);
+                
+                $command = 'ModuleCreate';
+                $postData = array(
+                    'accountid' => $svcId,
+                );
+                $results = localAPI($command, $postData);
+                
+                if ($results['result'] === 'success') {
+                    $message = '<div class="alert alert-success" style="padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600;"><i class="fas fa-check-circle"></i> Service #' . $svcId . ' has been provisioned with default settings.</div>';
+                } else {
+                    $message = '<div class="alert alert-danger" style="padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Failed to provision service #' . $svcId . ': ' . ($results['message'] ?? 'Unknown error') . '</div>';
+                }
+            } catch (\Exception $e) {
+                $message = '<div class="alert alert-danger" style="padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Failed to provision service #' . $svcId . ': ' . $e->getMessage() . '</div>';
+            }
+        }
+    }
+    if (isset($_POST['add_brain'])) {
+        $bName     = htmlspecialchars(trim($_POST['brain_display_name'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $bType     = in_array($_POST['brain_provider_type'] ?? '', ['proxy','bedrock','openai','custom'])
+                     ? $_POST['brain_provider_type'] : 'proxy';
+        $bUrl      = trim($_POST['brain_base_url'] ?? '');
+        $bModel    = trim($_POST['brain_model_name'] ?? '');
+        $bKey      = trim($_POST['brain_api_key'] ?? '');
+        $bSetActive = !empty($_POST['brain_set_active']);
+        if ($bName && $bUrl && $bModel) {
+            if ($bSetActive) {
+                Capsule::table('mod_hermesagent_brain_config')->update(['is_active' => 0]);
+            }
+            Capsule::table('mod_hermesagent_brain_config')->insert([
+                'display_name'  => $bName,
+                'provider_type' => $bType,
+                'base_url'      => $bUrl,
+                'model_name'    => $bModel,
+                'api_key'       => $bKey,
+                'is_active'     => $bSetActive ? 1 : 0,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ]);
+            $brainMessage = '<div class="alert alert-success" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;"><i class="fas fa-check-circle"></i> Brain endpoint "<strong>' . $bName . '</strong>" added.</div>';
+        } else {
+            $brainMessage = '<div class="alert alert-danger" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Please fill in Name, Base URL, and Model.</div>';
+        }
+    } elseif (isset($_POST['set_active_brain'])) {
+        $bId = intval($_POST['brain_id']);
+        if ($bId > 0) {
+            Capsule::table('mod_hermesagent_brain_config')->update(['is_active' => 0, 'updated_at' => date('Y-m-d H:i:s')]);
+            Capsule::table('mod_hermesagent_brain_config')->where('id', $bId)->update(['is_active' => 1, 'updated_at' => date('Y-m-d H:i:s')]);
+            $b = Capsule::table('mod_hermesagent_brain_config')->where('id', $bId)->first();
+            $brainMessage = '<div class="alert alert-success" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;"><i class="fas fa-brain"></i> Active brain set to <strong>' . htmlspecialchars($b->display_name ?? '') . '</strong> · <code>' . htmlspecialchars($b->model_name ?? '') . '</code>. Push to containers to apply.</div>';
+        }
+    } elseif (isset($_POST['delete_brain'])) {
+        $bId = intval($_POST['brain_id']);
+        $bRow = $bId > 0 ? Capsule::table('mod_hermesagent_brain_config')->where('id', $bId)->first() : null;
+        if ($bRow && !$bRow->is_active) {
+            Capsule::table('mod_hermesagent_brain_config')->where('id', $bId)->delete();
+            $brainMessage = '<div class="alert alert-warning" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;"><i class="fas fa-trash"></i> Brain endpoint deleted.</div>';
+        } elseif ($bRow && $bRow->is_active) {
+            $brainMessage = '<div class="alert alert-danger" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;"><i class="fas fa-ban"></i> Cannot delete the active brain. Set another as active first.</div>';
+        }
+    } elseif (isset($_POST['push_brain'])) {
+        $activeBrainRow = hermesagent_get_active_brain();
+        $pushBaseUrl    = rtrim($activeBrainRow['base_url'], '/');
+        $pushApiKey     = $activeBrainRow['api_key'] ?? '';
+        $pushModel      = $activeBrainRow['model_name'] ?? '';
+        $escapedUrl     = addslashes($pushBaseUrl);
+        $escapedKey     = addslashes($pushApiKey);
+        $escapedModel   = addslashes($pushModel);
+
+        $instances = Capsule::table('mod_hermesagent_instances')
+            ->join('tblhosting', 'mod_hermesagent_instances.serviceid', '=', 'tblhosting.id')
+            ->where('mod_hermesagent_instances.status', 'Active')
+            ->select('mod_hermesagent_instances.serviceid', 'tblhosting.server as serverid')
+            ->get();
+
+        $pushResults = ['updated' => [], 'failed' => []];
+
+        // Group by server — typically all instances share one VPS
+        $byServer = [];
+        foreach ($instances as $inst) {
+            $byServer[$inst->serverid][] = $inst->serviceid;
+        }
+
+        foreach ($byServer as $serverid => $serviceids) {
+            $serverRecord = Capsule::table('tblservers')->where('id', $serverid)->first();
+            if (!$serverRecord) {
+                foreach ($serviceids as $sid) $pushResults['failed'][] = $sid;
+                continue;
+            }
+            try {
+                $ssh = hermesagent_addon_ssh_connect($serverRecord, 90);
+                $cmds = '';
+                foreach ($serviceids as $sid) {
+                    $dataDir = "/srv/hermes/{$sid}/data";
+                    $cmds .= "python3 - << 'PYEOF_PUSH'\n";
+                    $cmds .= "import yaml, sys\n";
+                    $cmds .= "p = '{$dataDir}/config.yaml'\n";
+                    $cmds .= "try:\n";
+                    $cmds .= "    with open(p) as f: cfg = yaml.safe_load(f) or {}\n";
+                    $cmds .= "except: cfg = {}\n";
+                    $cmds .= "if not isinstance(cfg.get('model'), dict): cfg['model'] = {}\n";
+                    $cmds .= "cfg['model']['base_url'] = '{$escapedUrl}'\n";
+                    $cmds .= "cfg['model']['api_key']  = '{$escapedKey}'\n";
+                    $cmds .= "cfg['model']['provider'] = 'custom'\n";
+                    $cmds .= "cfg['model']['default']  = '{$escapedModel}'\n";
+                    $cmds .= "with open(p, 'w') as f: yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)\n";
+                    $cmds .= "PYEOF_PUSH\n";
+                    $cmds .= "docker restart hermes-{$sid} >/dev/null 2>&1 && echo 'PUSHED_{$sid}' || echo 'PUSH_FAILED_{$sid}'\n";
+                }
+                $output = $ssh->exec($cmds);
+                foreach ($serviceids as $sid) {
+                    if (strpos($output, "PUSHED_{$sid}") !== false) {
+                        $pushResults['updated'][] = $sid;
+                        Capsule::table('mod_hermesagent_instances')->where('serviceid', $sid)
+                            ->update(['current_model' => $pushModel, 'updated_at' => date('Y-m-d H:i:s')]);
+                    } else {
+                        $pushResults['failed'][] = $sid;
+                    }
+                }
+            } catch (\Exception $e) {
+                foreach ($serviceids as $sid) $pushResults['failed'][] = $sid;
+                logModuleCall('hermesagent_addon', 'PushBrain_SSH_Failed', $serverid, $e->getMessage());
+            }
+        }
+
+        $nUp = count($pushResults['updated']);
+        $nFail = count($pushResults['failed']);
+        $brainMessage = '<div class="alert alert-' . ($nFail === 0 ? 'success' : 'warning') . '" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;">'
+            . '<i class="fas fa-broadcast-tower"></i> Push complete: <strong>' . $nUp . ' updated</strong>'
+            . ($nFail > 0 ? ', <strong>' . $nFail . ' failed</strong> (#' . implode(', #', $pushResults['failed']) . ')' : '')
+            . '. Model: <code>' . htmlspecialchars($pushModel) . '</code></div>';
+    } elseif (isset($_POST['fix_terminal_backend'])) {
+        // One-off remediation: older CreateAccount runs booted containers with
+        // terminal.backend: docker (no Docker socket available inside the
+        // customer container, so every terminal() tool call fails). This
+        // forces every active instance's config.yaml to backend: local and
+        // restarts the container so the fix actually takes effect.
+        $instances = Capsule::table('mod_hermesagent_instances')
+            ->join('tblhosting', 'mod_hermesagent_instances.serviceid', '=', 'tblhosting.id')
+            ->where('mod_hermesagent_instances.status', 'Active')
+            ->select('mod_hermesagent_instances.serviceid', 'tblhosting.server as serverid')
+            ->get();
+
+        $fixResults = ['updated' => [], 'failed' => []];
+
+        $byServer = [];
+        foreach ($instances as $inst) {
+            $byServer[$inst->serverid][] = $inst->serviceid;
+        }
+
+        foreach ($byServer as $serverid => $serviceids) {
+            $serverRecord = Capsule::table('tblservers')->where('id', $serverid)->first();
+            if (!$serverRecord) {
+                foreach ($serviceids as $sid) $fixResults['failed'][] = $sid;
+                continue;
+            }
+            try {
+                $ssh = hermesagent_addon_ssh_connect($serverRecord, 90);
+                $cmds = '';
+                foreach ($serviceids as $sid) {
+                    $dataDir = "/srv/hermes/{$sid}/data";
+                    $cmds .= "python3 - << 'PYEOF_FIXTERM'\n";
+                    $cmds .= "import yaml\n";
+                    $cmds .= "p = '{$dataDir}/config.yaml'\n";
+                    $cmds .= "try:\n";
+                    $cmds .= "    with open(p) as f: cfg = yaml.safe_load(f) or {}\n";
+                    $cmds .= "except: cfg = {}\n";
+                    $cmds .= "cfg['terminal'] = {'backend': 'local', 'timeout': 180, 'cwd': '/opt/data'}\n";
+                    $cmds .= "with open(p, 'w') as f: yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)\n";
+                    $cmds .= "PYEOF_FIXTERM\n";
+                    $cmds .= "docker restart hermes-{$sid} >/dev/null 2>&1 && echo 'FIXED_{$sid}' || echo 'FIX_FAILED_{$sid}'\n";
+                }
+                $output = $ssh->exec($cmds);
+                foreach ($serviceids as $sid) {
+                    if (strpos($output, "FIXED_{$sid}") !== false) {
+                        $fixResults['updated'][] = $sid;
+                    } else {
+                        $fixResults['failed'][] = $sid;
+                    }
+                }
+            } catch (\Exception $e) {
+                foreach ($serviceids as $sid) $fixResults['failed'][] = $sid;
+                logModuleCall('hermesagent_addon', 'FixTerminalBackend_SSH_Failed', $serverid, $e->getMessage());
+            }
+        }
+
+        $nUp = count($fixResults['updated']);
+        $nFail = count($fixResults['failed']);
+        $brainMessage = '<div class="alert alert-' . ($nFail === 0 ? 'success' : 'warning') . '" style="padding:12px 16px;border-radius:6px;margin-bottom:15px;font-weight:600;">'
+            . '<i class="fas fa-terminal"></i> Terminal backend fix complete: <strong>' . $nUp . ' fixed</strong>'
+            . ($nFail > 0 ? ', <strong>' . $nFail . ' failed</strong> (#' . implode(', #', $fixResults['failed']) . ')' : '')
+            . '.</div>';
+    }
+
     // 0. Ensure quiz leads table exists (safe to run on every page load)
     try {
         if (!Capsule::schema()->hasTable('mod_hermesagent_quiz_leads')) {
@@ -337,6 +681,129 @@ function hermesagent_output($vars) {
         ->select('id', 'name', 'type')
         ->get();
 
+    // 2b. Fetch brain endpoints
+    $brains = [];
+    $activeBrain = null;
+    try {
+        $brains = Capsule::table('mod_hermesagent_brain_config')->orderBy('is_active', 'desc')->orderBy('id')->get();
+        foreach ($brains as $b) { if ($b->is_active) { $activeBrain = $b; break; } }
+    } catch (\Exception $e) { /* table not yet created */ }
+
+    // 2c. Fetch per-service token usage from LiteLLM (parallel curl_multi)
+    $usageMap = [];
+    try {
+        $brain = hermesagent_get_active_brain();
+        $litellmApiUrl = rtrim(preg_replace('|/v1/?$|', '', rtrim($brain['base_url'], '/')), '/');
+        $masterKey = $brain['api_key'] ?? 'sk-snbdhost-master-key-2026';
+        $keyed = Capsule::table('mod_hermesagent_instances')
+            ->whereNotNull('litellm_key_value')
+            ->where('litellm_key_value', '!=', '')
+            ->select('serviceid', 'litellm_key_value')
+            ->get();
+        if ($keyed->count() > 0) {
+            $mh = curl_multi_init();
+            $handles = [];
+            foreach ($keyed as $row) {
+                $ch = curl_init($litellmApiUrl . '/key/info?key=' . urlencode($row->litellm_key_value));
+                curl_setopt_array($ch, [
+                    CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $masterKey],
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT        => 6,
+                    CURLOPT_CONNECTTIMEOUT => 3,
+                    CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+                ]);
+                curl_multi_add_handle($mh, $ch);
+                $handles[(int)$row->serviceid] = $ch;
+            }
+            do {
+                $status = curl_multi_exec($mh, $running);
+                if ($running) curl_multi_select($mh, 0.5);
+            } while ($running && $status === CURLM_OK);
+            $needsLogsFallback = [];
+            foreach ($handles as $sid => $ch) {
+                $resp = curl_multi_getcontent($ch);
+                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_multi_remove_handle($mh, $ch);
+                curl_close($ch);
+                if ($code === 200 && $resp) {
+                    $d = json_decode($resp, true);
+                    if ($d && isset($d['info'])) {
+                        $info = $d['info'];
+                        $pt = (int)($info['prompt_tokens'] ?? 0);
+                        $ct = (int)($info['completion_tokens'] ?? 0);
+                        $tt = (int)($info['total_tokens'] ?? ($pt + $ct));
+                        $usageMap[$sid] = [
+                            'total_tokens'      => $tt ?: ($pt + $ct),
+                            'prompt_tokens'     => $pt,
+                            'completion_tokens' => $ct,
+                            'spend'             => (float)($info['spend'] ?? 0),
+                        ];
+                    }
+                }
+                // /key/info is budget/spend metadata on most LiteLLM versions and often
+                // doesn't carry per-key token counts — fall back to /spend/logs for any
+                // key that came back with nothing.
+                if (empty($usageMap[$sid]) || (!$usageMap[$sid]['total_tokens'] && !$usageMap[$sid]['spend'])) {
+                    $needsLogsFallback[$sid] = true;
+                }
+            }
+            curl_multi_close($mh);
+
+            if (!empty($needsLogsFallback)) {
+                $keyBySid = [];
+                foreach ($keyed as $row) {
+                    if (isset($needsLogsFallback[(int)$row->serviceid])) {
+                        $keyBySid[(int)$row->serviceid] = $row->litellm_key_value;
+                    }
+                }
+                $mh2 = curl_multi_init();
+                $handles2 = [];
+                foreach ($keyBySid as $sid => $keyVal) {
+                    $ch = curl_init($litellmApiUrl . '/spend/logs?api_key=' . urlencode($keyVal));
+                    curl_setopt_array($ch, [
+                        CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $masterKey],
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_TIMEOUT        => 6,
+                        CURLOPT_CONNECTTIMEOUT => 3,
+                        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+                    ]);
+                    curl_multi_add_handle($mh2, $ch);
+                    $handles2[$sid] = $ch;
+                }
+                do {
+                    $status2 = curl_multi_exec($mh2, $running2);
+                    if ($running2) curl_multi_select($mh2, 0.5);
+                } while ($running2 && $status2 === CURLM_OK);
+                foreach ($handles2 as $sid => $ch) {
+                    $resp = curl_multi_getcontent($ch);
+                    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_multi_remove_handle($mh2, $ch);
+                    curl_close($ch);
+                    if ($code === 200 && $resp) {
+                        $logs = json_decode($resp, true);
+                        if (is_array($logs)) {
+                            $pt = 0; $ct = 0; $spend = 0.0;
+                            foreach ($logs as $entry) {
+                                $pt    += (int)($entry['prompt_tokens'] ?? 0);
+                                $ct    += (int)($entry['completion_tokens'] ?? 0);
+                                $spend += (float)($entry['spend'] ?? 0);
+                            }
+                            if ($pt || $ct || $spend) {
+                                $usageMap[$sid] = [
+                                    'total_tokens'      => $pt + $ct,
+                                    'prompt_tokens'     => $pt,
+                                    'completion_tokens' => $ct,
+                                    'spend'             => $spend,
+                                ];
+                            }
+                        }
+                    }
+                }
+                curl_multi_close($mh2);
+            }
+        }
+    } catch (\Exception $e) { /* LiteLLM unreachable — skip */ }
+
     // 3. Fetch deployed instances
     $deployments = Capsule::table('mod_hermesagent_instances')
         ->join('tblhosting', 'mod_hermesagent_instances.serviceid', '=', 'tblhosting.id')
@@ -356,6 +823,24 @@ function hermesagent_output($vars) {
             'tblservers.secure as server_secure'
         )
         ->get();
+
+    // 3a. Fetch pending onboarding
+    $pendingOnboarding = [];
+    try {
+        $pendingOnboarding = Capsule::table('mod_hermesagent_onboarding')
+            ->join('tblhosting', 'mod_hermesagent_onboarding.serviceid', '=', 'tblhosting.id')
+            ->join('tblclients', 'tblhosting.userid', '=', 'tblclients.id')
+            ->join('tblproducts', 'tblhosting.packageid', '=', 'tblproducts.id')
+            ->where('mod_hermesagent_onboarding.status', 'pending')
+            ->select(
+                'mod_hermesagent_onboarding.*',
+                'tblclients.firstname',
+                'tblclients.lastname',
+                'tblclients.companyname',
+                'tblproducts.name as product_name'
+            )
+            ->get();
+    } catch (\Exception $e) { /* table might not exist yet */ }
 
     // 3b. Fetch quiz leads
     $leads = [];
@@ -385,6 +870,7 @@ function hermesagent_output($vars) {
 
     // Render interface with beautiful custom dark-mode styled cards
     echo $message;
+    echo $brainMessage;
     ?>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -573,6 +1059,133 @@ function hermesagent_output($vars) {
             </div>
         </div>
 
+        <!-- Brain Management Panel -->
+        <div class="ha-panel" style="margin-bottom:25px;">
+            <div class="ha-panel-header" style="background:#f0fff4;border-color:#c3e6cb;">
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <h4 class="ha-panel-title" style="color:#155724;margin:0;"><i class="fas fa-brain"></i> Brain Management</h4>
+                    <?php if ($activeBrain): ?>
+                    <span class="ha-badge badge-active" style="padding:5px 12px;font-size:12px;">
+                        Active: <?php echo htmlspecialchars($activeBrain->display_name); ?>
+                        &nbsp;·&nbsp; <code style="background:rgba(0,0,0,0.1);padding:2px 5px;border-radius:3px;font-size:11px;"><?php echo htmlspecialchars($activeBrain->model_name); ?></code>
+                    </span>
+                    <?php endif; ?>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button type="button" onclick="document.getElementById('brain-add-form').style.display=document.getElementById('brain-add-form').style.display==='none'?'block':'none'" class="btn-ha-primary" style="padding:7px 14px;font-size:13px;">
+                        <i class="fas fa-plus"></i> Add Endpoint
+                    </button>
+                    <form method="post" style="margin:0;" onsubmit="return confirm('Push active brain to ALL running containers and restart them?')">
+                        <button type="submit" name="push_brain" style="background:linear-gradient(135deg,#f6c23e,#d4a017);border:none;color:#fff;padding:7px 14px;font-weight:600;border-radius:6px;cursor:pointer;font-size:13px;">
+                            <i class="fas fa-broadcast-tower"></i> Push to All
+                        </button>
+                    </form>
+                    <form method="post" style="margin:0;" onsubmit="return confirm('Force terminal.backend to local on ALL active containers and restart them? This fixes agents that cannot run terminal commands.')">
+                        <button type="submit" name="fix_terminal_backend" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;color:#fff;padding:7px 14px;font-weight:600;border-radius:6px;cursor:pointer;font-size:13px;">
+                            <i class="fas fa-terminal"></i> Fix Terminal Backend (All)
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <?php if (count($brains) > 0): ?>
+                <table class="table-ha">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Provider</th>
+                            <th>Base URL</th>
+                            <th>Model</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($brains as $b): ?>
+                        <tr style="<?php echo $b->is_active ? 'background:#f0fff4;' : ''; ?>">
+                            <td><strong><?php echo htmlspecialchars($b->display_name); ?></strong></td>
+                            <td><span style="font-size:12px;background:#e8f0fe;color:#2b5be8;padding:3px 8px;border-radius:4px;font-weight:600;"><?php echo ucfirst($b->provider_type); ?></span></td>
+                            <td><code style="font-size:12px;color:#555;"><?php echo htmlspecialchars($b->base_url); ?></code></td>
+                            <td><code style="font-size:12px;color:#2b5be8;"><?php echo htmlspecialchars($b->model_name); ?></code></td>
+                            <td>
+                                <?php if ($b->is_active): ?>
+                                <span class="ha-badge badge-active"><i class="fas fa-check"></i> Active</span>
+                                <?php else: ?>
+                                <span class="ha-badge badge-pending">Inactive</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="white-space:nowrap;">
+                                <?php if (!$b->is_active): ?>
+                                <form method="post" style="display:inline;margin-right:4px;">
+                                    <input type="hidden" name="brain_id" value="<?php echo $b->id; ?>">
+                                    <button type="submit" name="set_active_brain" class="btn-ha-primary" style="padding:5px 10px;font-size:12px;">
+                                        <i class="fas fa-check-circle"></i> Set Active
+                                    </button>
+                                </form>
+                                <form method="post" style="display:inline;" onsubmit="return confirm('Delete this endpoint?')">
+                                    <input type="hidden" name="brain_id" value="<?php echo $b->id; ?>">
+                                    <button type="submit" name="delete_brain" style="background:#e74a3b;border:none;color:#fff;padding:5px 10px;font-weight:600;border-radius:6px;cursor:pointer;font-size:12px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                <?php else: ?>
+                                <span style="font-size:12px;color:#888;">—</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php else: ?>
+                <div style="padding:20px;text-align:center;color:#777;font-size:13px;">No brain endpoints configured yet.</div>
+                <?php endif; ?>
+            </div>
+            <!-- Add Endpoint Form (hidden by default) -->
+            <div id="brain-add-form" style="display:none;padding:20px;border-top:1px solid #c3e6cb;background:#f9fffe;">
+                <form method="post">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;">
+                        <div>
+                            <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;display:block;margin-bottom:5px;">Display Name</label>
+                            <input type="text" name="brain_display_name" class="form-control" placeholder="e.g. Mistral via ZAI" required style="height:38px;border-radius:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;display:block;margin-bottom:5px;">Provider Type</label>
+                            <select name="brain_provider_type" class="form-control" style="height:38px;border-radius:6px;">
+                                <option value="proxy">Proxy (LiteLLM / OpenAI-compatible)</option>
+                                <option value="bedrock">Amazon Bedrock</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;display:block;margin-bottom:5px;">Base URL (with /v1)</label>
+                            <input type="text" name="brain_base_url" class="form-control" placeholder="https://ai-proxy.snbdhost.com/v1" required style="height:38px;border-radius:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;display:block;margin-bottom:5px;">Model Name</label>
+                            <input type="text" name="brain_model_name" class="form-control" placeholder="zai.glm-5" required style="height:38px;border-radius:6px;">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666;display:block;margin-bottom:5px;">API Key</label>
+                            <input type="password" name="brain_api_key" class="form-control" placeholder="sk-..." style="height:38px;border-radius:6px;">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                        <button type="submit" name="add_brain" class="btn-ha-primary">
+                            <i class="fas fa-plus-circle"></i> Add Endpoint
+                        </button>
+                        <label style="font-size:13px;font-weight:600;cursor:pointer;margin:0;">
+                            <input type="checkbox" name="brain_set_active" style="margin-right:5px;">
+                            Set as active immediately
+                        </label>
+                        <button type="button" onclick="document.getElementById('brain-add-form').style.display='none'" style="background:none;border:1px solid #ccc;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="ha-grid">
             <!-- Left Side: Product Configuration Auto-Setup -->
             <div class="ha-panel">
@@ -621,6 +1234,9 @@ function hermesagent_output($vars) {
                                     <th>Product</th>
                                     <th>VPS Server IP</th>
                                     <th>Dashboard URL</th>
+                                    <th>Brain</th>
+                                    <th>Tokens Used</th>
+                                    <th>Spend</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -635,7 +1251,7 @@ function hermesagent_output($vars) {
                                     // Resolve dashboard URL
                                     $dashUrl = '';
                                     if ($d->server_secure) {
-                                        $dashUrl = "https://hermes-{$d->serviceid}.hermes.deltadns.xyz";
+                                        $dashUrl = "https://{$d->serviceid}.hermes.deltadns.xyz";
                                     } else {
                                         $dashUrl = "http://{$d->server_ip}:{$d->dash_port}";
                                     }
@@ -655,7 +1271,41 @@ function hermesagent_output($vars) {
                                                 Port: <?php echo $d->dash_port; ?> <i class="fas fa-external-link-alt" style="font-size:10px;"></i>
                                             </a>
                                         </td>
-                                        <td><span class="ha-badge <?php echo $statusClass; ?>"><?php echo $d->status; ?></span></td>
+                                        <td>
+                                            <?php if (!empty($d->current_model)): ?>
+                                            <code style="font-size:11px;background:#e8f0fe;color:#2b5be8;padding:3px 7px;border-radius:4px;"><?php echo htmlspecialchars($d->current_model); ?></code>
+                                            <?php else: ?>
+                                            <span style="font-size:11px;color:#aaa;">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <?php
+                                        $usage = $usageMap[$d->serviceid] ?? null;
+                                        ?>
+                                        <td style="text-align:right;">
+                                            <?php if ($usage): ?>
+                                            <span style="font-size:12px;font-weight:600;color:#2e3d49;"><?php echo number_format($usage['total_tokens']); ?></span>
+                                            <?php if ($usage['prompt_tokens'] || $usage['completion_tokens']): ?>
+                                            <br><span style="font-size:10px;color:#888;">↑<?php echo number_format($usage['prompt_tokens']); ?> ↓<?php echo number_format($usage['completion_tokens']); ?></span>
+                                            <?php endif; ?>
+                                            <?php else: ?>
+                                            <span style="font-size:11px;color:#ccc;">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <?php if ($usage && $usage['spend'] > 0): ?>
+                                            <span style="font-size:12px;font-weight:600;color:#1cc88a;">$<?php echo number_format($usage['spend'], 4); ?></span>
+                                            <?php else: ?>
+                                            <span style="font-size:11px;color:#ccc;">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <span class="ha-badge <?php echo $statusClass; ?>"><?php echo $d->status; ?></span>
+                                            <?php if (empty($d->litellm_key_id)): ?>
+                                            <br><span class="ha-badge" style="background:#dc3545;color:#fff;font-size:9px;margin-top:4px;display:inline-block;" title="No per-customer LiteLLM key on record — this instance is running on the shared master key. Usage/tokens are NOT tracked and NOT billable for this customer until a redeploy successfully generates one.">
+                                                <i class="fas fa-exclamation-triangle"></i> MASTER KEY
+                                            </span>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -669,6 +1319,61 @@ function hermesagent_output($vars) {
                 </div>
             </div>
         </div>
+        
+        <!-- Awaiting Onboarding Section -->
+        <div class="ha-panel">
+            <div class="ha-panel-header" style="background:#fff3cd; border-color:#ffeeba;">
+                <h4 class="ha-panel-title" style="color:#856404;"><i class="fas fa-hourglass-half"></i> Awaiting Customer Onboarding</h4>
+                <span class="ha-badge" style="background:#856404;color:#fff;padding:5px 10px;"><?php echo count($pendingOnboarding); ?> Pending</span>
+            </div>
+            <div class="ha-panel-body" style="padding:0; overflow-x:auto;">
+                <?php if (count($pendingOnboarding) > 0): ?>
+                    <table class="table-ha">
+                        <thead>
+                            <tr>
+                                <th>Service ID</th>
+                                <th>Client</th>
+                                <th>Product</th>
+                                <th>Order Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pendingOnboarding as $po): ?>
+                                <?php
+                                $clientName = htmlspecialchars($po->firstname . ' ' . $po->lastname);
+                                if ($po->companyname) {
+                                    $clientName .= ' (' . htmlspecialchars($po->companyname) . ')';
+                                }
+                                ?>
+                                <tr>
+                                    <td><strong>#<?php echo $po->serviceid; ?></strong></td>
+                                    <td><?php echo $clientName; ?></td>
+                                    <td><?php echo htmlspecialchars($po->product_name); ?></td>
+                                    <td><?php echo htmlspecialchars($po->created_at); ?></td>
+                                    <td><span class="ha-badge badge-suspended">Pending Wizard</span></td>
+                                    <td>
+                                        <form method="post" onsubmit="return confirm('Force provision this service using default generic settings?');">
+                                            <input type="hidden" name="provision_service_id" value="<?php echo $po->serviceid; ?>">
+                                            <button type="submit" name="provision_default" class="btn-ha-primary" style="padding:5px 10px;font-size:12px;">
+                                                <i class="fas fa-rocket"></i> Provision with defaults
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div style="text-align:center; padding: 30px 20px; color:#777;">
+                        <i class="fas fa-check-circle" style="font-size:30px; margin-bottom:10px; color:#1cc88a; display:block;"></i>
+                        <p style="margin:0; font-size:14px;">No services waiting for onboarding.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Quiz Leads Section -->
         <?php echo $leadMessage; ?>
         <div class="ha-panel" style="margin-top:0;">
