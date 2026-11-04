@@ -1410,6 +1410,49 @@
 .snbd-popup-message iframe { display: block; width: 100%; border: 0; }
 .snbd-popup-foot { display: flex; justify-content: flex-end; }
 
+/* ---------------------------------------------------------------- Ticket thread improvements */
+/* Smoother message bubble transitions */
+.snbd-msg__body {
+  transition: box-shadow 120ms var(--snbd-ease);
+}
+.snbd-msg__body:hover {
+  box-shadow: 0 2px 8px rgba(20,22,26,0.06);
+}
+/* Staff message: subtle staff left border */
+.snbd-msg--staff .snbd-msg__body {
+  border-left: 3px solid var(--snbd-line-strong);
+}
+/* Client message: brand left accent */
+.snbd-msg--client .snbd-msg__body {
+  border-right: 3px solid rgba(var(--snbd-red-rgb), 0.3);
+  border-top-right-radius: var(--snbd-r-xs);
+}
+
+/* ---------------------------------------------------------------- Service card: open action */
+/* More prominent open/manage CTA */
+.snbd-service-card .snbd-btn--primary {
+  min-width: 80px;
+}
+
+/* ---------------------------------------------------------------- Account key-value layout */
+/* Tighter, cleaner account details rows */
+.snbd-kv__row {
+  transition: background 120ms var(--snbd-ease);
+}
+.snbd-kv__row:hover {
+  background: var(--snbd-surface-2);
+}
+
+/* ---------------------------------------------------------------- Announcement list */
+/* Hover animation on announcement links */
+.snbd-announce {
+  transition: background 120ms var(--snbd-ease), padding-left 120ms var(--snbd-ease);
+}
+.snbd-announce:hover {
+  padding-left: 6px;
+  background: var(--snbd-surface-2);
+}
+
 /* ============================================================================
    SNBD HOST — DESIGN ENHANCEMENT LAYER v1.1
    Added: animated stat cards, gradient icons, micro-interactions, polished

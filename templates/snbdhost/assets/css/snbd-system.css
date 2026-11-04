@@ -347,7 +347,7 @@ code, kbd, pre, samp { font-family: var(--snbd-font-mono); font-size: 0.8125rem;
   min-height: 52px;
   padding: var(--snbd-s3) var(--snbd-s5);
   border-bottom: 1px solid var(--snbd-line);
-  background: var(--snbd-surface);
+  background: linear-gradient(to bottom, var(--snbd-surface) 0%, var(--snbd-surface-2) 100%);
 }
 .snbd-card__title {
   display: flex;
