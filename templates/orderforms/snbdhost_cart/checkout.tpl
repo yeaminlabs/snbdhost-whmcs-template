@@ -931,6 +931,8 @@ textarea.field.form-control:focus {
                                                 </div>
                                                 <span class="gateway-name">{$gateway.name}</span>
                                             </label>
+                                        {foreachelse}
+                                            <p class="text-danger small mb-0">No payment methods are currently available. Please contact support to complete your order.</p>
                                         {/foreach}
                                     </div>
                                 </div>

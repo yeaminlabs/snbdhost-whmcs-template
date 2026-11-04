@@ -102,12 +102,18 @@
                 </div>
                 <div class="snbd-card__body snbd-form">
                     <label class="snbd-label" for="paymentmethod">{lang key='orderpaymentmethod'}</label>
-                    <select name="paymentmethod" id="paymentmethod" class="form-select">
+                    <select name="paymentmethod" id="paymentmethod" class="form-select" {if !$gateways}disabled{/if}>
                         {foreach $gateways as $gateway}
                         <option value="{$gateway.sysname}">{$gateway.name}</option>
+                        {foreachelse}
+                        <option value="" disabled selected>No payment methods available</option>
                         {/foreach}
                     </select>
+                    {if !$gateways}
+                    <p class="snbd-hint snbd-text-danger">No payment methods are currently configured. Please contact support before paying.</p>
+                    {else}
                     <p class="snbd-hint">One payment covers every invoice listed here.</p>
+                    {/if}
                 </div>
                 <div class="snbd-card__foot">
                     <button type="submit" class="snbd-btn snbd-btn--primary snbd-btn--block" id="btnMassPayMakePayment">

@@ -44,7 +44,7 @@ if (!$instance) { echo json_encode(['success' => false, 'error' => 'Instance not
 
 $hostPort = $instance->host_port ?: (7300 + ($serviceId % 1000));
 $dashPort = $instance->dash_port;
-$serverIp = '46.62.205.66';
+$serverIp = $server->ipaddress;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

@@ -244,11 +244,11 @@ class ModuleManager
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => 0,
         ]);
-        $data     = curl_exec($ch);
-        $err      = curl_error($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-        curl_close($ch);
+        $data     = curl_exec($ch2);
+        $err      = curl_error($ch2);
+        $httpCode = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        $finalUrl = curl_getinfo($ch2, CURLINFO_EFFECTIVE_URL);
+        curl_close($ch2);
 
         if ($err || $data === false) {
             throw new \Exception("cURL error downloading zip: {$err}");

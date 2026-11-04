@@ -60,6 +60,7 @@ add_hook('ClientAreaPageHome', 1, function($vars) {
 
         $rows = Capsule::table('tblinvoices')
             ->where('userid', $userid)
+            ->orderByRaw("CASE WHEN status IN ('Unpaid','Overdue','Payment Pending') THEN 0 ELSE 1 END")
             ->orderBy('id', 'desc')
             ->limit(5)
             ->get();

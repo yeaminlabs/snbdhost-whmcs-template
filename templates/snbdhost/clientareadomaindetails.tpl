@@ -214,6 +214,10 @@
                                     <td data-label="Value"><input type="text" name="dnsrecordaddress[]" value="{$dnsrecord.address}" class="form-control form-control-sm" aria-label="Record value"></td>
                                     <td data-label="Priority"><input type="text" name="dnsrecordpriority[]" value="{$dnsrecord.priority}" class="form-control form-control-sm" aria-label="Priority"></td>
                                 </tr>
+                                {foreachelse}
+                                <tr>
+                                    <td colspan="4" class="snbd-faint text-center">No DNS records found. Add a new record below.</td>
+                                </tr>
                                 {/foreach}
                             </tbody>
                         </table>

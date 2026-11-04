@@ -76,6 +76,10 @@
                             <td data-label="{$LANG.invoicesdescription}">{$item.description}</td>
                             <td data-label="{$LANG.invoicesamount}" class="snbd-table__num snbd-price">{$item.amount}</td>
                         </tr>
+                        {foreachelse}
+                        <tr>
+                            <td colspan="2" class="snbd-faint text-center">No invoice items.</td>
+                        </tr>
                         {/foreach}
                     </tbody>
                 </table>

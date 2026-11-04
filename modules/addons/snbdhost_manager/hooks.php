@@ -61,16 +61,10 @@ add_hook('ClientAreaPage', 1, function($vars) {
         || strpos($vars['templatefile'] ?? '', 'password-reset') !== false;
 
     if ($isPasswordResetPage) {
-        $setting = Capsule::table('tbladdonmodules')
-            ->where('module', 'snbdhost_manager')
-            ->where('setting', 'google_client_id')
-            ->first();
-            
-        $clientId = $setting ? $setting->value : '219815663641-p50rq613ol3ilqgbotogg4bb4hvg9s1e.apps.googleusercontent.com';
-        
-        return [
-            'googleClientId' => $clientId
-        ];
+        // googleClientId is provided by includes/hooks/snbd_google_signin.php,
+        // which always runs (core hook) and has no hardcoded fallback client ID.
+        // Do not duplicate that query here.
+        return [];
     }
 });
 
@@ -83,7 +77,11 @@ add_hook('ClientAreaPrimarySidebar', 1, function ($primarySidebar) {
         return;
     }
 
-    $client = Capsule::table('tblclients')->where('id', $_SESSION['uid'])->first();
+    try {
+        $client = Capsule::table('tblclients')->where('id', $_SESSION['uid'])->first();
+    } catch (\Throwable $e) {
+        return;
+    }
     if ($client && ($client->phonenumber === '+00000000000' || $client->address1 === 'Pending Completion')) {
         $myAccount = $primarySidebar->getChild('My Account');
         if ($myAccount) {
@@ -217,7 +215,11 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         return '';
     }
     
-    $client = Capsule::table('tblclients')->where('id', $_SESSION['uid'])->first();
+    try {
+        $client = Capsule::table('tblclients')->where('id', $_SESSION['uid'])->first();
+    } catch (\Throwable $e) {
+        return '';
+    }
     if (!$client) {
         return '';
     }
