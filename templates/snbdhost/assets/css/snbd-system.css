@@ -451,6 +451,7 @@ code, kbd, pre, samp { font-family: var(--snbd-font-mono); font-size: 0.8125rem;
   margin-bottom: var(--snbd-s8);
 }
 .snbd-stat {
+  position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -461,6 +462,7 @@ code, kbd, pre, samp { font-family: var(--snbd-font-mono); font-size: 0.8125rem;
   border-radius: var(--snbd-r-lg);
   box-shadow: var(--snbd-e1);
   color: inherit;
+  overflow: hidden;
   text-decoration: none;
   transition: border-color var(--snbd-fast) var(--snbd-ease), box-shadow var(--snbd-fast) var(--snbd-ease);
 }

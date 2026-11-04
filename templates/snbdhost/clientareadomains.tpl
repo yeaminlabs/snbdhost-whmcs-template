@@ -64,6 +64,7 @@
     <div class="snbd-card__body snbd-card__body--tight">
         <form id="domainForm" method="post" action="clientarea.php?action=bulkdomain">
             <input id="bulkaction" name="update" type="hidden">
+            <input type="hidden" name="token" value="{$token}">
 
             <div class="snbd-toolbar mb-3">
                 <div class="snbd-cluster">
