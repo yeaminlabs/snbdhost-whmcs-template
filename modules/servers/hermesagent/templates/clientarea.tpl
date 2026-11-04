@@ -1199,9 +1199,9 @@
         const hermesWrapper = document.querySelector('.hermes-wrapper');
         
         // Find the main container tab content
-        const tabContent = hermesWrapper?.closest('.tab-pane') || 
-                           hermesWrapper?.closest('.product-details') || 
-                           document.querySelector('#Primary_Sidebar')?.parentElement ||
+        const tabContent = (hermesWrapper && hermesWrapper.closest('.tab-pane')) || 
+                           (hermesWrapper && hermesWrapper.closest('.product-details')) || 
+                           (document.querySelector('#Primary_Sidebar') && document.querySelector('#Primary_Sidebar').parentElement) ||
                            document.querySelector('.client-area-content');
         
         if (hermesWrapper && tabContent) {

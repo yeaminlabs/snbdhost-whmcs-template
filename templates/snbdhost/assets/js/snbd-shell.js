@@ -268,7 +268,13 @@
         var length = len || 16;
         var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=';
         var out = '';
-        for (var i = 0; i < length; i++) out += charset.charAt(Math.floor(Math.random() * charset.length));
+        if (window.crypto && window.crypto.getRandomValues) {
+          var arr = new Uint32Array(length);
+          window.crypto.getRandomValues(arr);
+          for (var i = 0; i < length; i++) out += charset.charAt(arr[i] % charset.length);
+        } else {
+          for (var i = 0; i < length; i++) out += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
         return out;
       };
     }

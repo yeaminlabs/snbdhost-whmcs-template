@@ -91,9 +91,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('auth') === 'google') {
         // Poll until the Google Identity Services API (GSI) is fully loaded
-        const checkGSI = setInterval(function() {
+        var gsiTimeout = setTimeout(function() { clearInterval(checkGSI); }, 10000);
+        var checkGSI = setInterval(function() {
             if (window.google && window.google.accounts && window.google.accounts.id) {
                 clearInterval(checkGSI);
+                clearTimeout(gsiTimeout);
                 // Programmatically trigger Google account selector/prompt
                 google.accounts.id.prompt();
             }

@@ -369,7 +369,7 @@
             }
             WHMCS.payment.event.addPayMethodFormSubmit(
                 {literal}{...whmcsPaymentModuleMetadata, ...{event: e}}{/literal},
-                WHMCS.payment.event.previouslySelected?.module,
+                WHMCS.payment.event.previouslySelected && WHMCS.payment.event.previouslySelected.module,
                 jQuery(this)
             );
         });
