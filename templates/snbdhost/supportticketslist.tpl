@@ -54,7 +54,7 @@
         <button type="button" class="snbd-seg__item active" data-snbd-filter="all" aria-pressed="true">All</button>
         <button type="button" class="snbd-seg__item" data-snbd-filter="open" aria-pressed="false">Open</button>
         <button type="button" class="snbd-seg__item" data-snbd-filter="answered" aria-pressed="false">Answered</button>
-        <button type="button" class="snbd-seg__item" data-snbd-filter="customer-reply" aria-pressed="false">Awaiting reply</button>
+        <button type="button" class="snbd-seg__item" data-snbd-filter="awaiting-reply" aria-pressed="false">Awaiting reply</button>
         <button type="button" class="snbd-seg__item" data-snbd-filter="closed" aria-pressed="false">Closed</button>
     </div>
 </div>

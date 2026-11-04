@@ -408,6 +408,7 @@
                 data = await response.json();
             } catch (staticErr) {
                 var response2 = await fetch(API_PROXY, { method: 'GET', headers: { 'Accept': 'application/json' } });
+                if (!response2.ok) throw new Error('Network status proxy unavailable (HTTP ' + response2.status + ')');
                 data = await response2.json();
             }
 

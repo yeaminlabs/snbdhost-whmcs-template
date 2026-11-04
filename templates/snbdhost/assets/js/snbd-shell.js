@@ -369,7 +369,9 @@
         $$('.snbd-filter-row', target).forEach(function (item) {
           var chip = item.querySelector('.snbd-chip');
           var status = chip ? chip.textContent.trim().toLowerCase().replace(/\s+/g, '-') : '';
-          item.hidden = value !== 'all' && status !== value;
+          // Treat overdue invoices as unpaid for filter purposes
+          var matchStatus = (value === 'unpaid' && status === 'overdue') ? true : (status === value);
+          item.hidden = value !== 'all' && !matchStatus;
         });
       });
     });
