@@ -4253,3 +4253,284 @@ a:hover { color: var(--brand-hover); }
     border-color: var(--snbd-red-line);
   }
 }
+
+/* ==========================================================================
+   17. Domain Register Page — Spotlight TLD Grid, Suggestions & Pricing Table
+   --------------------------------------------------------------------------
+   The old Part 1 rules set `.spotlight-tld { height:112px; overflow:hidden }`
+   which physically clipped prices ("b1,341.00BD") and button text ("Up...").
+   Also fixes button brand colors and suggested domains list styling.
+   ========================================================================== */
+
+/* --- Spotlight wrapper — remove doubled border from Part 2 section 15 --- */
+.spotlight-tlds {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0.75rem 0 1rem !important;
+}
+.spotlight-tlds-container {
+  margin: -5px !important;
+}
+.spotlight-tld-container {
+  /* Section 15 added card-like styling here, creating a double-border with
+     .spotlight-tld's own border inside it. Remove the outer decoration. */
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 5px !important;
+  margin: 0 !important;
+}
+
+/* --- Spotlight TLD card: fix height truncation --- */
+.spotlight-tld {
+  height: auto !important;         /* Was 112px — truncated prices and button text */
+  min-height: 90px !important;
+  overflow: visible !important;    /* Was hidden — clipped price spans             */
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 0 1px 3px rgba(20,22,26,0.05) !important;
+  padding: 0.875rem 0.5rem !important;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 5px !important;
+}
+.spotlight-tld:hover {
+  border-color: rgba(var(--brand-rgb), 0.3) !important;
+  box-shadow: 0 6px 18px rgba(20,22,26,0.09) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Price text in available TLD cards */
+.spotlight-tld span.available {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: var(--text-sec) !important;
+  display: block !important;
+  padding: 2px 0 !important;
+  word-break: break-all !important;  /* prevents currency strings from overflowing */
+  text-align: center !important;
+}
+
+/* Spinner shown while AJAX call is in-flight */
+.spotlight-tld .domain-lookup-spotlight-loader {
+  line-height: 2 !important;
+  font-size: 1rem !important;
+  color: var(--text-dim) !important;
+}
+
+/* Unavailable / invalid buttons — muted, clearly disabled */
+.spotlight-tld .btn.unavailable,
+.spotlight-tld .btn.invalid {
+  background: var(--elevated) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-dim) !important;
+  font-size: 11px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  width: 85% !important;
+  white-space: normal !important;    /* Was nowrap — truncated to "Up..."  */
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* Add to Cart button in TLD cards — brand red */
+.spotlight-tld .btn-add-to-cart {
+  background: var(--brand) !important;
+  border: 1px solid var(--brand) !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  width: 85% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+.spotlight-tld .btn-add-to-cart:hover {
+  background: var(--brand-hover) !important;
+  border-color: var(--brand-hover) !important;
+}
+
+/* --- Suggested Domains list --- */
+.suggested-domains {
+  margin-top: 1rem !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  overflow: hidden !important;
+}
+.suggested-domains .panel-heading,
+.suggested-domains .card-header {
+  background: var(--elevated) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-main) !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  padding: 0.75rem 1rem !important;
+}
+.suggested-domains .domain-lookup-suggestions-loader,
+.suggested-domains .domain-lookup-suggestions-message {
+  background: var(--elevated) !important;
+  padding: 1.25rem !important;
+  font-size: 0.875rem !important;
+}
+#domainSuggestions {
+  border: none !important;
+  border-radius: 0 !important;
+}
+.suggested-domains .list-group-item {
+  background: var(--surface) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-bottom: 1px solid var(--border-sub) !important;
+  padding: 0.7rem 1rem !important;
+  transition: background 0.1s !important;
+}
+.suggested-domains .list-group-item:last-child {
+  border-bottom: none !important;
+}
+.suggested-domains .list-group-item:hover {
+  background: var(--brand-light) !important;
+}
+
+/* Extension label — brand tint */
+.suggested-domains .extension {
+  color: var(--brand) !important;
+  font-weight: 700 !important;
+}
+/* Price in suggested domain row */
+.suggested-domains .price {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--text-main) !important;
+  padding: 0 0.75rem !important;
+}
+
+/* Add to Cart button in suggested domain rows — brand red */
+.suggested-domains .btn-add-to-cart {
+  background: var(--brand) !important;
+  border: 1px solid var(--brand) !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+}
+.suggested-domains .btn-add-to-cart:hover {
+  background: var(--brand-hover) !important;
+  border-color: var(--brand-hover) !important;
+}
+
+/* More suggestions footer */
+.suggested-domains .panel-footer,
+.suggested-domains .card-footer {
+  background: var(--elevated) !important;
+  border-top: 1px solid var(--border) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* --- Domain search result section headers --- */
+#DomainSearchResults .primary-domain-header {
+  font-weight: 700 !important;
+  font-size: 0.6875rem !important;
+  color: var(--text-dim) !important;
+  padding: 0.5rem 0 !important;
+  margin-bottom: 0.75rem !important;
+  border-bottom: 2px solid var(--brand) !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+.domain-checker-result-headline {
+  font-size: 1.15rem !important;
+  margin: 0.75rem 0 !important;
+}
+.domain-checker-available strong {
+  color: var(--brand) !important;
+}
+.domain-searching {
+  color: var(--text-dim) !important;
+  font-size: 0.95rem !important;
+}
+
+/* --- TLD category filter pill badges --- */
+.tld-filters {
+  margin: 0.75rem 0 1rem !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.4rem !important;
+}
+.tld-filters a {
+  display: inline-block !important;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  background: var(--elevated) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-sec) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: all 0.15s !important;
+}
+.tld-filters a:hover {
+  background: var(--brand-light) !important;
+  border-color: var(--brand) !important;
+  color: var(--brand) !important;
+}
+
+/* --- TLD pricing table --- */
+.domain-pricing {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  overflow: hidden !important;
+  margin-top: 0.5rem !important;
+}
+.domain-pricing .tld-pricing-header div {
+  background: var(--elevated) !important;
+  border-bottom: 2px solid var(--brand) !important;
+  color: var(--text-dim) !important;
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  padding: 0.5rem 0 !important;
+}
+.domain-pricing .tld-row {
+  border-bottom: 1px solid var(--border-sub) !important;
+  transition: background 0.1s !important;
+}
+.domain-pricing .tld-row:hover {
+  background: var(--brand-light) !important;
+}
+.domain-pricing .tld-row.highlighted {
+  background: var(--brand-light) !important;
+}
+.domain-pricing .two-row-center {
+  border-right: 1px solid var(--border-sub) !important;
+  line-height: 1.4 !important;
+  padding: 0.5rem 1rem !important;
+}
+.tld-sale-group-hot  { background: var(--brand)   !important; color: #fff !important; }
+.tld-sale-group-new  { background: #1a8454        !important; color: #fff !important; }
+.tld-sale-group-sale { background: #8e7106        !important; color: #fff !important; }
+
+/* --- Domain promo boxes at page bottom --- */
+.domain-promo-box {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 1.25rem 1.5rem !important;
+}
+.domain-promo-box i  { color: var(--brand) !important; float: none !important; }
+.domain-promo-box h3 {
+  color: var(--text-main) !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  margin: 0 0 0.5rem !important;
+}
+.domain-promo-box p  { color: var(--text-sec) !important; }
