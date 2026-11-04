@@ -5,4 +5,4 @@
    header.tpl does for the theme stylesheets, so a deploy is always picked up.
 *}
 <link rel="stylesheet" type="text/css" href="{assetPath file='custom.css'}?v={$smarty.now}" />
-<script type="text/javascript" src="{assetPath file='scripts.min.js'}?v={$versionHash}"></script>
+<script type="text/javascript" src="{assetPath file='scripts.min.js'}?v={$smarty.now}"></script>
