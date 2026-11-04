@@ -1479,6 +1479,10 @@ jQuery(document).ready(function(){
             });
 
         } else {
+            // Suggestions disabled — hide section immediately, no AJAX call fired
+            jQuery('.suggested-domains').hide();
+            jQuery('.domain-lookup-suggestions-loader').hide();
+
             let lookup = WHMCS.http.jqClient.post(
                     WHMCS.utils.getRouteUrl('/domain/check'),
                     frmChecker.serialize() + '&type=domain',
@@ -1488,11 +1492,6 @@ jQuery(document).ready(function(){
                     WHMCS.utils.getRouteUrl('/domain/check'),
                     frmChecker.serialize() + '&type=spotlight',
                     'json'
-                ),
-                suggestion = WHMCS.http.jqClient.post(
-                    WHMCS.utils.getRouteUrl('/domain/check'),
-                    frmChecker.serialize() + '&type=suggestions',
-                    'json'
                 );
             lookup.done(function (data) {
                 jQuery('#primaryExactHeading').show();
@@ -1501,24 +1500,16 @@ jQuery(document).ready(function(){
                 jQuery('.domain-lookup-primary-loader').hide();
                 jQuery('#primaryLookupResult').find('.domain-error').text('Unable to check domain availability. Please try again.').show();
             }).always(function () {
-                hasDomainLookupEnded();
+                hasDomainLookupEnded(2);
             });
 
             spotlight.done(function (data) {
-                spotlightDisplay(data)
+                spotlightDisplay(data);
+                filterSpotlightToAvailable(5);
             }).fail(function () {
                 jQuery('.domain-lookup-spotlight-loader').hide();
             }).always(function () {
-                hasDomainLookupEnded();
-            });
-
-            suggestion.done(function (data) {
-                suggestionDisplay(data);
-            }).fail(function () {
-                jQuery('.domain-lookup-suggestions-loader').hide();
-                jQuery('.domain-lookup-suggestions-message').show();
-            }).always(function () {
-                hasDomainLookupEnded();
+                hasDomainLookupEnded(2);
             });
 
         }
@@ -2429,6 +2420,26 @@ function hasRenewableServiceAddon(data)
         }
     });
     return hasService;
+}
+
+function filterSpotlightToAvailable(maxShow) {
+    // After spotlightDisplay() runs, hide unavailable TLD cards and
+    // keep at most maxShow available ones visible.
+    var shown = 0;
+    jQuery('.spotlight-tld-container').each(function () {
+        if (!jQuery(this).is(':visible')) return; // already hidden by CSS nth-child rule
+        var addBtn = jQuery(this).find('.btn-add-to-cart');
+        var isAvailable = addBtn.length > 0 && addBtn.is(':visible');
+        if (isAvailable && shown < maxShow) {
+            shown++;
+        } else {
+            jQuery(this).hide();
+        }
+    });
+    // If nothing ended up visible, hide the whole section
+    if (shown === 0) {
+        jQuery('.spotlight-tlds').hide();
+    }
 }
 
 function registerAddonEvents() {

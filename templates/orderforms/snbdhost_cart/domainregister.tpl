@@ -244,7 +244,7 @@
                                         {if $data.group}
                                             <div class="spotlight-tld-{$data.group}">{$data.groupDisplayName}</div>
                                         {/if}
-                                        {$data.tld}
+                                        <span class="tld-name">{$data.tld}</span>
                                         <span class="domain-lookup-loader domain-lookup-spotlight-loader">
                                             <i class="fas fa-spinner fa-spin"></i>
                                         </span>
@@ -275,7 +275,7 @@
                     </div>
                 {/if}
 
-                <div class="suggested-domains{if !$showSuggestionsContainer} w-hidden{/if}">
+                <div class="suggested-domains w-hidden" style="display:none">
                     <div class="panel-heading card-header">
                         {lang key='orderForm.suggestedDomains'}
                     </div>
