@@ -958,3 +958,126 @@ textarea.form-control { min-height: 120px; }
   body { background: #fff; }
   .snbd-card { border-color: var(--snbd-line); box-shadow: none; }
 }
+
+/* ============================================================================
+   SNBD HOST — SYSTEM ENHANCEMENT LAYER v1.1
+   Loading skeleton, card variants, toast alerts, improved chips,
+   kbd shortcut hints, and miscellaneous premium details.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------- Skeleton loader */
+/* Smooth loading placeholder for async content */
+@keyframes snbdSkeleton {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.snbd-skeleton {
+  display: inline-block;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--snbd-r-xs);
+  background: linear-gradient(90deg, var(--snbd-surface-3) 25%, var(--snbd-line) 50%, var(--snbd-surface-3) 75%);
+  background-size: 400% 100%;
+  animation: snbdSkeleton 1.4s ease infinite;
+}
+.snbd-skeleton--sm  { height: 0.75em; }
+.snbd-skeleton--lg  { height: 2em; }
+.snbd-skeleton--circle { border-radius: 50%; width: 2.5rem; height: 2.5rem; }
+
+/* ---------------------------------------------------------------- Card variants */
+/* Bordered card with accent top — for important CTAs */
+.snbd-card--accent {
+  border-top: 3px solid var(--snbd-red);
+}
+/* Success card */
+.snbd-card--ok {
+  border-color: rgba(46, 125, 50, 0.3);
+  background: linear-gradient(to bottom, rgba(46, 125, 50, 0.025) 0%, var(--snbd-surface) 60px);
+}
+/* Warning card */
+.snbd-card--warn {
+  border-color: rgba(154, 74, 0, 0.3);
+  background: linear-gradient(to bottom, rgba(154, 74, 0, 0.025) 0%, var(--snbd-surface) 60px);
+}
+
+/* ---------------------------------------------------------------- Improved form row spacing */
+.snbd-form .snbd-row + .snbd-row,
+.snbd-form .mb-3 + .mb-3,
+.snbd-form .form-group + .form-group {
+  margin-top: var(--snbd-s1);
+}
+
+/* Better label contrast */
+.snbd-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* ---------------------------------------------------------------- Chip refinements */
+/* Slightly more rounded, better weight */
+.snbd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-radius: var(--snbd-r-xs);
+  white-space: nowrap;
+}
+.snbd-chip--ok   { color: var(--snbd-ok);   background: var(--snbd-ok-soft); }
+.snbd-chip--warn { color: var(--snbd-warn); background: var(--snbd-warn-soft); }
+.snbd-chip--bad  { color: var(--snbd-bad);  background: var(--snbd-bad-soft); }
+.snbd-chip--info { color: var(--snbd-info); background: var(--snbd-info-soft); }
+.snbd-chip--brand{ color: var(--snbd-red);  background: var(--snbd-red-soft); }
+.snbd-chip--neutral { color: var(--snbd-ink-500); background: var(--snbd-surface-3); }
+
+/* ---------------------------------------------------------------- KBD hints */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  font-family: var(--snbd-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--snbd-ink-700);
+  background: var(--snbd-surface-3);
+  border: 1px solid var(--snbd-line-strong);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 var(--snbd-line-strong);
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- Code blocks */
+pre, code {
+  background: var(--snbd-surface-3);
+  border: 1px solid var(--snbd-line);
+  border-radius: var(--snbd-r-xs);
+  padding: 1px 5px;
+}
+pre {
+  padding: var(--snbd-s4);
+  overflow-x: auto;
+  font-size: 0.8125rem;
+}
+pre code { background: none; border: 0; padding: 0; }
+
+/* ---------------------------------------------------------------- Dividers */
+.snbd-divider {
+  border: 0;
+  border-top: 1px solid var(--snbd-line);
+  margin: var(--snbd-s5) 0;
+}
+.snbd-divider--muted { border-top-color: var(--snbd-surface-3); }
+
+/* ---------------------------------------------------------------- Invoice total */
+/* Larger, bolder total amount on invoices */
+.snbd-invoice__total-amt {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--snbd-ink-900);
+  font-variant-numeric: tabular-nums;
+}
