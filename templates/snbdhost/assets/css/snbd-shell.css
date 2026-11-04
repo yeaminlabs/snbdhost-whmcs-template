@@ -578,3 +578,95 @@ html.snbd-rail .snbd-nav__item:focus-visible::after { opacity: 1; transform: tra
   .snbd-icon-btn { width: 34px; flex-basis: 34px; }
   .snbd-account__btn { padding: 0 4px; }
 }
+
+/* ============================================================================
+   SNBD HOST — SHELL ENHANCEMENT LAYER v1.1
+   Richer sidebar + topbar: active-state left-border, section label polish,
+   sidebar hover refinements, topbar search focus glow.
+   ============================================================================ */
+
+/* Active nav item: left accent bar (SaaS product signature) */
+.snbd-nav__item.active,
+.snbd-nav__item[aria-current='page'] {
+  position: relative;
+  color: var(--snbd-red);
+  background: var(--snbd-red-soft);
+  font-weight: 700;
+}
+.snbd-nav__item.active::before,
+.snbd-nav__item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 3px;
+  background: var(--snbd-red);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Nav item hover: subtle left accent */
+.snbd-nav__item:not(.active):not([aria-current='page']):hover::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 2px;
+  background: var(--snbd-line-strong);
+  border-radius: 0 2px 2px 0;
+}
+.snbd-nav__item:not(.active):not([aria-current='page']) { position: relative; }
+
+/* Nav icon: inherit colour on hover */
+.snbd-nav__item:hover .snbd-nav__icon { color: var(--snbd-ink-700); }
+
+/* Section labels: slightly warmer */
+.snbd-nav__label {
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: var(--snbd-ink-400);
+}
+
+/* Sidebar: very faint left-side gradient edge */
+#snbd-sidebar {
+  background: linear-gradient(to right, var(--snbd-canvas) 0%, var(--snbd-surface) 8px);
+}
+
+/* Topbar: search focus ring */
+.snbd-search:focus-within {
+  box-shadow: 0 0 0 2px rgba(var(--snbd-red-rgb), 0.2);
+  border-color: rgba(var(--snbd-red-rgb), 0.4);
+  transition: box-shadow 160ms var(--snbd-ease), border-color 160ms var(--snbd-ease);
+}
+
+/* Topbar icon buttons: smooth feedback */
+.snbd-icon-btn {
+  transition:
+    background 120ms var(--snbd-ease),
+    color 120ms var(--snbd-ease),
+    transform 120ms var(--snbd-ease);
+}
+.snbd-icon-btn:hover { transform: scale(1.06); }
+.snbd-icon-btn:active { transform: scale(0.96); }
+
+/* Account button: softer hover */
+.snbd-account__btn:hover .snbd-account__avatar {
+  box-shadow: 0 0 0 2px var(--snbd-red);
+}
+
+/* Page head: tighter, better rhythm */
+.snbd-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--snbd-s4);
+  margin-bottom: var(--snbd-s6);
+  padding-bottom: var(--snbd-s5);
+  border-bottom: 1px solid var(--snbd-line);
+}
+.snbd-page-head__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--snbd-s2);
+  flex-shrink: 0;
+}
+
+/* Rail collapsed: bigger icon size for scanability */
+html.snbd-rail .snbd-nav__icon { font-size: 1.25rem; }

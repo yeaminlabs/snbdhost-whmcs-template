@@ -1392,3 +1392,274 @@
 .snbd-popup-message { padding: 0 !important; }
 .snbd-popup-message iframe { display: block; width: 100%; border: 0; }
 .snbd-popup-foot { display: flex; justify-content: flex-end; }
+
+/* ============================================================================
+   SNBD HOST — DESIGN ENHANCEMENT LAYER v1.1
+   Added: animated stat cards, gradient icons, micro-interactions, polished
+   typography hierarchy, table row enhancements, button refinements.
+   These rules extend (never override) the base design tokens.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------- Stat Cards */
+/* Richer hover: lift + accent glow, gradient icon backgrounds */
+
+a.snbd-stat {
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    border-color 160ms var(--snbd-ease),
+    box-shadow 160ms var(--snbd-ease),
+    transform 160ms var(--snbd-ease);
+}
+
+a.snbd-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(20, 22, 26, 0.09);
+  border-color: var(--snbd-line-strong);
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Subtle shimmer line at top of active stat cards */
+a.snbd-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--snbd-red) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 200ms var(--snbd-ease);
+}
+a.snbd-stat:hover::before { opacity: 1; }
+
+/* Better number typography — tighter tracking, slightly heavier */
+.snbd-stat__value {
+  font-size: 2rem;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+/* Gradient icon backgrounds instead of flat soft tints */
+.snbd-stat__icon {
+  background: linear-gradient(135deg, var(--snbd-red-soft) 0%, rgba(186,17,20,0.14) 100%);
+  box-shadow: 0 2px 6px rgba(186,17,20,0.12);
+  transition: box-shadow 160ms var(--snbd-ease), transform 160ms var(--snbd-ease);
+}
+a.snbd-stat:hover .snbd-stat__icon { transform: scale(1.08); box-shadow: 0 4px 12px rgba(186,17,20,0.18); }
+.snbd-stat__icon--ok   { background: linear-gradient(135deg, var(--snbd-ok-soft)   0%, rgba(46,125,50,0.14)   100%); box-shadow: 0 2px 6px rgba(46,125,50,0.12); }
+.snbd-stat__icon--warn { background: linear-gradient(135deg, var(--snbd-warn-soft) 0%, rgba(154,74,0,0.14)    100%); box-shadow: 0 2px 6px rgba(154,74,0,0.12); }
+.snbd-stat__icon--bad  { background: linear-gradient(135deg, var(--snbd-bad-soft)  0%, rgba(179,38,30,0.14)  100%); box-shadow: 0 2px 6px rgba(179,38,30,0.12); }
+.snbd-stat__icon--info { background: linear-gradient(135deg, var(--snbd-info-soft) 0%, rgba(51,85,107,0.14)  100%); box-shadow: 0 2px 6px rgba(51,85,107,0.12); }
+
+/* OK stat icon on hover */
+a.snbd-stat:hover .snbd-stat__icon--ok   { box-shadow: 0 4px 12px rgba(46,125,50,0.18); }
+a.snbd-stat:hover .snbd-stat__icon--warn { box-shadow: 0 4px 12px rgba(154,74,0,0.18); }
+a.snbd-stat:hover .snbd-stat__icon--bad  { box-shadow: 0 4px 12px rgba(179,38,30,0.18); }
+a.snbd-stat:hover .snbd-stat__icon--info { box-shadow: 0 4px 12px rgba(51,85,107,0.18); }
+
+/* ------------------------------------------------------------------- Cards */
+/* Lift on hover for all clickable cards */
+a.snbd-card, .snbd-card--clickable {
+  transition:
+    box-shadow 160ms var(--snbd-ease),
+    border-color 160ms var(--snbd-ease),
+    transform 160ms var(--snbd-ease);
+}
+a.snbd-card:hover, .snbd-card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(20,22,26,0.08);
+  border-color: var(--snbd-line-strong);
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Card title: slightly heavier with better spacing */
+.snbd-card__title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.snbd-card__title i {
+  margin-right: 7px;
+  font-size: 1rem;
+  vertical-align: middle;
+  opacity: 0.75;
+}
+
+/* ------------------------------------------------------------------ Buttons */
+/* Primary button: gradient + stronger hover */
+.snbd-btn--primary {
+  background: linear-gradient(160deg, #C8151A 0%, var(--snbd-red) 60%, #9E0D10 100%);
+  border-color: transparent;
+  box-shadow: 0 1px 3px rgba(186,17,20,0.25), 0 2px 8px rgba(186,17,20,0.12);
+  transition:
+    filter 140ms var(--snbd-ease),
+    box-shadow 140ms var(--snbd-ease),
+    transform 140ms var(--snbd-ease);
+}
+.snbd-btn--primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 2px 6px rgba(186,17,20,0.3), 0 6px 18px rgba(186,17,20,0.18);
+  transform: translateY(-1px);
+  border-color: transparent;
+}
+.snbd-btn--primary:active { filter: brightness(0.96); transform: translateY(0); }
+
+/* Secondary button: subtle lift */
+.snbd-btn--secondary {
+  transition:
+    background 140ms var(--snbd-ease),
+    border-color 140ms var(--snbd-ease),
+    box-shadow 140ms var(--snbd-ease),
+    transform 140ms var(--snbd-ease);
+}
+.snbd-btn--secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(20,22,26,0.07);
+}
+
+/* ------------------------------------------------------------------- Tables */
+/* Refined row separator + cleaner hover */
+.snbd-table tbody tr {
+  transition: background 120ms var(--snbd-ease);
+}
+.snbd-table tbody tr:hover { background: rgba(var(--snbd-red-rgb), 0.025); }
+.snbd-table tbody tr:hover td { color: var(--snbd-ink-900); }
+
+/* Amount/number cells — tabular mono */
+.snbd-table td.snbd-price,
+.snbd-table td .snbd-price {
+  font-family: var(--snbd-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Better action column */
+.snbd-table__actions { text-align: right; white-space: nowrap; padding-right: var(--snbd-s5) !important; }
+.snbd-table td.snbd-table__actions { vertical-align: middle; }
+
+/* ---------------------------------------------------------------- Chips */
+/* Sharper chip borders */
+.snbd-chip {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* ---------------------------------------------------------------- Nav */
+/* Smoother active state transition */
+.snbd-nav__link {
+  transition:
+    color 120ms var(--snbd-ease),
+    background 120ms var(--snbd-ease);
+}
+.snbd-nav__link:hover { background: var(--snbd-surface-3); }
+
+/* ---------------------------------------------------------------- Forms */
+/* Better focus ring on all inputs */
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--snbd-red);
+  outline-offset: 1px;
+  border-radius: var(--snbd-r-xs);
+}
+/* Better label weight */
+.snbd-form__label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--snbd-ink-700);
+}
+
+/* ---------------------------------------------------------------- Page titles */
+/* Heavier display heading with tighter tracking */
+.snbd-page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--snbd-ink-900);
+}
+.snbd-page-sub {
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: var(--snbd-ink-500);
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------------- Spotlight promo */
+/* Richer gradient background */
+.snbd-spotlight {
+  background: linear-gradient(135deg, #1a1c20 0%, #231719 60%, #2a1215 100%);
+  border-color: rgba(186, 17, 20, 0.3) !important;
+}
+.snbd-spotlight__glow {
+  display: block;
+  position: absolute;
+  top: -60%;
+  right: -5%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(186,17,20,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- Empty states */
+/* Softer, warmer empty state icons */
+.snbd-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px; height: 56px;
+  margin: 0 auto var(--snbd-s4);
+  border-radius: var(--snbd-r-xl);
+  background: var(--snbd-surface-3);
+  color: var(--snbd-ink-400);
+  font-size: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- Topbar */
+/* Better topbar shadow depth */
+#snbd-topbar {
+  box-shadow: 0 1px 0 var(--snbd-line), 0 2px 8px rgba(20,22,26,0.04);
+}
+
+/* ---------------------------------------------------------------- Sidebar brand area */
+/* Slightly warmer brand background */
+.snbd-brand {
+  background: linear-gradient(to bottom, var(--snbd-surface) 0%, var(--snbd-surface-2) 100%);
+}
+
+/* ---------------------------------------------------------------- Quick action grid */
+.snbd-dash-action {
+  transition:
+    background 130ms var(--snbd-ease),
+    border-color 130ms var(--snbd-ease),
+    color 130ms var(--snbd-ease),
+    transform 130ms var(--snbd-ease),
+    box-shadow 130ms var(--snbd-ease);
+}
+.snbd-dash-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(20,22,26,0.07);
+}
+
+/* ---------------------------------------------------------------- Scroll */
+/* Thinner, branded scrollbar (WebKit) */
+* { scrollbar-width: thin; scrollbar-color: var(--snbd-line-strong) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--snbd-line-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--snbd-ink-400); }
+
+/* ---------------------------------------------------------------- Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  a.snbd-stat,
+  a.snbd-card, .snbd-card--clickable,
+  .snbd-btn--primary, .snbd-btn--secondary,
+  .snbd-dash-action,
+  .snbd-stat__icon {
+    transform: none !important;
+    transition: none !important;
+  }
+}
