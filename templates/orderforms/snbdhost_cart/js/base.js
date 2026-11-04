@@ -1213,11 +1213,10 @@ jQuery(document).ready(function(){
         jQuery('#DomainSearchResults .primary-domain-header').hide();
 
         // fade in results
-        if (jQuery('#DomainSearchResults').not(":visible")) {
+        if (!jQuery('#DomainSearchResults').is(':visible')) {
             jQuery('.domain-pricing').fadeOut('fast', function() {
                 jQuery('#DomainSearchResults').fadeIn();
             });
-
         }
 
         // primary lookup handler
@@ -1344,9 +1343,10 @@ jQuery(document).ready(function(){
                         if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
                             idnLanguage.slideDown();
                         }
+                        var firstRegisterPrice = pricing[Object.keys(pricing)[0]] && pricing[Object.keys(pricing)[0]].register ? pricing[Object.keys(pricing)[0]].register : '';
                         result.find('button.unavailable').hide().end()
                             .find('button.invalid').hide().end()
-                            .find('span.available').html(pricing[Object.keys(pricing)[0]]?.register).show().end()
+                            .find('span.available').html(firstRegisterPrice).show().end()
                             .find('button').not('button.unavailable').not('button.invalid')
                             .attr('data-domain', domain.domainName)
                             .show();
@@ -1407,8 +1407,9 @@ jQuery(document).ready(function(){
                     if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
                         idnLanguage.slideDown();
                     }
+                    var suggestionRegisterPrice = pricing[Object.keys(pricing)[0]] && pricing[Object.keys(pricing)[0]].register ? pricing[Object.keys(pricing)[0]].register : '';
                     newSuggestion.find('button.btn-add-to-cart').attr('data-domain', domain.domainName).end()
-                        .find('span.price').html(pricing[Object.keys(pricing)[0]]?.register);
+                        .find('span.price').html(suggestionRegisterPrice);
                 }
                 if (suggestionCount <= 10) {
                     newSuggestion.show();
@@ -1496,18 +1497,26 @@ jQuery(document).ready(function(){
             lookup.done(function (data) {
                 jQuery('#primaryExactHeading').show();
                 lookupDisplay(data);
+            }).fail(function () {
+                jQuery('.domain-lookup-primary-loader').hide();
+                jQuery('#primaryLookupResult').find('.domain-error').text('Unable to check domain availability. Please try again.').show();
             }).always(function () {
                 hasDomainLookupEnded();
             });
 
             spotlight.done(function (data) {
                 spotlightDisplay(data)
+            }).fail(function () {
+                jQuery('.domain-lookup-spotlight-loader').hide();
             }).always(function () {
                 hasDomainLookupEnded();
             });
 
             suggestion.done(function (data) {
                 suggestionDisplay(data);
+            }).fail(function () {
+                jQuery('.domain-lookup-suggestions-loader').hide();
+                jQuery('.domain-lookup-suggestions-message').show();
             }).always(function () {
                 hasDomainLookupEnded();
             });
