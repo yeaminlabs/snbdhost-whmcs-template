@@ -218,11 +218,11 @@ jQuery(document).ready(function(){
                 tldInput.focus();
                 return false;
             }
-            if (tld?.substr(0, 1) != '.') {
+            if (tld && tld.substr(0, 1) !== '.') {
                 tld = '.' + tld;
             }
         }
-        if (!sld?.trim() && !message?.trim()) {
+        if ((!sld || !sld.trim()) && (!message || !message.trim())) {
             let input = (messageInput.length > 0)
                 ? messageInput
                 : sldInput;
@@ -326,7 +326,7 @@ jQuery(document).ready(function(){
                         error.hide();
                         pricing = domain.pricing;
                         if (domain.isAvailable && typeof pricing !== 'string') {
-                            if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
+                            if (domain.domainName !== domain.idnDomainName && !idnLanguage.is(':visible')) {
                                 idnLanguage.slideDown();
                             }
                             if (domain.preferredTLDNotAvailable) {
@@ -406,7 +406,7 @@ jQuery(document).ready(function(){
                     result.find('button').hide();
                     if (domain.isValidDomain) {
                         if (domain.isAvailable && typeof pricing !== 'string') {
-                            if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
+                            if (domain.domainName !== domain.idnDomainName && !idnLanguage.is(':visible')) {
                                 idnLanguage.slideDown();
                             }
                             result
@@ -456,7 +456,7 @@ jQuery(document).ready(function(){
                     newSuggestion.addClass('clone')
                         .find('span.domain').html(domain.sld).end()
                         .find('span.extension').html('.' + tld);
-                    if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
+                    if (domain.domainName !== domain.idnDomainName && !idnLanguage.is(':visible')) {
                         idnLanguage.slideDown();
                     }
                     if (typeof pricing === 'string') {
@@ -835,7 +835,7 @@ jQuery(document).ready(function(){
             .removeClass('active');
         jQuery(this).closest('div.account').addClass('active');
         if (thisValue === 'new') {
-            if (userSignupContainer.not(':visible')) {
+            if (!userSignupContainer.is(':visible')) {
                 userSignupContainer.slideDown('', function () {
                     jQuery("#inputCustType").val('add');
                     jQuery('.marketing-email-optin').slideDown();
@@ -899,7 +899,7 @@ jQuery(document).ready(function(){
                         }
                     }
                     useCreditOnCheckout.iCheck('check');
-                    if (creditDiv.not(':visible')) {
+                    if (!creditDiv.is(':visible')) {
                         creditDiv.slideDown();
                     }
                 }
@@ -995,7 +995,7 @@ jQuery(document).ready(function(){
             if (gatewayPaymentType === 'RemoteCreditCard') {
                 inputNoStoreContainer.hide().find('input').prop('disabled', 'disabled');
             } else {
-                if (inputNoStoreContainer.not(':visible')) {
+                if (!inputNoStoreContainer.is(':visible')) {
                     inputNoStoreContainer.slideDown().find('input').removeProp('disabled');
                 }
             }
@@ -1254,7 +1254,7 @@ jQuery(document).ready(function(){
                     invalid.hide();
                     error.hide();
                     if (domain.isAvailable && typeof pricing !== 'string') {
-                        if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
+                        if (domain.domainName !== domain.idnDomainName && !idnLanguage.is(':visible')) {
                             idnLanguage.slideDown();
                         }
                         if (domain.preferredTLDNotAvailable) {
@@ -1340,7 +1340,7 @@ jQuery(document).ready(function(){
                 result.find('button').removeClass('checkout').hide();
                 if (domain.isValidDomain) {
                     if (domain.isAvailable && typeof pricing !== 'string') {
-                        if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
+                        if (domain.domainName !== domain.idnDomainName && !idnLanguage.is(':visible')) {
                             idnLanguage.slideDown();
                         }
                         var firstRegisterPrice = pricing[Object.keys(pricing)[0]] && pricing[Object.keys(pricing)[0]].register ? pricing[Object.keys(pricing)[0]].register : '';
@@ -1404,7 +1404,7 @@ jQuery(document).ready(function(){
                         newSuggestion.remove();
                     }
                 } else {
-                    if (domain.domainName !== domain.idnDomainName && idnLanguage.not(':visible')) {
+                    if (domain.domainName !== domain.idnDomainName && !idnLanguage.is(':visible')) {
                         idnLanguage.slideDown();
                     }
                     var suggestionRegisterPrice = pricing[Object.keys(pricing)[0]] && pricing[Object.keys(pricing)[0]].register ? pricing[Object.keys(pricing)[0]].register : '';
@@ -2186,7 +2186,7 @@ function selectDomainPricing(domainName, price, period, yearsString, suggestionN
 
 function selectDomainPeriodInCart(domainName, price, period, yearsString) {
     var loader = jQuery("#orderSummaryLoader");
-    if (loader.not(':visible')) {
+    if (!loader.is(':visible')) {
         loader.fadeIn('fast');
     }
     jQuery("[name='" + domainName + "Pricing']").html(period + ' ' + yearsString + ' <span class="caret"></span>');
@@ -2315,7 +2315,7 @@ function retrieveCaptchaInput() {
                     resolve({'g-recaptcha-response': token});
                 });
 
-                grecaptcha.execute()?.catch((error) => {
+                grecaptcha.execute()['catch'](function(error) {
                     reject(error);
                 });
 
@@ -2333,7 +2333,7 @@ function retrieveCaptchaInput() {
             const reCaptchaValue = grecaptcha.getResponse();
 
             if (!reCaptchaValue) {
-                reCaptchaContainer[0]?.scrollIntoView({block: 'center'});
+                reCaptchaContainer[0] && reCaptchaContainer[0].scrollIntoView({block: 'center'});
                 reject('');
                 return;
             }

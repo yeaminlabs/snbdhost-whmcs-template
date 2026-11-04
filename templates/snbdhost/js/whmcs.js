@@ -1178,14 +1178,14 @@ function showNewCardInputFields() {
         container;
 
     container = ccDetails.parent('div');
-    if (container.not(':visible')) {
+    if (!container.is(':visible')) {
         container.show();
     }
     jQuery('.cc-details').slideDown();
     ccNumber.focus();
 
     container = billAddress.parent('div');
-    if (container.not(':visible')) {
+    if (!container.is(':visible')) {
         container.show();
     }
     billAddress.slideDown()
@@ -1199,7 +1199,7 @@ function showNewCardInputFields() {
  */
 function showNewAccountInputFields() {
     var bankDetails = jQuery('.bank-details').parent('div');
-    if (bankDetails.not(':visible')) {
+    if (!bankDetails.is(':visible')) {
         bankDetails.slideDown();
     }
 
@@ -1257,7 +1257,7 @@ function getTicketSuggestions() {
                 var suggestions = jQuery("#autoAnswerSuggestions");
                 if (data) {
                     suggestions.html(data);
-                    if (suggestions.not(":visible")) {
+                    if (!suggestions.is(":visible")) {
                         suggestions.slideDown();
                     }
                 }
