@@ -54,6 +54,7 @@
 
 <form method="post" action="{$smarty.server.PHP_SELF}?action=domaincontacts" id="frmDomainContactModification" class="snbd-form">
     <input type="hidden" name="sub" value="save" />
+    <input type="hidden" name="token" value="{$token}">
     <input type="hidden" name="domainid" value="{$domainid}" />
 
     <section class="snbd-card" aria-labelledby="snbd-whois-title">

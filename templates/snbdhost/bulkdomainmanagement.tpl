@@ -39,6 +39,7 @@
 {/if}
 
 <form method="post" action="{$smarty.server.PHP_SELF}?action=bulkdomain" class="snbd-form">
+    <input type="hidden" name="token" value="{$token}">
     <input type="hidden" name="update" value="{$update}">
     <input type="hidden" name="save" value="1">
     {foreach $domainids as $domainid}

@@ -41,6 +41,7 @@
 {/if}
 
 <form method="post" action="{$smarty.server.PHP_SELF}?action=cancel&amp;id={$id}" class="snbd-form">
+    <input type="hidden" name="token" value="{$token}">
     <input type="hidden" name="sub" value="submit" />
 
     <section class="snbd-card" aria-labelledby="snbd-cancel-title">

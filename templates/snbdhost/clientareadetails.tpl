@@ -25,6 +25,7 @@
 <script src="{$BASE_PATH_JS|default:'/assets/js'}/StatesDropdown.js"></script>
 
 <form method="post" action="?action=details" class="snbd-form" role="form">
+    <input type="hidden" name="token" value="{$token}">
     <div class="row g-4">
         <div class="col-lg-6">
             <section class="snbd-card h-100" aria-labelledby="snbd-details-personal">

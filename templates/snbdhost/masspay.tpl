@@ -7,6 +7,7 @@
 
 <form method="post" action="clientarea.php?action=masspay">
     <input type="hidden" name="geninvoice" value="true">
+    <input type="hidden" name="token" value="{$token}">
 
     <div class="row g-4">
         <div class="col-xl-8">

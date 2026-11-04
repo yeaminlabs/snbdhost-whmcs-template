@@ -85,6 +85,7 @@
                     <td data-label="{lang key='orderprice'}">
                         <form method="post" action="{$smarty.server.PHP_SELF}" class="snbd-form">
                             <input type="hidden" name="step" value="2">
+                            <input type="hidden" name="token" value="{$token}">
                             <input type="hidden" name="type" value="{$type}">
                             <input type="hidden" name="id" value="{$id}">
                             <input type="hidden" name="pid" value="{$upgradepackage.pid}">
@@ -128,6 +129,7 @@
 
 <form method="post" action="{$smarty.server.PHP_SELF}" class="snbd-form">
     <input type="hidden" name="step" value="2" />
+    <input type="hidden" name="token" value="{$token}" />
     <input type="hidden" name="type" value="{$type}" />
     <input type="hidden" name="id" value="{$id}" />
 

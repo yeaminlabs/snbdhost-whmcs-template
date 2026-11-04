@@ -54,6 +54,7 @@
                 <h2 class="snbd-card__title" id="snbd-addfunds-form"><i class="ti ti-wallet" aria-hidden="true"></i>{lang key='addfunds'}</h2>
             </div>
             <form method="post" action="{$smarty.server.PHP_SELF}?action=addfunds" class="snbd-form">
+    <input type="hidden" name="token" value="{$token}">
                 <div class="snbd-card__body">
                     <div class="row g-3">
                         <div class="col-sm-6">
