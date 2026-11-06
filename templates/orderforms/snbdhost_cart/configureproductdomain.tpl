@@ -1,837 +1,663 @@
 {include file="orderforms/snbdhost_cart/common.tpl"}
 
 <style>
-/* ── Hide suggested domains per user request ── */
-.suggested-domains { display: none !important; }
-
-/* ══════════════════════════════════════════════════════
-   SNBD HOST — Choose a Domain  (Premium Redesign v2)
-══════════════════════════════════════════════════════ */
-
-/* ── Page Wrapper ── */
-#order-standard_cart .cpd-outer {
-    background: #f8fafc;
-    min-height: 100vh;
-}
-
-/* ── Hero Banner ── */
-.cpd-hero {
-    background: linear-gradient(135deg, #0c0f1a 0%, #1a1f35 50%, #0d1525 100%);
-    padding: 4rem 1.5rem 6rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-.cpd-hero::before {
-    content: '';
-    position: absolute;
-    top: -60px; left: 50%;
-    transform: translateX(-50%);
-    width: 700px; height: 700px;
-    background: radial-gradient(ellipse, rgba(211,47,47,0.18) 0%, transparent 65%);
-    pointer-events: none;
-}
-.cpd-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -1px; left: 0; right: 0;
-    height: 80px;
-    background: #f8fafc;
-    clip-path: ellipse(55% 100% at 50% 100%);
-}
-.cpd-hero-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(211,47,47,0.15);
-    border: 1px solid rgba(211,47,47,0.35);
-    color: #ff8a80;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 0.35rem 1rem;
-    border-radius: 99px;
-    margin-bottom: 1.5rem;
-}
-.cpd-hero h1 {
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 900;
-    color: #ffffff;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin-bottom: 0.8rem;
-}
-.cpd-hero h1 span {
-    background: linear-gradient(90deg, #ff6b6b, #ff8a80);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-.cpd-hero p {
-    color: #94a3b8;
-    font-size: 1.05rem;
-    max-width: 480px;
+/* ==========================================================================
+   Choose a Domain (cart.php?a=add&pid=X → domain step)
+   Built on the portal tokens (snbd-system.css) and the .cfg-head pattern
+   used by configureproduct.tpl, so the two steps read as one flow.
+   The domain-option radios opt out of iCheck (.no-icheck): iCheck wraps the
+   input in a div, which breaks `input:checked + .cpd-tab__inner` and let the
+   checked radio drift out of sync with the visible input group.
+   ========================================================================== */
+#order-standard_cart .cpd {
+    max-width: 880px;
     margin: 0 auto;
+    padding: var(--snbd-s2) 0 var(--snbd-s10);
 }
 
-/* ── Option Tabs (register / transfer / own) ── */
-.cpd-options-wrap {
-    max-width: 800px;
-    margin: -2.5rem auto 0;
-    padding: 0 1.5rem;
+/* ── Option tiles ── */
+#order-standard_cart .cpd-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: var(--snbd-s3);
+    margin: 0 0 var(--snbd-s5);
+}
+#order-standard_cart .cpd-tab {
     position: relative;
-    z-index: 10;
-}
-.cpd-tabs {
-    display: flex;
-    gap: 0.75rem;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 0.6rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 20px 40px rgba(0,0,0,0.04);
-    flex-wrap: wrap;
-}
-.cpd-tab-option {
-    flex: 1;
-    min-width: 140px;
-    cursor: pointer;
     display: block;
     margin: 0;
+    cursor: pointer;
+    font-weight: inherit;
 }
-.cpd-tab-option input[type="radio"] {
+#order-standard_cart .cpd-tab input[type="radio"] {
     position: absolute;
     opacity: 0;
-    width: 0; height: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
 }
-.cpd-tab-inner {
+#order-standard_cart .cpd-tab__inner {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    padding: 1.1rem 1rem;
-    border-radius: 14px;
-    border: 2px solid transparent;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-    text-align: center;
+    gap: var(--snbd-s3);
+    height: 100%;
+    min-height: 64px;
+    padding: var(--snbd-s3) var(--snbd-s4);
+    background: var(--snbd-surface);
+    border: 1px solid var(--snbd-line);
+    border-radius: var(--snbd-r-lg);
+    box-shadow: var(--snbd-e1);
+    transition: border-color var(--snbd-fast) var(--snbd-ease),
+                background var(--snbd-fast) var(--snbd-ease),
+                box-shadow var(--snbd-fast) var(--snbd-ease);
 }
-.cpd-tab-inner:hover {
-    background: #f8fafc;
+#order-standard_cart .cpd-tab:hover .cpd-tab__inner {
+    border-color: var(--snbd-line-strong);
+    background: var(--snbd-surface-2);
 }
-.cpd-tab-icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: #f1f5f9;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
-    color: #94a3b8;
-    transition: all 0.25s ease;
+#order-standard_cart .cpd-tab__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--snbd-r-md);
+    background: var(--snbd-surface-3);
+    color: var(--snbd-ink-500);
+    font-size: 0.9375rem;
+    transition: background var(--snbd-fast) var(--snbd-ease), color var(--snbd-fast) var(--snbd-ease);
 }
-.cpd-tab-label {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #64748b;
+#order-standard_cart .cpd-tab__text { min-width: 0; }
+#order-standard_cart .cpd-tab__label {
+    display: block;
+    font-family: var(--snbd-font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--snbd-ink-900);
+}
+#order-standard_cart .cpd-tab__hint {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
     line-height: 1.3;
-    transition: color 0.25s ease;
+    color: var(--snbd-ink-500);
 }
-.cpd-tab-option input[type="radio"]:checked + .cpd-tab-inner {
-    background: linear-gradient(135deg, #fff5f5, #fff8f8);
-    border-color: #fca5a5;
+#order-standard_cart .cpd-tab input:checked + .cpd-tab__inner {
+    border-color: var(--snbd-red);
+    background: var(--snbd-red-soft);
+    box-shadow: 0 0 0 1px var(--snbd-red) inset;
 }
-.cpd-tab-option input[type="radio"]:checked + .cpd-tab-inner .cpd-tab-icon {
-    background: linear-gradient(135deg, var(--brand), #ef5350);
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(211,47,47,0.35);
+#order-standard_cart .cpd-tab input:checked + .cpd-tab__inner .cpd-tab__icon {
+    background: var(--snbd-red);
+    color: #fff;
 }
-.cpd-tab-option input[type="radio"]:checked + .cpd-tab-inner .cpd-tab-label {
-    color: #b71c1c;
+#order-standard_cart .cpd-tab input:focus-visible + .cpd-tab__inner {
+    box-shadow: 0 0 0 3px var(--snbd-red-ring);
+}
+#order-standard_cart .cpd-tab input:disabled + .cpd-tab__inner {
+    cursor: progress;
+    opacity: 0.65;
 }
 
-/* ── Search Box Area ── */
-.cpd-search-area {
-    max-width: 800px;
-    margin: 1.5rem auto 0;
-    padding: 0 1.5rem;
-}
-.domain-input-groups-wrapper .domain-input-group {
-    background: #ffffff;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 0.5rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    transition: border-color 0.25s, box-shadow 0.25s;
+/* ── Search bar ── */
+#order-standard_cart .cpd-search .domain-input-group {
     display: none;
+    margin: 0;
 }
-.domain-input-groups-wrapper .domain-input-group:focus-within {
-    border-color: #fca5a5;
-    box-shadow: 0 0 0 4px rgba(211,47,47,0.08), 0 4px 20px rgba(0,0,0,0.06);
+#order-standard_cart .cpd-bar {
+    display: flex;
+    align-items: stretch;
+    gap: var(--snbd-s2);
+    padding: var(--snbd-s2);
+    background: var(--snbd-surface);
+    border: 1px solid var(--snbd-line);
+    border-radius: var(--snbd-r-lg);
+    box-shadow: var(--snbd-e2);
+    transition: border-color var(--snbd-fast) var(--snbd-ease), box-shadow var(--snbd-fast) var(--snbd-ease);
 }
-.domain-input-inner {
+#order-standard_cart .cpd-bar:focus-within {
+    border-color: rgba(var(--snbd-red-rgb), 0.45);
+    box-shadow: 0 0 0 4px var(--snbd-red-ring), var(--snbd-e2);
+}
+#order-standard_cart .cpd-field {
     display: flex;
     align-items: center;
-    gap: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    background: var(--snbd-surface-2);
+    border: 1px solid var(--snbd-line);
+    border-radius: var(--snbd-r-md);
 }
-.domain-prefix {
-    font-size: 0.9rem;
+#order-standard_cart .cpd-field__prefix {
+    flex: 0 0 auto;
+    padding-left: var(--snbd-s4);
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #94a3b8;
-    padding: 0.65rem 0.9rem;
-    white-space: nowrap;
-    flex-shrink: 0;
+    color: var(--snbd-ink-400);
+    user-select: none;
 }
-.domain-input-field {
-    flex: 1;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
+#order-standard_cart .cpd-field__prefix i { color: var(--snbd-ink-400); }
+#order-standard_cart .cpd-bar input[type="text"],
+#order-standard_cart .cpd-bar select {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 48px;
+    margin: 0;
+    padding: 0 var(--snbd-s3) 0 var(--snbd-s1);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+    font-family: var(--snbd-font-text);
     font-size: 1rem;
     font-weight: 500;
-    color: #0f172a;
-    padding: 0.65rem 0.5rem;
+    color: var(--snbd-ink-900);
 }
-.domain-input-field::placeholder { color: #cbd5e1; }
-.domain-tld-select {
-    border: none !important;
-    border-left: 1.5px solid #f1f5f9 !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    font-size: 0.92rem;
+#order-standard_cart .cpd-bar input[type="text"]::placeholder { color: var(--snbd-ink-400); font-weight: 400; }
+#order-standard_cart .cpd-field--tld {
+    flex: 0 0 132px;
+}
+#order-standard_cart .cpd-field--tld .cpd-field__prefix {
+    padding-left: var(--snbd-s3);
+    font-size: 1rem;
+    color: var(--snbd-ink-500);
+}
+#order-standard_cart .cpd-field--tld select,
+#order-standard_cart .cpd-field--tld input[type="text"] {
+    padding-left: var(--snbd-s3);
     font-weight: 600;
-    color: #475569;
-    padding: 0.65rem 0.6rem;
-    min-width: 70px;
-    max-width: 120px;
     cursor: pointer;
 }
-.domain-submit-btn {
-    background: linear-gradient(135deg, var(--brand), #c62828);
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    padding: 0.65rem 1.5rem;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-    display: flex;
+#order-standard_cart .cpd-field--tld input[type="text"] {
+    padding-left: 2px;
+    cursor: text;
+}
+#order-standard_cart .cpd-field--select select { padding-left: var(--snbd-s3); cursor: pointer; }
+#order-standard_cart .cpd-submit {
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 2px 8px rgba(211,47,47,0.3);
-}
-.domain-submit-btn:hover {
-    background: linear-gradient(135deg, #b71c1c, #c62828);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(211,47,47,0.4);
-}
-
-/* ── Free Domain Note ── */
-.cpd-free-note {
-    text-align: center;
-    font-size: 0.82rem;
-    color: #94a3b8;
-    margin-top: 1rem;
-    font-style: italic;
-}
-
-/* ── Results Area ── */
-.cpd-results-outer {
-    max-width: 800px;
-    margin: 2rem auto 0;
-    padding: 0 1.5rem;
-}
-
-/* Primary result card */
-#searchDomainInfo {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.domain-checker-available.headline {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #16a34a;
-    letter-spacing: -0.02em;
-}
-.domain-checker-unavailable.headline {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #dc2626;
-    letter-spacing: -0.02em;
-}
-.domain-price .price {
-    font-size: 2rem;
-    font-weight: 900;
-    color: #0f172a;
-}
-.domain-price .register-price-label,
-.domain-price .transfer-price-label {
-    font-size: 0.88rem;
-    color: #94a3b8;
-}
-.primary-domain-header {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 1rem;
-    letter-spacing: -0.01em;
-}
-
-/* ── Spotlight TLDs ── */
-.spotlight-tlds {
-    margin-top: 2rem;
-}
-.spotlight-tlds-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-    width: 100%;
-}
-#order-standard_cart .spotlight-tld-container,
-#order-snbdhost_cart .spotlight-tld-container {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    overflow: visible !important;
-}
-.spotlight-tld {
-    background: #ffffff !important;
-    border: 1.5px solid #e2e8f0 !important;
-    border-radius: 14px !important;
-    padding: 1.25rem 1rem !important;
-    text-align: center !important;
-    position: relative !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.03) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    min-height: 140px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: visible !important;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1) !important;
-    font-size: 1.2rem !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-}
-.spotlight-tld:hover {
-    transform: translateY(-3px) !important;
-    border-color: #fca5a5 !important;
-    box-shadow: 0 8px 20px rgba(211,47,47,0.1) !important;
-}
-#order-standard_cart .spotlight-tld .domain-lookup-result,
-#order-snbdhost_cart .spotlight-tld .domain-lookup-result {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0.75rem 0 0 !important;
-    width: 100% !important;
-}
-.spotlight-tld .price {
-    display: block !important;
-    font-size: 0.9rem !important;
-    color: #16a34a !important;
-    font-weight: 700 !important;
-    margin-bottom: 0.4rem !important;
-    word-break: break-all !important;
-}
-.spotlight-tld .btn {
-    width: 100% !important;
-    border-radius: 8px !important;
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    padding: 0.4rem 0.4rem !important;
-    background: #f1f5f9 !important;
-    color: #1e293b !important;
-    border: 1px solid #e2e8f0 !important;
-    transition: all 0.2s ease !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}
-.spotlight-tld .btn:hover {
-    background: var(--brand) !important;
-    color: #fff !important;
-    border-color: var(--brand) !important;
-}
-.spotlight-tld-hot  { background: #ef4444 !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
-.spotlight-tld-sale { background: #f59e0b !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
-.spotlight-tld-new  { background: #10b981 !important; color: #fff !important; font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; border-radius: 99px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; display: inline-block !important; margin-bottom: 0.25rem !important; }
-
-/* ── Suggested Domains ── */
-.suggested-domains {
-    margin-top: 1.5rem;
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 16px !important;
-    overflow: hidden;
-}
-.suggested-domains .panel-heading {
-    background: #f8fafc !important;
-    padding: 1rem 1.25rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #f1f5f9 !important;
-}
-.suggested-domains .list-group-item {
-    border-left: none !important;
-    border-right: none !important;
-    border-color: #f1f5f9 !important;
-    padding: 0.85rem 1.25rem !important;
-    transition: background 0.15s;
-}
-.suggested-domains .list-group-item:hover {
-    background: #f8fafc;
-}
-.suggested-domains .extension {
-    font-weight: 700;
-    color: var(--brand);
-}
-.suggested-domains .price {
-    font-weight: 800;
-    color: #0f172a;
-}
-.suggested-domains .actions {
-    float: right;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-.suggested-domains .btn:not(.domain-contact-support) {
-    background: #0f172a;
+    justify-content: center;
+    gap: var(--snbd-s2);
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 0 var(--snbd-s6);
+    border: 1px solid var(--snbd-red);
+    border-radius: var(--snbd-r-md);
+    background: var(--snbd-red);
     color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.8rem;
+    font-family: var(--snbd-font-display);
+    font-size: 0.9375rem;
     font-weight: 700;
-    padding: 0.35rem 1rem;
+    white-space: nowrap;
     cursor: pointer;
+    transition: background var(--snbd-fast) var(--snbd-ease), border-color var(--snbd-fast) var(--snbd-ease);
 }
-.suggested-domains .btn:not(.domain-contact-support):hover {
-    background: var(--brand);
+#order-standard_cart .cpd-submit:hover { background: var(--snbd-red-hover); border-color: var(--snbd-red-hover); }
+#order-standard_cart .cpd-submit:focus-visible { outline: 0; box-shadow: 0 0 0 3px var(--snbd-red-ring); }
+#order-standard_cart .cpd-submit[disabled],
+#order-standard_cart .cpd-submit.disabled { opacity: 0.6; cursor: progress; }
+#order-standard_cart .cpd-help {
+    margin: var(--snbd-s3) 0 0;
+    font-size: 0.8125rem;
+    color: var(--snbd-ink-500);
 }
-.suggested-domains .more-suggestions {
-    padding: 0.75rem 1.25rem;
-    background: #f8fafc !important;
-    border-top: 1px solid #f1f5f9 !important;
-}
-.suggested-domains .more-suggestions a {
-    color: var(--brand);
-    font-weight: 700;
-    font-size: 0.88rem;
-}
-.suggested-domains .domain-suggestions-warning {
-    background: #f8fafc;
-    font-size: 0.78rem;
-    color: #94a3b8;
-    padding: 0.6rem 1.25rem !important;
-    border-top: 1px solid #f1f5f9;
-}
+#order-standard_cart .cpd-help i { color: var(--snbd-ink-400); margin-right: 4px; }
 
-/* ── Continue Button ── */
-.cpd-continue-wrap {
-    margin: 1.5rem auto 0;
-    padding: 0;
+/* ── Results ── */
+#order-standard_cart #DomainSearchResults { margin-top: var(--snbd-s6); }
+#order-standard_cart #DomainSearchResults .primary-domain-header {
+    margin: 0 0 var(--snbd-s3) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    font-size: 0.6875rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    text-align: left !important;
+    color: var(--snbd-ink-400) !important;
+}
+#order-standard_cart #searchDomainInfo {
+    padding: var(--snbd-s6);
+    background: var(--snbd-surface);
+    border: 1px solid var(--snbd-line);
+    border-radius: var(--snbd-r-lg);
+    box-shadow: var(--snbd-e1);
     text-align: center;
 }
-#btnDomainContinue {
-    background: linear-gradient(135deg, var(--brand), #c62828) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 99px !important;
-    font-size: 1.15rem !important;
-    font-weight: 800 !important;
-    padding: 1rem 4rem !important;
-    box-shadow: 0 4px 20px rgba(211,47,47,0.35) !important;
-    transition: all 0.25s ease !important;
-    letter-spacing: 0.01em;
-    width: 100%;
-    max-width: 400px;
-    display: inline-block;
+#order-standard_cart #searchDomainInfo .domain-lookup-primary-loader,
+#order-standard_cart #searchDomainInfo .domain-lookup-primary-results {
+    margin: 0;
 }
-#btnDomainContinue.w-hidden, #btnDomainContinue.hidden {
-    display: none !important;
+#order-standard_cart #searchDomainInfo .domain-searching {
+    margin: 0;
+    font-size: 0.9375rem !important;
+    color: var(--snbd-ink-500) !important;
 }
-#btnDomainContinue:hover:not(:disabled) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(211,47,47,0.45) !important;
+#order-standard_cart #searchDomainInfo .headline {
+    margin: 0 0 var(--snbd-s2);
+    font-family: var(--snbd-font-display);
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    word-break: break-word;
 }
-#btnDomainContinue:disabled {
-    opacity: 0.55 !important;
-    cursor: not-allowed !important;
+#order-standard_cart #searchDomainInfo .domain-checker-available { color: var(--snbd-ok); }
+#order-standard_cart #searchDomainInfo .domain-checker-available strong { color: var(--snbd-ink-900) !important; }
+#order-standard_cart #searchDomainInfo .domain-checker-unavailable { color: var(--snbd-bad); }
+#order-standard_cart #searchDomainInfo .domain-checker-unavailable strong { color: var(--snbd-ink-900); }
+#order-standard_cart #searchDomainInfo .domain-contact-support.headline {
+    display: inline-flex;
+    font-size: 0.875rem;
+}
+#order-standard_cart #searchDomainInfo .text-muted {
+    margin: 0 auto var(--snbd-s1);
+    max-width: 60ch;
+    font-size: 0.875rem;
+    color: var(--snbd-ink-500) !important;
+}
+#order-standard_cart #searchDomainInfo .domain-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--snbd-s2);
+    margin-top: var(--snbd-s3);
+}
+#order-standard_cart #searchDomainInfo .domain-price .register-price-label,
+#order-standard_cart #searchDomainInfo .domain-price .transfer-price-label {
+    font-size: 0.875rem;
+    color: var(--snbd-ink-500);
+}
+#order-standard_cart #searchDomainInfo .domain-price .price {
+    font-family: var(--snbd-font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--snbd-ink-900);
+    font-variant-numeric: tabular-nums;
+}
+#order-standard_cart #searchDomainInfo .domain-error { color: var(--snbd-bad); }
+#order-standard_cart #searchDomainInfo .idn-language-selector { margin-top: var(--snbd-s4); }
+
+#order-standard_cart .cpd-continue {
+    margin-top: var(--snbd-s5);
+    text-align: center;
+}
+#order-standard_cart #btnDomainContinue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--snbd-s2);
+    min-width: 240px;
+    min-height: 48px;
+    padding: 0 var(--snbd-s8);
+    border: 1px solid var(--snbd-red);
+    border-radius: var(--snbd-r-md);
+    background: var(--snbd-red);
+    color: #fff;
+    font-family: var(--snbd-font-display);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    box-shadow: none;
+    transition: background var(--snbd-fast) var(--snbd-ease);
+}
+#order-standard_cart #btnDomainContinue:hover:not(:disabled) { background: var(--snbd-red-hover); border-color: var(--snbd-red-hover); }
+#order-standard_cart #btnDomainContinue:disabled { opacity: 0.45; cursor: not-allowed; }
+#order-standard_cart #btnDomainContinue[style*="display: none"] { display: none !important; }
+
+#order-standard_cart #spotlightTlds { margin-top: var(--snbd-s6) !important; }
+#order-standard_cart .cpd-section-label {
+    margin: 0 0 var(--snbd-s3);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--snbd-ink-400);
 }
 
-/* Hide the injected circular add-to-cart button in primary result */
-#primaryLookupResult .btn-add-to-cart {
-    display: none !important;
+@media (max-width: 767px) {
+    #order-standard_cart .cpd-tabs { grid-template-columns: 1fr; gap: var(--snbd-s2); }
+    #order-standard_cart .cpd-tab__inner { min-height: 56px; }
+    #order-standard_cart .cpd-bar { flex-wrap: wrap; }
+    #order-standard_cart .cpd-field { flex: 1 1 100%; }
+    #order-standard_cart .cpd-field--tld { flex: 1 1 0; }
+    #order-standard_cart .cpd-submit { flex: 1 1 auto; }
+    #order-standard_cart #searchDomainInfo { padding: var(--snbd-s5) var(--snbd-s4); }
+    #order-standard_cart #btnDomainContinue { width: 100%; }
+    #order-standard_cart .spotlight-tld-container {
+        flex: 1 1 calc(50% - 0.625rem) !important;
+        max-width: calc(50% - 0.32rem) !important;
+    }
 }
 </style>
 
 <div id="order-standard_cart">
-<div class="cpd-outer">
+<div class="cpd">
 
-    {* ── HERO ── *}
-    <div class="cpd-hero">
-        <div class="cpd-hero-label">
-            <i class="fas fa-globe"></i> Domain Registration
+    <header class="cfg-head">
+        <div>
+            <span class="cfg-head__eyebrow">Domain</span>
+            <h1 class="cfg-head__title">Choose a domain</h1>
+            <p class="cfg-head__sub">Register a new domain, transfer one you own elsewhere, or point an existing domain at your new service.</p>
         </div>
-        <h1>{$LANG.domaincheckerchoosedomain|default:'Find Your Perfect <span>Domain</span>'}</h1>
-        <p>Get your perfect domain name or use one you already own to continue.</p>
-    </div>
+    </header>
 
-    {* ── OPTION TABS ── *}
-    <div class="cpd-options-wrap">
-        <form id="frmProductDomain">
-            <input type="hidden" id="frmProductDomainPid" value="{$pid}" />
+    <form id="frmProductDomain">
+        <input type="hidden" id="frmProductDomainPid" value="{$pid}" />
 
-            <div class="cpd-tabs domain-selection-options">
+        <div class="cpd-tabs domain-selection-options" role="radiogroup" aria-label="Domain option">
 
-                {if $incartdomains}
-                    <label class="cpd-tab-option">
-                        <input type="radio" name="domainoption" value="incart" id="selincart" />
-                        <div class="cpd-tab-inner">
-                            <div class="cpd-tab-icon"><i class="fas fa-shopping-cart"></i></div>
-                            <span class="cpd-tab-label">{$LANG.cartproductdomainuseincart}</span>
+            {if $incartdomains}
+                <label class="cpd-tab">
+                    <input type="radio" class="no-icheck" name="domainoption" value="incart" id="selincart" />
+                    <span class="cpd-tab__inner">
+                        <span class="cpd-tab__icon" aria-hidden="true"><i class="fas fa-shopping-cart"></i></span>
+                        <span class="cpd-tab__text">
+                            <span class="cpd-tab__label">{$LANG.cartproductdomainuseincart}</span>
+                        </span>
+                    </span>
+                </label>
+            {/if}
+
+            {if $registerdomainenabled}
+                <label class="cpd-tab">
+                    <input type="radio" class="no-icheck" name="domainoption" value="register" id="selregister"{if $domainoption eq "register"} checked{/if} />
+                    <span class="cpd-tab__inner">
+                        <span class="cpd-tab__icon" aria-hidden="true"><i class="fas fa-search"></i></span>
+                        <span class="cpd-tab__text">
+                            <span class="cpd-tab__label">Register a new domain</span>
+                            <span class="cpd-tab__hint">Search and buy a name</span>
+                        </span>
+                    </span>
+                </label>
+            {/if}
+
+            {if $transferdomainenabled}
+                <label class="cpd-tab">
+                    <input type="radio" class="no-icheck" name="domainoption" value="transfer" id="seltransfer"{if $domainoption eq "transfer"} checked{/if} />
+                    <span class="cpd-tab__inner">
+                        <span class="cpd-tab__icon" aria-hidden="true"><i class="fas fa-exchange-alt"></i></span>
+                        <span class="cpd-tab__text">
+                            <span class="cpd-tab__label">Transfer a domain</span>
+                            <span class="cpd-tab__hint">Move it from another registrar</span>
+                        </span>
+                    </span>
+                </label>
+            {/if}
+
+            {if $owndomainenabled}
+                <label class="cpd-tab">
+                    <input type="radio" class="no-icheck" name="domainoption" value="owndomain" id="selowndomain"{if $domainoption eq "owndomain"} checked{/if} />
+                    <span class="cpd-tab__inner">
+                        <span class="cpd-tab__icon" aria-hidden="true"><i class="fas fa-link"></i></span>
+                        <span class="cpd-tab__text">
+                            <span class="cpd-tab__label">Use my existing domain</span>
+                            <span class="cpd-tab__hint">Update nameservers yourself</span>
+                        </span>
+                    </span>
+                </label>
+            {/if}
+
+            {if $subdomains}
+                <label class="cpd-tab">
+                    <input type="radio" class="no-icheck" name="domainoption" value="subdomain" id="selsubdomain"{if $domainoption eq "subdomain"} checked{/if} />
+                    <span class="cpd-tab__inner">
+                        <span class="cpd-tab__icon" aria-hidden="true"><i class="fas fa-sitemap"></i></span>
+                        <span class="cpd-tab__text">
+                            <span class="cpd-tab__label">Use a subdomain</span>
+                            <span class="cpd-tab__hint">Free, on one of our domains</span>
+                        </span>
+                    </span>
+                </label>
+            {/if}
+
+        </div>
+
+        <div class="cpd-search domain-input-groups-wrapper">
+
+            {if $incartdomains}
+                <div class="domain-input-group" id="domainincart">
+                    <div class="cpd-bar">
+                        <div class="cpd-field cpd-field--select">
+                            <span class="cpd-field__prefix" aria-hidden="true"><i class="fas fa-shopping-cart"></i></span>
+                            <select id="incartsld" name="incartdomain" aria-label="{$LANG.cartproductdomainuseincart}">
+                                {foreach key=num item=incartdomain from=$incartdomains}
+                                    <option value="{$incartdomain}">{$incartdomain}</option>
+                                {/foreach}
+                            </select>
                         </div>
-                    </label>
-                {/if}
-
-                {if $registerdomainenabled}
-                    <label class="cpd-tab-option">
-                        <input type="radio" name="domainoption" value="register" id="selregister"{if $domainoption eq "register"} checked{/if} />
-                        <div class="cpd-tab-inner">
-                            <div class="cpd-tab-icon"><i class="fas fa-search"></i></div>
-                            <span class="cpd-tab-label">Register a new domain</span>
-                        </div>
-                    </label>
-                {/if}
-
-                {if $transferdomainenabled}
-                    <label class="cpd-tab-option">
-                        <input type="radio" name="domainoption" value="transfer" id="seltransfer"{if $domainoption eq "transfer"} checked{/if} />
-                        <div class="cpd-tab-inner">
-                            <div class="cpd-tab-icon"><i class="fas fa-exchange-alt"></i></div>
-                            <span class="cpd-tab-label">Transfer domain to us</span>
-                        </div>
-                    </label>
-                {/if}
-
-                {if $owndomainenabled}
-                    <label class="cpd-tab-option">
-                        <input type="radio" name="domainoption" value="owndomain" id="selowndomain"{if $domainoption eq "owndomain"} checked{/if} />
-                        <div class="cpd-tab-inner">
-                            <div class="cpd-tab-icon"><i class="fas fa-link"></i></div>
-                            <span class="cpd-tab-label">Use my existing domain</span>
-                        </div>
-                    </label>
-                {/if}
-
-                {if $subdomains}
-                    <label class="cpd-tab-option">
-                        <input type="radio" name="domainoption" value="subdomain" id="selsubdomain"{if $domainoption eq "subdomain"} checked{/if} />
-                        <div class="cpd-tab-inner">
-                            <div class="cpd-tab-icon"><i class="fas fa-sitemap"></i></div>
-                            <span class="cpd-tab-label">Use a subdomain</span>
-                        </div>
-                    </label>
-                {/if}
-
-            </div>
-
-            {* ── SEARCH INPUTS ── *}
-            <div class="cpd-search-area">
-                <div class="domain-input-groups-wrapper">
-
-                    {if $incartdomains}
-                        <div class="domain-input-group" id="domainincart">
-                            <div class="domain-input-inner">
-                                <div class="domain-prefix"><i class="fas fa-shopping-cart"></i></div>
-                                <select id="incartsld" name="incartdomain" class="form-control domain-input-field">
-                                    {foreach key=num item=incartdomain from=$incartdomains}
-                                        <option value="{$incartdomain}">{$incartdomain}</option>
-                                    {/foreach}
-                                </select>
-                                <button type="submit" class="domain-submit-btn">
-                                    {$LANG.orderForm.use} <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $registerdomainenabled}
-                        <div class="domain-input-group" id="domainregister">
-                            <div class="domain-input-inner">
-                                <div class="domain-prefix">www.</div>
-                                <input type="text" id="registersld" value="{$sld}" class="form-control domain-input-field" autocapitalize="none" placeholder="enter-your-domain" />
-                                <select id="registertld" class="domain-tld-select">
-                                    {foreach from=$registertlds item=listtld}
-                                        <option value="{$listtld}"{if $listtld eq $tld} selected="selected"{/if}>{$listtld}</option>
-                                    {/foreach}
-                                </select>
-                                <button id="btnCheckAvailability" type="submit" class="domain-submit-btn">
-                                    Check <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $transferdomainenabled}
-                        <div class="domain-input-group" id="domaintransfer">
-                            <div class="domain-input-inner">
-                                <div class="domain-prefix">www.</div>
-                                <input type="text" id="transfersld" value="{$sld}" class="form-control domain-input-field" autocapitalize="none" placeholder="enter-your-domain" />
-                                <select id="transfertld" class="domain-tld-select">
-                                    {foreach from=$transfertlds item=listtld}
-                                        <option value="{$listtld}"{if $listtld eq $tld} selected="selected"{/if}>{$listtld}</option>
-                                    {/foreach}
-                                </select>
-                                <button type="submit" class="domain-submit-btn">
-                                    Transfer <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $owndomainenabled}
-                        <div class="domain-input-group" id="domainowndomain">
-                            <div class="domain-input-inner">
-                                <div class="domain-prefix">www.</div>
-                                <input type="text" id="owndomainsld" value="{$sld}" placeholder="yourdomain" class="form-control domain-input-field" autocapitalize="none" />
-                                <input type="text" id="owndomaintld" value="{$tld|substr:1}" placeholder="com" class="form-control domain-tld-select" style="max-width:100px; text-align:center; appearance:none; background-image:none !important;" autocapitalize="none" />
-                                <button type="submit" class="domain-submit-btn" id="useOwnDomain">
-                                    Use Domain <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $subdomains}
-                        <div class="domain-input-group" id="domainsubdomain">
-                            <div class="domain-input-inner">
-                                <div class="domain-prefix">http://</div>
-                                <input type="text" id="subdomainsld" value="{$sld}" placeholder="yourname" class="form-control domain-input-field" autocapitalize="none" />
-                                <select id="subdomaintld" class="domain-tld-select">
-                                    {foreach $subdomains as $subid => $subdomain}
-                                        <option value="{$subid}">{$subdomain}</option>
-                                    {/foreach}
-                                </select>
-                                <button type="submit" class="domain-submit-btn">
-                                    Check <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    {/if}
-
-                </div>
-
-                {if $freedomaintlds}
-                    <p class="cpd-free-note">* {$LANG.orderfreedomainregistration} {$LANG.orderfreedomainappliesto}: {$freedomaintlds}</p>
-                {/if}
-            </div>
-
-        </form>
-
-        {* ── RESULTS ── *}
-        <form method="post" action="{$WEB_ROOT}/cart.php?a=add&pid={$pid}&domainselect=1" id="frmProductDomainSelections">
-
-            <div id="DomainSearchResults" class="w-hidden">
-
-                <div id="primarySuggestionHeading" class="primary-domain-header mt-4"></div>
-                <div id="primaryExactHeading" class="primary-domain-header mt-4" style="text-align:center;">{$LANG.domainSearch.exactMatch}</div>
-
-                <div id="searchDomainInfo" class="mt-3 text-center">
-                    <p id="primaryLookupSearching" class="domain-lookup-loader domain-lookup-primary-loader domain-searching domain-checker-result-headline" style="font-size:1.1rem; color:#64748b;">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <span class="domain-lookup-register-loader"> {lang key='orderForm.checkingAvailability'}...</span>
-                        <span class="domain-lookup-transfer-loader"> {lang key='orderForm.verifyingTransferEligibility'}...</span>
-                        <span class="domain-lookup-other-loader"> {lang key='orderForm.verifyingDomain'}...</span>
-                    </p>
-                    <div id="primaryLookupResult" class="domain-lookup-result domain-lookup-primary-results w-hidden">
-                        <div class="domain-unavailable domain-checker-unavailable headline">{lang key='orderForm.domainIsUnavailable'}</div>
-                        <div class="domain-available domain-checker-available headline">{$LANG.domainavailablemessage}</div>
-                        <div class="btn btn-primary domain-contact-support headline">{$LANG.domainContactUs}</div>
-                        <div class="transfer-eligible">
-                            <p class="domain-checker-available headline">{lang key='orderForm.transferEligible'}</p>
-                            <p class="text-muted" style="font-size:0.9rem;">{lang key='orderForm.transferUnlockBeforeContinuing'}</p>
-                        </div>
-                        <div class="transfer-not-eligible">
-                            <p class="domain-checker-unavailable headline">{lang key='orderForm.transferNotEligible'}</p>
-                            <p class="text-muted" style="font-size:0.9rem;">{lang key='orderForm.transferNotRegistered'}</p>
-                            <p class="text-muted" style="font-size:0.9rem;">{lang key='orderForm.trasnferRecentlyRegistered'}</p>
-                            <p class="text-muted" style="font-size:0.9rem;">{lang key='orderForm.transferAlternativelyRegister'}</p>
-                        </div>
-                        <div class="domain-invalid">
-                            <p class="domain-checker-unavailable headline">{lang key='orderForm.domainInvalid'}</p>
-                            <p class="text-muted" style="font-size:0.9rem;">
-                                {lang key='orderForm.domainLetterOrNumber'}<span class="domain-length-restrictions">{lang key='orderForm.domainLengthRequirements'}</span><br />
-                                {lang key='orderForm.domainInvalidCheckEntry'}
-                            </p>
-                        </div>
-                        <div id="idnLanguageSelector" class="margin-10 idn-language-selector idn-language w-hidden">
-                            <div class="row">
-                                <div class="col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 offset-sm-1 offset-lg-2">
-                                    <div class="margin-10 text-center">{lang key='cart.idnLanguageDescription'}</div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-8 col-lg-6 col-sm-offset-2 col-lg-offset-3 offset-sm-2 offset-lg-3">
-                                    <div class="form-group">
-                                        <select name="idnlanguage" class="form-control">
-                                            <option value="">{lang key='cart.idnLanguage'}</option>
-                                            {foreach $idnLanguages as $idnLanguageKey => $idnLanguage}
-                                                <option value="{$idnLanguageKey}">{lang key='idnLanguage.'|cat:$idnLanguageKey}</option>
-                                            {/foreach}
-                                        </select>
-                                        <div class="field-error-msg">{lang key='cart.selectIdnLanguageForRegister'}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="domain-price mt-3">
-                            <span class="register-price-label text-muted">{lang key='orderForm.domainPriceRegisterLabel'}</span>
-                            <span class="transfer-price-label w-hidden text-muted">{lang key='orderForm.domainPriceTransferLabel'}</span>
-                            <span class="price"></span>
-                        </div>
-                        <p class="domain-error domain-checker-unavailable headline" style="color:#dc2626;"></p>
-                        <input type="hidden" id="resultDomainOption" name="domainoption" />
-                        <input type="hidden" id="resultDomain" name="domains[]" />
-                        <input type="hidden" id="resultDomainPricingTerm" />
-                    </div>
-
-                    <div class="cpd-continue-wrap">
-                        <button id="btnDomainContinue" type="submit" class="btn btn-primary btn-lg w-hidden" disabled="disabled">
-                            {$LANG.continue} &nbsp;<i class="fas fa-arrow-right"></i>
+                        <button type="submit" class="cpd-submit">
+                            {$LANG.orderForm.use} <i class="fas fa-arrow-right" aria-hidden="true"></i>
                         </button>
                     </div>
+                </div>
+            {/if}
 
+            {if $registerdomainenabled}
+                <div class="domain-input-group" id="domainregister">
+                    <div class="cpd-bar">
+                        <div class="cpd-field">
+                            <span class="cpd-field__prefix" aria-hidden="true">www.</span>
+                            <input type="text" id="registersld" value="{$sld}" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourname" aria-label="Domain name" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="manual" title="{lang key='orderForm.enterDomain'}" />
+                        </div>
+                        <div class="cpd-field cpd-field--tld">
+                            <select id="registertld" aria-label="Extension">
+                                {foreach from=$registertlds item=listtld}
+                                    <option value="{$listtld}"{if $listtld eq $tld} selected="selected"{/if}>{$listtld}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                        <button id="btnCheckAvailability" type="submit" class="cpd-submit">
+                            <i class="fas fa-search" aria-hidden="true"></i> {$LANG.orderForm.check|default:'Check'}
+                        </button>
+                    </div>
+                </div>
+            {/if}
+
+            {if $transferdomainenabled}
+                <div class="domain-input-group" id="domaintransfer">
+                    <div class="cpd-bar">
+                        <div class="cpd-field">
+                            <span class="cpd-field__prefix" aria-hidden="true">www.</span>
+                            <input type="text" id="transfersld" value="{$sld}" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourname" aria-label="Domain name" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="manual" title="{lang key='orderForm.enterDomain'}" />
+                        </div>
+                        <div class="cpd-field cpd-field--tld">
+                            <select id="transfertld" aria-label="Extension">
+                                {foreach from=$transfertlds item=listtld}
+                                    <option value="{$listtld}"{if $listtld eq $tld} selected="selected"{/if}>{$listtld}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                        <button type="submit" class="cpd-submit">
+                            {$LANG.orderForm.transfer|default:'Transfer'} <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <p class="cpd-help"><i class="fas fa-info-circle" aria-hidden="true"></i> Unlock the domain at your current registrar and have its EPP / auth code ready.</p>
+                </div>
+            {/if}
+
+            {if $owndomainenabled}
+                <div class="domain-input-group" id="domainowndomain">
+                    <div class="cpd-bar">
+                        <div class="cpd-field">
+                            <span class="cpd-field__prefix" aria-hidden="true">www.</span>
+                            <input type="text" id="owndomainsld" value="{$sld}" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourname" aria-label="Domain name" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="manual" title="{lang key='orderForm.enterDomain'}" />
+                        </div>
+                        <div class="cpd-field cpd-field--tld">
+                            <span class="cpd-field__prefix" aria-hidden="true">.</span>
+                            <input type="text" id="owndomaintld" value="{$tld|substr:1}" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="com" aria-label="Extension" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="manual" title="{lang key='orderForm.required'}" />
+                        </div>
+                        <button type="submit" class="cpd-submit" id="useOwnDomain">
+                            {$LANG.orderForm.use|default:'Use'} <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <p class="cpd-help"><i class="fas fa-info-circle" aria-hidden="true"></i> You'll point this domain's nameservers to us after checkout.</p>
+                </div>
+            {/if}
+
+            {if $subdomains}
+                <div class="domain-input-group" id="domainsubdomain">
+                    <div class="cpd-bar">
+                        <div class="cpd-field">
+                            <span class="cpd-field__prefix" aria-hidden="true">http://</span>
+                            <input type="text" id="subdomainsld" value="{$sld}" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourname" aria-label="Subdomain" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="manual" title="{lang key='orderForm.enterDomain'}" />
+                        </div>
+                        <div class="cpd-field cpd-field--select">
+                            <select id="subdomaintld" aria-label="Parent domain">
+                                {foreach $subdomains as $subid => $subdomain}
+                                    <option value="{$subid}">{$subdomain}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                        <button type="submit" class="cpd-submit">
+                            {$LANG.orderForm.use|default:'Use'} <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            {/if}
+
+            {if $freedomaintlds}
+                <p class="cpd-help"><i class="fas fa-gift" aria-hidden="true"></i> {$LANG.orderfreedomainregistration} {$LANG.orderfreedomainappliesto}: {$freedomaintlds}</p>
+            {/if}
+        </div>
+
+    </form>
+
+    <form method="post" action="{$WEB_ROOT}/cart.php?a=add&pid={$pid}&domainselect=1" id="frmProductDomainSelections">
+
+        <div id="DomainSearchResults" class="w-hidden" aria-live="polite">
+
+            <div id="primarySuggestionHeading" class="primary-domain-header w-hidden"></div>
+            <div id="primaryExactHeading" class="primary-domain-header">{$LANG.domainSearch.exactMatch}</div>
+
+            <div id="searchDomainInfo">
+                <p id="primaryLookupSearching" class="domain-lookup-loader domain-lookup-primary-loader domain-searching domain-checker-result-headline">
+                    <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                    <span class="domain-lookup-register-loader"> {lang key='orderForm.checkingAvailability'}...</span>
+                    <span class="domain-lookup-transfer-loader"> {lang key='orderForm.verifyingTransferEligibility'}...</span>
+                    <span class="domain-lookup-other-loader"> {lang key='orderForm.verifyingDomain'}...</span>
+                </p>
+                <div id="primaryLookupResult" class="domain-lookup-result domain-lookup-primary-results w-hidden">
+                    <div class="domain-unavailable domain-checker-unavailable headline">{lang key='orderForm.domainIsUnavailable'}</div>
+                    <div class="domain-available domain-checker-available headline">{$LANG.domainavailablemessage}</div>
+                    <div class="btn btn-primary domain-contact-support headline">{$LANG.domainContactUs}</div>
+                    <div class="transfer-eligible">
+                        <p class="domain-checker-available headline">{lang key='orderForm.transferEligible'}</p>
+                        <p class="text-muted">{lang key='orderForm.transferUnlockBeforeContinuing'}</p>
+                    </div>
+                    <div class="transfer-not-eligible">
+                        <p class="domain-checker-unavailable headline">{lang key='orderForm.transferNotEligible'}</p>
+                        <p class="text-muted">{lang key='orderForm.transferNotRegistered'}</p>
+                        <p class="text-muted">{lang key='orderForm.trasnferRecentlyRegistered'}</p>
+                        <p class="text-muted">{lang key='orderForm.transferAlternativelyRegister'}</p>
+                    </div>
+                    <div class="domain-invalid">
+                        <p class="domain-checker-unavailable headline">{lang key='orderForm.domainInvalid'}</p>
+                        <p class="text-muted">
+                            {lang key='orderForm.domainLetterOrNumber'}<span class="domain-length-restrictions">{lang key='orderForm.domainLengthRequirements'}</span><br />
+                            {lang key='orderForm.domainInvalidCheckEntry'}
+                        </p>
+                    </div>
+                    <div id="idnLanguageSelector" class="idn-language-selector idn-language w-hidden">
+                        <p class="text-muted">{lang key='cart.idnLanguageDescription'}</p>
+                        <div class="form-group" style="max-width:360px;margin:0 auto;">
+                            <select name="idnlanguage" class="form-control">
+                                <option value="">{lang key='cart.idnLanguage'}</option>
+                                {foreach $idnLanguages as $idnLanguageKey => $idnLanguage}
+                                    <option value="{$idnLanguageKey}">{lang key='idnLanguage.'|cat:$idnLanguageKey}</option>
+                                {/foreach}
+                            </select>
+                            <div class="field-error-msg">{lang key='cart.selectIdnLanguageForRegister'}</div>
+                        </div>
+                    </div>
+                    <div class="domain-price">
+                        <span class="register-price-label">{lang key='orderForm.domainPriceRegisterLabel'}</span>
+                        <span class="transfer-price-label w-hidden">{lang key='orderForm.domainPriceTransferLabel'}</span>
+                        <span class="price"></span>
+                    </div>
+                    <p class="domain-error domain-checker-unavailable headline"></p>
+                    <input type="hidden" id="resultDomainOption" name="domainoption" />
+                    <input type="hidden" id="resultDomain" name="domains[]" />
+                    <input type="hidden" id="resultDomainPricingTerm" />
                 </div>
 
-                {if $registerdomainenabled}
-                    {if $spotlightTlds}
-                        <div id="spotlightTlds" class="spotlight-tlds clearfix w-hidden mt-4">
-                            <div class="spotlight-tlds-container">
-                                {foreach $spotlightTlds as $key => $data}
-                                    <div class="spotlight-tld-container spotlight-tld-container-{$spotlightTlds|count}">
-                                        <div id="spotlight{$data.tldNoDots}" class="spotlight-tld">
-                                            {if $data.group}
-                                                <div class="spotlight-tld-{$data.group}">{$data.groupDisplayName}</div>
-                                            {/if}
-                                            {$data.tld}
-                                            <span class="domain-lookup-loader domain-lookup-spotlight-loader">
-                                                <i class="fas fa-spinner fa-spin" style="font-size:0.8rem; color:#94a3b8;"></i>
-                                            </span>
-                                            <div class="domain-lookup-result">
-                                                <button type="button" class="btn unavailable w-hidden" disabled="disabled">{lang key='domainunavailable'}</button>
-                                                <button type="button" class="btn invalid w-hidden" disabled="disabled">{lang key='domainunavailable'}</button>
-                                                <span class="available price w-hidden">{$data.register}</span>
-                                                <button type="button" class="btn btn-add-to-cart product-domain w-hidden" data-whois="0" data-domain="">
-                                                    <span class="to-add">{lang key='orderForm.add'}</span>
-                                                    <span class="loading"><i class="fas fa-spinner fa-spin"></i></span>
-                                                    <span class="added"><i class="far fa-shopping-cart"></i> {lang key='domaincheckeradded'}</span>
-                                                    <span class="unavailable">{$LANG.domaincheckertaken}</span>
-                                                </button>
-                                                <button type="button" class="btn btn-primary domain-contact-support w-hidden">{lang key='domainChecker.contactSupport'}</button>
-                                            </div>
+                <div class="cpd-continue">
+                    <button id="btnDomainContinue" type="submit" class="btn" style="display: none;" disabled="disabled">
+                        {$LANG.continue} <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            {if $registerdomainenabled}
+                {if $spotlightTlds}
+                    <div id="spotlightTlds" class="spotlight-tlds clearfix w-hidden">
+                        <p class="cpd-section-label">Also available</p>
+                        <div class="spotlight-tlds-container">
+                            {foreach $spotlightTlds as $key => $data}
+                                <div class="spotlight-tld-container spotlight-tld-container-{$spotlightTlds|count}">
+                                    <div id="spotlight{$data.tldNoDots}" class="spotlight-tld">
+                                        {if $data.group}
+                                            <div class="spotlight-tld-{$data.group}">{$data.groupDisplayName}</div>
+                                        {/if}
+                                        <span class="tld-name">{$data.tld}</span>
+                                        <span class="domain-lookup-loader domain-lookup-spotlight-loader">
+                                            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                                        </span>
+                                        <div class="domain-lookup-result">
+                                            <button type="button" class="btn unavailable w-hidden" disabled="disabled">{lang key='domainunavailable'}</button>
+                                            <button type="button" class="btn invalid w-hidden" disabled="disabled">{lang key='domainunavailable'}</button>
+                                            <span class="available price w-hidden">{$data.register}</span>
+                                            <button type="button" class="btn btn-add-to-cart product-domain w-hidden" data-whois="0" data-domain="">
+                                                <span class="to-add">{lang key='orderForm.add'}</span>
+                                                <span class="loading"><i class="fas fa-spinner fa-spin"></i></span>
+                                                <span class="added"><i class="far fa-shopping-cart"></i> {lang key='domaincheckeradded'}</span>
+                                                <span class="unavailable">{$LANG.domaincheckertaken}</span>
+                                            </button>
+                                            <button type="button" class="btn btn-primary domain-contact-support w-hidden">{lang key='domainChecker.contactSupport'}</button>
                                         </div>
                                     </div>
-                                {/foreach}
-                            </div>
-                        </div>
-                    {/if}
-
-                    <div class="suggested-domains w-hidden mt-4">
-                        <div class="panel-heading card-header">{lang key='orderForm.suggestedDomains'}</div>
-                        <div id="suggestionsLoader" class="card-body panel-body domain-lookup-loader domain-lookup-suggestions-loader text-center p-4">
-                            <i class="fas fa-spinner fa-spin text-muted"></i>
-                            <span class="text-muted ml-2">{lang key='orderForm.generatingSuggestions'}</span>
-                        </div>
-                        <div class="panel-body card-body domain-lookup-message domain-lookup-suggestions-message text-center p-4 text-muted">
-                            {lang key='domainSearch.errors.noSuggestions'}
-                        </div>
-                        <div id="domainSuggestions" class="domain-lookup-result list-group w-hidden">
-                            <div class="domain-suggestion list-group-item w-hidden">
-                                <span class="domain"></span><span class="extension"></span>
-                                <div class="actions">
-                                    <button type="button" class="btn btn-add-to-cart product-domain" data-whois="1" data-domain="">
-                                        <span class="to-add">{$LANG.addtocart}</span>
-                                        <span class="loading"><i class="fas fa-spinner fa-spin"></i> {lang key='loading'}</span>
-                                        <span class="added"><i class="far fa-shopping-cart"></i> {lang key='domaincheckeradded'}</span>
-                                        <span class="unavailable">{$LANG.domaincheckertaken}</span>
-                                    </button>
-                                    <button type="button" class="btn btn-primary domain-contact-support w-hidden">{lang key='domainChecker.contactSupport'}</button>
-                                    <span class="price"></span>
-                                    <span class="promo w-hidden"></span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="panel-footer card-footer more-suggestions text-center w-hidden">
-                            <a id="moreSuggestions" href="#" onclick="loadMoreSuggestions();return false;">{lang key='domainsmoresuggestions'}</a>
-                            <span id="noMoreSuggestions" class="no-more small w-hidden text-muted">{lang key='domaincheckernomoresuggestions'}</span>
-                        </div>
-                        <div class="domain-suggestions-warning">
-                            <p class="mb-0">{lang key='domainssuggestionswarnings'}</p>
+                            {/foreach}
                         </div>
                     </div>
                 {/if}
 
-            </div>
+                {* Kept for scripts.js, which still targets these nodes; hidden by custom.css. *}
+                <div class="suggested-domains w-hidden">
+                    <div id="suggestionsLoader" class="domain-lookup-loader domain-lookup-suggestions-loader"></div>
+                    <div class="domain-lookup-message domain-lookup-suggestions-message"></div>
+                    <div id="domainSuggestions" class="domain-lookup-result list-group w-hidden">
+                        <div class="domain-suggestion list-group-item w-hidden">
+                            <span class="domain"></span><span class="extension"></span>
+                            <div class="actions">
+                                <button type="button" class="btn btn-add-to-cart product-domain" data-whois="1" data-domain="">
+                                    <span class="to-add">{$LANG.addtocart}</span>
+                                    <span class="loading"><i class="fas fa-spinner fa-spin"></i></span>
+                                    <span class="added"><i class="far fa-shopping-cart"></i> {lang key='domaincheckeradded'}</span>
+                                    <span class="unavailable">{$LANG.domaincheckertaken}</span>
+                                </button>
+                                <button type="button" class="btn btn-primary domain-contact-support w-hidden">{lang key='domainChecker.contactSupport'}</button>
+                                <span class="price"></span>
+                                <span class="promo w-hidden"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="more-suggestions w-hidden">
+                        <a id="moreSuggestions" href="#" onclick="loadMoreSuggestions();return false;">{lang key='domainsmoresuggestions'}</a>
+                        <span id="noMoreSuggestions" class="no-more w-hidden">{lang key='domaincheckernomoresuggestions'}</span>
+                    </div>
+                </div>
+            {/if}
 
-        </form>
-    </div>
+        </div>
+
+    </form>
 
 </div>
 </div>
-
-<script>
-{literal}
-document.addEventListener("DOMContentLoaded", function() {
-    // Force the continue button to show up and be enabled automatically when domain is available
-    var observer = new MutationObserver(function(mutations) {
-        var resultDiv = document.getElementById('primaryLookupResult');
-        var availableText = resultDiv ? resultDiv.querySelector('.domain-checker-available') : null;
-        var continueBtn = document.getElementById('btnDomainContinue');
-        
-        if (resultDiv && availableText && window.getComputedStyle(resultDiv).display !== 'none' && window.getComputedStyle(availableText).display !== 'none') {
-            if (continueBtn) {
-                continueBtn.classList.remove('w-hidden', 'hidden');
-                continueBtn.removeAttribute('disabled');
-                continueBtn.style.display = 'inline-block';
-                
-                // Trigger WHMCS hidden field population just in case
-                var domainInput = document.getElementById('registersld');
-                var tldSelect = document.getElementById('registertld');
-                var resultDomain = document.getElementById('resultDomain');
-                var resultOption = document.getElementById('resultDomainOption');
-                
-                if (resultDomain && !resultDomain.value && domainInput && tldSelect) {
-                    resultDomain.value = domainInput.value + tldSelect.value;
-                }
-                if (resultOption && !resultOption.value) {
-                    resultOption.value = 'register';
-                }
-            }
-        }
-    });
-    
-    var targetNode = document.getElementById('primaryLookupResult');
-    if (targetNode) {
-        observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
-    }
-});
-{/literal}
-</script>
 
 {include file="orderforms/snbdhost_cart/recommendations-modal.tpl"}
 
@@ -867,25 +693,77 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <script>
     {literal}
-    jQuery(document).ready(function() {
-        function toggleDomainOption() {
-            var val = jQuery(this).val();
-            jQuery(".domain-input-group").hide();
-            jQuery("#domain" + val).fadeIn('fast').css('display', 'block');
-        }
-        var $radios = jQuery(".domain-selection-options input[type='radio']");
-        $radios.on('change click ifChecked', toggleDomainOption);
-        var $checked = $radios.filter(":checked");
-        if ($checked.length > 0) {
-            jQuery(".domain-input-group").hide();
-            jQuery("#domain" + $checked.val()).show();
-        } else if ($radios.length > 0) {
-            $radios.first().prop('checked', true);
-            jQuery(".domain-input-group").hide();
-            jQuery("#domain" + $radios.first().val()).show();
+    jQuery(function () {
+        // One source of truth: the checked radio decides which input group shows.
+        // scripts.js binds the same toggle; this also clears the previous result
+        // so a stale lookup is never shown under a different option.
+        var $radios = jQuery('#frmProductDomain input[name="domainoption"]');
+
+        function showGroup(focus) {
+            var $checked = $radios.filter(':checked');
+            if (!$checked.length) {
+                $checked = $radios.first().prop('checked', true);
+            }
+            jQuery('.domain-input-group').hide();
+            var $group = jQuery('#domain' + $checked.val()).show();
+            if (focus) {
+                $group.find('input[type="text"], select').first().trigger('focus');
+            }
         }
 
-        // Sticky bar removed
+        $radios.on('change', function () {
+            jQuery('#DomainSearchResults').hide();
+            jQuery('#btnDomainContinue').hide().attr('disabled', 'disabled');
+            jQuery('#resultDomain, #resultDomainOption').val('');
+            showGroup(true);
+        });
+
+        showGroup(false);
+
+        // Accept a full domain ("https://www.example.com") typed or pasted into
+        // the name field by splitting it into name + extension.
+        function splitDomain($sld) {
+            if (!$sld.length) {
+                return;
+            }
+            var value = jQuery.trim($sld.val()).toLowerCase()
+                .replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+            var dot = value.indexOf('.'),
+                $tld = jQuery('#' + $sld.attr('id').replace('sld', 'tld'));
+            if (dot < 1) {
+                $sld.val(value);
+                return;
+            }
+            var sld = value.substr(0, dot),
+                tld = value.substr(dot);
+            if ($tld.is('select')) {
+                if ($tld.find('option[value="' + tld + '"]').length) {
+                    $tld.val(tld);
+                    $sld.val(sld);
+                }
+            } else {
+                $tld.val(tld.substr(1));
+                $sld.val(sld);
+            }
+        }
+
+        var sldSelector = '#registersld, #transfersld, #owndomainsld';
+        jQuery(sldSelector).on('change paste', function () {
+            var $sld = jQuery(this);
+            setTimeout(function () { splitDomain($sld); }, 0);
+        });
+        jQuery('#owndomaintld').on('change', function () {
+            this.value = jQuery.trim(this.value).toLowerCase().replace(/^\.+/, '');
+        });
+
+        // Capture phase on document runs before scripts.js's jQuery submit
+        // handler on the form, so the lookup always gets the cleaned values.
+        document.addEventListener('submit', function (e) {
+            if (e.target && e.target.id === 'frmProductDomain') {
+                splitDomain(jQuery('#' + $radios.filter(':checked').val() + 'sld').filter(sldSelector));
+                jQuery('#owndomaintld').trigger('change');
+            }
+        }, true);
     });
     {/literal}
 </script>
