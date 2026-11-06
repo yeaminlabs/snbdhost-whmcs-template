@@ -1,6 +1,6 @@
 {* Payment hand-off (cart.php?a=complete, viewinvoice → gateway).
    Overrides twenty-one/forwardpage.tpl. The gateway's form ($code) and the
-   fallback form must stay inside #frmPayment: autoSubmitFormByContainer()
+   fallback form must stay inside #frmPayment: submitGatewayForm() below
    submits the first form it finds there. *}
 <style>
 .snbd-forward {
@@ -168,7 +168,24 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="ti ti-loader-2" aria-hidden="true"></i> Redirecting…';
         count.textContent = 'Redirecting now…';
-        autoSubmitFormByContainer('frmPayment');
+        submitGatewayForm();
+    }
+
+    // This page has its own template, so the theme hook marks it as a design
+    // system page and WHMCS's script bundle (autoSubmitFormByContainer) is not
+    // loaded here. Submit the first form in #frmPayment ourselves, the same one
+    // autoSubmitFormByContainer would pick. requestSubmit() still runs the
+    // gateway's own submit handlers, as jQuery's .submit() did.
+    function submitGatewayForm() {
+        var form = document.querySelector('#frmPayment form');
+        if (!form) {
+            return;
+        }
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            HTMLFormElement.prototype.submit.call(form);
+        }
     }
 
     var timer = setInterval(function () {
