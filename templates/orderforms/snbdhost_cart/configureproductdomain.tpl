@@ -711,14 +711,27 @@
             }
         }
 
+        showGroup(false);
+        var currentOption = $radios.filter(':checked').val();
+
+        // scripts.js calls iCheck('disable'/'enable') on these radios around every
+        // lookup, and iCheck fires `change` on each one when it does. Only treat
+        // it as a switch when the checked option really changed, otherwise the
+        // results would be wiped the moment a lookup finished.
         $radios.on('change', function () {
+            var selected = $radios.filter(':checked').val();
+            if (selected === currentOption) {
+                // scripts.js's own toggle just showed the group of whichever
+                // radio fired last; put the checked option's group back.
+                showGroup(false);
+                return;
+            }
+            currentOption = selected;
             jQuery('#DomainSearchResults').hide();
             jQuery('#btnDomainContinue').hide().attr('disabled', 'disabled');
             jQuery('#resultDomain, #resultDomainOption').val('');
             showGroup(true);
         });
-
-        showGroup(false);
 
         // Accept a full domain ("https://www.example.com") typed or pasted into
         // the name field by splitting it into name + extension.
