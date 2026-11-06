@@ -282,6 +282,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </a>
                     {/if}
 
+                    <a href="{$WEB_ROOT}/cart.php?a=view" class="snbd-icon-btn" id="snbdCartBtn" aria-label="Shopping cart">
+                        <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+                        <span class="snbd-icon-btn__badge" id="snbdCartCount" aria-hidden="true" style="display:none"></span>
+                    </a>
+
                     {if $loggedin}
                         <button type="button" class="snbd-icon-btn" data-snbd-popover="notifMenu" aria-expanded="false" aria-haspopup="true" aria-controls="notifMenu" aria-label="Notifications{if $snbdNotifications} ({$snbdNotifications.total} unread){/if}">
                             <i class="ti ti-bell" aria-hidden="true"></i>
