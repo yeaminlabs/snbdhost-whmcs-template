@@ -1,3 +1,139 @@
+/*
+ * Restored from WHMCS standard_cart/js/scripts.js. These were dropped from this
+ * theme's copy, so every caller (domain step Continue, "use my existing domain",
+ * configure-product add to cart, checkout errors) threw a ReferenceError.
+ */
+function displayRecommendations(postUrl, postData, postForce) {
+    var deferredObject = jQuery.Deferred(),
+        hasRecommendations = jQuery('#divProductHasRecommendations').data('value'),
+        modal = jQuery('#recommendationsModal'),
+        shoppingCartBtn = jQuery('.cart-btn .badge');
+    if (postForce || hasRecommendations) {
+        jQuery('.cart-body button[type="submit"] i')
+            .removeClass('fa-arrow-circle-right')
+            .addClass('fa-spinner fa-spin');
+        WHMCS.http.jqClient.jsonPost({
+            url: postUrl,
+            data: postData,
+            success: function(data) {
+                if (data.success && data.href) {
+                    modal.on('hide.bs.modal', function() {
+                        window.location = data.href;
+                        return false;
+                    });
+                    jQuery('#btnContinueRecommendationsModal', modal)
+                        .attr('href', data.href)
+                        .click(function () {
+                            jQuery('span', this).removeClass('w-hidden hidden');
+                        });
+                    jQuery('.modal-body', modal).html('').html(data.html);
+                    setRecommendationColors();
+                    modal.modal('show');
+                    jQuery('i.fa-spinner.fa-spin:visible').removeClass('fa-spinner fa-spin').addClass('fa-check-circle');
+                    shoppingCartBtn.text(data.count);
+                } else if (!data.success && data.href) {
+                    window.location = data.href;
+                } else {
+                    deferredObject.resolve(false);
+                }
+            },
+            error: function() {
+                deferredObject.resolve(false);
+            }
+        });
+    } else {
+        deferredObject.resolve(false);
+    }
+    return deferredObject.promise();
+}
+
+function setRecommendationColors() {
+    // tinycolor is not loaded by this theme; keep the stock colours then.
+    if (typeof tinycolor === 'undefined') {
+        return;
+    }
+    var colors,
+        defaultColor = '#9abb3a';
+    jQuery('.product-recommendations .product-recommendation').each(function() {
+        var element = jQuery(this),
+            primaryColor = element.data('color') || '';
+        if (!(primaryColor.length > 0) || (primaryColor.match(/^#[0-9A-Fa-f]{3,6}$/gi) == undefined)) {
+            primaryColor = defaultColor;
+        }
+        colors = getRecommendationColors(primaryColor, 15);
+        element.css('border-color', colors[0]);
+        jQuery('.btn-add', element).css('background-color', colors[0]);
+        jQuery('.expander', element).css('color', colors[0]);
+        jQuery('.price', element).css('color', colors[1]);
+        jQuery('.text', element).css({'color': colors[2]});
+        jQuery('.arrow', element).css({'background-color': colors[1], 'color': colors[2]});
+    });
+}
+
+function getRecommendationColors(hex, percentage) {
+    var primary = tinycolor(hex),
+        secondary,
+        text = tinycolor('fff'),
+        brightness = Math.round(Math.min(primary.getBrightness()/255) * 100),
+        baseBrightnessPercent = 25;
+    if (brightness < baseBrightnessPercent) {
+        primary.lighten(baseBrightnessPercent - brightness);
+    } else if (brightness > (100 - baseBrightnessPercent)) {
+        primary.darken(brightness - (100 - baseBrightnessPercent));
+    }
+    secondary = primary.clone().darken(percentage);
+    if (secondary.isLight()) {
+        text = tinycolor('000');
+    }
+    return [primary.toHexString(), secondary.toHexString(), text.toHexString()];
+}
+
+function showCheckoutError(errorMessage, container) {
+    jQuery('.alert-danger').hide();
+
+    var selectors = [
+        '.checkout-error-feedback',
+        '#existingLoginMessage',
+        '.gateway-errors',
+        '.assisted-cc-input-feedback'
+    ];
+
+    if (!container) {
+        container = jQuery(selectors.join(', ')).first();
+    }
+
+    if (container.length) {
+        container.html(errorMessage).slideDown('fast');
+    }
+}
+
+function scrollToGatewayInputError() {
+    var displayError = jQuery('.gateway-errors,.assisted-cc-input-feedback').first(),
+        frm = displayError.closest('form');
+    if (!frm.length) {
+        frm = jQuery('form').first();
+    }
+    frm.find('button[type="submit"],input[type="submit"]')
+        .prop('disabled', false)
+        .removeClass('disabled')
+        .find('i.fas,i.far,i.fal,i.fab')
+        .removeAttr('class')
+        .addClass('fas fa-arrow-circle-right')
+        .find('span').toggle();
+
+    if (displayError.length && elementOutOfViewPort(displayError[0])) {
+        jQuery('html, body').animate({ scrollTop: displayError.offset().top - 50 }, 500);
+    }
+}
+
+function elementOutOfViewPort(element) {
+    var bounding = element.getBoundingClientRect();
+    return bounding.top < 0
+        || bounding.left < 0
+        || bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)
+        || bounding.right > (window.innerWidth || document.documentElement.clientWidth);
+}
+
 if (typeof localTrans === 'undefined') {
     localTrans = function (phraseId, fallback)
     {
