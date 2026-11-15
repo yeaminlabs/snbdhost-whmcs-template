@@ -267,19 +267,51 @@ add_hook('ClientAreaHeadOutput', 1, function ($vars) {
     }
 
     // Dequeue and output any queued events from server-side hooks
-    if (!empty($_SESSION['snbd_dl_queue']) && is_array($_SESSION['snbd_dl_queue'])) {
-        foreach ($_SESSION['snbd_dl_queue'] as $queuedEvent) {
-            if (isset($queuedEvent['ecommerce'])) {
-                $script .= "dataLayer.push({ ecommerce: null });\n";
-            }
-            $script .= "dataLayer.push(" . json_encode($queuedEvent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ");\n";
-        }
-        $_SESSION['snbd_dl_queue'] = [];
-    }
+    $script .= snbd_dl_render_queue();
 
     $script .= "</script>\n";
 
     return $script;
+});
+
+/**
+ * Drain the queued server-side events into dataLayer.push() statements.
+ *
+ * @return string Bare JS statements, to be wrapped in a <script> by the caller.
+ */
+function snbd_dl_render_queue(): string
+{
+    if (empty($_SESSION['snbd_dl_queue']) || !is_array($_SESSION['snbd_dl_queue'])) {
+        return '';
+    }
+
+    $js = '';
+    foreach ($_SESSION['snbd_dl_queue'] as $queuedEvent) {
+        if (isset($queuedEvent['ecommerce'])) {
+            $js .= "dataLayer.push({ ecommerce: null });\n";
+        }
+        $js .= "dataLayer.push(" . json_encode($queuedEvent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ");\n";
+    }
+    $_SESSION['snbd_dl_queue'] = [];
+
+    return $js;
+}
+
+/**
+ * Second drain point, at the end of the page.
+ *
+ * Hooks that run while the page is being built — the cart's complete page in
+ * particular — queue their event after {$headoutput} has already been rendered.
+ * Flushing again in the footer delivers those on the same page view instead of
+ * deferring them to whatever page the buyer happens to open next.
+ */
+add_hook('ClientAreaFooterOutput', 1, function ($vars) {
+    $js = snbd_dl_render_queue();
+    if ($js === '') {
+        return '';
+    }
+
+    return "<script>\nwindow.dataLayer = window.dataLayer || [];\n" . $js . "</script>\n";
 });
 
 /* ==========================================================================
@@ -334,20 +366,23 @@ add_hook('ClientChangePassword', 1, function ($vars) {
    5. E-COMMERCE & CART EVENTS
    ========================================================================== */
 
-add_hook('ClientAreaPageCart', 1, function ($vars) {
-    $action = $_GET['a'] ?? 'view';
-    $cartSession = $_SESSION['cart'] ?? [];
-    $currency = snbd_dl_get_currency();
+/**
+ * Flatten the WHMCS cart session into raw ecommerce items.
+ *
+ * @param array $cartSession Contents of $_SESSION['cart'].
+ * @return array
+ */
+function snbd_dl_collect_cart_items(array $cartSession): array
+{
+    $items = [];
 
-    // Snapshot current cart for removal comparisons
-    $currentCartItems = [];
     if (!empty($cartSession['products']) && is_array($cartSession['products'])) {
         foreach ($cartSession['products'] as $pIdx => $p) {
             $pid = (int)($p['pid'] ?? 0);
             $product = Capsule::table('tblproducts')->where('id', $pid)->first();
             $pGroup = $product ? Capsule::table('tblproductgroups')->where('id', $product->gid)->first() : null;
 
-            $currentCartItems[] = [
+            $items[] = [
                 'item_id'       => 'PROD-' . $pid,
                 'product_id'    => $pid,
                 'item_name'     => $product->name ?? 'Hosting Service',
@@ -364,7 +399,7 @@ add_hook('ClientAreaPageCart', 1, function ($vars) {
     if (!empty($cartSession['domains']) && is_array($cartSession['domains'])) {
         foreach ($cartSession['domains'] as $dIdx => $d) {
             $domainName = $d['domain'] ?? 'domain.com';
-            $currentCartItems[] = [
+            $items[] = [
                 'item_id'       => 'DOMAIN-' . $domainName,
                 'product_id'    => 0,
                 'item_name'     => $domainName,
@@ -377,6 +412,17 @@ add_hook('ClientAreaPageCart', 1, function ($vars) {
             ];
         }
     }
+
+    return $items;
+}
+
+add_hook('ClientAreaPageCart', 1, function ($vars) {
+    $action = $_GET['a'] ?? 'view';
+    $cartSession = $_SESSION['cart'] ?? [];
+    $currency = snbd_dl_get_currency();
+
+    // Snapshot current cart for removal comparisons
+    $currentCartItems = snbd_dl_collect_cart_items($cartSession);
 
     // Handle cart.php?a=remove URL parameter detection
     if ($action === 'remove' && isset($_GET['i'])) {
@@ -475,21 +521,31 @@ add_hook('ClientAreaPageCart', 1, function ($vars) {
    6. PURCHASE / ORDER ACCEPTANCE (DEDICATED CONVERSION EVENT)
    ========================================================================== */
 
-add_hook('AcceptOrder', 1, function ($vars) {
-    $orderId   = $vars['orderid'] ?? null;
-    $invoiceId = $vars['invoiceid'] ?? null;
-
+/**
+ * Build the GA4 `purchase` ecommerce payload for a WHMCS order.
+ *
+ * Shared by the AcceptOrder hook (admin / automatic acceptance) and the cart
+ * complete page hook, so both paths emit an identical transaction.
+ *
+ * @param int|string $orderId
+ * @return array|null Null when the order cannot be resolved.
+ */
+function snbd_dl_build_purchase_payload($orderId): ?array
+{
     if (!$orderId) {
-        return;
+        return null;
     }
 
     try {
         $order = Capsule::table('tblorders')->where('id', $orderId)->first();
         if (!$order) {
-            return;
+            return null;
         }
 
-        $currency = snbd_dl_get_currency();
+        // Price the order in the currency the order was placed in, not the
+        // currency of whoever happens to own the current session (the gateway
+        // callback and the admin area both run outside the buyer's session).
+        $currency = snbd_dl_get_currency($order->currency ?? null);
         $rawItems = [];
 
         // Fetch products in order
@@ -561,7 +617,7 @@ add_hook('AcceptOrder', 1, function ($vars) {
             } catch (\Throwable $e) { }
         }
 
-        snbd_dl_queue_event([
+        return [
             'event'     => 'purchase',
             'ecommerce' => [
                 'transaction_id'    => 'ORD-' . $orderId,
@@ -575,8 +631,100 @@ add_hook('AcceptOrder', 1, function ($vars) {
                 'payment_type'      => $paymentType,
                 'items'             => $formatted['items'],
             ],
+        ];
+    } catch (\Throwable $e) {
+        return null;
+    }
+}
+
+/**
+ * Queue a purchase exactly once per transaction id, whichever hook gets there
+ * first. Without this, an order accepted while the buyer is still on the cart
+ * would report the same revenue twice.
+ *
+ * @param array|null $payload
+ * @return bool True when the event was queued by this call.
+ */
+function snbd_dl_queue_purchase_once(?array $payload): bool
+{
+    if (!$payload) {
+        return false;
+    }
+
+    $txnId = $payload['ecommerce']['transaction_id'] ?? null;
+    if (!$txnId) {
+        return false;
+    }
+
+    if (!isset($_SESSION['snbd_dl_sent_purchases']) || !is_array($_SESSION['snbd_dl_sent_purchases'])) {
+        $_SESSION['snbd_dl_sent_purchases'] = [];
+    }
+
+    if (in_array($txnId, $_SESSION['snbd_dl_sent_purchases'], true)) {
+        return false;
+    }
+
+    $_SESSION['snbd_dl_sent_purchases'][] = $txnId;
+    snbd_dl_queue_event($payload);
+
+    return true;
+}
+
+add_hook('AcceptOrder', 1, function ($vars) {
+    snbd_dl_queue_purchase_once(
+        snbd_dl_build_purchase_payload($vars['orderid'] ?? null)
+    );
+});
+
+/**
+ * Order complete page — the only purchase path guaranteed to run inside the
+ * buyer's own browser session. AcceptOrder alone loses the conversion whenever
+ * acceptance happens in a gateway callback or in the admin area, because the
+ * queued event is written to the wrong session and never renders.
+ */
+add_hook('ShoppingCartCheckoutCompletePage', 1, function ($vars) {
+    $orderId = $vars['orderid']
+        ?? $vars['orderId']
+        ?? ($_SESSION['cartorderid'] ?? null);
+
+    // Queued here, flushed by the footer hook on this same page view.
+    snbd_dl_queue_purchase_once(snbd_dl_build_purchase_payload($orderId));
+});
+
+/**
+ * add_payment_info — fires when the buyer submits checkout with a payment
+ * method chosen. ShoppingCartValidateCheckout is the last server-side point
+ * before WHMCS creates the order, and it runs in the buyer's own session.
+ */
+add_hook('ShoppingCartValidateCheckout', 1, function ($vars) {
+    try {
+        $cartSession = $_SESSION['cart'] ?? [];
+        $rawItems    = snbd_dl_collect_cart_items($cartSession);
+
+        if (empty($rawItems)) {
+            return;
+        }
+
+        $formatted = snbd_dl_format_ecommerce_items($rawItems);
+        $currency  = snbd_dl_get_currency();
+
+        $paymentType = $_REQUEST['paymentmethod']
+            ?? ($cartSession['paymentmethod'] ?? 'Unknown');
+
+        snbd_dl_queue_event([
+            'event'     => 'add_payment_info',
+            'ecommerce' => [
+                'currency'     => $currency,
+                'value'        => $formatted['value'],
+                'coupon'       => $cartSession['promo'] ?? null,
+                'payment_type' => (string)$paymentType,
+                'items'        => $formatted['items'],
+            ],
         ]);
     } catch (\Throwable $e) { }
+
+    // Must not return a string: WHMCS treats any returned string as a
+    // validation error and blocks the checkout.
 });
 
 /* ==========================================================================
