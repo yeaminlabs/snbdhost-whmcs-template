@@ -367,20 +367,180 @@ add_hook('ClientChangePassword', 1, function ($vars) {
    ========================================================================== */
 
 /**
- * Flatten the WHMCS cart session into raw ecommerce items.
+ * Resolve the active currency id (explicit > client > system default).
+ * Pricing lookups need the numeric id, not the code.
+ *
+ * @param int|null $currencyId
+ * @return int|null
+ */
+function snbd_dl_get_currency_id($currencyId = null): ?int
+{
+    try {
+        if ($currencyId) {
+            $exists = Capsule::table('tblcurrencies')->where('id', $currencyId)->first();
+            if ($exists) {
+                return (int)$currencyId;
+            }
+        }
+
+        $uid = $_SESSION['uid'] ?? null;
+        if ($uid) {
+            $client = Capsule::table('tblclients')->where('id', $uid)->first();
+            if ($client && !empty($client->currency)) {
+                return (int)$client->currency;
+            }
+        }
+
+        $defaultCurr = Capsule::table('tblcurrencies')->where('default', 1)->first();
+        if ($defaultCurr) {
+            return (int)$defaultCurr->id;
+        }
+
+        $any = Capsule::table('tblcurrencies')->first();
+        if ($any) {
+            return (int)$any->id;
+        }
+    } catch (\Throwable $e) { }
+
+    return null;
+}
+
+/**
+ * Recurring price of a product in a currency for a billing cycle. Falls back
+ * to the first cycle the product actually offers (-1 marks an unused cycle).
+ *
+ * @param int $pid
+ * @param int $currencyId
+ * @param string|null $billingCycle
+ * @return array|null ['cycle' => string, 'price' => float]
+ */
+function snbd_dl_product_cycle_price(int $pid, int $currencyId, ?string $billingCycle = null): ?array
+{
+    try {
+        $row = Capsule::table('tblpricing')
+            ->where('type', 'product')
+            ->where('relid', $pid)
+            ->where('currency', $currencyId)
+            ->first();
+
+        if (!$row) {
+            return null;
+        }
+
+        $cycleColumns = [
+            'monthly'      => 'monthly',
+            'quarterly'    => 'quarterly',
+            'semiannually' => 'semiannually',
+            'annually'     => 'annually',
+            'biennially'   => 'biennially',
+            'triennially'  => 'triennially',
+        ];
+
+        $cycle = $billingCycle ? strtolower($billingCycle) : null;
+
+        if ($cycle === 'free') {
+            return ['cycle' => 'free', 'price' => 0.0];
+        }
+
+        if ($cycle && isset($cycleColumns[$cycle]) && (float)$row->{$cycleColumns[$cycle]} >= 0) {
+            return ['cycle' => $cycle, 'price' => (float)$row->{$cycleColumns[$cycle]}];
+        }
+
+        foreach ($cycleColumns as $name => $column) {
+            if ((float)$row->{$column} >= 0) {
+                return ['cycle' => $name, 'price' => (float)$row->{$column}];
+            }
+        }
+
+        // One-time products keep their price in the setup column.
+        if ((float)$row->msetupfee >= 0) {
+            return ['cycle' => $cycle ?: 'onetime', 'price' => (float)$row->msetupfee];
+        }
+    } catch (\Throwable $e) { }
+
+    return null;
+}
+
+/**
+ * Registration or transfer price of a domain in a currency for a period.
+ * tblpricing maps periods 1-6 years onto its six price columns.
+ *
+ * @param string $domain
+ * @param int $period
+ * @param int $currencyId
+ * @param string $action 'register'|'transfer'
+ * @return float|null Null when the TLD/cycle has no price configured.
+ */
+function snbd_dl_domain_period_price(string $domain, int $period, int $currencyId, string $action = 'register'): ?float
+{
+    try {
+        $tld = strtolower(strrchr(trim($domain), '.'));
+        if ($tld === '' || $tld === false) {
+            return null;
+        }
+
+        $tldRow = Capsule::table('tbldomainpricing')->where('extension', $tld)->first();
+        if (!$tldRow) {
+            return null;
+        }
+
+        $pricingType = $action === 'transfer' ? 'domaintransfer' : 'domainregister';
+        $row = Capsule::table('tblpricing')
+            ->where('type', $pricingType)
+            ->where('relid', $tldRow->id)
+            ->where('currency', $currencyId)
+            ->first();
+
+        if (!$row) {
+            return null;
+        }
+
+        $periodColumns = [
+            1 => 'msetupfee',
+            2 => 'qsetupfee',
+            3 => 'ssetupfee',
+            4 => 'asetupfee',
+            5 => 'bsetupfee',
+            6 => 'tsetupfee',
+        ];
+
+        $column = $periodColumns[min(max($period, 1), 6)] ?? 'tsetupfee';
+        $price  = (float)$row->{$column};
+
+        return $price >= 0 ? $price : null;
+    } catch (\Throwable $e) { }
+
+    return null;
+}
+
+/**
+ * Flatten the WHMCS cart session into raw ecommerce items with real prices.
+ *
+ * Cart session entries carry no price, so prices are resolved from tblpricing
+ * in the session's currency. Used by every ecommerce event so all of them
+ * report the same currency and value.
  *
  * @param array $cartSession Contents of $_SESSION['cart'].
+ * @param int|null $currencyId
  * @return array
  */
-function snbd_dl_collect_cart_items(array $cartSession): array
+function snbd_dl_collect_cart_items(array $cartSession, ?int $currencyId = null): array
 {
+    $currencyId = $currencyId ?: snbd_dl_get_currency_id();
     $items = [];
 
     if (!empty($cartSession['products']) && is_array($cartSession['products'])) {
-        foreach ($cartSession['products'] as $pIdx => $p) {
+        foreach ($cartSession['products'] as $p) {
             $pid = (int)($p['pid'] ?? 0);
+            if (!$pid) {
+                continue;
+            }
             $product = Capsule::table('tblproducts')->where('id', $pid)->first();
             $pGroup = $product ? Capsule::table('tblproductgroups')->where('id', $product->gid)->first() : null;
+
+            $cycleInfo = snbd_dl_product_cycle_price($pid, $currencyId, $p['billingcycle'] ?? null);
+            $variant   = $cycleInfo['cycle'] ?? strtolower($p['billingcycle'] ?? 'monthly');
+            $price     = $cycleInfo['price'] ?? 0.0;
 
             $items[] = [
                 'item_id'       => 'PROD-' . $pid,
@@ -388,27 +548,32 @@ function snbd_dl_collect_cart_items(array $cartSession): array
                 'item_name'     => $product->name ?? 'Hosting Service',
                 'item_category' => $pGroup->name ?? 'Hosting',
                 'group_id'      => (int)($product->gid ?? 0),
-                'item_variant'  => strtolower($p['billingcycle'] ?? 'monthly'),
-                'price'         => (float)($p['price'] ?? 0.0),
+                'item_variant'  => $variant,
+                'price'         => round($price, 2),
                 'quantity'      => 1,
-                'cart_index'    => $pIdx,
             ];
         }
     }
 
     if (!empty($cartSession['domains']) && is_array($cartSession['domains'])) {
-        foreach ($cartSession['domains'] as $dIdx => $d) {
-            $domainName = $d['domain'] ?? 'domain.com';
+        foreach ($cartSession['domains'] as $d) {
+            $domainName = $d['domain'] ?? '';
+            if (!$domainName) {
+                continue;
+            }
+            $action = ($d['type'] ?? 'register') === 'transfer' ? 'transfer' : 'register';
+            $period = (int)($d['regperiod'] ?? 1);
+            $price  = snbd_dl_domain_period_price($domainName, $period, $currencyId, $action);
+
             $items[] = [
                 'item_id'       => 'DOMAIN-' . $domainName,
                 'product_id'    => 0,
                 'item_name'     => $domainName,
-                'item_category' => 'Domain Registration',
+                'item_category' => $action === 'transfer' ? 'Domain Transfer' : 'Domain Registration',
                 'group_id'      => 0,
-                'item_variant'  => ($d['regperiod'] ?? 1) . 'year',
-                'price'         => (float)($d['price'] ?? 0.0),
+                'item_variant'  => $period . 'year',
+                'price'         => round($price ?? 0.0, 2),
                 'quantity'      => 1,
-                'cart_index'    => 'd_' . $dIdx,
             ];
         }
     }
@@ -416,104 +581,101 @@ function snbd_dl_collect_cart_items(array $cartSession): array
     return $items;
 }
 
-add_hook('ClientAreaPageCart', 1, function ($vars) {
-    $action = $_GET['a'] ?? 'view';
+/**
+ * Detect items that entered or left the cart since the last page render and
+ * queue add_to_cart / remove_from_cart for them.
+ *
+ * This runs on every client-area page render BEFORE the queue flush, and it is
+ * the single source of add/remove events: the AJAX cart endpoint (a=addToCart)
+ * never triggers ClientAreaPageCart, so per-request handlers miss exactly the
+ * adds the store uses most. Item identity is the product id / domain name, so
+ * a billing-cycle change does not re-fire add_to_cart.
+ */
+add_hook('ClientAreaHeadOutput', 0, function () {
     $cartSession = $_SESSION['cart'] ?? [];
-    $currency = snbd_dl_get_currency();
+    $currencyId  = snbd_dl_get_currency_id();
+    $currency    = snbd_dl_get_currency();
 
-    // Snapshot current cart for removal comparisons
-    $currentCartItems = snbd_dl_collect_cart_items($cartSession);
+    $currentItems = snbd_dl_collect_cart_items($cartSession, $currencyId);
 
-    // Handle cart.php?a=remove URL parameter detection
-    if ($action === 'remove' && isset($_GET['i'])) {
-        $snapshot = $_SESSION['snbd_dl_cart_snapshot'] ?? [];
-        $removeIndex = $_GET['i'];
-        $removeType  = $_GET['r'] ?? 'p';
-
-        $removedItem = null;
-        if (!empty($snapshot)) {
-            foreach ($snapshot as $sItem) {
-                if ($removeType === 'p' && (string)($sItem['cart_index'] ?? '') === (string)$removeIndex) {
-                    $removedItem = $sItem;
-                    break;
-                } elseif ($removeType === 'd' && (string)($sItem['cart_index'] ?? '') === ('d_' . $removeIndex)) {
-                    $removedItem = $sItem;
-                    break;
-                }
-            }
-        }
-
-        if ($removedItem) {
-            $formattedRem = snbd_dl_format_ecommerce_items([$removedItem]);
-            snbd_dl_queue_event([
-                'event'     => 'remove_from_cart',
-                'ecommerce' => [
-                    'currency' => $currency,
-                    'value'    => $formattedRem['value'],
-                    'items'    => $formattedRem['items'],
-                ],
-            ]);
-        }
+    $current = [];
+    foreach ($currentItems as $item) {
+        $current[$item['item_id']] = $item;
     }
 
-    // Handle cart.php?a=add URL parameter detection
-    if ($action === 'add' && isset($_GET['pid'])) {
-        $addedPid = (int)$_GET['pid'];
-        $product = Capsule::table('tblproducts')->where('id', $addedPid)->first();
-        if ($product) {
-            $pGroup = Capsule::table('tblproductgroups')->where('id', $product->gid)->first();
-            $addedItem = [
-                'item_id'       => 'PROD-' . $addedPid,
-                'product_id'    => $addedPid,
-                'item_name'     => $product->name,
-                'item_category' => $pGroup->name ?? 'Hosting',
-                'group_id'      => (int)$product->gid,
-                'item_variant'  => 'monthly',
-                'price'         => 0.0, // WHMCS pricing calculated on config step
-                'quantity'      => 1,
-            ];
-            $formattedAdd = snbd_dl_format_ecommerce_items([$addedItem]);
-            snbd_dl_queue_event([
-                'event'     => 'add_to_cart',
-                'ecommerce' => [
-                    'currency' => $currency,
-                    'value'    => $formattedAdd['value'],
-                    'items'    => $formattedAdd['items'],
-                ],
-            ]);
-        }
+    $snapshot = $_SESSION['snbd_dl_item_snapshot'] ?? null;
+
+    if (!is_array($snapshot)) {
+        // First render of this session: record the starting cart, no events.
+        $_SESSION['snbd_dl_item_snapshot'] = $current;
+        return;
     }
 
-    // Save snapshot for next removal check
-    $_SESSION['snbd_dl_cart_snapshot'] = $currentCartItems;
+    $added   = array_diff_key($current, $snapshot);
+    $removed = array_diff_key($snapshot, $current);
 
-    // View Cart or Begin Checkout page view events
-    if ($action === 'view' && !empty($currentCartItems)) {
-        $formattedCart = snbd_dl_format_ecommerce_items($currentCartItems);
-        return [
-            'snbd_dl_event' => [
-                'event'     => 'view_cart',
-                'ecommerce' => [
-                    'currency' => $currency,
-                    'value'    => $formattedCart['value'],
-                    'items'    => $formattedCart['items'],
-                ],
+    if (!empty($added)) {
+        $formatted = snbd_dl_format_ecommerce_items(array_values($added));
+        snbd_dl_queue_event([
+            'event'     => 'add_to_cart',
+            'ecommerce' => [
+                'currency' => $currency,
+                'value'    => $formatted['value'],
+                'items'    => $formatted['items'],
             ],
-        ];
-    } elseif ($action === 'checkout' && !empty($currentCartItems)) {
-        $formattedCart = snbd_dl_format_ecommerce_items($currentCartItems);
-        $coupon = $cartSession['promo'] ?? null;
-        return [
-            'snbd_dl_event' => [
-                'event'     => 'begin_checkout',
-                'ecommerce' => [
-                    'currency' => $currency,
-                    'value'    => $formattedCart['value'],
-                    'coupon'   => $coupon,
-                    'items'    => $formattedCart['items'],
-                ],
+        ]);
+    }
+
+    if (!empty($removed)) {
+        $formatted = snbd_dl_format_ecommerce_items(array_values($removed));
+        snbd_dl_queue_event([
+            'event'     => 'remove_from_cart',
+            'ecommerce' => [
+                'currency' => $currency,
+                'value'    => $formatted['value'],
+                'items'    => $formatted['items'],
             ],
-        ];
+        ]);
+    }
+
+    $_SESSION['snbd_dl_item_snapshot'] = $current;
+});
+
+add_hook('ClientAreaPageCart', 1, function ($vars) {
+    $cartSession = $_SESSION['cart'] ?? [];
+    $currencyId  = snbd_dl_get_currency_id();
+    $currency    = snbd_dl_get_currency();
+    $action      = $_GET['a'] ?? 'view';
+
+    $cartItems = snbd_dl_collect_cart_items($cartSession, $currencyId);
+    if (empty($cartItems)) {
+        return;
+    }
+
+    $formatted = snbd_dl_format_ecommerce_items($cartItems);
+
+    if ($action === 'checkout') {
+        snbd_dl_queue_event([
+            'event'     => 'begin_checkout',
+            'ecommerce' => [
+                'currency' => $currency,
+                'value'    => $formatted['value'],
+                'coupon'   => $cartSession['promo'] ?? null,
+                'items'    => $formatted['items'],
+            ],
+        ]);
+        return;
+    }
+
+    if ($action === 'view') {
+        snbd_dl_queue_event([
+            'event'     => 'view_cart',
+            'ecommerce' => [
+                'currency' => $currency,
+                'value'    => $formatted['value'],
+                'items'    => $formatted['items'],
+            ],
+        ]);
     }
 });
 
@@ -699,7 +861,8 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function ($vars) {
 add_hook('ShoppingCartValidateCheckout', 1, function ($vars) {
     try {
         $cartSession = $_SESSION['cart'] ?? [];
-        $rawItems    = snbd_dl_collect_cart_items($cartSession);
+        $currencyId  = snbd_dl_get_currency_id();
+        $rawItems    = snbd_dl_collect_cart_items($cartSession, $currencyId);
 
         if (empty($rawItems)) {
             return;
