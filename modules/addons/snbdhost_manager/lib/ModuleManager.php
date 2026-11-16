@@ -29,12 +29,36 @@ class ModuleManager
             return [];
         }
         $data = json_decode(file_get_contents($this->dataFile), true);
-        return is_array($data) ? $data : [];
+        if (!is_array($data)) {
+            return [];
+        }
+
+        require_once __DIR__ . '/GitHubTokenStore.php';
+        foreach ($data as &$module) {
+            if (isset($module['token'])) {
+                $module['token'] = GitHubTokenStore::resolve($module['token'], false);
+            }
+        }
+        unset($module);
+        return $data;
     }
 
     public function saveModules(array $modules): void
     {
-        file_put_contents($this->dataFile, json_encode(array_values($modules), JSON_PRETTY_PRINT));
+        require_once __DIR__ . '/GitHubTokenStore.php';
+        $storedModules = array_values($modules);
+        foreach ($storedModules as &$module) {
+            if (!empty($module['token']) && !GitHubTokenStore::isProtected($module['token'])) {
+                $protectedToken = GitHubTokenStore::protect($module['token']);
+                if ($protectedToken !== null) {
+                    $module['token'] = $protectedToken;
+                }
+            }
+        }
+        unset($module);
+
+        file_put_contents($this->dataFile, json_encode($storedModules, JSON_PRETTY_PRINT), LOCK_EX);
+        @chmod($this->dataFile, 0600);
     }
 
     public function addModule(array $entry): array

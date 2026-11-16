@@ -18,6 +18,8 @@ class SnbdhostThemeWidget extends AbstractWidget
 
     public function getData()
     {
+        require_once __DIR__ . '/GitHubTokenStore.php';
+
         // Fetch module configuration from the database
         $config = Capsule::table('tbladdonmodules')
             ->where('module', 'snbdhost_manager')
@@ -45,9 +47,10 @@ class SnbdhostThemeWidget extends AbstractWidget
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_USERAGENT, 'WHMCS-SNBDHost-Manager');
             
-            if (!empty($config['github_token'])) {
+            $githubToken = GitHubTokenStore::resolve($config['github_token'] ?? '');
+            if ($githubToken !== '') {
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Authorization: token ' . $config['github_token']
+                    'Authorization: token ' . $githubToken
                 ]);
             }
             

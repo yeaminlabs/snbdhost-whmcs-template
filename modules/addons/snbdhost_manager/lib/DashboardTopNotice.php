@@ -15,6 +15,8 @@ class DashboardTopNotice
 
     public function __construct()
     {
+        require_once __DIR__ . '/GitHubTokenStore.php';
+
         // Try to fetch settings from module configuration
         try {
             $moduleConfig = Capsule::table('tbladdonmodules')
@@ -25,7 +27,7 @@ class DashboardTopNotice
                 if ($setting->setting === 'github_repo') {
                     $this->githubRepo = $setting->value;
                 } elseif ($setting->setting === 'github_token') {
-                    $this->githubToken = $setting->value;
+                    $this->githubToken = GitHubTokenStore::resolve($setting->value);
                 } elseif ($setting->setting === 'developer_mode') {
                     $this->developerMode = $setting->value;
                 }

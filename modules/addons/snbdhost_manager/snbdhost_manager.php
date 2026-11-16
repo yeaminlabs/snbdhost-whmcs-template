@@ -30,7 +30,7 @@ function snbdhost_manager_config()
                 'Type'         => 'password',
                 'Size'         => '50',
                 'Default'      => '',
-                'Description'  => 'Required if the repository is private. Create a Personal Access Token with repo access.',
+                'Description'  => 'Required if the repository is private. It is encrypted after first use; set SNBD_GITHUB_TOKEN in the server environment to keep it out of the database.',
             ],
             'bug_report_url' => [
                 'FriendlyName' => 'Report Bug URL',
@@ -165,7 +165,7 @@ function snbdhost_manager_output($vars)
 {
     $modulelink        = $vars['modulelink'];
     $githubRepo        = $vars['github_repo'];
-    $githubToken       = $vars['github_token'];
+    $storedGithubToken = trim((string)($vars['github_token'] ?? ''));
     $uptimerobotApiKey = $vars['uptimerobot_api_key'] ?? '';
 
     // ----------------------------------------------------------------
@@ -183,7 +183,9 @@ function snbdhost_manager_output($vars)
     // ----------------------------------------------------------------
     //  Load helpers
     // ----------------------------------------------------------------
+    require_once __DIR__ . '/lib/GitHubTokenStore.php';
     require_once __DIR__ . '/lib/ModuleManager.php';
+    $githubToken = \SNBDHostManager\GitHubTokenStore::resolve($storedGithubToken);
     $moduleManager = new \SNBDHostManager\ModuleManager();
 
     // ----------------------------------------------------------------
@@ -193,6 +195,26 @@ function snbdhost_manager_output($vars)
     $updateType = isset($_REQUEST['type'])   ? $_REQUEST['type']   : 'all';
     $message    = '';
     $adminToken = function_exists('generate_token') ? generate_token('plain') : '';
+
+    // Migrate the legacy plaintext setting once, without ever rendering or
+    // logging the token. An environment token remains database-free.
+    if ($storedGithubToken !== ''
+        && !\SNBDHostManager\GitHubTokenStore::isProtected($storedGithubToken)
+        && !preg_match('/^\*+$/', $storedGithubToken)
+        && (getenv('SNBD_GITHUB_TOKEN') === false || getenv('SNBD_GITHUB_TOKEN') === '')) {
+        try {
+            $protectedGithubToken = \SNBDHostManager\GitHubTokenStore::protect($githubToken);
+            if ($protectedGithubToken !== null) {
+                Capsule::table('tbladdonmodules')
+                    ->where('module', 'snbdhost_manager')
+                    ->where('setting', 'github_token')
+                    ->update(['value' => $protectedGithubToken]);
+            }
+        } catch (\Throwable $e) {
+            // Keep the admin page available if a legacy-token migration cannot
+            // write; the token is never included in the error response.
+        }
+    }
 
     // Every action that can write files or configuration must be a POST from
     // the current WHMCS admin session. check_token() validates the WHMCS
