@@ -155,6 +155,36 @@ function snbd_dl_get_currency($currencyId = null): string
 }
 
 /**
+ * Encode a value for direct insertion into a JavaScript block.
+ *
+ * JSON is not automatically safe inside HTML script elements: a client or
+ * product value containing </script> can terminate the element before the
+ * browser parses the JSON. JSON_HEX_TAG (and the other HTML character flags)
+ * keep untrusted strings data-only without changing the decoded JavaScript
+ * value.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function snbd_dl_json_for_script($value): string
+{
+    $flags = JSON_UNESCAPED_SLASHES
+        | JSON_PRETTY_PRINT
+        | JSON_HEX_TAG
+        | JSON_HEX_AMP
+        | JSON_HEX_APOS
+        | JSON_HEX_QUOT;
+
+    if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+        $flags |= JSON_INVALID_UTF8_SUBSTITUTE;
+    }
+
+    $json = json_encode($value, $flags);
+
+    return $json === false ? 'null' : $json;
+}
+
+/**
  * Queue a dataLayer event to be rendered on the next page load
  *
  * @param array $eventPayload
@@ -241,7 +271,7 @@ add_hook('ClientAreaHeadOutput', 1, function ($vars) {
 
     $script .= "<script>\n";
     $script .= "window.dataLayer = window.dataLayer || [];\n";
-    $script .= "dataLayer.push(" . json_encode($initialPayload, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ");\n";
+    $script .= "dataLayer.push(" . snbd_dl_json_for_script($initialPayload) . ");\n";
 
     // Handle logout cookie event if session was destroyed on logout
     if (!empty($_COOKIE['snbd_dl_logout'])) {
@@ -250,7 +280,7 @@ add_hook('ClientAreaHeadOutput', 1, function ($vars) {
             'event'   => 'logout',
             'user_id' => $logoutUserId !== '1' ? $logoutUserId : null,
         ];
-        $script .= "dataLayer.push(" . json_encode($logoutPayload, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ");\n";
+        $script .= "dataLayer.push(" . snbd_dl_json_for_script($logoutPayload) . ");\n";
         setcookie('snbd_dl_logout', '', time() - 3600, '/');
     }
 
@@ -262,7 +292,7 @@ add_hook('ClientAreaHeadOutput', 1, function ($vars) {
             'method'  => 'email',
             'user_id' => $loginUserId !== '1' ? $loginUserId : null,
         ];
-        $script .= "dataLayer.push(" . json_encode($loginPayload, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ");\n";
+        $script .= "dataLayer.push(" . snbd_dl_json_for_script($loginPayload) . ");\n";
         setcookie('snbd_dl_login', '', time() - 3600, '/');
     }
 
@@ -290,7 +320,7 @@ function snbd_dl_render_queue(): string
         if (isset($queuedEvent['ecommerce'])) {
             $js .= "dataLayer.push({ ecommerce: null });\n";
         }
-        $js .= "dataLayer.push(" . json_encode($queuedEvent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ");\n";
+        $js .= "dataLayer.push(" . snbd_dl_json_for_script($queuedEvent) . ");\n";
     }
     $_SESSION['snbd_dl_queue'] = [];
 
@@ -800,9 +830,80 @@ function snbd_dl_build_purchase_payload($orderId): ?array
 }
 
 /**
- * Queue a purchase exactly once per transaction id, whichever hook gets there
- * first. Without this, an order accepted while the buyer is still on the cart
- * would report the same revenue twice.
+ * Ensure the cross-session purchase claim table exists.
+ *
+ * AcceptOrder can run in a gateway callback or admin session while
+ * ShoppingCartCheckoutCompletePage runs in the buyer's session. A PHP
+ * session list cannot coordinate those two requests, so the transaction id
+ * is claimed in a shared table with a primary-key constraint instead.
+ *
+ * @return bool
+ */
+function snbd_dl_ensure_purchase_dedupe_table(): bool
+{
+    static $ready = null;
+
+    if ($ready !== null) {
+        return $ready;
+    }
+
+    try {
+        if (!Capsule::schema()->hasTable('mod_snbd_dl_purchases')) {
+            try {
+                Capsule::schema()->create('mod_snbd_dl_purchases', function ($table) {
+                    $table->string('transaction_id', 191)->primary();
+                    $table->timestamp('created_at')->useCurrent();
+                });
+            } catch (\Throwable $e) {
+                // Another request may have created it between hasTable() and
+                // create(); the final existence check below handles that race.
+            }
+        }
+
+        $ready = Capsule::schema()->hasTable('mod_snbd_dl_purchases');
+    } catch (\Throwable $e) {
+        $ready = false;
+    }
+
+    return $ready;
+}
+
+/**
+ * AcceptOrder may run in a gateway callback or admin session. Only allow that
+ * hook to claim a purchase when it is actually running as the buyer, so an
+ * invisible server-side session cannot consume the browser event before the
+ * checkout-complete page gets a chance to render it.
+ *
+ * @param int|string|null $orderId
+ * @return bool
+ */
+function snbd_dl_is_buyer_session_for_order($orderId): bool
+{
+    $sessionUserId = (int)($_SESSION['uid'] ?? 0);
+    if (!$orderId || $sessionUserId <= 0) {
+        return false;
+    }
+
+    try {
+        $order = Capsule::table('tblorders')
+            ->where('id', $orderId)
+            ->select('userid')
+            ->first();
+
+        return $order && (int)$order->userid === $sessionUserId;
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
+
+/**
+ * Queue a purchase exactly once per transaction id across all sessions.
+ *
+ * The unique primary key makes the claim atomic: whichever hook inserts the
+ * transaction id first gets to queue the browser event; a duplicate insert
+ * fails and is deliberately not queued. If the dedupe table is unavailable,
+ * fail closed rather than falling back to session-scoped state and risking a
+ * second revenue event.
  *
  * @param array|null $payload
  * @return bool True when the event was queued by this call.
@@ -814,28 +915,35 @@ function snbd_dl_queue_purchase_once(?array $payload): bool
     }
 
     $txnId = $payload['ecommerce']['transaction_id'] ?? null;
-    if (!$txnId) {
+    if (!$txnId || !snbd_dl_ensure_purchase_dedupe_table()) {
         return false;
     }
 
-    if (!isset($_SESSION['snbd_dl_sent_purchases']) || !is_array($_SESSION['snbd_dl_sent_purchases'])) {
-        $_SESSION['snbd_dl_sent_purchases'] = [];
-    }
-
-    if (in_array($txnId, $_SESSION['snbd_dl_sent_purchases'], true)) {
+    try {
+        Capsule::table('mod_snbd_dl_purchases')->insert([
+            'transaction_id' => (string)$txnId,
+            'created_at'     => date('Y-m-d H:i:s'),
+        ]);
+    } catch (\Throwable $e) {
+        // A duplicate primary-key insert is the normal second-hook path. Any
+        // other DB failure also fails closed to prevent duplicate revenue.
         return false;
     }
 
-    $_SESSION['snbd_dl_sent_purchases'][] = $txnId;
     snbd_dl_queue_event($payload);
 
     return true;
 }
 
 add_hook('AcceptOrder', 1, function ($vars) {
-    snbd_dl_queue_purchase_once(
-        snbd_dl_build_purchase_payload($vars['orderid'] ?? null)
-    );
+    $orderId = $vars['orderid'] ?? null;
+
+    // Gateway callbacks and admin acceptance have no buyer browser to render
+    // the queued JavaScript. Leave the claim to the checkout-complete page in
+    // those contexts; this branch is only a same-client-session fast path.
+    if (snbd_dl_is_buyer_session_for_order($orderId)) {
+        snbd_dl_queue_purchase_once(snbd_dl_build_purchase_payload($orderId));
+    }
 });
 
 /**

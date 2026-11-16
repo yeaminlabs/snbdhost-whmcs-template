@@ -17,6 +17,154 @@ if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
 
+// ── Per-response CSP nonce and output hardening ─────────────────────────────
+if (!function_exists('snbd_get_csp_nonce')) {
+    /**
+     * Return one unpredictable nonce for this response.
+     *
+     * The output buffer below adds it to every rendered script/style element,
+     * including WHMCS/module templates that are outside this hook file.
+     */
+    function snbd_get_csp_nonce(): string
+    {
+        static $nonce = null;
+
+        if ($nonce !== null) {
+            return $nonce;
+        }
+
+        try {
+            $bytes = random_bytes(18);
+        } catch (\Throwable $e) {
+            $bytes = function_exists('openssl_random_pseudo_bytes')
+                ? openssl_random_pseudo_bytes(18)
+                : false;
+        }
+
+        if (!is_string($bytes) || $bytes === '') {
+            $bytes = hash('sha256', uniqid((string)mt_rand(), true), true);
+        }
+
+        $nonce = rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
+
+        return $nonce;
+    }
+}
+
+if (!function_exists('snbd_csp_nonce_output_buffer')) {
+    /**
+     * Hash rendered inline event handlers so legacy WHMCS controls keep
+     * working without allowing arbitrary inline script elements.
+     *
+     * @param string $html
+     * @return array<string>
+     */
+    function snbd_csp_event_handler_hashes(string $html): array
+    {
+        $hashes = [];
+
+        if (!preg_match_all(
+            '/\bon[a-z][a-z0-9_-]*\s*=\s*(["\'])(.*?)\1/is',
+            $html,
+            $matches,
+            PREG_SET_ORDER
+        )) {
+            return [];
+        }
+
+        foreach ($matches as $match) {
+            $handler = trim(html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            if ($handler === '') {
+                continue;
+            }
+
+            $hashes["'sha256-" . base64_encode(hash('sha256', $handler, true)) . "'"] = true;
+        }
+
+        return array_keys($hashes);
+    }
+
+    /**
+     * Build and send the narrowed client-area CSP.
+     *
+     * @param array<string> $scriptAttributeHashes
+     * @return void
+     */
+    function snbd_send_csp_header(array $scriptAttributeHashes = []): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        $nonce = snbd_get_csp_nonce();
+        $scriptAttrSources = "'unsafe-hashes'";
+        foreach ($scriptAttributeHashes as $hash) {
+            $scriptAttrSources .= ' ' . $hash;
+        }
+
+        header(
+            "Content-Security-Policy: " .
+            "default-src 'self'; " .
+            "base-uri 'self'; " .
+            "object-src 'none'; " .
+            "script-src 'self' 'nonce-{$nonce}' 'strict-dynamic' " .
+                "https://accounts.google.com https://www.googletagmanager.com " .
+                "https://cdn.jsdelivr.net https://platform.twitter.com " .
+                "https://challenges.cloudflare.com https://embed.tawk.to; " .
+            "script-src-attr {$scriptAttrSources}; " .
+            "style-src 'self' 'nonce-{$nonce}' https://fonts.googleapis.com; " .
+            "style-src-attr 'unsafe-inline'; " .
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; " .
+            "img-src 'self' https: data: blob:; " .
+            "connect-src 'self' https://gtm.snbdhost.com " .
+                "https://www.googletagmanager.com https://www.google-analytics.com " .
+                "https://analytics.google.com https://accounts.google.com " .
+                "https://challenges.cloudflare.com https://ai-proxy.snbdhost.com; " .
+            "frame-src 'self' https:; " .
+            "frame-ancestors 'self'; upgrade-insecure-requests;",
+            true
+        );
+    }
+
+    /**
+     * Add the response nonce to inline and external script/style elements.
+     * Existing nonce attributes are preserved if another integration added
+     * one before this callback runs.
+     */
+    function snbd_csp_nonce_output_buffer(string $html): string
+    {
+        $nonce = htmlspecialchars(snbd_get_csp_nonce(), ENT_QUOTES, 'UTF-8');
+
+        // The completed response is available here, so hashes can cover
+        // Smarty-rendered event attributes with dynamic values as well.
+        snbd_send_csp_header(snbd_csp_event_handler_hashes($html));
+
+        $result = preg_replace_callback(
+            '/<(script|style)\b(?![^>]*\bnonce\s*=)([^>]*)>/i',
+            static function (array $match) use ($nonce): string {
+                return '<' . $match[1] . ' nonce="' . $nonce . '"' . $match[2] . '>';
+            },
+            $html
+        );
+
+        return is_string($result) ? $result : $html;
+    }
+}
+
+if (!function_exists('snbd_start_csp_nonce_buffer')) {
+    function snbd_start_csp_nonce_buffer(): void
+    {
+        static $started = false;
+
+        if ($started || headers_sent()) {
+            return;
+        }
+
+        ob_start('snbd_csp_nonce_output_buffer');
+        $started = true;
+    }
+}
+
 // ── Helper defined at file scope (not inside a closure) ──────────────────────
 if (!function_exists('snbd_get_page_meta')) {
     function snbd_get_page_meta(string $uri): array {
@@ -111,15 +259,15 @@ add_hook('ClientAreaPage', 1, function ($vars) {
     $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
     $meta = snbd_get_page_meta($uri);
 
+    // Start before any page template output so every inline element receives
+    // the same nonce advertised by the response header.
+    snbd_start_csp_nonce_buffer();
+
     if (!headers_sent()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains', true);
-        header(
-            "Content-Security-Policy: default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; " .
-            "img-src 'self' https: data: blob:; " .
-            "connect-src 'self' https: wss:; " .
-            "frame-ancestors 'self'; upgrade-insecure-requests;",
-            true
-        );
+        // Set a baseline before rendering; the output callback replaces it
+        // with the final event-handler hash list before bytes are sent.
+        snbd_send_csp_header();
     }
 
     return ['pagetitle' => $meta['title']];
