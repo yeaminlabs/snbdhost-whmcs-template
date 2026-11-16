@@ -3,6 +3,10 @@ namespace SNBDHostManager;
 
 class Updater
 {
+    private const APPROVED_REPOSITORIES = [
+        'yeaminlabs/snbdhost-whmcs-template',
+    ];
+
     private $githubRepo;
     private $githubToken;
     private $apiBase = 'https://api.github.com/repos/';
@@ -10,49 +14,57 @@ class Updater
 
     public function __construct($githubRepo, $githubToken = '')
     {
-        $this->githubRepo = $githubRepo;
+        $this->githubRepo = trim((string)$githubRepo);
         $this->githubToken = $githubToken;
-        $this->downloadPath = sys_get_temp_dir() . '/snbdhost_theme_update.zip';
+        $this->downloadPath = null;
     }
 
     public function updateTheme($type = 'all', $branch = 'main')
     {
-        if (empty($this->githubRepo) || $this->githubRepo === 'username/repo') {
-            throw new \Exception("GitHub repository is not configured correctly.");
-        }
+        $this->assertApprovedRepository();
 
         $branch = trim($branch) ?: 'main';
         if (!preg_match('/^[A-Za-z0-9._\/-]+$/', $branch)) {
             throw new \Exception("Invalid branch name: {$branch}");
         }
 
-        // Download directly from the selected branch via the API zipball endpoint
-        // (works for public and private/token-authenticated repos alike).
-        $downloadUrl = $this->apiBase . $this->githubRepo . '/zipball/' . rawurlencode($branch);
+        // Resolve the branch once, then download that immutable commit. A
+        // mutable branch must never be the artifact that overwrites WHMCS.
+        $commit = $this->getBranchCommit($branch);
+        if (empty($commit['sha']) || !preg_match('/^[a-f0-9]{40}$/i', $commit['sha'])) {
+            throw new \Exception("Could not resolve the selected branch to a trusted commit.");
+        }
+        $downloadUrl = $this->apiBase . $this->githubRepo . '/zipball/' . rawurlencode($commit['sha']);
 
         if (empty($downloadUrl)) {
             throw new \Exception("Could not determine the download URL for the theme update.");
         }
 
-        // 2. Download the zip file
-        $this->downloadFile($downloadUrl, $this->downloadPath);
-
-        // 3. Extract and overwrite the theme files
-        // The theme directory is expected to be WHMCS_ROOT/templates/snbdhost
-        // Since this script runs from WHMCS_ROOT/modules/addons/snbdhost_manager/lib, we go up 4 levels
-        $targetDir = realpath(__DIR__ . '/../../../../templates/');
-        if (!$targetDir) {
-            throw new \Exception("Could not locate the templates directory at " . __DIR__ . '/../../../../templates/');
-        }
-        
-        $this->extractTheme($this->downloadPath, $targetDir, $type);
-
-        // Cleanup
-        if (file_exists($this->downloadPath)) {
-            unlink($this->downloadPath);
+        $this->downloadPath = tempnam(sys_get_temp_dir(), 'snbdhost_theme_');
+        if ($this->downloadPath === false) {
+            throw new \Exception("Could not create a private temporary file for the theme update.");
         }
 
-        return true;
+        try {
+            // 2. Download the zip file
+            $this->downloadFile($downloadUrl, $this->downloadPath);
+
+            // 3. Extract and overwrite the theme files
+            // The theme directory is expected to be WHMCS_ROOT/templates/snbdhost
+            // Since this script runs from WHMCS_ROOT/modules/addons/snbdhost_manager/lib, we go up 4 levels
+            $targetDir = realpath(__DIR__ . '/../../../../templates/');
+            if (!$targetDir) {
+                throw new \Exception("Could not locate the templates directory at " . __DIR__ . '/../../../../templates/');
+            }
+
+            $this->extractTheme($this->downloadPath, $targetDir, $type);
+            return true;
+        } finally {
+            if (is_string($this->downloadPath) && file_exists($this->downloadPath)) {
+                unlink($this->downloadPath);
+            }
+            $this->downloadPath = null;
+        }
     }
 
     /**
@@ -63,7 +75,9 @@ class Updater
      */
     public function getBranchCommit($branch)
     {
-        if (empty($this->githubRepo) || $this->githubRepo === 'username/repo') {
+        try {
+            $this->assertApprovedRepository();
+        } catch (\Exception $e) {
             return null;
         }
         $branch = trim($branch) ?: 'main';
@@ -100,8 +114,10 @@ class Updater
         curl_setopt($ch, CURLOPT_USERAGENT, 'WHMCS-SNBDHost-Manager');
         curl_setopt($ch, CURLOPT_TIMEOUT, 120);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS);
 
         $headers = [];
         if (!empty($this->githubToken)) {
@@ -154,8 +170,10 @@ class Updater
         curl_setopt($ch2, CURLOPT_MAXREDIRS, 5);
         curl_setopt($ch2, CURLOPT_TIMEOUT, 120);
         curl_setopt($ch2, CURLOPT_CONNECTTIMEOUT, 15);
-        curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch2, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch2, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch2, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        curl_setopt($ch2, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS);
         
         $data = curl_exec($ch2);
         $error = curl_error($ch2);
@@ -182,7 +200,9 @@ class Updater
             throw new \Exception("Downloaded theme file is not a valid zip archive. GitHub may have returned an error page. Response preview: " . $preview);
         }
         
-        file_put_contents($destination, $data);
+        if (file_put_contents($destination, $data, LOCK_EX) === false) {
+            throw new \Exception("Could not write the downloaded theme archive to temporary storage.");
+        }
     }
 
     private function extractTheme($zipPath, $targetDir, $type = 'all')
@@ -194,12 +214,21 @@ class Updater
         $zip = new \ZipArchive;
         $openResult = $zip->open($zipPath);
         if ($openResult === true) {
+            $this->validateArchivePaths($zip);
             // Usually GitHub zips contain a root folder (e.g. repo-name-1.0.0/)
             // We need to extract its contents, particularly the 'templates/snbdhost' directory if structured that way.
             // For simplicity, we extract to a temp directory and then move the theme folder.
             
-            $tempExtractDir = sys_get_temp_dir() . '/snbdhost_extract_' . time();
-            mkdir($tempExtractDir);
+            $tempExtractDir = tempnam(sys_get_temp_dir(), 'snbdhost_extract_');
+            if ($tempExtractDir === false) {
+                $zip->close();
+                throw new \Exception("Could not create a private temporary extraction directory.");
+            }
+            unlink($tempExtractDir);
+            if (!mkdir($tempExtractDir, 0700)) {
+                $zip->close();
+                throw new \Exception("Could not create a private temporary extraction directory.");
+            }
             
             $zip->extractTo($tempExtractDir);
             $zip->close();
@@ -282,6 +311,32 @@ class Updater
             ];
             $reason = isset($zipErrors[$openResult]) ? $zipErrors[$openResult] : "error code {$openResult}";
             throw new \Exception("Failed to open the downloaded zip file: {$reason}. The file may be corrupted.");
+        }
+    }
+
+    private function assertApprovedRepository()
+    {
+        if (!preg_match('#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $this->githubRepo)) {
+            throw new \Exception("GitHub repository is not configured correctly.");
+        }
+
+        $approved = array_map('strtolower', self::APPROVED_REPOSITORIES);
+        if (!in_array(strtolower($this->githubRepo), $approved, true)) {
+            throw new \Exception("This updater is restricted to the approved SNBD Host repository.");
+        }
+    }
+
+    private function validateArchivePaths(\ZipArchive $zip)
+    {
+        for ($index = 0; $index < $zip->numFiles; $index++) {
+            $name = $zip->getNameIndex($index);
+            $normalized = str_replace('\\', '/', (string)$name);
+            if ($name === false || strpos($normalized, "\0") !== false
+                || preg_match('#^(?:/|[A-Za-z]:/)#', $normalized)
+                || preg_match('#(?:^|/)\.\.(?:/|$)#', $normalized)) {
+                $zip->close();
+                throw new \Exception("The downloaded archive contains an unsafe path.");
+            }
         }
     }
 

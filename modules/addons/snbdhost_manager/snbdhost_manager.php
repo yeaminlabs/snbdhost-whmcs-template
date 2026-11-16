@@ -192,6 +192,20 @@ function snbdhost_manager_output($vars)
     $action     = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
     $updateType = isset($_REQUEST['type'])   ? $_REQUEST['type']   : 'all';
     $message    = '';
+    $adminToken = function_exists('generate_token') ? generate_token('plain') : '';
+
+    // Every action that can write files or configuration must be a POST from
+    // the current WHMCS admin session. check_token() validates the WHMCS
+    // admin CSRF token and terminates the request when it is invalid.
+    $protectedActions = [
+        'update_theme', 'add_module', 'edit_module', 'delete_module',
+        'install_module', 'update_module', 'save_bugs', 'save_client_banner',
+        'test_uptimerobot',
+    ];
+    if (in_array($action, $protectedActions, true) && !snbdmgr_require_admin_post()) {
+        $message = snbdmgr_alert('danger', '<i class="fas fa-shield-alt me-2"></i>Invalid or expired admin form token. Please reload the page and try again.');
+        $action = '';
+    }
 
     // --- Theme / module update ---
     if ($action === 'update_theme') {
@@ -327,7 +341,7 @@ function snbdhost_manager_output($vars)
 
     // --- Delete managed module ---
     if ($action === 'delete_module') {
-        $id = trim($_GET['module_id'] ?? '');
+        $id = trim($_POST['module_id'] ?? '');
         if ($id) {
             $mod = $moduleManager->getModule($id);
             $moduleManager->deleteModule($id);
@@ -337,7 +351,7 @@ function snbdhost_manager_output($vars)
 
     // --- Install / Update a managed module ---
     if ($action === 'install_module' || $action === 'update_module') {
-        $id = trim($_GET['module_id'] ?? '');
+        $id = trim($_POST['module_id'] ?? '');
         if ($id) {
             try {
                 $result  = $moduleManager->installOrUpdate($id);
@@ -499,9 +513,10 @@ function snbdhost_manager_output($vars)
         </div>
         <?php endif; ?>
 
-        <form method="get" action="<?= $modulelink ?>" class="snbdmgr-deploy-form" onsubmit="return snbdmgrConfirmDeploy(this)">
+        <form method="post" action="<?= $modulelink ?>" class="snbdmgr-deploy-form" onsubmit="return snbdmgrConfirmDeploy(this)">
             <input type="hidden" name="module" value="snbdhost_manager">
             <input type="hidden" name="action" value="update_theme">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
             <label for="snbdmgr_branch" style="font-size:13px;font-weight:600;">Deploy from:</label>
             <select name="branch" id="snbdmgr_branch" onchange="document.getElementById('snbdmgr_custom_branch').style.display = (this.value === '__custom__') ? 'inline-block' : 'none';">
                 <?php foreach (array_unique(array_merge(['main', 'dev'], $branchCandidates)) as $bOpt): ?>
@@ -557,11 +572,23 @@ function snbdhost_manager_output($vars)
                     <td><?= !empty($mod['last_updated']) ? htmlspecialchars($mod['last_updated']) : '—' ?></td>
                     <td>
                         <?php if ($mod['status'] === 'installed'): ?>
-                            <a href="<?= $modulelink ?>&action=update_module&module_id=<?= urlencode($mod['id']) ?>" onclick="return confirm('Update <?= htmlspecialchars(addslashes($mod['name'])) ?> now?')" class="btn btn-info btn-sm">Update</a>
+                            <form method="post" action="<?= $modulelink ?>&action=update_module" style="display:inline" onsubmit="return confirm('Update <?= htmlspecialchars(addslashes($mod['name'])) ?> now?')">
+                                <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
+                                <input type="hidden" name="module_id" value="<?= htmlspecialchars($mod['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                <button type="submit" class="btn btn-info btn-sm">Update</button>
+                            </form>
                         <?php else: ?>
-                            <a href="<?= $modulelink ?>&action=install_module&module_id=<?= urlencode($mod['id']) ?>" onclick="return confirm('Install <?= htmlspecialchars(addslashes($mod['name'])) ?> now?')" class="btn btn-success btn-sm">Install</a>
+                            <form method="post" action="<?= $modulelink ?>&action=install_module" style="display:inline" onsubmit="return confirm('Install <?= htmlspecialchars(addslashes($mod['name'])) ?> now?')">
+                                <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
+                                <input type="hidden" name="module_id" value="<?= htmlspecialchars($mod['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                <button type="submit" class="btn btn-success btn-sm">Install</button>
+                            </form>
                         <?php endif; ?>
-                        <a href="<?= $modulelink ?>&action=delete_module&module_id=<?= urlencode($mod['id']) ?>" onclick="return confirm('Remove this module? Files on disk will NOT be deleted.')" class="btn btn-danger btn-sm">Remove</a>
+                        <form method="post" action="<?= $modulelink ?>&action=delete_module" style="display:inline" onsubmit="return confirm('Remove this module? Files on disk will NOT be deleted.')">
+                            <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="module_id" value="<?= htmlspecialchars($mod['id'], ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -571,6 +598,7 @@ function snbdhost_manager_output($vars)
 
         <h4>Add New Module</h4>
         <form method="post" action="<?= $modulelink ?>&action=add_module">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
             <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
                 <tr>
                     <td class="fieldlabel" width="20%">Module Name</td>
@@ -602,6 +630,7 @@ function snbdhost_manager_output($vars)
         <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Dashboard Notification Override</h3>
         <p>Override the auto-fetched GitHub data for the admin dashboard notice. Leave blank to pull from CHANGELOG.md.</p>
         <form method="post" action="<?= $modulelink ?>&action=save_bugs">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
             <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
                 <tr>
                     <td class="fieldlabel" width="20%">Most Recent Fix</td>
@@ -625,6 +654,7 @@ function snbdhost_manager_output($vars)
         <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Client Area Dashboard Banner</h3>
         <p>The announcement bar at the top of the client portal dashboard.</p>
         <form method="post" action="<?= $modulelink ?>&action=save_client_banner">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
             <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
                 <tr>
                     <td class="fieldlabel" width="20%">Enable Banner</td>
@@ -656,6 +686,7 @@ function snbdhost_manager_output($vars)
         <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">UptimeRobot Network Status</h3>
         <p>Configure your Read-Only API key to power the Network Status page in the client portal.</p>
         <form method="post" action="<?= $modulelink ?>&action=test_uptimerobot">
+            <input type="hidden" name="token" value="<?= htmlspecialchars($adminToken, ENT_QUOTES, 'UTF-8') ?>">
             <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
                 <tr>
                     <td class="fieldlabel" width="20%">API Key</td>
@@ -697,4 +728,14 @@ function snbdmgr_alert(string $type, string $html): string
     if ($type === 'danger') $class = 'alert alert-danger';
     if ($type === 'warning') $class = 'alert alert-warning';
     return "<div class=\"{$class}\">{$html}</div>";
+}
+
+function snbdmgr_require_admin_post(): bool
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || !function_exists('check_token')) {
+        return false;
+    }
+
+    check_token();
+    return true;
 }

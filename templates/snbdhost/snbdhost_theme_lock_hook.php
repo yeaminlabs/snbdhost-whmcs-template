@@ -44,6 +44,16 @@ add_hook('AdminAreaPage', 1, function($vars) {
     
     // 1. Handle AJAX authorization requests from our popup modal
     if (isset($_REQUEST['snbd_theme_lock_action']) && $_REQUEST['snbd_theme_lock_action'] === 'authorize') {
+        // This endpoint changes authorization state and must only accept a
+        // same-site POST carrying WHMCS's admin CSRF token.
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || !function_exists('check_token')) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Invalid authorization request.']);
+            exit;
+        }
+        check_token();
+
         // Clear any previous output buffers
         if (ob_get_level()) {
             ob_clean();
@@ -177,6 +187,14 @@ add_hook('AdminAreaFooterOutput', 1, function($vars) {
     }
     
     // Generate JS/HTML/CSS payload
+    $adminToken = function_exists('generate_token') ? generate_token('plain') : '';
+    $adminTokenJson = json_encode(
+        $adminToken,
+        JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+    );
+    if ($adminTokenJson === false) {
+        $adminTokenJson = '""';
+    }
     $output = '';
     
     // Inject the Modal CSS
@@ -488,6 +506,7 @@ add_hook('AdminAreaFooterOutput', 1, function($vars) {
                 type: \'POST\',
                 data: {
                     snbd_theme_lock_action: \'authorize\',
+                    token: ' . $adminTokenJson . ',
                     reason: reason,
                     old_theme: initialTemplate,
                     new_theme: currentTemplate

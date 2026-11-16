@@ -118,21 +118,29 @@ class ModuleManager
         if (empty($installPath)) {
             $installPath = 'modules/addons/' . basename($repo);
         }
+        if (preg_match('#^(?:/|[A-Za-z]:[\\/])#', $installPath)
+            || preg_match('#(?:^|[\\/])\.\.(?:[\\/]|$)#', $installPath)) {
+            throw new \Exception("Install path must stay inside the WHMCS root directory.");
+        }
         $destination = $this->whmcsRoot . '/' . ltrim($installPath, '/');
 
-        // 1. Get download URL — try latest release, fall back to branch zip
+        // 1. Resolve the branch to an immutable commit before downloading.
         $downloadUrl = $this->resolveDownloadUrl($repo, $token, $branch);
 
         // 2. Download to temp file
-        $tmpZip = sys_get_temp_dir() . '/snbdmod_' . $id . '_' . time() . '.zip';
-        $this->downloadFile($downloadUrl, $tmpZip, $token);
+        $tmpZip = tempnam(sys_get_temp_dir(), 'snbdmod_');
+        if ($tmpZip === false) {
+            throw new \Exception("Could not create a private temporary file for the module update.");
+        }
+        try {
+            $this->downloadFile($downloadUrl, $tmpZip, $token);
 
-        // 3. Extract to destination
-        $this->extractModule($tmpZip, $destination, $module['extract_mode'] ?? 'contents');
-
-        // 4. Cleanup
-        if (file_exists($tmpZip)) {
-            unlink($tmpZip);
+            // 3. Extract to destination
+            $this->extractModule($tmpZip, $destination, $module['extract_mode'] ?? 'contents');
+        } finally {
+            if (file_exists($tmpZip)) {
+                unlink($tmpZip);
+            }
         }
 
         // 5. Persist status
@@ -152,16 +160,21 @@ class ModuleManager
 
     private function resolveDownloadUrl(string $repo, string $token, string $branch): string
     {
-        $apiUrl = "https://api.github.com/repos/{$repo}/releases/latest";
-        try {
-            $data = $this->apiRequest($apiUrl, $token);
-            if (!empty($data['zipball_url'])) {
-                return $data['zipball_url'];
-            }
-        } catch (\Exception $e) {
-            // fall through to branch zip using API to support private repos
+        if (!preg_match('#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo)) {
+            throw new \Exception("GitHub repository must use the owner/repository format.");
         }
-        return "https://api.github.com/repos/{$repo}/zipball/{$branch}";
+        $branch = trim($branch) ?: 'main';
+        if (!preg_match('/^[A-Za-z0-9._\/-]+$/', $branch)) {
+            throw new \Exception("Invalid module branch name.");
+        }
+
+        $apiUrl = "https://api.github.com/repos/{$repo}/commits/" . rawurlencode($branch);
+        $data = $this->apiRequest($apiUrl, $token);
+        $sha  = $data['sha'] ?? '';
+        if (!preg_match('/^[a-f0-9]{40}$/i', $sha)) {
+            throw new \Exception("GitHub did not return a valid immutable commit for this module branch.");
+        }
+        return "https://api.github.com/repos/{$repo}/zipball/{$sha}";
     }
 
     private function apiRequest(string $url, string $token = ''): array
@@ -176,6 +189,10 @@ class ModuleManager
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT        => 20,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
         ]);
         $resp     = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -209,8 +226,10 @@ class ModuleManager
             CURLOPT_HEADER         => true,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_TIMEOUT        => 30,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
         ]);
         
         $response = curl_exec($ch);
@@ -241,8 +260,10 @@ class ModuleManager
             CURLOPT_HTTPHEADER     => ['User-Agent: WHMCS-SNBDHost-Manager'], // NO TOKEN!
             CURLOPT_TIMEOUT        => 120,
             CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
         ]);
         $data     = curl_exec($ch2);
         $err      = curl_error($ch2);
@@ -296,8 +317,17 @@ class ModuleManager
             throw new \Exception("Failed to open the downloaded zip file: {$reason}. The file may be corrupted or not a valid zip archive.");
         }
 
-        $tmpDir = sys_get_temp_dir() . '/snbdmod_extract_' . time();
-        mkdir($tmpDir, 0755, true);
+        $this->validateArchivePaths($zip);
+        $tmpDir = tempnam(sys_get_temp_dir(), 'snbdmod_extract_');
+        if ($tmpDir === false) {
+            $zip->close();
+            throw new \Exception("Could not create a private temporary extraction directory.");
+        }
+        unlink($tmpDir);
+        if (!mkdir($tmpDir, 0700)) {
+            $zip->close();
+            throw new \Exception("Could not create a private temporary extraction directory.");
+        }
         $zip->extractTo($tmpDir);
         $zip->close();
 
@@ -322,6 +352,20 @@ class ModuleManager
         }
 
         $this->recurseRmdir($tmpDir);
+    }
+
+    private function validateArchivePaths(\ZipArchive $zip): void
+    {
+        for ($index = 0; $index < $zip->numFiles; $index++) {
+            $name = $zip->getNameIndex($index);
+            $normalized = str_replace('\\', '/', (string)$name);
+            if ($name === false || strpos($normalized, "\0") !== false
+                || preg_match('#^(?:/|[A-Za-z]:/)#', $normalized)
+                || preg_match('#(?:^|/)\.\.(?:/|$)#', $normalized)) {
+                $zip->close();
+                throw new \Exception("The downloaded module archive contains an unsafe path.");
+            }
+        }
     }
 
     private function recurseCopy(string $src, string $dst): void

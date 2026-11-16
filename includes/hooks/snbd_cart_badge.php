@@ -15,7 +15,10 @@ if (!defined('WHMCS')) {
 }
 
 add_hook('ClientAreaHeadOutput', 1, function ($vars) {
-    $count = count($_SESSION['cart'] ?? []) + count($_SESSION['domains'] ?? []);
+    $cart = $_SESSION['cart'] ?? [];
+    $products = is_array($cart['products'] ?? null) ? $cart['products'] : [];
+    $domains  = is_array($cart['domains'] ?? null) ? $cart['domains'] : [];
+    $count = count($products) + count($domains);
     $count = max(0, (int) $count);
 
     if ($count <= 0) {
@@ -26,10 +29,13 @@ add_hook('ClientAreaHeadOutput', 1, function ($vars) {
     $display = $count > 9 ? '9+' : (string) $count;
 
     // Runs after DOM is ready so the badge element exists.
+    $safeDisplay = json_encode($display, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    $safeLabel   = json_encode($label, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
     return '<script>document.addEventListener("DOMContentLoaded",function(){'
         . 'var b=document.getElementById("snbdCartCount");'
-        . 'if(b){b.textContent=' . json_encode($display) . ';b.style.display="";}'
+        . 'if(b){b.textContent=' . ($safeDisplay ?: '""') . ';b.style.display="";}'
         . 'var a=document.getElementById("snbdCartBtn");'
-        . 'if(a)a.setAttribute("aria-label",' . json_encode($label) . ');'
+        . 'if(a)a.setAttribute("aria-label",' . ($safeLabel ?: '"Shopping cart"') . ');'
         . '});</script>';
 });

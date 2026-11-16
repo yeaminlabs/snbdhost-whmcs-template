@@ -27,6 +27,47 @@ if (!defined('SNBD_DL_AFFILIATION')) {
     define('SNBD_DL_AFFILIATION', 'SNBD Host');
 }
 
+/**
+ * Keep tracking failures observable without allowing them to break WHMCS
+ * page, checkout, or lifecycle requests. Messages are normalised and capped
+ * because database exceptions can otherwise contain very large SQL strings.
+ *
+ * @param string    $context
+ * @param \Throwable $exception
+ * @return void
+ */
+function snbd_dl_log_exception(string $context, \Throwable $exception): void
+{
+    static $logged = [];
+
+    $detail = preg_replace('/\s+/', ' ', (string)$exception->getMessage());
+    $detail = is_string($detail) ? trim($detail) : '';
+    $detail = $detail !== '' ? substr($detail, 0, 300) : 'no message';
+    $message = 'SNBD DataLayer [' . $context . '] ' . get_class($exception) . ': ' . $detail;
+    $dedupeKey = $context . '|' . $message;
+
+    if (isset($logged[$dedupeKey])) {
+        return;
+    }
+    $logged[$dedupeKey] = true;
+
+    error_log($message);
+    if (defined('SNBD_DL_DEBUG') && SNBD_DL_DEBUG && function_exists('logActivity')) {
+        @logActivity($message);
+    }
+}
+
+/**
+ * Record a non-exception tracking gap, such as unavailable domain pricing.
+ *
+ * @param string $message
+ * @return void
+ */
+function snbd_dl_log_message(string $message): void
+{
+    error_log('SNBD DataLayer: ' . substr(trim($message), 0, 300));
+}
+
 /* ==========================================================================
    2. HELPER FUNCTIONS
    ========================================================================== */
@@ -105,6 +146,7 @@ function snbd_dl_get_user_context(): array
         }
     } catch (\Throwable $e) {
         // Fail gracefully without breaking page render
+        snbd_dl_log_exception('user context lookup', $e);
     }
 
     return [
@@ -149,7 +191,9 @@ function snbd_dl_get_currency($currencyId = null): string
         if ($defaultCurr) {
             return $defaultCurr->code;
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('currency lookup', $e);
+    }
 
     return 'USD';
 }
@@ -430,7 +474,9 @@ function snbd_dl_get_currency_id($currencyId = null): ?int
         if ($any) {
             return (int)$any->id;
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('currency id lookup', $e);
+    }
 
     return null;
 }
@@ -486,7 +532,9 @@ function snbd_dl_product_cycle_price(int $pid, int $currencyId, ?string $billing
         if ((float)$row->msetupfee >= 0) {
             return ['cycle' => $cycle ?: 'onetime', 'price' => (float)$row->msetupfee];
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('product pricing lookup', $e);
+    }
 
     return null;
 }
@@ -538,7 +586,9 @@ function snbd_dl_domain_period_price(string $domain, int $period, int $currencyI
         $price  = (float)$row->{$column};
 
         return $price >= 0 ? $price : null;
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('domain pricing lookup', $e);
+    }
 
     return null;
 }
@@ -595,6 +645,14 @@ function snbd_dl_collect_cart_items(array $cartSession, ?int $currencyId = null)
             $period = (int)($d['regperiod'] ?? 1);
             $price  = snbd_dl_domain_period_price($domainName, $period, $currencyId, $action);
 
+            // Never report a paid domain as zero-value when its TLD/currency
+            // price is missing. Omitting the line is less misleading than
+            // understating cart revenue; the gap is recorded for operators.
+            if ($price === null || $price <= 0.0) {
+                snbd_dl_log_message('skipping unpriced domain item for .' . ltrim((string)strrchr($domainName, '.'), '.'));
+                continue;
+            }
+
             $items[] = [
                 'item_id'       => 'DOMAIN-' . $domainName,
                 'product_id'    => 0,
@@ -602,7 +660,7 @@ function snbd_dl_collect_cart_items(array $cartSession, ?int $currencyId = null)
                 'item_category' => $action === 'transfer' ? 'Domain Transfer' : 'Domain Registration',
                 'group_id'      => 0,
                 'item_variant'  => $period . 'year',
-                'price'         => round($price ?? 0.0, 2),
+                'price'         => round($price, 2),
                 'quantity'      => 1,
             ];
         }
@@ -806,7 +864,9 @@ function snbd_dl_build_purchase_payload($orderId): ?array
                 if ($affRecord && !empty($affRecord->clientid)) {
                     $affiliateUserId = snbd_dl_hash_user_id($affRecord->clientid);
                 }
-            } catch (\Throwable $e) { }
+            } catch (\Throwable $e) {
+                snbd_dl_log_exception('affiliate lookup', $e);
+            }
         }
 
         return [
@@ -825,6 +885,7 @@ function snbd_dl_build_purchase_payload($orderId): ?array
             ],
         ];
     } catch (\Throwable $e) {
+        snbd_dl_log_exception('purchase payload build', $e);
         return null;
     }
 }
@@ -857,11 +918,18 @@ function snbd_dl_ensure_purchase_dedupe_table(): bool
             } catch (\Throwable $e) {
                 // Another request may have created it between hasTable() and
                 // create(); the final existence check below handles that race.
+                if (strpos(strtolower((string)$e->getMessage()), 'exist') === false
+                    && strpos(strtolower((string)$e->getMessage()), 'duplicate') === false
+                    && strpos((string)$e->getMessage(), '1050') === false
+                    && strpos((string)$e->getMessage(), '1060') === false) {
+                    snbd_dl_log_exception('purchase dedupe table creation', $e);
+                }
             }
         }
 
         $ready = Capsule::schema()->hasTable('mod_snbd_dl_purchases');
     } catch (\Throwable $e) {
+        snbd_dl_log_exception('purchase dedupe table check', $e);
         $ready = false;
     }
 
@@ -892,6 +960,7 @@ function snbd_dl_is_buyer_session_for_order($orderId): bool
 
         return $order && (int)$order->userid === $sessionUserId;
     } catch (\Throwable $e) {
+        snbd_dl_log_exception('buyer session check', $e);
         return false;
     }
 }
@@ -927,6 +996,12 @@ function snbd_dl_queue_purchase_once(?array $payload): bool
     } catch (\Throwable $e) {
         // A duplicate primary-key insert is the normal second-hook path. Any
         // other DB failure also fails closed to prevent duplicate revenue.
+        $errorText = strtolower((string)$e->getMessage());
+        if (strpos($errorText, 'duplicate') === false
+            && strpos($errorText, '1062') === false
+            && strpos($errorText, 'primary') === false) {
+            snbd_dl_log_exception('purchase dedupe claim', $e);
+        }
         return false;
     }
 
@@ -992,7 +1067,9 @@ add_hook('ShoppingCartValidateCheckout', 1, function ($vars) {
                 'items'        => $formatted['items'],
             ],
         ]);
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('add_payment_info', $e);
+    }
 
     // Must not return a string: WHMCS treats any returned string as a
     // validation error and blocks the checkout.
@@ -1021,7 +1098,9 @@ add_hook('InvoiceCreated', 1, function ($vars) {
                 'user_id'     => snbd_dl_hash_user_id($invoice->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('invoice_created', $e);
+    }
 });
 
 add_hook('InvoicePaid', 1, function ($vars) {
@@ -1052,7 +1131,9 @@ add_hook('InvoicePaid', 1, function ($vars) {
             'order_id'       => $orderId,
             'user_id'        => snbd_dl_hash_user_id($invoice->userid),
         ]);
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('invoice_paid', $e);
+    }
 });
 
 add_hook('InvoiceRefunded', 1, function ($vars) {
@@ -1072,7 +1153,9 @@ add_hook('InvoiceRefunded', 1, function ($vars) {
                 'user_id'    => snbd_dl_hash_user_id($invoice->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('invoice_refunded', $e);
+    }
 });
 
 add_hook('InvoiceCancelled', 1, function ($vars) {
@@ -1092,7 +1175,9 @@ add_hook('InvoiceCancelled', 1, function ($vars) {
                 'user_id'    => snbd_dl_hash_user_id($invoice->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('invoice_cancelled', $e);
+    }
 });
 
 /* ==========================================================================
@@ -1126,7 +1211,9 @@ add_hook('AfterModuleCreate', 1, function ($vars) {
                 'user_id'       => snbd_dl_hash_user_id($hosting->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('service_provisioned', $e);
+    }
 });
 
 add_hook('AfterModuleSuspend', 1, function ($vars) {
@@ -1150,7 +1237,9 @@ add_hook('AfterModuleSuspend', 1, function ($vars) {
                     'user_id'        => snbd_dl_hash_user_id($hosting->userid),
                 ]);
             }
-        } catch (\Throwable $e) { }
+        } catch (\Throwable $e) {
+            snbd_dl_log_exception('service_suspended', $e);
+        }
     }
 });
 
@@ -1174,7 +1263,9 @@ add_hook('AfterModuleUnsuspend', 1, function ($vars) {
                     'user_id'      => snbd_dl_hash_user_id($hosting->userid),
                 ]);
             }
-        } catch (\Throwable $e) { }
+        } catch (\Throwable $e) {
+            snbd_dl_log_exception('service_unsuspended', $e);
+        }
     }
 });
 
@@ -1198,7 +1289,9 @@ add_hook('AfterModuleTerminate', 1, function ($vars) {
                     'user_id'      => snbd_dl_hash_user_id($hosting->userid),
                 ]);
             }
-        } catch (\Throwable $e) { }
+        } catch (\Throwable $e) {
+            snbd_dl_log_exception('service_terminated', $e);
+        }
     }
 });
 
@@ -1227,7 +1320,9 @@ add_hook('TicketOpen', 1, function ($vars) {
                 'user_id'       => snbd_dl_hash_user_id($ticket->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('ticket_opened', $e);
+    }
 });
 
 add_hook('TicketUserReply', 1, function ($vars) {
@@ -1246,7 +1341,9 @@ add_hook('TicketUserReply', 1, function ($vars) {
                 'user_id'      => snbd_dl_hash_user_id($ticket->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('ticket_replied', $e);
+    }
 });
 
 add_hook('TicketClose', 1, function ($vars) {
@@ -1265,7 +1362,9 @@ add_hook('TicketClose', 1, function ($vars) {
                 'user_id'      => snbd_dl_hash_user_id($ticket->userid),
             ]);
         }
-    } catch (\Throwable $e) { }
+    } catch (\Throwable $e) {
+        snbd_dl_log_exception('ticket_closed', $e);
+    }
 });
 
 /* ==========================================================================
