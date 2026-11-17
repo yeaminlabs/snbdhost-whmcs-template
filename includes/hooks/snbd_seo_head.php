@@ -107,19 +107,38 @@ if (!function_exists('snbd_csp_nonce_output_buffer')) {
             "default-src 'self'; " .
             "base-uri 'self'; " .
             "object-src 'none'; " .
-            "script-src 'self' 'nonce-{$nonce}' 'strict-dynamic' " .
+            // The WHMCS/Smarty theme emits inline bootstrap and page scripts
+            // before this hook can reliably rewrite their opening tags. Keep
+            // inline compatibility while retaining the important controls:
+            // no unsafe-eval, no broad HTTPS wildcard, and explicit origins.
+            "script-src 'self' 'unsafe-inline' " .
+                "https://portal.snbdhost.com https://static.cloudflareinsights.com " .
                 "https://accounts.google.com https://www.googletagmanager.com " .
                 "https://cdn.jsdelivr.net https://platform.twitter.com " .
-                "https://challenges.cloudflare.com https://embed.tawk.to; " .
-            "script-src-attr {$scriptAttrSources}; " .
-            "style-src 'self' 'nonce-{$nonce}' https://fonts.googleapis.com; " .
+                "https://challenges.cloudflare.com https://embed.tawk.to " .
+                "https://connect.facebook.net https://js.stripe.com " .
+                "https://googleads.g.doubleclick.net; " .
+            "script-src-attr 'unsafe-inline'; " .
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com " .
+                "https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com " .
+                "https://*.tawk.to https://accounts.google.com; " .
             "style-src-attr 'unsafe-inline'; " .
-            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; " .
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net " .
+                "https://cdnjs.cloudflare.com https://*.tawk.to data:; " .
             "img-src 'self' https: data: blob:; " .
             "connect-src 'self' https://gtm.snbdhost.com " .
                 "https://www.googletagmanager.com https://www.google-analytics.com " .
-                "https://analytics.google.com https://accounts.google.com " .
-                "https://challenges.cloudflare.com https://ai-proxy.snbdhost.com; " .
+                "https://analytics.google.com https://accounts.google.com https://www.google.com " .
+                "https://www.googleadservices.com https://googleads.g.doubleclick.net " .
+                "https://ad.doubleclick.net " .
+                "https://challenges.cloudflare.com https://ai-proxy.snbdhost.com " .
+                "https://va.tawk.to https://*.tawk.to wss://*.tawk.to " .
+                "https://api.stripe.com https://m.stripe.network https://r.stripe.com " .
+                "https://www.facebook.com https://*.ecs.us-east-2.on.aws " .
+                "https://*.conversionsapigateway.com; " .
+            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com " .
+                "https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com " .
+                "https://*.tawk.to https://accounts.google.com; " .
             "frame-src 'self' https:; " .
             "frame-ancestors 'self'; upgrade-insecure-requests;",
             true
