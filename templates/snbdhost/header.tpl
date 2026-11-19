@@ -202,9 +202,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     transition: color .15s;
 }
 #snbd-migration-bar .snbd-mb-dismiss:hover { color: #fff; }
-/* Push body content down by bar height */
+/* Push body content and fixed sidebar down by bar height */
 body.snbd-has-migration-bar { padding-top: 50px !important; }
 body.snbd-has-migration-bar #snbd-wrapper { padding-top: 0; }
+body.snbd-has-migration-bar #snbd-sidebar { top: 50px !important; }
 </style>
 
 <div id="snbd-migration-bar" role="banner" aria-label="Portal migration notice">
@@ -229,11 +230,25 @@ body.snbd-has-migration-bar #snbd-wrapper { padding-top: 0; }
 {literal}
 (function () {
     var BAR_KEY = 'snbd_mb_dismissed';
+    var BAR_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
     var bar = document.getElementById('snbd-migration-bar');
     var btn = document.getElementById('snbd-mb-dismiss');
 
-    // If dismissed before, hide immediately and skip the redirect prompt.
-    if (sessionStorage.getItem(BAR_KEY)) {
+    function isDismissed() {
+        try {
+            var raw = localStorage.getItem(BAR_KEY);
+            if (!raw) return false;
+            var data = JSON.parse(raw);
+            if (Date.now() > data.exp) { localStorage.removeItem(BAR_KEY); return false; }
+            return true;
+        } catch (e) { return false; }
+    }
+    function setDismissed() {
+        try { localStorage.setItem(BAR_KEY, JSON.stringify({ exp: Date.now() + BAR_TTL })); } catch (e) {}
+    }
+
+    // If dismissed within the last 7 days, hide immediately.
+    if (isDismissed()) {
         bar.style.display = 'none';
         return;
     }
@@ -244,7 +259,7 @@ body.snbd-has-migration-bar #snbd-wrapper { padding-top: 0; }
         btn.addEventListener('click', function () {
             bar.style.display = 'none';
             document.body.classList.remove('snbd-has-migration-bar');
-            sessionStorage.setItem(BAR_KEY, '1');
+            setDismissed();
         });
     }
 

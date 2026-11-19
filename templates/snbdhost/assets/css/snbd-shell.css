@@ -298,6 +298,19 @@ html.snbd-rail .snbd-nav__item:focus-visible::after { opacity: 1; transform: tra
 }
 #snbd-topbar.is-scrolled { box-shadow: var(--snbd-e1); }
 
+/* --------------------------------------------------------- Migration notice */
+.snbd-migration-banner { position: relative; z-index: 1020; display: flex; align-items: center; gap: var(--snbd-s3); min-height: 64px; padding: 10px var(--snbd-s6); color: #fff; background: linear-gradient(105deg, #7f1016 0%, #b51219 54%, #d44932 100%); box-shadow: 0 8px 24px rgba(102, 13, 19, 0.16); }
+.snbd-migration-banner__icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex: 0 0 36px; color: #ffd8a8; background: rgba(255, 255, 255, 0.13); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; }
+.snbd-migration-banner__icon i { font-size: 1.15rem; }
+.snbd-migration-banner__copy { display: grid; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.snbd-migration-banner__copy strong { font-size: 0.86rem; letter-spacing: -0.01em; }
+.snbd-migration-banner__copy span { color: rgba(255, 255, 255, 0.8); font-size: 0.74rem; }
+.snbd-migration-banner__cta { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; padding: 9px 13px; color: #7f1016; background: #fff; border-radius: 9px; font-size: 0.75rem; font-weight: 800; text-decoration: none; box-shadow: 0 4px 12px rgba(50, 0, 0, 0.14); transition: transform 140ms ease, box-shadow 140ms ease; }
+.snbd-migration-banner__cta:hover { color: #5e0c11; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(50, 0, 0, 0.2); }
+.snbd-migration-banner__dismiss { flex: 0 0 auto; padding: 4px 0 4px 4px; color: rgba(255, 255, 255, 0.72); background: transparent; border: 0; font-size: 0.68rem; cursor: pointer; }
+.snbd-migration-banner__dismiss:hover { color: #fff; }
+@media (max-width: 760px) { .snbd-migration-banner { align-items: flex-start; flex-wrap: wrap; padding: 12px var(--snbd-s4); gap: 8px 10px; } .snbd-migration-banner__icon { width: 30px; height: 30px; flex-basis: 30px; border-radius: 9px; } .snbd-migration-banner__copy { flex-basis: calc(100% - 40px); } .snbd-migration-banner__copy span { line-height: 1.35; } .snbd-migration-banner__cta { margin-left: 40px; } }
+
 .snbd-topbar__left,
 .snbd-topbar__right {
   display: flex;

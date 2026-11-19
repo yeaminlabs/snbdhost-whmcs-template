@@ -100,6 +100,26 @@
     update();
   }
 
+  /* --------------------------------------------------------- Portal migration */
+  function initMigrationBanner() {
+    var banner = $('[data-snbd-migration-banner]');
+    if (!banner) return;
+    var dismiss = $('[data-snbd-migration-dismiss]', banner);
+    var countdown = $('[data-snbd-migration-countdown]', banner);
+    var link = $('[data-snbd-migration-link]', banner);
+    var seconds = parseInt(banner.getAttribute('data-redirect-delay'), 10) || 0;
+    if (seconds <= 0) return;
+    var timer;
+    function stopRedirect() { if (timer) window.clearInterval(timer); banner.remove(); }
+    if (dismiss) dismiss.addEventListener('click', stopRedirect);
+    if (link) link.addEventListener('click', function () { if (timer) window.clearInterval(timer); });
+    timer = window.setInterval(function () {
+      seconds -= 1;
+      if (countdown) countdown.textContent = seconds + 's';
+      if (seconds <= 0) { window.clearInterval(timer); window.location.assign('https://app.snbdhost.com'); }
+    }, 1000);
+  }
+
   /* ---------------------------------------------------------------- Popovers */
   function initPopovers() {
     var triggers = $$('[data-snbd-popover]');
@@ -419,6 +439,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initSidebar();
     initTopbar();
+    initMigrationBanner();
     initPopovers();
     initSearch();
     initCopy();

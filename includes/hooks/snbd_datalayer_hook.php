@@ -694,9 +694,11 @@ add_hook('ClientAreaHeadOutput', 0, function () {
     $snapshot = $_SESSION['snbd_dl_item_snapshot'] ?? null;
 
     if (!is_array($snapshot)) {
-        // First render of this session: record the starting cart, no events.
-        $_SESSION['snbd_dl_item_snapshot'] = $current;
-        return;
+        // First render of this session: the cart starts empty, so anything in
+        // it was added by the request that opened the session (for example
+        // cart.php?a=add&domain=register from the main site). Diff against an
+        // empty cart so that add_to_cart is not lost.
+        $snapshot = [];
     }
 
     $added   = array_diff_key($current, $snapshot);
