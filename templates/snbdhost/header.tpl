@@ -123,11 +123,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 {$headeroutput}
 
-{* Migration topbar is rendered as .snbd-migration-banner inside #snbd-main (below). *}
+{capture assign="snbdMigrationBanner"}
+<section class="snbd-migration-banner" aria-labelledby="snbd-migration-title" data-snbd-migration-banner data-redirect-delay="{if $templatefile eq 'cart' || $templatefile eq 'checkout' || $templatefile eq 'complete' || $templatefile eq 'viewcart'}0{else}15{/if}">
+    <div class="snbd-migration-banner__icon" aria-hidden="true"><i class="ti ti-sparkles"></i></div>
+    <div class="snbd-migration-banner__copy">
+        <strong id="snbd-migration-title">We’re moving to our new dashboard</strong>
+        <span>This portal will be closed for billing and customer service purposes, and we have shifted to a new clear dashboard with more interesting features. Log in with your Google or current billing account here:</span>
+    </div>
+    <a class="snbd-migration-banner__cta" href="https://app.snbdhost.com" data-snbd-migration-link>
+        app.snbdhost.com <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
+    </a>
+    <button type="button" class="snbd-migration-banner__dismiss" data-snbd-migration-dismiss aria-label="Stay on this portal">
+        Stay here <span aria-hidden="true">·</span> <span data-snbd-migration-countdown>15s</span>
+    </button>
+</section>
+{/capture}
 
 {if $snbdAuthPage}
 
-    {* Authentication pages render their own split-panel layout. *}
+    {* Authentication pages render their own split-panel layout with migration banner above. *}
+    {$snbdMigrationBanner}
 
 {else}
 
@@ -345,19 +360,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </header>
 
-            <section class="snbd-migration-banner" aria-labelledby="snbd-migration-title" data-snbd-migration-banner data-redirect-delay="{if $filename eq 'clientarea' || $filename eq 'supporttickets' || $filename eq 'viewticket' || $filename eq 'submitticket' || $filename eq 'viewinvoice' || $filename eq 'affiliates'}12{else}0{/if}">
-                <div class="snbd-migration-banner__icon" aria-hidden="true"><i class="ti ti-sparkles"></i></div>
-                <div class="snbd-migration-banner__copy">
-                    <strong id="snbd-migration-title">We’re moving to a clearer, more powerful dashboard</strong>
-                    <span>This portal is closing for billing and customer service. Sign in with Google or your current billing account at the new app.</span>
-                </div>
-                <a class="snbd-migration-banner__cta" href="https://app.snbdhost.com" data-snbd-migration-link>
-                    Open the new dashboard <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
-                </a>
-                <button type="button" class="snbd-migration-banner__dismiss" data-snbd-migration-dismiss aria-label="Stay on this page">
-                    Stay here <span aria-hidden="true">·</span> <span data-snbd-migration-countdown>12s</span>
-                </button>
-            </section>
+            {$snbdMigrationBanner}
 
             <div class="snbd-content" id="snbd-content">
 {/if}
