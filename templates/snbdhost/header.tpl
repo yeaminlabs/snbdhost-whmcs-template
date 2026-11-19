@@ -123,6 +123,151 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 {$headeroutput}
 
+{* ── Migration topbar ── *}
+<style>
+#snbd-migration-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.35);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+#snbd-migration-bar .snbd-mb-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+#snbd-migration-bar .snbd-mb-badge {
+    background: #e63946;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+#snbd-migration-bar .snbd-mb-text {
+    color: #d1d5e8;
+    line-height: 1.4;
+}
+#snbd-migration-bar .snbd-mb-text strong {
+    color: #fff;
+}
+#snbd-migration-bar .snbd-mb-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+#snbd-migration-bar .snbd-mb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #e63946, #c1121f);
+    color: #fff !important;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 8px;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: opacity .15s;
+    border: none;
+    cursor: pointer;
+}
+#snbd-migration-bar .snbd-mb-btn:hover { opacity: .88; }
+#snbd-migration-bar .snbd-mb-dismiss {
+    background: none;
+    border: none;
+    color: #8892b0;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color .15s;
+}
+#snbd-migration-bar .snbd-mb-dismiss:hover { color: #fff; }
+/* Push body content down by bar height */
+body.snbd-has-migration-bar { padding-top: 50px !important; }
+body.snbd-has-migration-bar #snbd-wrapper { padding-top: 0; }
+</style>
+
+<div id="snbd-migration-bar" role="banner" aria-label="Portal migration notice">
+    <div class="snbd-mb-left">
+        <span class="snbd-mb-badge">&#9888; Notice</span>
+        <span class="snbd-mb-text">
+            <strong>This portal is closing.</strong>
+            Billing &amp; customer service are moving to our new dashboard — cleaner, faster, and packed with new features.
+            Log in with your Google or existing billing account.
+        </span>
+    </div>
+    <div class="snbd-mb-actions">
+        <a href="https://app.snbdhost.com" target="_blank" rel="noopener" class="snbd-mb-btn" id="snbd-mb-goto">
+            <i class="ti ti-external-link" aria-hidden="true"></i>
+            Go to new dashboard
+        </a>
+        <button class="snbd-mb-dismiss" id="snbd-mb-dismiss" aria-label="Dismiss notice" title="Dismiss">&#215;</button>
+    </div>
+</div>
+
+<script>
+{literal}
+(function () {
+    var BAR_KEY = 'snbd_mb_dismissed';
+    var bar = document.getElementById('snbd-migration-bar');
+    var btn = document.getElementById('snbd-mb-dismiss');
+
+    // If dismissed before, hide immediately and skip the redirect prompt.
+    if (sessionStorage.getItem(BAR_KEY)) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    document.body.classList.add('snbd-has-migration-bar');
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+            bar.style.display = 'none';
+            document.body.classList.remove('snbd-has-migration-bar');
+            sessionStorage.setItem(BAR_KEY, '1');
+        });
+    }
+
+    // Soft redirect: after 15 s on a non-dismissed page, open the new app in
+    // the same tab with a brief prompt so users aren't surprised.
+    var countdown = 15;
+    var gotoBtn = document.getElementById('snbd-mb-goto');
+    function tick() {
+        if (sessionStorage.getItem(BAR_KEY)) return;
+        if (countdown <= 0) {
+            window.location.href = 'https://app.snbdhost.com';
+            return;
+        }
+        if (gotoBtn) gotoBtn.textContent = 'Go to new dashboard (' + countdown + 's)';
+        countdown--;
+        setTimeout(tick, 1000);
+    }
+    tick();
+}());
+{/literal}
+</script>
+{* ── End migration topbar ── *}
+
 {if $snbdAuthPage}
 
     {* Authentication pages render their own split-panel layout. *}
@@ -342,6 +487,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     {/if}
                 </div>
             </header>
+
+            <section class="snbd-migration-banner" aria-labelledby="snbd-migration-title" data-snbd-migration-banner data-redirect-delay="{if $filename eq 'clientarea' || $filename eq 'supporttickets' || $filename eq 'viewticket' || $filename eq 'submitticket' || $filename eq 'viewinvoice' || $filename eq 'affiliates'}12{else}0{/if}">
+                <div class="snbd-migration-banner__icon" aria-hidden="true"><i class="ti ti-sparkles"></i></div>
+                <div class="snbd-migration-banner__copy">
+                    <strong id="snbd-migration-title">We’re moving to a clearer, more powerful dashboard</strong>
+                    <span>This portal is closing for billing and customer service. Sign in with Google or your current billing account at the new app.</span>
+                </div>
+                <a class="snbd-migration-banner__cta" href="https://app.snbdhost.com" data-snbd-migration-link>
+                    Open the new dashboard <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
+                </a>
+                <button type="button" class="snbd-migration-banner__dismiss" data-snbd-migration-dismiss aria-label="Stay on this page">
+                    Stay here <span aria-hidden="true">·</span> <span data-snbd-migration-countdown>12s</span>
+                </button>
+            </section>
 
             <div class="snbd-content" id="snbd-content">
 {/if}
