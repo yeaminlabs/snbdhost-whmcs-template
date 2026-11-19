@@ -104,7 +104,11 @@
   function initMigrationBanner() {
     var banner = $('[data-snbd-migration-banner]');
     if (!banner) return;
-    var LS_KEY = 'snbd_migration_stay';
+    // Rotated key: the previous auto-redirect version (and any earlier
+    // dismiss) set 'snbd_migration_stay' for 7 days, which kept the new
+    // banner from showing on every load. Use a fresh key so the banner
+    // stays visible until the user explicitly dismisses it again.
+    var LS_KEY = 'snbd_migration_stay_v2';
     var LS_TTL = 7 * 24 * 60 * 60 * 1000;
     function isSnoozed() {
       try { var d = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); return d && Date.now() < d.exp; } catch (e) { return false; }
@@ -114,19 +118,8 @@
     }
     if (isSnoozed()) { banner.remove(); return; }
     var dismiss = $('[data-snbd-migration-dismiss]', banner);
-    var countdown = $('[data-snbd-migration-countdown]', banner);
-    var link = $('[data-snbd-migration-link]', banner);
-    var seconds = parseInt(banner.getAttribute('data-redirect-delay'), 10) || 0;
-    var timer;
-    function stopRedirect() { if (timer) window.clearInterval(timer); snooze(); banner.remove(); }
+    function stopRedirect() { snooze(); banner.remove(); }
     if (dismiss) dismiss.addEventListener('click', stopRedirect);
-    if (link) link.addEventListener('click', function () { if (timer) window.clearInterval(timer); });
-    if (seconds <= 0) return;
-    timer = window.setInterval(function () {
-      seconds -= 1;
-      if (countdown) countdown.textContent = seconds + 's';
-      if (seconds <= 0) { window.clearInterval(timer); window.location.assign('https://app.snbdhost.com'); }
-    }, 1000);
   }
 
   /* ---------------------------------------------------------------- Popovers */
