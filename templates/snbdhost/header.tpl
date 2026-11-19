@@ -124,17 +124,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 {$headeroutput}
 
 {capture assign="snbdMigrationBanner"}
-<section class="snbd-migration-banner" aria-labelledby="snbd-migration-title" data-snbd-migration-banner data-redirect-delay="{if $templatefile eq 'cart' || $templatefile eq 'checkout' || $templatefile eq 'complete' || $templatefile eq 'viewcart'}0{else}15{/if}">
+<section class="snbd-migration-banner" aria-labelledby="snbd-migration-title" data-snbd-migration-banner>
     <div class="snbd-migration-banner__icon" aria-hidden="true"><i class="ti ti-sparkles"></i></div>
     <div class="snbd-migration-banner__copy">
         <strong id="snbd-migration-title">We’re moving to our new dashboard</strong>
         <span>This portal will be closed for billing and customer service purposes, and we have shifted to a new clear dashboard with more interesting features. Log in with your Google or current billing account here:</span>
     </div>
-    <a class="snbd-migration-banner__cta" href="https://app.snbdhost.com" data-snbd-migration-link>
-        app.snbdhost.com <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
+    <a class="snbd-migration-banner__cta" href="{if $loggedin}{$WEB_ROOT}/portal-sso.php{else}https://app.snbdhost.com{/if}" data-snbd-migration-link>
+        {if $snbdMigrationSsoUrl}Open with my account{else}Open app.snbdhost.com{/if} <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
     </a>
     <button type="button" class="snbd-migration-banner__dismiss" data-snbd-migration-dismiss aria-label="Stay on this portal">
-        Stay here <span aria-hidden="true">·</span> <span data-snbd-migration-countdown>15s</span>
+        Stay here
     </button>
 </section>
 {/capture}
