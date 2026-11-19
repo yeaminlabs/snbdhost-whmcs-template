@@ -104,15 +104,24 @@
   function initMigrationBanner() {
     var banner = $('[data-snbd-migration-banner]');
     if (!banner) return;
+    var LS_KEY = 'snbd_migration_stay';
+    var LS_TTL = 7 * 24 * 60 * 60 * 1000;
+    function isSnoozed() {
+      try { var d = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); return d && Date.now() < d.exp; } catch (e) { return false; }
+    }
+    function snooze() {
+      try { localStorage.setItem(LS_KEY, JSON.stringify({ exp: Date.now() + LS_TTL })); } catch (e) {}
+    }
+    if (isSnoozed()) { banner.remove(); return; }
     var dismiss = $('[data-snbd-migration-dismiss]', banner);
     var countdown = $('[data-snbd-migration-countdown]', banner);
     var link = $('[data-snbd-migration-link]', banner);
     var seconds = parseInt(banner.getAttribute('data-redirect-delay'), 10) || 0;
-    if (seconds <= 0) return;
     var timer;
-    function stopRedirect() { if (timer) window.clearInterval(timer); banner.remove(); }
+    function stopRedirect() { if (timer) window.clearInterval(timer); snooze(); banner.remove(); }
     if (dismiss) dismiss.addEventListener('click', stopRedirect);
     if (link) link.addEventListener('click', function () { if (timer) window.clearInterval(timer); });
+    if (seconds <= 0) return;
     timer = window.setInterval(function () {
       seconds -= 1;
       if (countdown) countdown.textContent = seconds + 's';
